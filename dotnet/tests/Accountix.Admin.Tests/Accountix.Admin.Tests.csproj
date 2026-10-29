@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The host: every module next to the tests, as deployed, and Accountix.Web.dll for the command-line test. -->
+    <ProjectReference Include="..\..\src\Accountix.Web\Accountix.Web.csproj" />
+    <ProjectReference Include="..\..\src\Accountix.Admin\Accountix.Admin.csproj" />
+    <ProjectReference Include="..\Accountix.TestSupport\Accountix.TestSupport.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,18 @@
+@model IReadOnlyList<Accountix.Accounting.Controllers.RegisterRow>
+@using System.Globalization
+@* Voucher register rows only (no tbody), for the page and the chunked data endpoint. *@
+@foreach (var r in Model)
+{
+<tr>
+  <td>@r.Date.ToString("dd MMM yyyy", CultureInfo.InvariantCulture)</td>
+  <td><a class="vnum" href="/accounting/vouchers/@r.Id/preview" target="_blank" title="Open full voucher (print, PDF, Excel)">@r.Number</a></td>
+  <td>@r.Description</td>
+  <td class="num">@Html.Amount(r.Debit, 0)</td>
+  <td class="num">@Html.Amount(r.Credit, 0)</td>
+  <td class="row-view no-print"><a href="/accounting/vouchers/@r.Id/preview" target="_blank" class="btn btn-sm btn-outline">View</a></td>
+</tr>
+}
+@if (Model.Count == 0)
+{
+<tr><td colspan="6" style="text-align:center;color:var(--muted)">No vouchers found for this filter</td></tr>
+}

@@ -1,0 +1,106 @@
+@model DigitalFilesController.ProfileModel
+@{
+    ViewData["Title"] = "Employee Profile - Accountix ERP";
+    var emp = Model.Emp;
+    static string Or(string? v) => string.IsNullOrEmpty(v) ? "-" : v;
+}
+<div class="page-header">
+    <h1>Digital Personnel File</h1>
+    <p class="subtitle">@emp.FullName (@emp.EmployeeCode)</p>
+</div>
+<div class="tab-nav mb-20">
+    <button class="tab-btn active" data-tab="core">HR Core</button>
+    <button class="tab-btn" data-tab="docs">Documents</button>
+    <button class="tab-btn" data-tab="operations">Operations</button>
+    <button class="tab-btn" data-tab="finance">Finance</button>
+    <button class="tab-btn" data-tab="performance">Performance</button>
+</div>
+
+<div class="tab-content" id="tab-core">
+    <div class="card">
+        <div class="card-header">Personal Information</div>
+        <table>
+            <tr><td style="font-weight:600;width:180px;">Full Name</td><td>@emp.FullName</td></tr>
+            <tr><td style="font-weight:600;">Employee Code</td><td>@emp.EmployeeCode</td></tr>
+            <tr><td style="font-weight:600;">Email</td><td>@emp.Email</td></tr>
+            <tr><td style="font-weight:600;">Designation</td><td>@Or(Model.Designation)</td></tr>
+            <tr><td style="font-weight:600;">Department</td><td>@Or(Model.Department)</td></tr>
+            <tr><td style="font-weight:600;">Manager</td><td>@(Model.ManagerName ?? "-")</td></tr>
+            <tr><td style="font-weight:600;">Date of Joining</td><td>@Py.Date(emp.DateOfJoining)</td></tr>
+            <tr><td style="font-weight:600;">Phone</td><td>@Or(emp.Phone)</td></tr>
+            <tr><td style="font-weight:600;">CNIC</td><td>@Or(emp.Cnic)</td></tr>
+            <tr><td style="font-weight:600;">Address</td><td>@Or(emp.Address)</td></tr>
+        </table>
+    </div>
+</div>
+
+<div class="tab-content hidden" id="tab-docs">
+    <div class="card">
+        <div class="card-header">Documents (@Model.Files.Count)</div>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Title</th><th>Category</th><th>File</th><th>Expiry</th><th>Verified</th><th></th></tr></thead>
+                <tbody>
+                    @foreach (var f in Model.Files)
+                    {
+                    <tr>
+                        <td>@f.Title</td>
+                        <td>@(f.Category ?? "-")</td>
+                        <td>@f.OriginalName</td>
+                        <td>@(f.ExpiryDate is null ? "-" : Py.Date(f.ExpiryDate))</td>
+                        <td>@(f.IsVerified ? "Yes" : "No")</td>
+                        <td><a href="/digital-files/download/@f.Id" class="btn btn-sm btn-outline">Download</a></td>
+                    </tr>
+                    }
+                    @if (Model.Files.Count == 0)
+                    {
+                    <tr><td colspan="6" class="text-center" style="color:var(--muted);">No documents</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="tab-content hidden" id="tab-operations">
+    <div class="card">
+        <div class="card-header">Attendance & Timesheets</div>
+        <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);">
+            <div class="stat-card"><div class="stat-label">Attendance Records</div><div class="stat-value">@Model.AttendanceCount</div></div>
+            <div class="stat-card"><div class="stat-label">Approved Timesheets</div><div class="stat-value">@Model.TimesheetCount</div></div>
+        </div>
+    </div>
+</div>
+
+<div class="tab-content hidden" id="tab-finance">
+    <div class="card">
+        <div class="card-header">Payroll & Banking</div>
+        <div class="stats-grid" style="grid-template-columns:repeat(2,1fr);">
+            <div class="stat-card"><div class="stat-label">Salary Slips</div><div class="stat-value">@Model.SlipCount</div></div>
+        </div>
+        <table>
+            <tr><td style="font-weight:600;">Bank Name</td><td>@Or(emp.BankName)</td></tr>
+            <tr><td style="font-weight:600;">Account Title</td><td>@Or(emp.BankAccountTitle)</td></tr>
+            <tr><td style="font-weight:600;">Account Number</td><td>@Or(emp.BankAccountNumber)</td></tr>
+        </table>
+    </div>
+</div>
+
+<div class="tab-content hidden" id="tab-performance">
+    <div class="card">
+        <div class="card-header">Performance Reviews</div>
+        <div class="stat-card"><div class="stat-label">Reviews Completed</div><div class="stat-value">@Model.ReviewCount</div></div>
+    </div>
+</div>
+@section Scripts {
+<script>
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+        document.getElementById('tab-' + this.dataset.tab).classList.remove('hidden');
+    });
+});
+</script>
+}

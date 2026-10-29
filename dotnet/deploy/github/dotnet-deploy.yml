@@ -1,0 +1,108 @@
+# Build, test and deploy the .NET host to Azure App Service.
+#
+# Kept under dotnet/deploy/github/ on purpose, so nothing runs yet. To switch
+# it on (docs/DEPLOY.md, "CI/CD"): copy it to .github/workflows/, create the
+# GitHub environment "production" with required reviewers, and add the
+# secrets AZURE_CLIENT_ID / AZURE_TENANT_ID / AZURE_SUBSCRIPTION_ID (an Entra
+# app with a federated credential for this repository: no stored password)
+# and the variables AZURE_RG and AZURE_WEBAPP.
+#
+# Flow: build + tests -> publish (ReadyToRun; /static ships in it from src/Accountix.Web.Shared/static)
+# -> deploy to the staging slot -> health check there -> swap into production
+# -> health check -> swap back on failure. Alembic migrations are NOT run here:
+# the Python app owns the schema and runs them when it deploys (docs/CUTOVER.md).
+name: dotnet-deploy
+
+on:
+  push:
+    branches: [main]
+    paths: ['dotnet/**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write          # OIDC sign-in to Azure
+
+concurrency:
+  group: dotnet-deploy
+  cancel-in-progress: false
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+  DOTNET_NOLOGO: '1'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Build
+        run: dotnet build dotnet/Accountix.slnx -c Release
+
+      # Tests that need the reference database (tools/reference.json) skip
+      # here; the unit tests, rights coverage and route-table checks run.
+      - name: Test
+        run: dotnet test dotnet/Accountix.slnx -c Release --no-build --logger "trx" --results-directory TestResults
+
+      - name: Publish
+        run: |
+          dotnet publish dotnet/src/Accountix.Web/Accountix.Web.csproj -c Release -r linux-x64 \
+            --self-contained false -p:PublishReadyToRun=true -o publish
+          test -f publish/Accountix.Web.dll && test -f publish/static/css/app.css
+          (cd publish && zip -qr ../app.zip .)
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app
+          path: app.zip
+          retention-days: 30
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: app
+
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy to the staging slot
+        run: |
+          az webapp deploy -g "${{ vars.AZURE_RG }}" -n "${{ vars.AZURE_WEBAPP }}" --slot staging \
+            --src-path app.zip --type zip --async false
+
+      - name: Health check on staging
+        run: |
+          host=$(az webapp show -g "${{ vars.AZURE_RG }}" -n "${{ vars.AZURE_WEBAPP }}" --slot staging --query defaultHostName -o tsv)
+          for i in $(seq 1 30); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "https://$host/net/health" || true)
+            [ "$code" = "200" ] && exit 0
+            sleep 10
+          done
+          echo "staging never became healthy"; exit 1
+
+      - name: Swap staging into production
+        run: az webapp deployment slot swap -g "${{ vars.AZURE_RG }}" -n "${{ vars.AZURE_WEBAPP }}" --slot staging --target-slot production
+
+      - name: Health check on production (swap back on failure)
+        run: |
+          host=$(az webapp show -g "${{ vars.AZURE_RG }}" -n "${{ vars.AZURE_WEBAPP }}" --query defaultHostName -o tsv)
+          for i in $(seq 1 12); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "https://$host/net/health" || true)
+            [ "$code" = "200" ] && exit 0
+            sleep 10
+          done
+          echo "production unhealthy after swap: swapping back"
+          az webapp deployment slot swap -g "${{ vars.AZURE_RG }}" -n "${{ vars.AZURE_WEBAPP }}" --slot staging --target-slot production
+          exit 1

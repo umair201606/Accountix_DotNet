@@ -1,0 +1,238 @@
+{
+  "responses": [
+    {
+      "step": 0,
+      "status": 400,
+      "body": "{\"error\":\"Provide proper HS Code\",\"ok\":false,\"record_id\":\"rec_x\"}\n",
+      "location": null
+    },
+    {
+      "step": 1,
+      "status": 400,
+      "body": "{\"error\":\"FBR answered 502: <html><body><h1>502 Bad Gateway</h1>nginx</body></html>\",\"ok\":false,\"record_id\":\"rec_x\"}\n",
+      "location": null
+    },
+    {
+      "step": 2,
+      "status": 400,
+      "body": "{\"error\":\"{'validationResponse': {'statusCode': '01', 'status': 'Invalid', 'invoiceStatuses': [{'itemSNo': '1', 'errorCode': '0052', 'error': 'HS \\u201cx\\u201d'}]}, 'dated': '2026-10-29 10:00:01'}\",\"ok\":false,\"record_id\":\"rec_x\"}\n",
+      "location": null
+    },
+    {
+      "step": 3,
+      "status": 200,
+      "body": "{\"fbr_invoice_number\":\"7000007DI1747119701593\",\"message\":\"Retry successful.\",\"ok\":true,\"record_id\":\"rec_x\"}\n",
+      "location": null
+    },
+    {
+      "step": 4,
+      "status": 400,
+      "body": "{\"error\":\"Invoice already submitted successfully to FBR\",\"ok\":false}\n",
+      "location": null
+    },
+    {
+      "step": 5,
+      "status": 400,
+      "body": "{\"error\":\"Invoice already submitted successfully to FBR\",\"ok\":false}\n",
+      "location": null
+    },
+    {
+      "step": 6,
+      "status": 200,
+      "body": "{\"data\":{\"amount\":1.5,\"n\":10,\"status\":\"Valid\"},\"ok\":true}\n",
+      "location": null
+    },
+    {
+      "step": 7,
+      "status": 200,
+      "body": "{\"attempt_count\":4,\"error_message\":\"\",\"fbr_invoice_number\":\"7000007DI1747119701593\",\"fbr_submission_id\":\"S-77\",\"id\":\"rec_x\",\"inv_invoice_id\":\"x\",\"invoice_type\":\"S\",\"request_json\":\"{\\n  \\\"fbrInvoice\\\": {\\n    \\\"sellerNTN\\\": \\\"1234567-8\\\",\\n    \\\"sellerSTRN\\\": \\\"32-77-8761-234-55\\\",\\n    \\\"sellerCNIC\\\": \\\"3520212345671\\\",\\n    \\\"sellerName\\\": \\\"Owner B\\\",\\n    \\\"sellerBusinessName\\\": \\\"R\\\\u00e9f B (Pvt) Ltd \\\\u2014 \\\\u201cLahore\\\\u201d\\\",\\n    \\\"sellerAddress\\\": \\\"12 Mall Road,\\\\nLahore\\\",\\n    \\\"sellerPhoneNumber\\\": \\\"0300-1234567\\\",\\n    \\\"sellerEmail\\\": \\\"fbr@ref-b.test\\\",\\n    \\\"buyerNTN\\\": \\\"NTN-778899\\\",\\n    \\\"buyerSTRN\\\": \\\"\\\",\\n    \\\"buyerCNIC\\\": \\\"\\\",\\n    \\\"buyerName\\\": \\\"FBR Buyer\\\",\\n    \\\"buyerAddress\\\": \\\"Shop 4, Hall Road \\\\u2014 Lahore\\\",\\n    \\\"buyerPhoneNumber\\\": \\\"042-111\\\",\\n    \\\"buyerEmail\\\": \\\"buyer@ref.test\\\",\\n    \\\"invoiceNumber\\\": \\\"SI-PAR-TAG-X\\\",\\n    \\\"invoiceDate\\\": \\\"2026-05-12 10:30:00\\\",\\n    \\\"invoiceType\\\": \\\"S\\\",\\n    \\\"totalSaleValue\\\": 3262.67,\\n    \\\"totalTaxCharged\\\": 587.28,\\n    \\\"totalBillAmount\\\": 3980.46,\\n    \\\"discount\\\": 0.01,\\n    \\\"furtherTax\\\": 130.51,\\n    \\\"withholdingTax\\\": 0.0,\\n    \\\"totalOtherCharges\\\": 250.0,\\n    \\\"otherCharges\\\": [\\n      {\\n        \\\"chargeType\\\": \\\"Freight\\\",\\n        \\\"amount\\\": 250.0,\\n        \\\"inSalesTaxBase\\\": true\\n      }\\n    ],\\n    \\\"deliveryCharges\\\": 0,\\n    \\\"installationCharges\\\": 0,\\n    \\\"paymentInfo\\\": {\\n      \\\"paymentMode\\\": \\\"O\\\",\\n      \\\"paymentStatus\\\": \\\"UNPAID\\\"\\n    },\\n    \\\"items\\\": [\\n      {\\n        \\\"itemCode\\\": \\\"FBR-SI-PAR-TAG-X-1\\\",\\n        \\\"itemName\\\": \\\"Inverter \\\\u2014 5kW\\\",\\n        \\\"quantity\\\": 2.0,\\n        \\\"unitOfMeasurement\\\": \\\"pcs\\\",\\n        \\\"unitValue\\\": 1500.0,\\n        \\\"totalAmount\\\": 3000.0,\\n        \\\"discountAmount\\\": 0,\\n        \\\"taxRate\\\": 18.0,\\n        \\\"taxCharged\\\": 540.0,\\n        \\\"hSCode\\\": \\\"8541.4000\\\",\\n        \\\"otherCharges\\\": 0\\n      },\\n      {\\n        \\\"itemCode\\\": \\\"FBR-SI-PAR-TAG-X-2\\\",\\n        \\\"itemName\\\": \\\"Solar part 2\\\",\\n        \\\"quantity\\\": 1.0,\\n        \\\"unitOfMeasurement\\\": \\\"pcs\\\",\\n        \\\"unitValue\\\": 2.675,\\n        \\\"totalAmount\\\": 2.67,\\n        \\\"discountAmount\\\": 0.01,\\n        \\\"taxRate\\\": 18.0,\\n        \\\"taxCharged\\\": 0.48,\\n        \\\"hSCode\\\": \\\"8541.4000\\\",\\n        \\\"otherCharges\\\": 0\\n      }\\n    ]\\n  }\\n}\",\"response_json\":\"{\\n  \\\"fbrInvoiceNumber\\\": \\\"7000007DI1747119701593\\\",\\n  \\\"submissionId\\\": \\\"S-77\\\",\\n  \\\"dated\\\": \\\"2026-10-29 10:00:02\\\",\\n  \\\"validationResponse\\\": {\\n    \\\"statusCode\\\": \\\"00\\\",\\n    \\\"status\\\": \\\"Valid\\\"\\n  }\\n}\",\"status\":\"success\",\"submitted_at\":\"9999-99-99 99:99:99\",\"submitted_by\":\"owner_b\"}\n",
+      "location": null
+    },
+    {
+      "step": 8,
+      "status": 400,
+      "body": "{\"data\":{\"error\":{\"code\":\"0052\",\"detail\":\"x\"},\"z\":1},\"error\":{\"code\":\"0052\",\"detail\":\"x\"},\"ok\":false}\n",
+      "location": null
+    },
+    {
+      "step": 9,
+      "status": 400,
+      "body": "{\"data\":[1,\"two\"],\"error\":\"[1, 'two']\",\"ok\":false}\n",
+      "location": null
+    },
+    {
+      "step": 10,
+      "status": 200,
+      "body": "{\"data\":{\"validationResponse\":{\"status\":\"Valid\",\"statusCode\":\"00\"}},\"message\":\"Invoice validated successfully.\",\"ok\":true}\n",
+      "location": null
+    },
+    {
+      "step": 11,
+      "status": 500,
+      "body": "{\"error\":\"Failed to build payload: 'NoneType' object has no attribute 'upper'\",\"ok\":false}\n",
+      "location": null
+    },
+    {
+      "step": 12,
+      "status": 400,
+      "body": "{\"error\":\"Only approved invoices can be submitted to FBR\",\"ok\":false}\n",
+      "location": null
+    },
+    {
+      "step": 13,
+      "status": 200,
+      "body": "{\"fbr_invoice_number\":\"123\",\"message\":\"Invoice submitted to FBR successfully.\",\"ok\":true,\"record_id\":\"rec_w\"}\n",
+      "location": null
+    },
+    {
+      "step": 14,
+      "status": 200,
+      "body": "{\"fbr_invoice_number\":\"\",\"message\":\"Invoice submitted to FBR successfully.\",\"ok\":true,\"record_id\":\"rec_v\"}\n",
+      "location": null
+    },
+    {
+      "step": 15,
+      "status": 200,
+      "body": "{\"message\":\"Pending\",\"ok\":true,\"status\":\"success\"}\n",
+      "location": null
+    },
+    {
+      "step": 16,
+      "status": 404,
+      "body": "{\"error\":\"No FBR record found\",\"ok\":false}\n",
+      "location": null
+    }
+  ],
+  "sent": [
+    {
+      "method": "POST",
+      "url": "https://sandbox.fbr.gov.pk/di/api/sales/send",
+      "body": "{\"fbrInvoice\": {\"sellerNTN\": \"1234567-8\", \"sellerSTRN\": \"32-77-8761-234-55\", \"sellerCNIC\": \"3520212345671\", \"sellerName\": \"Owner B\", \"sellerBusinessName\": \"R\\u00e9f B (Pvt) Ltd \\u2014 \\u201cLahore\\u201d\", \"sellerAddress\": \"12 Mall Road,\\nLahore\", \"sellerPhoneNumber\": \"0300-1234567\", \"sellerEmail\": \"fbr@ref-b.test\", \"buyerNTN\": \"NTN-778899\", \"buyerSTRN\": \"\", \"buyerCNIC\": \"\", \"buyerName\": \"FBR Buyer\", \"buyerAddress\": \"Shop 4, Hall Road \\u2014 Lahore\", \"buyerPhoneNumber\": \"042-111\", \"buyerEmail\": \"buyer@ref.test\", \"invoiceNumber\": \"SI-PAR-TAG-X\", \"invoiceDate\": \"2026-05-12 10:30:00\", \"invoiceType\": \"S\", \"totalSaleValue\": 3262.67, \"totalTaxCharged\": 587.28, \"totalBillAmount\": 3980.46, \"discount\": 0.01, \"furtherTax\": 130.51, \"withholdingTax\": 0.0, \"totalOtherCharges\": 250.0, \"otherCharges\": [{\"chargeType\": \"Freight\", \"amount\": 250.0, \"inSalesTaxBase\": true}], \"deliveryCharges\": 0, \"installationCharges\": 0, \"paymentInfo\": {\"paymentMode\": \"O\", \"paymentStatus\": \"UNPAID\"}, \"items\": [{\"itemCode\": \"FBR-SI-PAR-TAG-X-1\", \"itemName\": \"Inverter \\u2014 5kW\", \"quantity\": 2.0, \"unitOfMeasurement\": \"pcs\", \"unitValue\": 1500.0, \"totalAmount\": 3000.0, \"discountAmount\": 0, \"taxRate\": 18.0, \"taxCharged\": 540.0, \"hSCode\": \"8541.4000\", \"otherCharges\": 0}, {\"itemCode\": \"FBR-SI-PAR-TAG-X-2\", \"itemName\": \"Solar part 2\", \"quantity\": 1.0, \"unitOfMeasurement\": \"pcs\", \"unitValue\": 2.675, \"totalAmount\": 2.67, \"discountAmount\": 0.01, \"taxRate\": 18.0, \"taxCharged\": 0.48, \"hSCode\": \"8541.4000\", \"otherCharges\": 0}]}}",
+      "auth": "Bearer test-token"
+    },
+    {
+      "method": "POST",
+      "url": "https://sandbox.fbr.gov.pk/di/api/sales/send",
+      "body": "{\"fbrInvoice\": {\"sellerNTN\": \"1234567-8\", \"sellerSTRN\": \"32-77-8761-234-55\", \"sellerCNIC\": \"3520212345671\", \"sellerName\": \"Owner B\", \"sellerBusinessName\": \"R\\u00e9f B (Pvt) Ltd \\u2014 \\u201cLahore\\u201d\", \"sellerAddress\": \"12 Mall Road,\\nLahore\", \"sellerPhoneNumber\": \"0300-1234567\", \"sellerEmail\": \"fbr@ref-b.test\", \"buyerNTN\": \"NTN-778899\", \"buyerSTRN\": \"\", \"buyerCNIC\": \"\", \"buyerName\": \"FBR Buyer\", \"buyerAddress\": \"Shop 4, Hall Road \\u2014 Lahore\", \"buyerPhoneNumber\": \"042-111\", \"buyerEmail\": \"buyer@ref.test\", \"invoiceNumber\": \"SI-PAR-TAG-X\", \"invoiceDate\": \"2026-05-12 10:30:00\", \"invoiceType\": \"S\", \"totalSaleValue\": 3262.67, \"totalTaxCharged\": 587.28, \"totalBillAmount\": 3980.46, \"discount\": 0.01, \"furtherTax\": 130.51, \"withholdingTax\": 0.0, \"totalOtherCharges\": 250.0, \"otherCharges\": [{\"chargeType\": \"Freight\", \"amount\": 250.0, \"inSalesTaxBase\": true}], \"deliveryCharges\": 0, \"installationCharges\": 0, \"paymentInfo\": {\"paymentMode\": \"O\", \"paymentStatus\": \"UNPAID\"}, \"items\": [{\"itemCode\": \"FBR-SI-PAR-TAG-X-1\", \"itemName\": \"Inverter \\u2014 5kW\", \"quantity\": 2.0, \"unitOfMeasurement\": \"pcs\", \"unitValue\": 1500.0, \"totalAmount\": 3000.0, \"discountAmount\": 0, \"taxRate\": 18.0, \"taxCharged\": 540.0, \"hSCode\": \"8541.4000\", \"otherCharges\": 0}, {\"itemCode\": \"FBR-SI-PAR-TAG-X-2\", \"itemName\": \"Solar part 2\", \"quantity\": 1.0, \"unitOfMeasurement\": \"pcs\", \"unitValue\": 2.675, \"totalAmount\": 2.67, \"discountAmount\": 0.01, \"taxRate\": 18.0, \"taxCharged\": 0.48, \"hSCode\": \"8541.4000\", \"otherCharges\": 0}]}}",
+      "auth": "Bearer test-token"
+    },
+    {
+      "method": "POST",
+      "url": "https://sandbox.fbr.gov.pk/di/api/sales/send",
+      "body": "{\"fbrInvoice\": {\"sellerNTN\": \"1234567-8\", \"sellerSTRN\": \"32-77-8761-234-55\", \"sellerCNIC\": \"3520212345671\", \"sellerName\": \"Owner B\", \"sellerBusinessName\": \"R\\u00e9f B (Pvt) Ltd \\u2014 \\u201cLahore\\u201d\", \"sellerAddress\": \"12 Mall Road,\\nLahore\", \"sellerPhoneNumber\": \"0300-1234567\", \"sellerEmail\": \"fbr@ref-b.test\", \"buyerNTN\": \"NTN-778899\", \"buyerSTRN\": \"\", \"buyerCNIC\": \"\", \"buyerName\": \"FBR Buyer\", \"buyerAddress\": \"Shop 4, Hall Road \\u2014 Lahore\", \"buyerPhoneNumber\": \"042-111\", \"buyerEmail\": \"buyer@ref.test\", \"invoiceNumber\": \"SI-PAR-TAG-X\", \"invoiceDate\": \"2026-05-12 10:30:00\", \"invoiceType\": \"S\", \"totalSaleValue\": 3262.67, \"totalTaxCharged\": 587.28, \"totalBillAmount\": 3980.46, \"discount\": 0.01, \"furtherTax\": 130.51, \"withholdingTax\": 0.0, \"totalOtherCharges\": 250.0, \"otherCharges\": [{\"chargeType\": \"Freight\", \"amount\": 250.0, \"inSalesTaxBase\": true}], \"deliveryCharges\": 0, \"installationCharges\": 0, \"paymentInfo\": {\"paymentMode\": \"O\", \"paymentStatus\": \"UNPAID\"}, \"items\": [{\"itemCode\": \"FBR-SI-PAR-TAG-X-1\", \"itemName\": \"Inverter \\u2014 5kW\", \"quantity\": 2.0, \"unitOfMeasurement\": \"pcs\", \"unitValue\": 1500.0, \"totalAmount\": 3000.0, \"discountAmount\": 0, \"taxRate\": 18.0, \"taxCharged\": 540.0, \"hSCode\": \"8541.4000\", \"otherCharges\": 0}, {\"itemCode\": \"FBR-SI-PAR-TAG-X-2\", \"itemName\": \"Solar part 2\", \"quantity\": 1.0, \"unitOfMeasurement\": \"pcs\", \"unitValue\": 2.675, \"totalAmount\": 2.67, \"discountAmount\": 0.01, \"taxRate\": 18.0, \"taxCharged\": 0.48, \"hSCode\": \"8541.4000\", \"otherCharges\": 0}]}}",
+      "auth": "Bearer test-token"
+    },
+    {
+      "method": "POST",
+      "url": "https://sandbox.fbr.gov.pk/di/api/sales/send",
+      "body": "{\"fbrInvoice\": {\"sellerNTN\": \"1234567-8\", \"sellerSTRN\": \"32-77-8761-234-55\", \"sellerCNIC\": \"3520212345671\", \"sellerName\": \"Owner B\", \"sellerBusinessName\": \"R\\u00e9f B (Pvt) Ltd \\u2014 \\u201cLahore\\u201d\", \"sellerAddress\": \"12 Mall Road,\\nLahore\", \"sellerPhoneNumber\": \"0300-1234567\", \"sellerEmail\": \"fbr@ref-b.test\", \"buyerNTN\": \"NTN-778899\", \"buyerSTRN\": \"\", \"buyerCNIC\": \"\", \"buyerName\": \"FBR Buyer\", \"buyerAddress\": \"Shop 4, Hall Road \\u2014 Lahore\", \"buyerPhoneNumber\": \"042-111\", \"buyerEmail\": \"buyer@ref.test\", \"invoiceNumber\": \"SI-PAR-TAG-X\", \"invoiceDate\": \"2026-05-12 10:30:00\", \"invoiceType\": \"S\", \"totalSaleValue\": 3262.67, \"totalTaxCharged\": 587.28, \"totalBillAmount\": 3980.46, \"discount\": 0.01, \"furtherTax\": 130.51, \"withholdingTax\": 0.0, \"totalOtherCharges\": 250.0, \"otherCharges\": [{\"chargeType\": \"Freight\", \"amount\": 250.0, \"inSalesTaxBase\": true}], \"deliveryCharges\": 0, \"installationCharges\": 0, \"paymentInfo\": {\"paymentMode\": \"O\", \"paymentStatus\": \"UNPAID\"}, \"items\": [{\"itemCode\": \"FBR-SI-PAR-TAG-X-1\", \"itemName\": \"Inverter \\u2014 5kW\", \"quantity\": 2.0, \"unitOfMeasurement\": \"pcs\", \"unitValue\": 1500.0, \"totalAmount\": 3000.0, \"discountAmount\": 0, \"taxRate\": 18.0, \"taxCharged\": 540.0, \"hSCode\": \"8541.4000\", \"otherCharges\": 0}, {\"itemCode\": \"FBR-SI-PAR-TAG-X-2\", \"itemName\": \"Solar part 2\", \"quantity\": 1.0, \"unitOfMeasurement\": \"pcs\", \"unitValue\": 2.675, \"totalAmount\": 2.67, \"discountAmount\": 0.01, \"taxRate\": 18.0, \"taxCharged\": 0.48, \"hSCode\": \"8541.4000\", \"otherCharges\": 0}]}}",
+      "auth": "Bearer test-token"
+    },
+    {
+      "method": "GET",
+      "url": "https://sandbox.fbr.gov.pk/di/api/sales/7000007DI1747119701593",
+      "body": null,
+      "auth": "Bearer test-token"
+    },
+    {
+      "method": "POST",
+      "url": "https://sandbox.fbr.gov.pk/di/api/sales/validate",
+      "body": "{\"fbrInvoice\": {\"sellerNTN\": \"1234567-8\", \"sellerSTRN\": \"32-77-8761-234-55\", \"sellerCNIC\": \"3520212345671\", \"sellerName\": \"Owner B\", \"sellerBusinessName\": \"R\\u00e9f B (Pvt) Ltd \\u2014 \\u201cLahore\\u201d\", \"sellerAddress\": \"12 Mall Road,\\nLahore\", \"sellerPhoneNumber\": \"0300-1234567\", \"sellerEmail\": \"fbr@ref-b.test\", \"buyerNTN\": \"NTN-778899\", \"buyerSTRN\": \"\", \"buyerCNIC\": \"\", \"buyerName\": \"FBR Buyer\", \"buyerAddress\": \"Shop 4, Hall Road \\u2014 Lahore\", \"buyerPhoneNumber\": \"042-111\", \"buyerEmail\": \"buyer@ref.test\", \"invoiceNumber\": \"SI-PAR-TAG-X\", \"invoiceDate\": \"2026-05-12 10:30:00\", \"invoiceType\": \"S\", \"totalSaleValue\": 3262.67, \"totalTaxCharged\": 587.28, \"totalBillAmount\": 3980.46, \"discount\": 0.01, \"furtherTax\": 130.51, \"withholdingTax\": 0.0, \"totalOtherCharges\": 250.0, \"otherCharges\": [{\"chargeType\": \"Freight\", \"amount\": 250.0, \"inSalesTaxBase\": true}], \"deliveryCharges\": 0, \"installationCharges\": 0, \"paymentInfo\": {\"paymentMode\": \"O\", \"paymentStatus\": \"UNPAID\"}, \"items\": [{\"itemCode\": \"FBR-SI-PAR-TAG-X-1\", \"itemName\": \"Inverter \\u2014 5kW\", \"quantity\": 2.0, \"unitOfMeasurement\": \"pcs\", \"unitValue\": 1500.0, \"totalAmount\": 3000.0, \"discountAmount\": 0, \"taxRate\": 18.0, \"taxCharged\": 540.0, \"hSCode\": \"8541.4000\", \"otherCharges\": 0}, {\"itemCode\": \"FBR-SI-PAR-TAG-X-2\", \"itemName\": \"Solar part 2\", \"quantity\": 1.0, \"unitOfMeasurement\": \"pcs\", \"unitValue\": 2.675, \"totalAmount\": 2.67, \"discountAmount\": 0.01, \"taxRate\": 18.0, \"taxCharged\": 0.48, \"hSCode\": \"8541.4000\", \"otherCharges\": 0}]}}",
+      "auth": "Bearer test-token"
+    },
+    {
+      "method": "POST",
+      "url": "https://sandbox.fbr.gov.pk/di/api/sales/validate",
+      "body": "{\"fbrInvoice\": {\"sellerNTN\": \"1234567-8\", \"sellerSTRN\": \"32-77-8761-234-55\", \"sellerCNIC\": \"3520212345671\", \"sellerName\": \"Owner B\", \"sellerBusinessName\": \"R\\u00e9f B (Pvt) Ltd \\u2014 \\u201cLahore\\u201d\", \"sellerAddress\": \"12 Mall Road,\\nLahore\", \"sellerPhoneNumber\": \"0300-1234567\", \"sellerEmail\": \"fbr@ref-b.test\", \"buyerNTN\": \"NTN-778899\", \"buyerSTRN\": \"\", \"buyerCNIC\": \"\", \"buyerName\": \"FBR Buyer\", \"buyerAddress\": \"Shop 4, Hall Road \\u2014 Lahore\", \"buyerPhoneNumber\": \"042-111\", \"buyerEmail\": \"buyer@ref.test\", \"invoiceNumber\": \"SI-PAR-TAG-X\", \"invoiceDate\": \"2026-05-12 10:30:00\", \"invoiceType\": \"S\", \"totalSaleValue\": 3262.67, \"totalTaxCharged\": 587.28, \"totalBillAmount\": 3980.46, \"discount\": 0.01, \"furtherTax\": 130.51, \"withholdingTax\": 0.0, \"totalOtherCharges\": 250.0, \"otherCharges\": [{\"chargeType\": \"Freight\", \"amount\": 250.0, \"inSalesTaxBase\": true}], \"deliveryCharges\": 0, \"installationCharges\": 0, \"paymentInfo\": {\"paymentMode\": \"O\", \"paymentStatus\": \"UNPAID\"}, \"items\": [{\"itemCode\": \"FBR-SI-PAR-TAG-X-1\", \"itemName\": \"Inverter \\u2014 5kW\", \"quantity\": 2.0, \"unitOfMeasurement\": \"pcs\", \"unitValue\": 1500.0, \"totalAmount\": 3000.0, \"discountAmount\": 0, \"taxRate\": 18.0, \"taxCharged\": 540.0, \"hSCode\": \"8541.4000\", \"otherCharges\": 0}, {\"itemCode\": \"FBR-SI-PAR-TAG-X-2\", \"itemName\": \"Solar part 2\", \"quantity\": 1.0, \"unitOfMeasurement\": \"pcs\", \"unitValue\": 2.675, \"totalAmount\": 2.67, \"discountAmount\": 0.01, \"taxRate\": 18.0, \"taxCharged\": 0.48, \"hSCode\": \"8541.4000\", \"otherCharges\": 0}]}}",
+      "auth": "Bearer test-token"
+    },
+    {
+      "method": "POST",
+      "url": "https://sandbox.fbr.gov.pk/di/api/sales/validate",
+      "body": "{\"fbrInvoice\": {\"sellerNTN\": \"1234567-8\", \"sellerSTRN\": \"32-77-8761-234-55\", \"sellerCNIC\": \"3520212345671\", \"sellerName\": \"Owner B\", \"sellerBusinessName\": \"R\\u00e9f B (Pvt) Ltd \\u2014 \\u201cLahore\\u201d\", \"sellerAddress\": \"12 Mall Road,\\nLahore\", \"sellerPhoneNumber\": \"0300-1234567\", \"sellerEmail\": \"fbr@ref-b.test\", \"buyerNTN\": \"NTN-778899\", \"buyerSTRN\": \"\", \"buyerCNIC\": \"\", \"buyerName\": \"FBR Buyer\", \"buyerAddress\": \"Shop 4, Hall Road \\u2014 Lahore\", \"buyerPhoneNumber\": \"042-111\", \"buyerEmail\": \"buyer@ref.test\", \"invoiceNumber\": \"SI-PAR-TAG-X\", \"invoiceDate\": \"2026-05-12 10:30:00\", \"invoiceType\": \"S\", \"totalSaleValue\": 3262.67, \"totalTaxCharged\": 587.28, \"totalBillAmount\": 3980.46, \"discount\": 0.01, \"furtherTax\": 130.51, \"withholdingTax\": 0.0, \"totalOtherCharges\": 250.0, \"otherCharges\": [{\"chargeType\": \"Freight\", \"amount\": 250.0, \"inSalesTaxBase\": true}], \"deliveryCharges\": 0, \"installationCharges\": 0, \"paymentInfo\": {\"paymentMode\": \"O\", \"paymentStatus\": \"UNPAID\"}, \"items\": [{\"itemCode\": \"FBR-SI-PAR-TAG-X-1\", \"itemName\": \"Inverter \\u2014 5kW\", \"quantity\": 2.0, \"unitOfMeasurement\": \"pcs\", \"unitValue\": 1500.0, \"totalAmount\": 3000.0, \"discountAmount\": 0, \"taxRate\": 18.0, \"taxCharged\": 540.0, \"hSCode\": \"8541.4000\", \"otherCharges\": 0}, {\"itemCode\": \"FBR-SI-PAR-TAG-X-2\", \"itemName\": \"Solar part 2\", \"quantity\": 1.0, \"unitOfMeasurement\": \"pcs\", \"unitValue\": 2.675, \"totalAmount\": 2.67, \"discountAmount\": 0.01, \"taxRate\": 18.0, \"taxCharged\": 0.48, \"hSCode\": \"8541.4000\", \"otherCharges\": 0}]}}",
+      "auth": "Bearer test-token"
+    },
+    {
+      "method": "POST",
+      "url": "https://sandbox.fbr.gov.pk/di/api/sales/send",
+      "body": "{\"fbrInvoice\": {\"sellerNTN\": \"1234567-8\", \"sellerSTRN\": \"32-77-8761-234-55\", \"sellerCNIC\": \"3520212345671\", \"sellerName\": \"Owner B\", \"sellerBusinessName\": \"R\\u00e9f B (Pvt) Ltd \\u2014 \\u201cLahore\\u201d\", \"sellerAddress\": \"12 Mall Road,\\nLahore\", \"sellerPhoneNumber\": \"0300-1234567\", \"sellerEmail\": \"fbr@ref-b.test\", \"buyerNTN\": \"NTN-778899\", \"buyerSTRN\": \"\", \"buyerCNIC\": \"\", \"buyerName\": \"FBR Buyer\", \"buyerAddress\": \"Shop 4, Hall Road \\u2014 Lahore\", \"buyerPhoneNumber\": \"042-111\", \"buyerEmail\": \"buyer@ref.test\", \"invoiceNumber\": \"DN-PAR-TAG-W\", \"invoiceDate\": \"2026-05-12 10:30:00\", \"invoiceType\": \"DN\", \"totalSaleValue\": 0.3, \"totalTaxCharged\": 0.05, \"totalBillAmount\": 0.35, \"discount\": 0, \"furtherTax\": 0.0, \"withholdingTax\": 0.0, \"totalOtherCharges\": 0.0, \"otherCharges\": [], \"deliveryCharges\": 0, \"installationCharges\": 0, \"paymentInfo\": {\"paymentMode\": \"O\", \"paymentStatus\": \"UNPAID\"}, \"items\": [{\"itemCode\": \"FBR-DN-PAR-TAG-W-1\", \"itemName\": \"Solar part 1\", \"quantity\": 3.0, \"unitOfMeasurement\": \"pcs\", \"unitValue\": 0.1, \"totalAmount\": 0.3, \"discountAmount\": 0, \"taxRate\": 18.0, \"taxCharged\": 0.05, \"hSCode\": \"8541.4000\", \"otherCharges\": 0}]}}",
+      "auth": "Bearer test-token"
+    },
+    {
+      "method": "POST",
+      "url": "https://sandbox.fbr.gov.pk/di/api/sales/send",
+      "body": "{\"fbrInvoice\": {\"sellerNTN\": \"1234567-8\", \"sellerSTRN\": \"32-77-8761-234-55\", \"sellerCNIC\": \"3520212345671\", \"sellerName\": \"Owner B\", \"sellerBusinessName\": \"R\\u00e9f B (Pvt) Ltd \\u2014 \\u201cLahore\\u201d\", \"sellerAddress\": \"12 Mall Road,\\nLahore\", \"sellerPhoneNumber\": \"0300-1234567\", \"sellerEmail\": \"fbr@ref-b.test\", \"buyerNTN\": \"NTN-778899\", \"buyerSTRN\": \"\", \"buyerCNIC\": \"\", \"buyerName\": \"FBR Buyer\", \"buyerAddress\": \"Shop 4, Hall Road \\u2014 Lahore\", \"buyerPhoneNumber\": \"042-111\", \"buyerEmail\": \"buyer@ref.test\", \"invoiceNumber\": \"SI-PAR-TAG-V\", \"invoiceDate\": \"2026-05-12 10:30:00\", \"invoiceType\": \"S\", \"totalSaleValue\": 99.99, \"totalTaxCharged\": 18.0, \"totalBillAmount\": 117.99, \"discount\": 0, \"furtherTax\": 0.0, \"withholdingTax\": 0.0, \"totalOtherCharges\": 0.0, \"otherCharges\": [], \"deliveryCharges\": 0, \"installationCharges\": 0, \"paymentInfo\": {\"paymentMode\": \"O\", \"paymentStatus\": \"UNPAID\"}, \"items\": [{\"itemCode\": \"FBR-SI-PAR-TAG-V-1\", \"itemName\": \"Solar part 1\", \"quantity\": 1.0, \"unitOfMeasurement\": \"pcs\", \"unitValue\": 99.99, \"totalAmount\": 99.99, \"discountAmount\": 0, \"taxRate\": 0, \"taxCharged\": 0, \"hSCode\": \"8541.4000\", \"otherCharges\": 0}]}}",
+      "auth": "Bearer test-token"
+    }
+  ],
+  "rows": [
+    {
+      "invoice": "x",
+      "records": [
+        {
+          "company": "B",
+          "invoice": "x",
+          "fbr_invoice_number": "7000007DI1747119701593",
+          "fbr_submission_id": "S-77",
+          "status": "success",
+          "request_json": "{\n  \"fbrInvoice\": {\n    \"sellerNTN\": \"1234567-8\",\n    \"sellerSTRN\": \"32-77-8761-234-55\",\n    \"sellerCNIC\": \"3520212345671\",\n    \"sellerName\": \"Owner B\",\n    \"sellerBusinessName\": \"R\\u00e9f B (Pvt) Ltd \\u2014 \\u201cLahore\\u201d\",\n    \"sellerAddress\": \"12 Mall Road,\\nLahore\",\n    \"sellerPhoneNumber\": \"0300-1234567\",\n    \"sellerEmail\": \"fbr@ref-b.test\",\n    \"buyerNTN\": \"NTN-778899\",\n    \"buyerSTRN\": \"\",\n    \"buyerCNIC\": \"\",\n    \"buyerName\": \"FBR Buyer\",\n    \"buyerAddress\": \"Shop 4, Hall Road \\u2014 Lahore\",\n    \"buyerPhoneNumber\": \"042-111\",\n    \"buyerEmail\": \"buyer@ref.test\",\n    \"invoiceNumber\": \"SI-PAR-TAG-X\",\n    \"invoiceDate\": \"2026-05-12 10:30:00\",\n    \"invoiceType\": \"S\",\n    \"totalSaleValue\": 3262.67,\n    \"totalTaxCharged\": 587.28,\n    \"totalBillAmount\": 3980.46,\n    \"discount\": 0.01,\n    \"furtherTax\": 130.51,\n    \"withholdingTax\": 0.0,\n    \"totalOtherCharges\": 250.0,\n    \"otherCharges\": [\n      {\n        \"chargeType\": \"Freight\",\n        \"amount\": 250.0,\n        \"inSalesTaxBase\": true\n      }\n    ],\n    \"deliveryCharges\": 0,\n    \"installationCharges\": 0,\n    \"paymentInfo\": {\n      \"paymentMode\": \"O\",\n      \"paymentStatus\": \"UNPAID\"\n    },\n    \"items\": [\n      {\n        \"itemCode\": \"FBR-SI-PAR-TAG-X-1\",\n        \"itemName\": \"Inverter \\u2014 5kW\",\n        \"quantity\": 2.0,\n        \"unitOfMeasurement\": \"pcs\",\n        \"unitValue\": 1500.0,\n        \"totalAmount\": 3000.0,\n        \"discountAmount\": 0,\n        \"taxRate\": 18.0,\n        \"taxCharged\": 540.0,\n        \"hSCode\": \"8541.4000\",\n        \"otherCharges\": 0\n      },\n      {\n        \"itemCode\": \"FBR-SI-PAR-TAG-X-2\",\n        \"itemName\": \"Solar part 2\",\n        \"quantity\": 1.0,\n        \"unitOfMeasurement\": \"pcs\",\n        \"unitValue\": 2.675,\n        \"totalAmount\": 2.67,\n        \"discountAmount\": 0.01,\n        \"taxRate\": 18.0,\n        \"taxCharged\": 0.48,\n        \"hSCode\": \"8541.4000\",\n        \"otherCharges\": 0\n      }\n    ]\n  }\n}",
+          "response_json": "{\n  \"fbrInvoiceNumber\": \"7000007DI1747119701593\",\n  \"submissionId\": \"S-77\",\n  \"dated\": \"2026-10-29 10:00:02\",\n  \"validationResponse\": {\n    \"statusCode\": \"00\",\n    \"status\": \"Valid\"\n  }\n}",
+          "error_message": "",
+          "invoice_type": "S",
+          "attempt_count": 4,
+          "submitted_by": "owner_b",
+          "submitted_at": true,
+          "created_at": true
+        }
+      ]
+    },
+    {
+      "invoice": "y",
+      "records": []
+    },
+    {
+      "invoice": "z",
+      "records": []
+    },
+    {
+      "invoice": "w",
+      "records": [
+        {
+          "company": "B",
+          "invoice": "w",
+          "fbr_invoice_number": "123",
+          "fbr_submission_id": "",
+          "status": "success",
+          "request_json": "{\n  \"fbrInvoice\": {\n    \"sellerNTN\": \"1234567-8\",\n    \"sellerSTRN\": \"32-77-8761-234-55\",\n    \"sellerCNIC\": \"3520212345671\",\n    \"sellerName\": \"Owner B\",\n    \"sellerBusinessName\": \"R\\u00e9f B (Pvt) Ltd \\u2014 \\u201cLahore\\u201d\",\n    \"sellerAddress\": \"12 Mall Road,\\nLahore\",\n    \"sellerPhoneNumber\": \"0300-1234567\",\n    \"sellerEmail\": \"fbr@ref-b.test\",\n    \"buyerNTN\": \"NTN-778899\",\n    \"buyerSTRN\": \"\",\n    \"buyerCNIC\": \"\",\n    \"buyerName\": \"FBR Buyer\",\n    \"buyerAddress\": \"Shop 4, Hall Road \\u2014 Lahore\",\n    \"buyerPhoneNumber\": \"042-111\",\n    \"buyerEmail\": \"buyer@ref.test\",\n    \"invoiceNumber\": \"DN-PAR-TAG-W\",\n    \"invoiceDate\": \"2026-05-12 10:30:00\",\n    \"invoiceType\": \"DN\",\n    \"totalSaleValue\": 0.3,\n    \"totalTaxCharged\": 0.05,\n    \"totalBillAmount\": 0.35,\n    \"discount\": 0,\n    \"furtherTax\": 0.0,\n    \"withholdingTax\": 0.0,\n    \"totalOtherCharges\": 0.0,\n    \"otherCharges\": [],\n    \"deliveryCharges\": 0,\n    \"installationCharges\": 0,\n    \"paymentInfo\": {\n      \"paymentMode\": \"O\",\n      \"paymentStatus\": \"UNPAID\"\n    },\n    \"items\": [\n      {\n        \"itemCode\": \"FBR-DN-PAR-TAG-W-1\",\n        \"itemName\": \"Solar part 1\",\n        \"quantity\": 3.0,\n        \"unitOfMeasurement\": \"pcs\",\n        \"unitValue\": 0.1,\n        \"totalAmount\": 0.3,\n        \"discountAmount\": 0,\n        \"taxRate\": 18.0,\n        \"taxCharged\": 0.05,\n        \"hSCode\": \"8541.4000\",\n        \"otherCharges\": 0\n      }\n    ]\n  }\n}",
+          "response_json": "{\n  \"fbrInvoiceNumber\": 123,\n  \"submissionId\": null\n}",
+          "error_message": "",
+          "invoice_type": "DN",
+          "attempt_count": 1,
+          "submitted_by": "owner_b",
+          "submitted_at": true,
+          "created_at": true
+        }
+      ]
+    },
+    {
+      "invoice": "v",
+      "records": [
+        {
+          "company": "B",
+          "invoice": "v",
+          "fbr_invoice_number": "",
+          "fbr_submission_id": "",
+          "status": "success",
+          "request_json": "{\n  \"fbrInvoice\": {\n    \"sellerNTN\": \"1234567-8\",\n    \"sellerSTRN\": \"32-77-8761-234-55\",\n    \"sellerCNIC\": \"3520212345671\",\n    \"sellerName\": \"Owner B\",\n    \"sellerBusinessName\": \"R\\u00e9f B (Pvt) Ltd \\u2014 \\u201cLahore\\u201d\",\n    \"sellerAddress\": \"12 Mall Road,\\nLahore\",\n    \"sellerPhoneNumber\": \"0300-1234567\",\n    \"sellerEmail\": \"fbr@ref-b.test\",\n    \"buyerNTN\": \"NTN-778899\",\n    \"buyerSTRN\": \"\",\n    \"buyerCNIC\": \"\",\n    \"buyerName\": \"FBR Buyer\",\n    \"buyerAddress\": \"Shop 4, Hall Road \\u2014 Lahore\",\n    \"buyerPhoneNumber\": \"042-111\",\n    \"buyerEmail\": \"buyer@ref.test\",\n    \"invoiceNumber\": \"SI-PAR-TAG-V\",\n    \"invoiceDate\": \"2026-05-12 10:30:00\",\n    \"invoiceType\": \"S\",\n    \"totalSaleValue\": 99.99,\n    \"totalTaxCharged\": 18.0,\n    \"totalBillAmount\": 117.99,\n    \"discount\": 0,\n    \"furtherTax\": 0.0,\n    \"withholdingTax\": 0.0,\n    \"totalOtherCharges\": 0.0,\n    \"otherCharges\": [],\n    \"deliveryCharges\": 0,\n    \"installationCharges\": 0,\n    \"paymentInfo\": {\n      \"paymentMode\": \"O\",\n      \"paymentStatus\": \"UNPAID\"\n    },\n    \"items\": [\n      {\n        \"itemCode\": \"FBR-SI-PAR-TAG-V-1\",\n        \"itemName\": \"Solar part 1\",\n        \"quantity\": 1.0,\n        \"unitOfMeasurement\": \"pcs\",\n        \"unitValue\": 99.99,\n        \"totalAmount\": 99.99,\n        \"discountAmount\": 0,\n        \"taxRate\": 0,\n        \"taxCharged\": 0,\n        \"hSCode\": \"8541.4000\",\n        \"otherCharges\": 0\n      }\n    ]\n  }\n}",
+          "response_json": "{}",
+          "error_message": "",
+          "invoice_type": "S",
+          "attempt_count": 1,
+          "submitted_by": "owner_b",
+          "submitted_at": true,
+          "created_at": true
+        }
+      ]
+    }
+  ]
+}

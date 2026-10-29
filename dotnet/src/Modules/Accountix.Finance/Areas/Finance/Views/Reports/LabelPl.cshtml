@@ -1,0 +1,104 @@
+@model Accountix.Finance.Controllers.LabelPlPage
+@{
+    ViewData["Title"] = "P&L by Label";
+    ViewData["Heading"] = "Profit & Loss by Project Label";
+    bool showUnl = Model.UnlabelledNet is not null;
+    var exportButtons = new ExportButtons("excel", "pdf", "csv");
+}
+@section Head { <partial name="_FinanceHead" /> }
+@section Actions {
+@if (Model.Loaded) { <partial name="_ExportButtons" model="exportButtons" /> }
+}
+<style>
+  .lpl-filter{display:flex;flex-wrap:wrap;gap:10px;align-items:end}
+  .lpl-filter label.cap{display:block;font-size:12px;color:var(--muted);margin-bottom:3px}
+  .lpl-chips{display:flex;flex-wrap:wrap;gap:6px;max-width:100%}
+  .lpl-chip{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--border);
+    border-radius:999px;padding:3px 10px;font-size:12.5px;cursor:pointer;background:var(--card)}
+  .lpl-chip input{margin:0}
+  .lpl-note{font-size:12px;color:var(--muted);margin-top:8px}
+  .report-table .lpl-total{font-weight:600}
+</style>
+
+<form method="get" class="card mb-6 no-print">
+  <div class="lpl-filter">
+    <div><label class="cap" for="lplFrom">From</label>
+      <input type="date" id="lplFrom" name="from" value="@Model.FromStr" class="form-control"></div>
+    <div><label class="cap" for="lplTo">To</label>
+      <input type="date" id="lplTo" name="to" value="@Model.ToStr" class="form-control"></div>
+    <div style="flex:1 1 260px">
+      <span class="cap" style="display:block;font-size:12px;color:var(--muted);margin-bottom:3px">Labels (none ticked = all, plus Unlabelled)</span>
+      <div class="lpl-chips">
+        @foreach (var l in Model.LabelsAll)
+        {
+        <label class="lpl-chip"><input type="checkbox" name="label_id" value="@l.Id" checked="@Model.Picked.Contains(l.Id)"> @l.Name@if (l.IsActive != true) {<text> </text><em style="color:var(--muted)">(archived)</em>}</label>
+        }
+        @if (Model.LabelsAll.Count == 0)
+        {
+        <span class="lpl-note">No labels yet — create them in Settings → Labels.</span>
+        }
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> View</button>
+  </div>
+</form>
+
+@if (Model.Loaded)
+{
+<div class="card report-sheet">
+  <div class="report-head">
+    <div>
+      <div class="report-company"><partial name="_CompanyName" /></div>
+      <div class="report-title-lg">Profit &amp; Loss by Project Label</div>
+      <div class="report-period">For the period @Model.FromStr to @Model.ToStr</div>
+    </div>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="report-table statement">
+      <thead>
+        <tr>
+          <th>Account</th>
+          @foreach (var l in Model.Labels) {<th class="num">@l.Name</th>}
+          @if (showUnl) {<th class="num">Unlabelled</th>}
+          <th class="num">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach (var r in Model.Rows)
+        {
+            if (r.Kind == "header")
+            {
+          <tr class="section-head"><td colspan="@(Model.Labels.Count + 3)"><strong>@r.Label</strong></td></tr>
+            }
+            else
+            {
+          <tr class="@(r.Kind is "total" or "subtotal" ? "lpl-total" : "")">
+            <td>@if (r.Kind == "account") {<text>@r.Code @r.Name</text>} else {@r.Label}</td>
+            @foreach (var v in r.ByLabel ?? []) {<td class="num">@Html.Amount(v, 2)</td>}
+            @if (showUnl) {<td class="num">@Html.Amount(r.Unlabelled, 2)</td>}
+            <td class="num">@Html.Amount(r.Amount, 2)</td>
+          </tr>
+            }
+        }
+        @if (Model.Rows.Count == 0)
+        {
+          <tr><td colspan="@(Model.Labels.Count + 3)" style="text-align:center;color:var(--muted);padding:20px">No income or expense posted in this period.</td></tr>
+        }
+      </tbody>
+      <tfoot>
+        <tr class="lpl-total">
+          <td>Net profit / (loss)</td>
+          @foreach (var n in Model.LabelNets) {<td class="num">@Html.Amount(n, 2)</td>}
+          @if (showUnl) {<td class="num">@Html.Amount(Model.UnlabelledNet, 2)</td>}
+          <td class="num">@Html.Amount(Model.Net, 2)</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+  <p class="lpl-note">Each journal line carries at most one label, so the label columns plus Unlabelled add up to the company total. COGS follows each sale line's label and is re-costed when earlier documents are back-dated or corrected; consumption, scrap, adjustments and the depreciation of labelled assets carry their document's label.</p>
+</div>
+}
+else
+{
+<div class="report-wait" role="status" style="border:1px dashed var(--border,#d9dce0);border-radius:12px;padding:36px 20px;text-align:center;color:var(--muted,#5b6068);font-size:14px;background:var(--card,#fff)"><b style="display:block;color:var(--text,#17181a);font-size:15px;margin-bottom:4px">Choose a period and labels, then press View</b>The report is calculated when you ask for it.</div>
+}

@@ -1,0 +1,52 @@
+@model FaCategory?
+@{
+    var category = Model;
+    string verb = category is not null ? "Edit" : "New";
+    ViewData["Title"] = $"{verb} Category";
+    ViewData["Heading"] = $"{verb} Category";
+}
+<div class="card" style="max-width:600px;">
+  <div class="card-body">
+    <form method="POST">
+      <div class="form-group">
+        <label class="form-label">Category Name *</label>
+        <input type="text" name="name" class="form-control" value="@(category?.Name ?? "")" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea name="description" class="form-control" rows="2">@(category?.Description ?? "")</textarea>
+      </div>
+      <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group">
+          <label class="form-label">Default Useful Life (years)</label>
+          <input type="number" name="default_useful_life" class="form-control" value="@(category is not null ? category.DefaultUsefulLife?.ToString() ?? "None" : "5")">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Default Depreciation Method</label>
+          <select name="default_depreciation_method" class="form-control">
+            <option value="straight_line" selected="@(category is null || category.DefaultDepreciationMethod == "straight_line")">Straight Line</option>
+            <option value="declining_balance" selected="@(category is not null && category.DefaultDepreciationMethod == "declining_balance")">Declining Balance</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Default Salvage Value (%)</label>
+          <input type="number" step="0.01" name="default_salvage_value_pct" class="form-control" value="@(category is not null ? (category.DefaultSalvageValuePct is null ? "None" : Py.Repr(Py.F(category.DefaultSalvageValuePct))) : "0")">
+        </div>
+        @if (category is not null)
+        {
+        <div class="form-group">
+          <label class="form-label">Active</label>
+          <select name="is_active" class="form-control">
+            <option value="1" selected="@(category.IsActive == true)">Active</option>
+            <option value="0" selected="@(category.IsActive != true)">Inactive</option>
+          </select>
+        </div>
+        }
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">@(category is not null ? "Update" : "Create") Category</button>
+        <a href="/fixed-assets/categories/" class="btn btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>

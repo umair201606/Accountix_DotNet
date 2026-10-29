@@ -1,0 +1,51 @@
+@model Accountix.Hr.Controllers.LeaveController.WorkflowsModel
+@{
+    ViewData["Title"] = "Approval Workflows - Accountix ERP";
+    var types = Model.Types.ToDictionary(t => t.Id, t => t.Name);
+}
+<div class="page-header">
+    <h1>Approval Workflows</h1>
+    <button class="btn btn-primary" id="show-form">+ New Workflow</button>
+</div>
+<div id="wf-form" class="card hidden mb-20" style="max-width:450px;">
+    <form method="POST">
+        <div class="form-group"><label>Workflow Name *</label><input name="name" class="form-control" required></div>
+        <div class="form-group"><label>Leave Type</label>
+            <select name="leave_type_id" class="form-control">
+                <option value="">All types</option>
+                @foreach (var lt in Model.Types) { <option value="@lt.Id">@lt.Name</option> }
+            </select>
+        </div>
+        <div class="form-group"><label>Approval Levels</label><input type="number" name="approval_levels" class="form-control" value="1" min="1" max="5"></div>
+        <div class="form-group"><label><input type="checkbox" name="auto_approve"> Auto-approve</label></div>
+        <div class="form-group"><label><input type="checkbox" name="notify_admins" checked> Notify admins</label></div>
+        <button type="submit" class="btn btn-primary">Create</button>
+    </form>
+</div>
+<div class="card">
+    <div class="card-header">Configured Workflows</div>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Name</th><th>Leave Type</th><th>Levels</th><th>Auto-Approve</th><th>Status</th></tr></thead>
+            <tbody>
+                @foreach (var w in Model.Workflows)
+                {
+                <tr>
+                    <td>@w.Name</td>
+                    <td>@(w.LeaveTypeId is int lt && types.TryGetValue(lt, out var n) ? n : "All")</td>
+                    <td>@Py.Str(w.ApprovalLevels)</td>
+                    <td>@(w.AutoApprove == true ? "Yes" : "No")</td>
+                    <td>@(w.IsActive == true ? "Active" : "Inactive")</td>
+                </tr>
+                }
+                @if (Model.Workflows.Count == 0)
+                {
+                <tr><td colspan="5" class="text-center" style="color:var(--muted);">No workflows</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+@section Scripts {
+<script>document.getElementById('show-form')?.addEventListener('click',()=>{document.getElementById('wf-form').classList.toggle('hidden');});</script>
+}

@@ -1,0 +1,22 @@
+{
+  "ContactPerson": "Ali",
+  "Email": "ali@example.com",
+  "Phone": "021-1",
+  "Mobile": "",
+  "City": "Lahore",
+  "TaxId": "NTN-1",
+  "PaymentTerms": "Net 30",
+  "Credit": "1250.50",
+  "Website": "",
+  "Address": "1 Mall Road",
+  "Notes": "",
+  "IsActive": true,
+  "Account": {
+    "Type": "asset",
+    "Level": 5,
+    "Parent": "1-01-02-01",
+    "IsActive": true,
+    "IsFixed": false
+  },
+  "NameIsLedger": true
+}

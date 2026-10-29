@@ -1,0 +1,271 @@
+@model Accountix.Parties.Controllers.BatchModel
+@{
+    var k = Model.Kind;
+    ViewData["Title"] = "Batch Import " + k.TitlePlural;
+    string[] terms = ["Due on Receipt", "Net 15", "Net 30", "Net 45", "Net 60"];
+}
+@section Head {
+<style>
+  .be-wrap{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch}
+  .be-note{font-size:13px;padding:8px 12px;border-radius:5px;margin-bottom:10px;border:1px solid var(--border);overflow-wrap:anywhere}
+  .be-note.err{border-color:var(--danger);color:var(--danger)}
+  .be-note.ok{border-color:var(--success);color:var(--success)}
+  .be-rowerr{font-size:11px;color:var(--danger);margin-top:3px;line-height:1.35;min-width:160px;white-space:normal}
+  .be-tbl{width:100%;border-collapse:collapse;font-size:13px}
+  .be-tbl th{background:var(--bg-top);padding:8px 10px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--accent);border-bottom:2px solid var(--border);white-space:nowrap}
+  .be-tbl td{padding:4px;border-bottom:1px solid var(--border-soft);vertical-align:top}
+  .be-tbl .be-inp{width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:3px;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box;transition:border-color .12s,background .12s;min-width:60px}
+  .be-tbl .be-inp:focus{border-color:var(--border)}
+  .be-tbl .be-inp.err{border-color:var(--danger);background:var(--card)}
+  .be-tbl .be-inp.ok{border-color:var(--success);background:var(--card)}
+  .be-tbl .be-del{width:32px;height:32px;border-radius:50%;border:1px solid var(--danger-light);background:var(--card);color:var(--danger);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .12s}
+  .be-tbl .be-del:hover{background:var(--card)}
+  .be-summary{font-size:13px;color:var(--accent);margin-bottom:10px}
+  .be-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+  .be-add{background:var(--card);border:1px dashed var(--accent);color:var(--accent);padding:6px 14px;border-radius:5px;cursor:pointer;font-size:13px;font-weight:600;transition:all .12s}
+  .be-add:hover{background:var(--card)}
+  .be-msg{font-size:10.5px;margin-top:2px;line-height:1.3}
+  .be-msg.err{color:var(--danger)}
+  .be-msg.ok{color:var(--success)}
+</style>
+}
+<div class="card">
+  <div class="card-h">Review &amp; Edit @k.TitlePlural</div>
+  <div class="card-b">
+    <p class="be-summary">Review the @k.Plural below before saving. Editable — change values or delete rows as needed. A ledger account is auto-created for each @k.Key under @k.Ledger.</p>
+
+    @if (Model.Created != 0) {<div class="be-note ok">@Model.Created @(k.Key)(s) saved. The rows below were not — fix them and press Save All again.</div>}
+    @if (Model.Flagged != 0) {<div class="be-note err">@Model.Flagged row(s) need attention — the reason is under each one. Rows that still have a problem are kept here when you save; the rest are created.</div>}
+
+    <form id="batchForm" method="POST" action="@k.Prefix/batch">
+      <input type="hidden" name="data" id="dataInput" value="">
+      <div class="be-wrap">
+        <table class="be-tbl" id="beTbl">
+          <thead>
+            <tr>
+              <th style="width:28px;">#</th>
+              <th>Name *</th>
+              <th>Contact</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Mobile</th>
+              <th>City</th>
+              <th>Tax ID</th>
+              <th>Payment Terms</th>
+              @if (k.CreditLimit) {<th style="width:70px;">Credit Limit</th>}
+              <th>Website</th>
+              <th>Address</th>
+              <th>Notes</th>
+              <th style="width:40px;"></th>
+            </tr>
+          </thead>
+          <tbody id="beBody">
+            @{ int n = 0; }
+            @foreach (var r in Model.Rows)
+            {
+            n++;
+            <tr>
+              <td style="text-align:center;color:var(--accent);font-size:11px;" class="be-idx">@n</td>
+              <td><input type="text" class="be-inp be-name" value="@r["name"]"><div class="be-msg"></div>@if (r.RowErrors.Count > 0) {<div class="be-rowerr">@if (r.RowLine is int line && line != 0) {<text>Row @line: </text>}@string.Join(" ", r.RowErrors)</div>}</td>
+              <td><input type="text" class="be-inp be-contact" value="@r["contact_person"]"></td>
+              <td><input type="text" class="be-inp be-email" value="@r["email"]"></td>
+              <td><input type="text" class="be-inp be-phone" value="@r["phone"]"></td>
+              <td><input type="text" class="be-inp be-mobile" value="@r["mobile"]"></td>
+              <td><input type="text" class="be-inp be-city" value="@r["city"]"></td>
+              <td><input type="text" class="be-inp be-taxid" value="@r["tax_id"]"></td>
+              <td>
+                <select class="be-inp be-terms" style="padding:5px 6px;">
+                  <option value="">Select</option>
+                  @foreach (var t in terms)
+                  {
+                  <option value="@t" selected="@(r["payment_terms"] == t)">@t</option>
+                  }
+                  @if (r["payment_terms"].Length > 0 && !terms.Contains(r["payment_terms"])) {<option value="@r["payment_terms"]" selected>@r["payment_terms"]</option>}
+                </select>
+              </td>
+              @if (k.CreditLimit) {<td><input type="text" class="be-inp be-credit" value="@r.CreditLimitShown"></td>}
+              <td><input type="text" class="be-inp be-website" value="@r["website"]"></td>
+              <td><input type="text" class="be-inp be-address" value="@r["address"]"></td>
+              <td><input type="text" class="be-inp be-notes" value="@r["notes"]"></td>
+              <td><button type="button" class="be-del" onclick="delRow(this)" title="Remove">&times;</button></td>
+            </tr>
+            }
+            @if (Model.Rows.Count == 0)
+            {
+            <tr>
+              <td style="text-align:center;color:var(--accent);font-size:11px;" class="be-idx">1</td>
+              <td><input type="text" class="be-inp be-name" placeholder="@k.Title name"><div class="be-msg"></div></td>
+              <td><input type="text" class="be-inp be-contact" placeholder="Contact person"></td>
+              <td><input type="text" class="be-inp be-email" placeholder="Email"></td>
+              <td><input type="text" class="be-inp be-phone" placeholder="Phone"></td>
+              <td><input type="text" class="be-inp be-mobile" placeholder="Mobile"></td>
+              <td><input type="text" class="be-inp be-city" placeholder="City"></td>
+              <td><input type="text" class="be-inp be-taxid" placeholder="Tax ID"></td>
+              <td>
+                <select class="be-inp be-terms" style="padding:5px 6px;">
+                  <option value="">Select</option>
+                  @foreach (var t in terms)
+                  {
+                  <option value="@t">@t</option>
+                  }
+                </select>
+              </td>
+              @if (k.CreditLimit) {<td><input type="text" class="be-inp be-credit" placeholder="0"></td>}
+              <td><input type="text" class="be-inp be-website" placeholder="Website"></td>
+              <td><input type="text" class="be-inp be-address" placeholder="Address"></td>
+              <td><input type="text" class="be-inp be-notes" placeholder="Notes"></td>
+              <td><button type="button" class="be-del" onclick="delRow(this)" title="Remove">&times;</button></td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="be-actions">
+        <button type="button" class="be-add" onclick="addRow()">+ Add Row</button>
+        <button type="submit" class="btn btn-primary" onclick="return collectData()">Save All</button>
+        <a href="@k.Prefix/" class="btn btn-outline">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+var CHECK_URL = '@(k.Prefix)/check';
+var timers = {};
+
+function checkField(inp, msgEl) {
+  var val = inp.value.trim();
+  inp.classList.remove('err', 'ok');
+  msgEl.className = 'be-msg';
+  msgEl.textContent = '';
+  if (!val) return;
+  var url = CHECK_URL + '?value=' + encodeURIComponent(val);
+  fetch(url, { credentials: 'same-origin' })
+    .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(function(d){
+      if (d.exists) {
+        inp.classList.add('err');
+        msgEl.className = 'be-msg err';
+        msgEl.textContent = 'Already taken';
+      } else {
+        inp.classList.add('ok');
+        msgEl.className = 'be-msg ok';
+        msgEl.textContent = 'Available';
+      }
+    })
+    .catch(function(e){ console.warn('Check failed:', e); });
+}
+
+function debounceCheck(inp, msgEl) {
+  clearTimeout(timers[inp === msgEl ? 'name' : (inp.className + '_' + Math.random())]);
+  timers[inp === msgEl ? 'name' : (inp.className + '_' + Math.random())] = setTimeout(function(){ checkField(inp, msgEl); }, 400);
+}
+
+function wireRow(tr) {
+  var inp = tr.querySelector('.be-name');
+  if (!inp) return;
+  var msgEl = inp.parentElement.querySelector('.be-msg');
+  if (msgEl) inp.addEventListener('input', function(){ debounceCheck(inp, msgEl); });
+}
+
+function addRow() {
+  var tbody = document.getElementById('beBody');
+  var tr = document.createElement('tr');
+  var termsOpts = '';
+  var sel = document.querySelector('.be-terms');
+  if (sel) { for (var i = 0; i < sel.options.length; i++) { termsOpts += '<option value="' + sel.options[i].value + '">' + sel.options[i].text + '</option>'; } }
+  tr.innerHTML =
+    '<td style="text-align:center;color:var(--accent);font-size:11px;" class="be-idx">' + (tbody.children.length + 1) + '</td>' +
+    '<td><input type="text" class="be-inp be-name" placeholder="@(k.Title) name"><div class="be-msg"></div></td>' +
+    '<td><input type="text" class="be-inp be-contact" placeholder="Contact person"></td>' +
+    '<td><input type="text" class="be-inp be-email" placeholder="Email"></td>' +
+    '<td><input type="text" class="be-inp be-phone" placeholder="Phone"></td>' +
+    '<td><input type="text" class="be-inp be-mobile" placeholder="Mobile"></td>' +
+    '<td><input type="text" class="be-inp be-city" placeholder="City"></td>' +
+    '<td><input type="text" class="be-inp be-taxid" placeholder="Tax ID"></td>' +
+    '<td><select class="be-inp be-terms" style="padding:5px 6px;">' + termsOpts + '</select></td>' +
+@if (k.CreditLimit) {<text>    '<td><input type="text" class="be-inp be-credit" placeholder="0"></td>' +</text>}
+    '<td><input type="text" class="be-inp be-website" placeholder="Website"></td>' +
+    '<td><input type="text" class="be-inp be-address" placeholder="Address"></td>' +
+    '<td><input type="text" class="be-inp be-notes" placeholder="Notes"></td>' +
+    '<td><button type="button" class="be-del" onclick="delRow(this)" title="Remove">&times;</button></td>';
+  tbody.appendChild(tr);
+  wireRow(tr);
+  reindex();
+}
+
+function delRow(btn) {
+  var tr = btn.closest('tr');
+  tr.parentNode.removeChild(tr);
+  reindex();
+}
+
+function reindex() {
+  var idxs = document.querySelectorAll('.be-idx');
+  for (var i = 0; i < idxs.length; i++) idxs[i].textContent = i + 1;
+}
+
+function collectData() {
+  var rows = [];
+  var err = false;
+  var names = {};
+  var msgs = [];
+
+  var tbody = document.getElementById('beBody');
+  for (var i = 0; i < tbody.children.length; i++) {
+    var tr = tbody.children[i];
+    var nameInp = tr.querySelector('.be-name');
+    var contactInp = tr.querySelector('.be-contact');
+    var emailInp = tr.querySelector('.be-email');
+    var phoneInp = tr.querySelector('.be-phone');
+    var mobileInp = tr.querySelector('.be-mobile');
+    var cityInp = tr.querySelector('.be-city');
+    var taxidInp = tr.querySelector('.be-taxid');
+    var termsSel = tr.querySelector('.be-terms');
+@if (k.CreditLimit) {<text>    var creditInp = tr.querySelector('.be-credit');</text>}
+    var websiteInp = tr.querySelector('.be-website');
+    var addressInp = tr.querySelector('.be-address');
+    var notesInp = tr.querySelector('.be-notes');
+
+    var name = nameInp.value.trim();
+    var contact = contactInp.value.trim();
+    var email = emailInp.value.trim();
+    var phone = phoneInp.value.trim();
+    var mobile = mobileInp.value.trim();
+    var city = cityInp.value.trim();
+    var taxid = taxidInp.value.trim();
+    var terms = termsSel ? termsSel.value : '';
+@if (k.CreditLimit) {<text>    var credit = creditInp.value.trim();</text>}
+    var website = websiteInp.value.trim();
+    var address = addressInp.value.trim();
+    var notes = notesInp.value.trim();
+
+    nameInp.classList.remove('err');
+
+    if (!name) continue;
+    if (names[name]) { nameInp.classList.add('err'); err = true; msgs.push('Row ' + (i+1) + ': Duplicate name "' + name + '"'); }
+@if (k.CreditLimit) {<text>    if (nameInp.classList.contains('be-msg')) { }</text>}
+    names[name] = true;
+
+    rows.push({
+      name: name, contact_person: contact, email: email,
+      phone: phone, mobile: mobile, city: city,
+      tax_id: taxid, payment_terms: terms,
+@if (k.CreditLimit) {<text>      credit_limit: credit || '0', website: website,
+      address: address, notes: notes,
+</text>} else {<text>      website: website, address: address, notes: notes,
+</text>}    });
+  }
+
+  if (err) {
+    alert('Please fix the highlighted errors.\n' + msgs.join('\n'));
+    return false;
+  }
+
+  document.getElementById('dataInput').value = JSON.stringify(rows);
+  return true;
+}
+
+document.querySelectorAll('#beBody tr').forEach(function(tr){ wireRow(tr); });
+</script>

@@ -1,0 +1,125 @@
+@* The finance module head (finance_app/templates/finance/layouts/base.html extra_css): Tailwind + Font Awesome and the statement styles. Copied verbatim. *@
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  /* Finance component system. Scoped to page content — the shell's sidebar is
+     styled by app.css/ui.css and must not be touched from here.
+
+     Most of what used to live here is deleted rather than re-coloured: .card,
+     .btn and its variants, .stat-card, .badge and the report-table header fill
+     are all defined by ui.css already, and a second light-only copy here would
+     be a dark-mode bug waiting (it was: white button labels, near-white row
+     washes and a slate header bar, each of which kept its light colour when
+     the text around it turned light).
+     What survives is what the shared stylesheet has no opinion about —
+     statement typography, the letterhead, and the row weights that make a
+     financial statement readable. Every value is a token; see UI_V2_GUIDE.md §3.
+
+     Tailwind's own colour utilities are light-only for the same reason and are
+     no longer used in this module: .num-pos / .num-neg below replace the
+     text-green-600 / text-red-600 pairs the reports used to carry.
+
+     ── Report tables ──
+     A figure never wraps; the account-name column is the one that may. */
+  table.report-table { width: 100%; border-collapse: collapse; table-layout: auto; }
+  table.report-table th, table.report-table td { white-space: nowrap; }
+  table.report-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+  table.report-table td:nth-child(2), table.report-table th:nth-child(2) { white-space: normal; min-width: 180px; }
+
+  /* ── Statement letterhead ── */
+  .report-sheet { padding-top: 20px; }
+  .report-head { display: flex; justify-content: space-between; align-items: flex-start;
+                 border-bottom: 1px solid var(--v2-line-2); padding-bottom: 14px; margin-bottom: 16px; }
+  .report-company { font-size: 12px; font-weight: 500; color: var(--v2-body); }
+  .report-title-lg { font-size: 21px; font-weight: 600; letter-spacing: -.02em;
+                     color: var(--v2-ink); margin: 2px 0; }
+  .report-sub { font-size: 13px; font-weight: 400; color: var(--v2-muted); }
+  .report-period { font-size: 13px; color: var(--v2-body); }
+  .report-footnote { font-size: 12px; color: var(--v2-muted); margin-top: 12px; }
+  .report-footnote a { color: var(--v2-accent); }
+
+  /* ── Statement rows ──
+     Section head, subtotal, total, profit and grand total are five weights of
+     one ink rather than five colours: the hierarchy rides weight, wash and
+     rule, so it survives a greyscale print and inverts with the theme. Red is
+     kept for the two rows where it is a finding — a loss, and a reconciliation
+     that does not tie. */
+  table.statement thead th { position: sticky; top: 0; z-index: 5; background: var(--v2-surface); }
+  table.statement .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+                          font-size: 12px; color: var(--v2-muted); }
+  table.statement .indent { padding-left: 28px; }
+  table.statement tr.sec-head td { background: var(--v2-hover); font-weight: 600; font-size: 12px;
+                                   color: var(--v2-ink); border-top: 1px solid var(--v2-line); }
+  table.statement tr.subtotal-row td { font-weight: 600; background: var(--v2-hover);
+                                       border-top: 1px solid var(--v2-line-2); }
+  table.statement tr.sec-total td { font-weight: 600; color: var(--v2-ink);
+                                    border-top: 1px solid var(--v2-line-2); }
+  table.statement tr.profit-line td { font-weight: 600; font-size: 14px; color: var(--v2-ink);
+                                      background: var(--v2-sunk);
+                                      border-top: 1px solid var(--v2-ink);
+                                      border-bottom: 1px solid var(--v2-ink); }
+  table.statement tr.profit-line.neg td { color: var(--v2-neg); background: var(--v2-neg-bg); }
+  table.statement tr.grand-total td { font-weight: 600; font-size: 15px;
+                                      background: var(--v2-ink); color: var(--v2-ground); }
+  table.statement tr.recon-line td { font-size: 12px; color: var(--v2-body); background: var(--v2-hover); }
+  table.statement tr.recon-bad td { color: var(--v2-neg); background: var(--v2-neg-bg); font-weight: 600; }
+  /* Italic is a second identity channel for the two bracket rows, so they read
+     as bracket rows in greyscale too. */
+  table.statement tr.opening-row td, table.statement tr.closing-row td {
+      font-weight: 600; background: var(--v2-hover); font-style: italic; }
+
+  /* ── Report launcher tiles (finance dashboard) ──
+     ui.css sizes and borders .stat-card; only the inner icon/label pair is
+     this module's own. The seven tiles used to carry seven Font Awesome hues
+     — one per report — which is decoration, not signal: the label underneath
+     already says which report it is. They inherit ink now. */
+  .stat-card { text-align: center; display: block; }
+  .stat-card .value { font-size: 26px; font-weight: 600; color: var(--v2-ink); }
+  .stat-card .label { font-size: 12.5px; color: var(--v2-muted); margin-top: 6px; }
+  .stat-card:hover .value, .stat-card:hover .label { color: var(--v2-accent); }
+
+  /* ── Text colour helpers ──
+     These replace the Tailwind text-* utilities the reports used to carry.
+     Tailwind ships a fixed light palette, so text-slate-400 stayed a pale grey
+     on a near-black card and text-red-600 stayed a dark red — both unreadable
+     in dark mode. Every one of these follows the theme instead.
+
+     .num-pos / .num-neg are the only colour in a statement body. The sign
+     character is always printed alongside, so colour is never the only channel
+     (UI_V2_GUIDE.md §8). */
+  .num-pos { color: var(--v2-pos); }
+  .num-neg { color: var(--v2-neg); }
+  .t-ink   { color: var(--v2-ink); }
+  .t-muted { color: var(--v2-muted); }
+  .t-faint { color: var(--v2-faint); }
+
+  /* The one separator this module draws. Tailwind's border-slate-200 was a
+     fixed #e2e8f0 hairline that stayed bright against a near-black card. */
+  hr.rule { border: 0; border-top: 1px solid var(--v2-line); }
+
+  /* ── Controls ──
+     Checkboxes and radios are excluded: the old rule gave every input 8px of
+     padding and an 8px radius, which inflated the label-picker and ledger-mode
+     boxes in _period_filter.html into rounded rectangles. */
+  .content-area input:not([type="checkbox"]):not([type="radio"]),
+  .content-area select {
+      border: 1px solid var(--v2-line-2); border-radius: 8px; padding: 8px 12px;
+      font-size: 13px; font-family: inherit;
+      background: var(--v2-surface); color: var(--v2-ink); }
+  .content-area input:not([type="checkbox"]):not([type="radio"]):focus,
+  .content-area select:focus {
+      outline: 2px solid var(--v2-ink); outline-offset: 2px; }
+  .content-area input[type="checkbox"], .content-area input[type="radio"] { accent-color: var(--v2-accent); }
+
+  /* Wide statements must scroll inside their own box, never the page. */
+  .overflow-x-auto { max-width: 100%; }
+  @@media print {
+    .no-print, aside, .topbar { display: none !important; }
+    .card { box-shadow: none !important; border: none !important; }
+    table.statement thead th { position: static; }
+    .content-area { padding: 16px; }
+  }
+  /* Finance pages fill the Actions section with export/print buttons; the
+     shell wraps that block in .page-actions. */
+  .page-actions { justify-content: flex-end; }
+</style>

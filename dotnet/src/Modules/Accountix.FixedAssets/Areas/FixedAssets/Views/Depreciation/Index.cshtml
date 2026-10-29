@@ -1,0 +1,71 @@
+@model DepreciationRunModel
+@{
+    ViewData["Title"] = "Post Depreciation";
+    ViewData["Heading"] = "Post Monthly Depreciation";
+    string asOf = Py.Date(Model.AsOf);
+}
+<form method="GET" class="card" style="margin-bottom:12px;">
+  <div class="card-body" style="display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;">
+    <div class="form-group" style="margin:0;">
+      <label for="as_of">Charge up to</label>
+      <input type="date" id="as_of" name="as_of" value="@asOf" class="form-control">
+    </div>
+    <button type="submit" class="btn btn-outline">Show due</button>
+    <span class="text-muted" style="font-size:.85rem;">Usually the last day of the month being closed. Each charge is posted on this date.</span>
+  </div>
+</form>
+@if (Model.Due.Count > 0)
+{
+<form method="POST" action="/fixed-assets/depreciation/post">
+  <input type="hidden" name="entry_date" value="@asOf">
+  <div class="card">
+    <div class="card-body">
+      <p>Depreciation due as of <strong>@asOf</strong>. Select assets to post.</p>
+      <div class="table-responsive">
+      <table class="table">
+        <thead><tr><th><input type="checkbox" id="select-all" checked aria-label="Select all"></th><th>Asset</th><th>Code</th><th>Method</th><th>Cost</th><th>Accum. dep</th><th>Book value</th><th>Charged to</th><th>Months</th><th>Amount</th></tr></thead>
+        <tbody>
+          @foreach (var d in Model.Due)
+          {
+          var a = d.Calc.Asset;
+          <tr>
+            <td><input type="checkbox" name="asset_ids[]" value="@a.Id" checked></td>
+            <td><a href="/fixed-assets/assets/@a.Id">@a.Name</a></td>
+            <td>@a.AssetCode</td>
+            <td>@(a.DepreciationMethod == "declining_balance" ? "Reducing balance" : "Straight line")</td>
+            <td>@Py.Comma(a.PurchaseCost)</td>
+            <td>@Py.Comma(d.Calc.PostedDepreciation)</td>
+            <td>@Py.Comma(d.Calc.NetBookValue)</td>
+            <td>@Py.DateLong(d.Last)</td>
+            <td>@d.Months</td>
+            <td><strong>@Py.Comma(d.Amount)</strong></td>
+          </tr>
+          }
+        </tbody>
+        <tfoot><tr><th colspan="9">Total (@Model.Due.Count assets)</th><th>@Py.Comma(Model.Total)</th></tr></tfoot>
+      </table>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button type="submit" class="btn btn-success">Post Selected Depreciation</button>
+      <a href="/fixed-assets/dashboard" class="btn btn-outline">Cancel</a>
+    </div>
+  </div>
+</form>
+<script>
+  document.getElementById('select-all').addEventListener('change', function() {
+    document.querySelectorAll('input[name="asset_ids[]"]').forEach(function(cb) {
+      cb.checked = this.checked;
+    }, this);
+  });
+</script>
+}
+else
+{
+<div class="card">
+  <div class="card-body">
+    <p class="text-muted">No depreciation is due as of @asOf. All active assets are up to date.</p>
+    <a href="/fixed-assets/dashboard" class="btn btn-outline">Back to Dashboard</a>
+  </div>
+</div>
+}

@@ -1,0 +1,127 @@
+@model Accountix.Hr.Controllers.AttendanceController.IndexModel
+@{
+    ViewData["Title"] = "Attendance - Accountix ERP";
+    var p = Model.Policy;
+    var t = Model.Today;
+    string ot = Model.Overtime is double o && o != 0 ? Py.Round(o, 1) : "0";
+}
+<div class="page-header">
+    <div>
+        <h1>Time & Attendance</h1>
+        <p class="subtitle">@(string.IsNullOrEmpty(p.Name) ? "Standard" : p.Name) Shift: @Py.Hm(p.ShiftStart) - @Py.Hm(p.ShiftEnd)</p>
+    </div>
+    <a href="/attendance/overview" class="btn btn-outline btn-sm">View Time Account</a>
+</div>
+
+@if (Model.Violations.Count > 0)
+{
+<div class="flash-warning">&#9888; Policy Violations: @string.Join(", ", Model.Violations)</div>
+}
+
+<div class="stats-grid">
+    <div class="stat-card"><div class="stat-label">Total Days</div><div class="stat-value">@Model.Total</div></div>
+    <div class="stat-card"><div class="stat-label">Late Days</div><div class="stat-value">@(Model.LateDays ?? 0)</div></div>
+    <div class="stat-card"><div class="stat-label">Half Days</div><div class="stat-value">@(Model.HalfDays ?? 0)</div></div>
+    <div class="stat-card"><div class="stat-label">OT Hours</div><div class="stat-value">@ot</div></div>
+    <div class="stat-card" style="text-align:center;">
+        <div class="stat-label">Today</div>
+        @if (t is { ClockIn: not null, ClockOut: null })
+        {
+        <div class="stat-value" style="font-size:16px;color:var(--green);">
+            @(Model.OnBreak ? "On Break" : "Clocked In")
+        </div>
+        <div class="stat-sub">@Py.Hm(t.ClockIn)</div>
+        }
+        else if (t is { ClockOut: not null })
+        {
+        <div class="stat-value" style="font-size:16px;color:var(--muted);">Done</div>
+        <div class="stat-sub">@Py.Hm(t.ClockIn) - @Py.Hm(t.ClockOut)</div>
+        }
+        else
+        {
+        <div class="stat-value" style="font-size:16px;color:var(--red);">Not Clocked</div>
+        }
+    </div>
+</div>
+
+<div class="card mb-20" style="text-align:center;padding:30px;">
+    @if (t is null || t.ClockIn is null)
+    {
+    <button class="btn btn-accent" id="clock-in-btn" style="font-size:18px;padding:16px 40px;">&#9654; Clock In</button>
+    }
+    else if (t.ClockOut is null)
+    {
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        @if (!Model.OnBreak)
+        {
+        <button class="btn btn-warning" id="break-start-btn" style="font-size:16px;padding:12px 30px;">&#9201; Break Start</button>
+        }
+        else
+        {
+        <button class="btn btn-info" id="break-end-btn" style="font-size:16px;padding:12px 30px;">&#9203; Break End</button>
+        }
+        <button class="btn btn-danger" id="clock-out-btn" style="font-size:18px;padding:16px 40px;">&#9724; Clock Out</button>
+    </div>
+    }
+    else
+    {
+    <p style="font-size:16px;color:var(--muted);">Shift completed for today.</p>
+    }
+    <div id="clock-status" style="margin-top:10px;font-size:14px;font-weight:600;"></div>
+</div>
+
+<div class="card">
+    <div class="card-header">Attendance Log (Last 30 Days)</div>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Date</th><th>Clock In</th><th>Clock Out</th><th>Status</th><th>Late</th><th>Half Day</th></tr></thead>
+            <tbody>
+                @foreach (var r in Model.Records)
+                {
+                <tr>
+                    <td>@Py.Date(r.Date)</td>
+                    <td>@(r.ClockIn is null ? "-" : Py.Hms(r.ClockIn))</td>
+                    <td>@(r.ClockOut is null ? "-" : Py.Hms(r.ClockOut))</td>
+                    <td><span class="badge badge-@(r.Status == "present" ? "success" : r.Status == "half-day" ? "warning" : "info")">@r.Status</span></td>
+                    <td>@if (r.IsLate == true) {<text>&#10060;</text>} else {<text>&#10004;</text>}</td>
+                    <td>@if (r.IsHalfDay == true) {<text>&#10060;</text>} else {<text>&#10004;</text>}</td>
+                </tr>
+                }
+                @if (Model.Records.Count == 0)
+                {
+                <tr><td colspan="6" class="text-center" style="color:var(--muted);">No records</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+async function doAction(url, btn, statusEl) {
+    btn.disabled = true;
+    try {
+        const r = await fetch(url, { method: 'POST' });
+        const d = await r.json();
+        if (d.error) { statusEl.textContent = d.error; statusEl.style.color = 'var(--danger)'; return; }
+        statusEl.textContent = d.message;
+        statusEl.style.color = 'var(--success)';
+        setTimeout(() => location.reload(), 1500);
+    } catch(e) { statusEl.textContent = 'Error: ' + e.message; statusEl.style.color = 'var(--danger)'; }
+    btn.disabled = false;
+}
+
+document.getElementById('clock-in-btn')?.addEventListener('click', function() {
+    doAction('/attendance/clock-in', this, document.getElementById('clock-status'));
+});
+document.getElementById('clock-out-btn')?.addEventListener('click', function() {
+    doAction('/attendance/clock-out', this, document.getElementById('clock-status'));
+});
+document.getElementById('break-start-btn')?.addEventListener('click', function() {
+    doAction('/attendance/break-start', this, document.getElementById('clock-status'));
+});
+document.getElementById('break-end-btn')?.addEventListener('click', function() {
+    doAction('/attendance/break-end', this, document.getElementById('clock-status'));
+});
+</script>
+}

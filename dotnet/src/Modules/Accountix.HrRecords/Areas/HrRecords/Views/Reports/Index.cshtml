@@ -1,0 +1,247 @@
+@model ReportsController.IndexModel
+@{
+    ViewData["Title"] = "Reports & Analytics - Accountix ERP";
+    var today = Model.Today;
+    string[] monthNames = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    (string Key, string Label)[] cols =
+    [
+        ("employee", "Employee"), ("total_hours", "Total Hours"), ("overtime", "Overtime"), ("leaves", "Leaves"), ("sick_days", "Sick Days"),
+        ("late_days", "Late Days"), ("present_days", "Days Present"), ("pf_balance", "PF Balance"), ("loan_balance", "Loan Balance"),
+    ];
+}
+<div class="page-header">
+    <h1>Reports & Analytics</h1>
+</div>
+
+<div class="card mb-20">
+    <div class="card-header">Ad-Hoc Report Builder</div>
+    <div class="report-builder" style="padding:16px;">
+        <div class="form-row">
+            <div class="form-group">
+                <label>Scope</label>
+                <select id="report-scope" class="form-control">
+                    <option value="company">Company-Wide</option>
+                    <option value="department">Department</option>
+                    <option value="individual">Individual Employee</option>
+                </select>
+            </div>
+            <div class="form-group hidden" id="dept-group">
+                <label>Department</label>
+                <select id="report-dept" class="form-control">
+                    @foreach (var d in Model.Departments)
+                    {
+                    <option value="@d">@d</option>
+                    }
+                    @if (Model.Departments.Count == 0)
+                    {
+                    <option value="" disabled>No departments recorded</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group hidden" id="emp-group">
+                <label>Employee</label>
+                <select id="report-emp" class="form-control">
+                    @foreach (var u in Model.Employees)
+                    {
+                    <option value="@u.Id">@u.FullName</option>
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group"><label>From</label><input type="date" id="report-from" class="form-control"></div>
+            <div class="form-group"><label>To</label><input type="date" id="report-to" class="form-control"></div>
+        </div>
+        <div class="form-group">
+            <label>Columns</label>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                @foreach (var (key, label) in cols)
+                {
+                <label style="font-size:13px;display:flex;align-items:center;gap:4px;background:var(--bg-top);padding:4px 8px;border-radius:4px;">
+                    <input type="checkbox" class="col-check" value="@key" checked> @label
+                </label>
+                }
+            </div>
+        </div>
+        <button class="btn btn-primary" id="run-report">&#9654; Generate Report</button>
+        <button class="btn btn-accent hidden" id="export-excel">&#128196; Export to Excel</button>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <span>Results</span>
+        <span id="result-count" style="font-size:12px;color:var(--muted);"></span>
+    </div>
+    <div class="table-wrap" id="report-results">
+        <p style="padding:20px;color:var(--muted);text-align:center;">Run a report to see results</p>
+    </div>
+</div>
+
+<div class="grid-3 mt-20">
+    <div class="card">
+        <div class="card-header">Attendance Report</div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:14px;">Download a month's attendance records.</p>
+        <form method="GET" action="/reports/export-attendance">
+            <div class="form-row">
+                <div class="form-group"><label>Month</label>
+                    <select name="month" class="form-control">
+                        @for (int m = 1; m < 13; m++) {<option value="@m" selected="@(m == today.Month)">@monthNames[m]</option>}
+                    </select>
+                </div>
+                <div class="form-group"><label>Year</label>
+                    <select name="year" class="form-control">
+                        @for (int y = today.Year - 4; y < today.Year + 2; y++) {<option value="@y" selected="@(y == today.Year)">@y</option>}
+                    </select>
+                </div>
+            </div>
+            <div class="export-group">
+                <button type="submit" name="format" value="excel" class="btn btn-outline btn-sm">Excel</button>
+                <button type="submit" name="format" value="pdf" class="btn btn-outline btn-sm">PDF</button>
+                <button type="submit" name="format" value="csv" class="btn btn-outline btn-sm">CSV</button>
+            </div>
+        </form>
+    </div>
+    <div class="card">
+        <div class="card-header">Leave Report</div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:14px;">Download a year's leave requests.</p>
+        <form method="GET" action="/reports/export-leaves">
+            <div class="form-group"><label>Year</label>
+                <select name="year" class="form-control">
+                    @for (int y = today.Year - 4; y < today.Year + 2; y++) {<option value="@y" selected="@(y == today.Year)">@y</option>}
+                </select>
+            </div>
+            <div class="export-group">
+                <button type="submit" name="format" value="excel" class="btn btn-outline btn-sm">Excel</button>
+                <button type="submit" name="format" value="pdf" class="btn btn-outline btn-sm">PDF</button>
+                <button type="submit" name="format" value="csv" class="btn btn-outline btn-sm">CSV</button>
+            </div>
+        </form>
+    </div>
+    <div class="card">
+        <div class="card-header">Dashboard Analytics</div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:14px;">View attendance trends and metrics.</p>
+        <a href="/dashboard" class="btn btn-outline">View Dashboard</a>
+    </div>
+</div>
+
+<div class="card mt-20">
+    <div class="card-header">Monthly Attendance Overview</div>
+    <div style="height:250px;display:flex;align-items:flex-end;gap:8px;padding:16px 0;" id="chart-container"></div>
+</div>
+
+@section Scripts {
+<script>
+document.getElementById('report-scope')?.addEventListener('change', function() {
+    document.getElementById('dept-group').classList.toggle('hidden', this.value !== 'department');
+    document.getElementById('emp-group').classList.toggle('hidden', this.value !== 'individual');
+});
+
+let lastResults = [];
+let lastColumns = [];
+
+document.getElementById('run-report')?.addEventListener('click', async function() {
+    const scope = document.getElementById('report-scope').value;
+    const columns = [...document.querySelectorAll('.col-check:checked')].map(c => c.value);
+    lastColumns = columns;
+    const payload = {
+        scope,
+        columns,
+        date_from: document.getElementById('report-from').value || null,
+        date_to: document.getElementById('report-to').value || null,
+        user_id: scope === 'individual' ? parseInt(document.getElementById('report-emp').value) : null,
+        department: scope === 'department' ? document.getElementById('report-dept').value : null,
+    };
+    this.disabled = true;
+    this.textContent = 'Generating...';
+    try {
+        const r = await fetch('/reports/query', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+        const d = await r.json();
+        lastResults = d.results || [];
+        renderTable(lastResults, columns);
+        if (d.error) {
+            const p = document.createElement('p');
+            p.style.cssText = 'padding:20px;color:var(--danger, #b91c1c);text-align:center;';
+            p.textContent = d.error;
+            document.getElementById('report-results').replaceChildren(p);
+        }
+        document.getElementById('result-count').textContent = `${lastResults.length} row(s)`;
+        document.getElementById('export-excel').classList.remove('hidden');
+    } catch(e) { alert('Error: ' + e.message); }
+    this.disabled = false;
+    this.innerHTML = '&#9654; Generate Report';
+});
+
+// Names and departments are typed by people (anyone can set their own
+// display name): text, never markup.
+function esc(s) {
+    return String(s).replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
+}
+
+function renderTable(rows, columns) {
+    const container = document.getElementById('report-results');
+    if (rows.length === 0) {
+        container.innerHTML = '<p style="padding:20px;color:var(--muted);text-align:center;">No results</p>';
+        return;
+    }
+    const labels = {employee:'Employee', department:'Department', total_hours:'Total Hours', overtime:'Overtime', leaves:'Leaves', sick_days:'Sick Days', late_days:'Late Days', present_days:'Days Present', pf_balance:'PF Balance', loan_balance:'Loan Balance'};
+    let html = '<table><thead><tr>';
+    columns.forEach(c => { html += `<th>${esc(labels[c] || c)}</th>`; });
+    html += '</tr></thead><tbody>';
+    rows.forEach(r => {
+        html += '<tr>';
+        columns.forEach(c => { html += `<td>${r[c] !== undefined && r[c] !== null ? esc(r[c]) : '-'}</td>`; });
+        html += '</tr>';
+    });
+    html += '</tbody></table>';
+    container.innerHTML = html;
+}
+
+document.getElementById('export-excel')?.addEventListener('click', async function() {
+    if (lastResults.length === 0) return;
+    const r = await fetch('/reports/export-excel', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({rows: lastResults, columns: lastColumns,
+                              date_from: document.getElementById('report-from').value || null,
+                              date_to: document.getElementById('report-to').value || null})
+    });
+    if (!r.ok) { alert('Export failed.'); return; }
+    const blob = await r.blob();
+    const cd = r.headers.get('Content-Disposition') || '';
+    const m = cd.match(/filename="?([^";]+)"?/);
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = m ? m[1] : `HR_Report_${new Date().toISOString().slice(0,10)}.xlsx`;
+    a.click();
+});
+
+(async function() {
+    try {
+        const r = await fetch('/reports/attendance-chart?year=@Model.Today.Year');
+        const data = await r.json();
+        const container = document.getElementById('chart-container');
+        container.innerHTML = '';
+        const max = Math.max(...data.map(d => d.total), 1);
+        data.forEach(m => {
+            const wrapper = document.createElement('div');
+            wrapper.style.cssText = 'flex:1;display:flex;flex-direction:column;align-items:center;';
+            const bar = document.createElement('div');
+            bar.style.cssText = `width:100%;background:var(--ledger);border-radius:2px 2px 0 0;height:${(m.total/max)*200}px;min-height:4px;position:relative;`;
+            const tooltip = document.createElement('div');
+            tooltip.style.cssText = 'position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--ledger);font-weight:600;white-space:nowrap;';
+            tooltip.textContent = `${m.total} (L:${m.late})`;
+            bar.appendChild(tooltip);
+            wrapper.appendChild(bar);
+            const months = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            const label = document.createElement('div');
+            label.style.cssText = 'font-size:9px;color:var(--muted);margin-top:4px;';
+            label.textContent = months[m.month];
+            wrapper.appendChild(label);
+            container.appendChild(wrapper);
+        });
+    } catch(e) {}
+})();
+</script>
+}

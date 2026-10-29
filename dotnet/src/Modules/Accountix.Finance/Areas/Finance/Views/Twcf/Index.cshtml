@@ -1,0 +1,614 @@
+@model Accountix.Finance.Controllers.TwcfPageModel
+@using System.Globalization
+@using Accountix.Finance.Services
+@*
+  13-Week Cash Flow (finance_app/templates/finance/twcf.html), one to one.
+  The style and script blocks are copied verbatim (@ escaped).
+*@
+@{
+    ViewData["Title"] = "13-Week Cash Flow (TWCF)";
+    ViewData["Heading"] = "13-Week Cash Flow (TWCF)";
+    var inv = CultureInfo.InvariantCulture;
+    var m = Model.Matrix;
+    var weeks = m?.Weeks ?? [];
+    var editing = Model.Editing;
+    string startIso = Model.Start.ToString("yyyy-MM-dd", inv);
+    var access = Context.Access();
+    string companyName = access?.Profile?.CompanyName is { Length: > 0 } pn ? pn : access?.Company?.Name ?? "";
+    string[] dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+    string[] dayShort = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    string[] monthNames = ["", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    string[] monthShort = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    // Jinja's |sum is Python's builtin sum (compensated since 3.12); |select drops None and 0.
+    static double Sum(IEnumerable<double?> xs) => TwcfReports.PySum(xs.Select(x => x ?? 0));
+    static double SumTruthy(IEnumerable<double?> xs) => TwcfReports.PySum(xs.Where(x => x is double d && d != 0).Select(x => x!.Value));
+    string Neg(double? v) => v is double d && d < 0 ? "num-neg" : "";
+    string Sign(double? v) => v is double d ? (d < 0 ? "num-neg" : d > 0 ? "num-pos" : "") : "";
+    string nf = access?.NumberFormat ?? "en";
+    string Amt(double? v) => v is double d ? TwcfReports.Display(d, nf) : "";
+    string A(double? v) => TwcfReports.Display(v ?? 0, nf);
+}
+@section Head {
+<partial name="_FinanceHead" />
+}
+@section Actions {
+@if (Model.Loaded)
+{
+<a href="?start=@startIso&format=excel" class="btn btn-outline btn-sm"><i class="fas fa-file-excel"></i> Excel</a>
+<a href="?start=@startIso&format=pdf" class="btn btn-outline btn-sm"><i class="fas fa-file-pdf"></i> PDF</a>
+<button onclick="window.print()" class="btn btn-outline btn-sm"><i class="fas fa-print"></i> Print</button>
+}
+<a href="/settings/?tab=cash_flow" class="btn btn-outline btn-sm"><i class="fas fa-cog"></i> Settings</a>
+}
+<style>
+  /* 13 weekly columns need a wide table; the page must never scroll
+     horizontally, only the card body. The label column sticks while the
+     weeks scroll, so the row names stay readable at any width. */
+  .twcf-scroll { max-width: 100%; overflow-x: auto; }
+  table.twcf { min-width: 1280px; }
+  /* The sticky label column paints its own background, so every row variant
+     has to repeat the background base.html gives that row — otherwise the
+     frozen cell shows white over a washed row as the weeks scroll under it. */
+  table.twcf th.stick, table.twcf td.stick {
+    position: sticky; left: 0; z-index: 3;
+    background: var(--v2-surface); box-shadow: 1px 0 0 var(--v2-line);
+  }
+  table.twcf thead th.stick { background: var(--v2-surface); z-index: 6; }
+  table.twcf .sec-head td.stick { background: var(--v2-hover); }
+  table.twcf .sec-total td.stick { background: var(--v2-surface); }
+  table.twcf .subtotal-row td.stick { background: var(--v2-hover); }
+  table.twcf .opening-row td.stick, table.twcf .closing-row td.stick { background: var(--v2-hover); }
+  table.twcf .grand-total td.stick { background: var(--v2-ink); color: var(--v2-ground); }
+  table.twcf .profit-line td.stick { background: var(--v2-sunk); }
+  table.twcf .profit-line.neg td.stick { background: var(--v2-neg-bg); }
+  table.twcf .recon-line td.stick { background: var(--v2-hover); }
+  table.twcf td.wk { min-width: 92px; }
+  table.twcf .wk-hd small { display: block; font-size: 10px; font-weight: 400; color: var(--v2-muted); }
+  /* Row-source badges. Direction of money (in/out) and a figure that is still
+     a forecast (plan) are the three that earn colour; where the number came
+     from otherwise — the ledger, or HR payroll — is neutral. */
+  .badge-in { background: var(--v2-pos-bg); color: var(--v2-pos); }
+  .badge-out { background: var(--v2-neg-bg); color: var(--v2-neg); }
+  .badge-plan { background: var(--v2-warn-bg); color: var(--v2-warn); }
+  .badge-auto { background: var(--v2-sunk); color: var(--v2-body); }
+  .badge-hr { background: var(--v2-sunk); color: var(--v2-body); }
+  .twcf-form label { font-size: 12px; font-weight: 500; color: var(--v2-muted); display: block; margin-bottom: 4px; }
+  .twcf-form input:not([type="radio"]), .twcf-form select { width: 100%; }
+  .line-row td { vertical-align: middle; }
+  /* At-a-glance summary strip */
+  .twcf-kpi { background: var(--v2-surface); border: 1px solid var(--v2-line); border-radius: 11px; padding: 10px 12px; }
+  .twcf-kpi .k-label { font-size: 11.5px; font-weight: 500; color: var(--v2-muted); display: flex; align-items: center; gap: 6px; }
+  .twcf-kpi .k-value { font-size: 18px; font-weight: 600; color: var(--v2-ink); margin-top: 4px; line-height: 1.15; letter-spacing: -.02em; }
+  /* The k-closing tile holds the one number this forecast exists to produce,
+     so it gets the inverted slab. Both tokens flip with the theme, and the
+     label rides the same ground colour at reduced opacity rather than a second
+     grey that would have to be re-picked for dark.
+     Note the wording: this <style> block renders on a bare open, before the
+     matrix loads, and test_initial_open_requires_click_to_load asserts the
+     matrix's own labels are absent from that HTML. A comment that quotes one
+     of them verbatim fails the test from inside a CSS comment. */
+  .twcf-kpi.k-closing { background: var(--v2-ink); border-color: var(--v2-ink); }
+  .twcf-kpi.k-closing .k-label { color: var(--v2-ground); opacity: .72; }
+  .twcf-kpi.k-closing .k-value { color: var(--v2-ground); }
+  /* Explainer */
+  #twcf-explain summary { cursor: pointer; font-weight: 600; font-size: 13.5px; color: var(--v2-ink); list-style: none; display: flex; align-items: center; gap: 8px; }
+  #twcf-explain summary::-webkit-details-marker { display: none; }
+  #twcf-explain ul { margin: 10px 0 0; padding-left: 20px; color: var(--v2-body); font-size: 13px; display: grid; gap: 6px; }
+  /* Money in / out toggle */
+  .twcf-dir { display: flex; align-items: center; gap: 6px; border: 1px solid var(--v2-line-2); border-radius: 8px; padding: 8px 10px; background: var(--v2-surface); cursor: pointer; font-weight: 500; font-size: 13px; color: var(--v2-ink); flex: 1; }
+  .twcf-dir small { font-weight: 400; color: var(--v2-muted); }
+  .twcf-dir:has(input:checked) { background: var(--v2-pos-bg); border-color: var(--v2-pos); box-shadow: 0 0 0 1px var(--v2-pos); }
+  .twcf-dir.twcf-dir-out:has(input:checked) { background: var(--v2-neg-bg); border-color: var(--v2-neg); box-shadow: 0 0 0 1px var(--v2-neg); }
+  /* Live landing preview */
+  .twcf-hint { margin-top: 10px; font-size: 13px; color: var(--v2-body); background: var(--v2-hover); border: 1px dashed var(--v2-line-2); border-radius: 8px; padding: 8px 10px; }
+  .twcf-src { font-size: 10px; font-weight: 500; color: var(--v2-muted); }
+  .twcf-legend { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 12px; color: var(--v2-body); }
+  @@media (max-width: 640px) {
+    .twcf-form .grid { grid-template-columns: 1fr; }
+    .twcf-line-actions { display: flex; gap: 6px; }
+  }
+</style>
+
+@if (Model.Loaded && m is not null)
+{
+<!-- At-a-glance summary -->
+<div id="twcf-kpis" class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6 no-print">
+  <div class="twcf-kpi">
+    <span class="k-label"><i class="fas fa-wallet"></i> Opening cash</span>
+    <span class="k-value">@A(m.Opening)</span>
+  </div>
+  <div class="twcf-kpi">
+    <span class="k-label"><i class="fas fa-arrow-down num-pos"></i> Total receipts</span>
+    <span class="k-value num-pos">@A(m.TotalIn)</span>
+  </div>
+  <div class="twcf-kpi">
+    <span class="k-label"><i class="fas fa-arrow-up num-neg"></i> Total payments</span>
+    <span class="k-value num-neg">@A(m.TotalOut)</span>
+  </div>
+  <div class="twcf-kpi k-closing">
+    <span class="k-label"><i class="fas fa-flag-checkered"></i> Projected closing</span>
+    <span class="k-value @(m.Closing[^1] < 0 ? "num-neg" : "num-pos")">@A(m.Closing[^1])</span>
+  </div>
+</div>
+}
+
+<!-- Forecast window -->
+<form method="get" class="card mb-6 no-print">
+  <div class="flex flex-wrap items-end gap-4">
+    <div>
+      <label class="block text-sm font-semibold t-muted mb-1">Forecast starts on</label>
+      <input type="date" name="start" value="@startIso" class="form-input">
+    </div>
+    <div class="flex gap-2">
+      <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Rebuild</button>
+      <button type="button" class="btn btn-outline" id="twcf-this-week"><i class="fas fa-calendar-week"></i> This week</button>
+    </div>
+    <p class="w-full text-sm t-muted mt-1">
+      13 weekly columns, Mon–Sun. Rolling the start date forward re-buckets every auto and recurring line — that is how the forecast rolls.
+    </p>
+  </div>
+</form>
+
+@if (Model.Loaded && m is not null)
+{
+<!-- How it works -->
+<details id="twcf-explain" class="card mb-6 no-print">
+  <summary><i class="fas fa-circle-question t-muted"></i> How this forecast works</summary>
+  <ul>
+    <li><strong>Opening cash</strong> — the actual cash balance just before the window starts, straight from your general ledger.</li>
+    <li><strong>Auto rows</strong> — open customer and supplier balances are aged and spread across the weeks (0–30 days → weeks 1–2, 31–60 → weeks 3–5, 61–90 → weeks 6–8, older → weeks 9–13). No entry needed.</li>
+    <li><strong>Your lines</strong> — anything the ledger can't see yet: payroll, rent, taxes, loan repayments, one-off items. Add one below; it lands in the week of its date and repeats if you pick a frequency.</li>
+    @if (m.HasPayrollAuto)
+    {<li><strong>Salaries &amp; wages</strong> are forecast automatically from your approved HR payroll runs — add a payroll line only if you pay something extra.</li>}
+    <li><strong>Finished weeks</strong> — replaced with actual cash movement; the variance row shows whether the forecast held. Set a minimum cash floor in <em>Finance Settings → Cash flow</em> to add a headroom check.</li>
+  </ul>
+</details>
+
+<!-- Add a future cash item -->
+<div class="card mb-6 no-print">
+  <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+    <h2 class="font-bold text-lg"><i class="fas fa-plus-circle t-muted"></i> Add a future cash item</h2>
+    @if (editing is not null)
+    {
+    <a href="?start=@startIso" class="btn btn-outline btn-sm"><i class="fas fa-times"></i> Cancel edit</a>
+    }
+  </div>
+  <p class="text-sm t-muted mb-4">Money you expect to receive or pay in the next 13 weeks. It appears in the matrix as a <span class="badge badge-plan">plan</span> row.</p>
+  <form method="post" action="/finance/twcf" class="twcf-form">
+    <input type="hidden" name="start" value="@startIso">
+    <input type="hidden" name="action" value="@(editing is not null ? "edit" : "add")">
+    @if (editing is not null)
+    {<input type="hidden" name="line_id" value="@editing.Id">}
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="col-span-2 md:col-span-2">
+        <label>Money in or out?</label>
+        <div class="flex gap-2">
+          <label class="twcf-dir">
+            <input type="radio" name="direction" value="in" checked="@(editing is null || editing.Direction == "in")">
+            <i class="fas fa-arrow-down num-pos"></i> Receipt <small>money in</small>
+          </label>
+          <label class="twcf-dir twcf-dir-out">
+            <input type="radio" name="direction" value="out" checked="@(editing is not null && editing.Direction == "out")">
+            <i class="fas fa-arrow-up num-neg"></i> Payment <small>money out</small>
+          </label>
+        </div>
+      </div>
+      <div>
+        <label for="twcf-description">What is it?</label>
+        <input type="text" name="description" id="twcf-description" placeholder="e.g. August salaries" value="@(editing?.Description ?? "")" required>
+      </div>
+      <div>
+        <label for="twcf-category">Category</label>
+        <select name="category" id="twcf-category">
+          @foreach (var cat in Twcf.UserInCategories)
+          {
+          <option value="@cat" data-dir="in" selected="@(editing is not null && editing.Category == cat)">@(Twcf.CategoryLabels.TryGetValue(cat, out var il) ? il : "Other receipts")</option>
+          }
+          @foreach (var cat in Twcf.UserOutCategories)
+          {
+          <option value="@cat" data-dir="out" selected="@(editing is not null && editing.Category == cat)">@Twcf.CategoryLabels[cat]</option>
+          }
+        </select>
+      </div>
+      <div>
+        <label for="twcf-amount">How much?</label>
+        <input type="number" name="amount" id="twcf-amount" step="0.01" min="0.01" placeholder="0.00" value="@(editing is not null ? TwcfReports.Round2(TwcfReports.F(editing.Amount)).ToString("F2", inv) : "")" required>
+      </div>
+      <div>
+        <label for="twcf-start-date">First date</label>
+        <input type="date" name="start_date" id="twcf-start-date" value="@((editing?.StartDate ?? Model.Start).ToString("yyyy-MM-dd", inv))" required>
+      </div>
+      <div>
+        <label for="twcf-frequency">Frequency</label>
+        <select name="frequency" id="twcf-frequency">
+          @foreach (var f in Twcf.Frequencies)
+          {
+          <option value="@f" selected="@(editing is not null && editing.Frequency == f)">@Twcf.FrequencyLabels[f]</option>
+          }
+        </select>
+      </div>
+      <div class="flex items-end">
+        <button type="submit" class="btn btn-primary w-full"><i class="fas fa-@(editing is not null ? "save" : "plus")"></i> @(editing is not null ? "Save changes" : "Add to forecast")</button>
+      </div>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 hidden" id="twcf-recur-wrap">
+      <div id="twcf-day-week-wrap" class="hidden">
+        <label for="twcf-day-week">Repeats on</label>
+        <select name="day_of_week" id="twcf-day-week">
+          @for (int d = 0; d < 7; d++)
+          {
+          <option value="@d" selected="@(editing is not null && editing.DayOfWeek == d)">@dayNames[d]</option>
+          }
+        </select>
+      </div>
+      <div id="twcf-day-month-wrap" class="hidden">
+        <label for="twcf-day-month">Day of month</label>
+        <input type="number" name="day_of_month" id="twcf-day-month" min="1" max="31" value="@(editing is not null ? editing.DayOfMonth?.ToString(inv) ?? "" : "1")">
+      </div>
+      <div id="twcf-month-wrap" class="hidden">
+        <label for="twcf-month">Month</label>
+        <select name="month" id="twcf-month">
+          @for (int mo = 1; mo <= 12; mo++)
+          {
+          <option value="@mo" selected="@(editing is not null && editing.Month == mo)">@monthNames[mo]</option>
+          }
+        </select>
+      </div>
+    </div>
+    <p id="twcf-preview-hint" class="twcf-hint"><i class="fas fa-circle-info t-muted"></i> <span id="twcf-preview-text">Choose the date and amount to see exactly where this lands in the 13 weeks.</span></p>
+  </form>
+</div>
+}
+else
+{
+<!-- Load prompt (bare open, no start yet) -->
+<div class="card mb-6 no-print" id="twcf-load-prompt">
+  <div class="text-center py-10">
+    <i class="fas fa-calendar-week text-4xl t-faint mb-3"></i>
+    <h2 class="font-bold text-lg t-ink">Choose a start date and load the forecast</h2>
+    <p class="text-sm t-muted mt-1 mb-4">The 13-week matrix is computed on demand — pick <strong>Forecast starts on</strong> above and click <strong>Rebuild</strong>, or load from this week.</p>
+    <a href="?start=@startIso" class="btn btn-outline"><i class="fas fa-play"></i> Load 13-week forecast</a>
+  </div>
+</div>
+}
+
+@if (Model.Loaded && m is not null)
+{
+<div class="card report-sheet">
+  <div class="report-head">
+    <div>
+      <div class="report-company">@companyName</div>
+      <div class="report-title-lg">13-Week Cash Flow <span class="report-sub">(TWCF)</span></div>
+      <div class="report-period">Forecast window @Model.Start.ToString("dd MMMM, yyyy", inv) to @weeks[^1].End.ToString("dd MMMM, yyyy", inv)</div>
+    </div>
+    <div class="flex gap-2 no-print">
+      <span class="badge badge-default">13 weeks</span>
+      @if (m.Floor is double floor)
+      {<span class="badge badge-default">Floor @A(floor)</span>}
+    </div>
+  </div>
+
+  <div class="twcf-legend no-print mb-3">
+    <span class="badge badge-auto">auto — from your ledgers</span>
+    <span class="badge badge-plan">plan — your lines</span>
+    @if (m.HasPayrollAuto)
+    {<span class="badge badge-hr"><i class="fas fa-users"></i> from HR payroll</span>}
+    <span class="text-xs t-muted"><i class="fas fa-check-circle num-pos"></i> finished week — actual used</span>
+  </div>
+
+  <div class="twcf-scroll">
+    <table class="report-table statement twcf">
+      <thead>
+        <tr>
+          <th class="stick">Category</th>
+          @for (int i = 0; i < weeks.Count; i++)
+          {
+          var wk = weeks[i];
+          <th class="num wk wk-hd">Wk @(i + 1)<small>@wk.Start.ToString("dd MMM", inv) – @wk.End.ToString("dd MMM", inv)@if (wk.IsPast) {<text> <i class="fas fa-check-circle"></i></text>}</small></th>
+          }
+          <th class="num" style="min-width:110px;">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach (var row in m.Rows)
+        {
+        var vals = row.Values ?? [];
+        if (row.Kind == "section")
+        {
+        <tr class="sec-head"><td class="stick" colspan="15"><i class="fas fa-@(row.Label.Contains("RECEIPTS") ? "arrow-down" : "arrow-up")"></i> @row.Label</td></tr>
+        }
+        else if (row.Kind == "opening")
+        {
+        <tr class="opening-row">
+          <td class="stick">@row.Label</td>
+          @foreach (var v in vals){<td class="num wk">@Amt(v)</td>}
+          <td class="num">@A(row.Total)</td>
+        </tr>
+        }
+        else if (row.Kind == "account")
+        {
+        <tr>
+          <td class="stick">
+            @if (row.Key == "out_payroll" && m.HasPayrollAuto) {<text>Additional payroll</text>} else {@row.Label}
+            @if (row.Auto) {<span class="badge badge-auto" title="Computed automatically from your data — no entry needed">auto</span>} else {<span class="badge badge-plan" title="From your forecast lines">plan</span>}
+            @if (row.Source == "payroll") {<small class="twcf-src"><i class="fas fa-users"></i> from HR payroll</small>}
+          </td>
+          @foreach (var v in vals){<td class="num wk @Neg(v)">@Amt(v)</td>}
+          <td class="num @(Sum(vals) < 0 ? "num-neg" : "")">@A(Sum(vals))</td>
+        </tr>
+        }
+        else if (row.Kind == "total")
+        {
+        <tr class="sec-total">
+          <td class="stick">@row.Label</td>
+          @foreach (var v in vals){<td class="num wk @Neg(v)">@A(v)</td>}
+          <td class="num">@A(row.Total)</td>
+        </tr>
+        }
+        else if (row.Kind == "net")
+        {
+        <tr class="profit-line @(Sum(vals) < 0 ? "neg" : "")">
+          <td class="stick">@row.Label</td>
+          @foreach (var v in vals){<td class="num wk @Sign(v)">@A(v)</td>}
+          <td class="num">@A(row.Total)</td>
+        </tr>
+        }
+        else if (row.Kind == "variance")
+        {
+        <tr class="recon-line">
+          <td class="stick"><i class="fas fa-scale-balanced"></i> @row.Label</td>
+          @foreach (var v in vals){<td class="num wk @Sign(v)">@(v is double vv ? A(vv) : "—")</td>}
+          <td class="num">@A(SumTruthy(vals))</td>
+        </tr>
+        }
+        else if (row.Kind == "grand")
+        {
+        <tr class="grand-total">
+          <td class="stick">@row.Label</td>
+          @foreach (var v in vals){<td class="num wk @Neg(v)">@A(v)</td>}
+          <td class="num">@A(row.Total)</td>
+        </tr>
+        }
+        else if (row.Kind == "plain")
+        {
+        <tr>
+          <td class="stick">@row.Label</td>
+          @foreach (var v in vals){<td class="num wk">@Amt(v)</td>}
+          <td class="num"></td>
+        </tr>
+        }
+        else if (row.Kind == "headroom")
+        {
+        <tr class="subtotal-row">
+          <td class="stick">@row.Label</td>
+          @foreach (var v in vals){<td class="num wk @Neg(v)">@A(v)</td>}
+          <td class="num @Neg(row.Total)">@A(row.Total)</td>
+        </tr>
+        }
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <p class="report-footnote">
+    <strong>Auto</strong> rows are computed from your data: <em>Collections from customers</em> spreads open receivables across the weeks by age bucket (0–30 days → weeks 1–2, 31–60 → weeks 3–5, 61–90 → weeks 6–8, 90+ → weeks 9–13); <em>Payments to suppliers</em> mirrors that for open payables@if (m.HasPayrollAuto) {<text>; <em>Salaries &amp; wages</em> repeats your latest approved HR payroll run monthly on its pay date</text>}.
+    <strong>Plan</strong> rows come from your forecast lines below. Elapsed weeks use actual journal cash movement.
+  </p>
+</div>
+
+<div class="card no-print">
+  <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+    <h2 class="font-bold text-lg">
+      <i class="fas fa-list-check t-muted"></i> Forecast Lines
+      <span class="text-sm font-normal t-muted">(@Model.Lines.Count)</span>
+    </h2>
+  </div>
+
+  @if (m.HasPayrollAuto)
+  {
+  <p class="text-sm t-muted mb-4"><i class="fas fa-users t-muted"></i> Salaries &amp; wages are already forecast from approved HR payroll — add lines only for other payments.</p>
+  }
+
+  @if (Model.Lines.Count > 0)
+  {
+  <div class="overflow-x-auto">
+    <table class="report-table">
+      <thead>
+        <tr><th>Description</th><th>Direction</th><th>Category</th><th class="num">Amount</th><th>Frequency</th><th>First occurrence</th><th class="no-print"></th></tr>
+      </thead>
+      <tbody>
+        @foreach (var line in Model.Lines)
+        {
+        int dom = line.DayOfMonth ?? 0;
+        <tr class="line-row">
+          <td>@line.Description</td>
+          <td>@if (line.Direction == "in") {<span class="badge badge-in"><i class="fas fa-arrow-down"></i> In</span>} else {<span class="badge badge-out"><i class="fas fa-arrow-up"></i> Out</span>}</td>
+          <td>@(Twcf.CategoryLabels.TryGetValue(line.Category, out var cl) ? cl : line.Category)</td>
+          <td class="num">@A(TwcfReports.F(line.Amount))</td>
+          <td>
+            @(Twcf.FrequencyLabels.TryGetValue(line.Frequency, out var fl) ? fl : line.Frequency)
+            @if (line.Frequency == "weekly") {<text>(@(dayShort[Math.Clamp(line.DayOfWeek ?? 0, 0, 6)]))</text>}
+            @if (line.Frequency is "monthly" or "quarterly") {<text>(@line.DayOfMonth@(dom == 1 ? "st" : dom == 2 ? "nd" : dom == 3 ? "rd" : "th"))</text>}
+            @if (line.Frequency == "yearly") {<text>(@(monthShort[Math.Clamp(line.Month ?? 0, 0, 12)]) @line.DayOfMonth)</text>}
+          </td>
+          <td>@line.StartDate.ToString("dd MMM, yyyy", inv)</td>
+          <td class="no-print">
+            <div class="twcf-line-actions">
+              <a href="?start=@startIso&edit=@line.Id" class="btn btn-outline btn-sm"><i class="fas fa-edit"></i> Edit</a>
+              <form method="post" action="/finance/twcf" class="inline" onsubmit="return confirm('Delete this forecast line?');">
+                <input type="hidden" name="start" value="@startIso">
+                <input type="hidden" name="action" value="delete">
+                <input type="hidden" name="line_id" value="@line.Id">
+                <button type="submit" class="btn btn-outline btn-sm"><i class="fas fa-trash"></i></button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  }
+  else
+  {
+  <p class="text-sm t-muted">No forecast lines yet. Add payroll, rent, taxes, loan repayments or one-off items — they land in the matrix as <span class="badge badge-plan">plan</span> rows.</p>
+  }
+</div>
+}
+
+@section Scripts {
+@if (Model.Loaded && m is not null)
+{
+<script>
+window.TWCF_WEEKS = [@Html.Raw(string.Join(",", weeks.Select(wk => $"{{s:'{wk.Start.ToString("yyyy-MM-dd", inv)}',e:'{wk.End.ToString("yyyy-MM-dd", inv)}'}}")))];
+(function () {
+  if (!document.getElementById('twcf-frequency')) { return; }
+  var WEEKS = window.TWCF_WEEKS;
+  var MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+
+  function parseIso(s) {
+    var p = s.split('-');
+    return new Date(+p[0], +p[1] - 1, +p[2]);
+  }
+  function fmtDate(d) { return d.getDate() + ' ' + MONTHS[d.getMonth()].slice(0, 3); }
+  function fmtMoney(n) {
+    if (isNaN(n)) { return ''; }
+    var r = Math.round(n * 100) / 100;
+    return r.toLocaleString('en-US', { minimumFractionDigits: (r % 1 ? 2 : 0), maximumFractionDigits: 2 });
+  }
+  function ord(n) {
+    var s = ['th','st','nd','rd'], v = n % 100;
+    return n + (s[(v - 20) % 10] || s[v] || s[0]);
+  }
+  function pyWeekday(d) { return (d.getDay() + 6) % 7; }
+  function addDays(d, n) { var x = new Date(d); x.setDate(x.getDate() + n); return x; }
+  function monthLen(y, m) { return new Date(y, m + 1, 0).getDate(); }
+  function weekOf(d) {
+    var winStart = parseIso(WEEKS[0].s);
+    return Math.floor(Math.round((d - winStart) / 86400000) / 7);
+  }
+
+  function occurrences(first, freq, dow, dom, mon, winEnd) {
+    var out = [];
+    if (freq === 'oneoff') {
+      out.push(first);
+    } else if (freq === 'weekly') {
+      var off = (dow - pyWeekday(first) + 7) % 7;
+      var cur = addDays(first, off);
+      while (cur <= winEnd) { out.push(cur); cur = addDays(cur, 7); }
+    } else if (freq === 'monthly' || freq === 'quarterly') {
+      var step = freq === 'monthly' ? 1 : 3;
+      var y = first.getFullYear(), m = first.getMonth(), guard = 0;
+      while (guard++ < 80) {
+        var occ = new Date(y, m, Math.min(dom, monthLen(y, m)));
+        if (occ >= first) { out.push(occ); }
+        if (occ > winEnd) { break; }
+        m += step;
+        while (m > 11) { m -= 12; y += 1; }
+      }
+    } else if (freq === 'yearly') {
+      var yy = first.getFullYear(), guard2 = 0;
+      while (guard2++ < 30) {
+        var occ2 = new Date(yy, mon - 1, Math.min(dom, monthLen(yy, mon - 1)));
+        if (occ2 >= first) { out.push(occ2); }
+        if (occ2 > winEnd) { break; }
+        yy += 1;
+      }
+    }
+    return out;
+  }
+
+  function currentDir() {
+    var c = document.querySelector('input[name="direction"]:checked');
+    return c ? c.value : 'in';
+  }
+
+  function updateHint() {
+    var hint = document.getElementById('twcf-preview-text');
+    var amount = parseFloat(document.getElementById('twcf-amount').value);
+    var raw = document.getElementById('twcf-start-date').value;
+    var freq = document.getElementById('twcf-frequency').value;
+    if (!raw) {
+      hint.textContent = 'Choose the date and amount to see exactly where this lands in the 13 weeks.';
+      return;
+    }
+    var first = parseIso(raw);
+    var winEnd = parseIso(WEEKS[WEEKS.length - 1].e);
+    var dow = +(document.getElementById('twcf-day-week').value || 0);
+    var dom = +(document.getElementById('twcf-day-month').value || 1);
+    var mon = +(document.getElementById('twcf-month').value || 1);
+    var occs = occurrences(first, freq, dow, dom, mon, winEnd);
+
+    var whenText;
+    if (freq === 'oneoff') { whenText = 'Once on ' + fmtDate(first); }
+    else if (freq === 'weekly') { whenText = 'Every week on ' + DAYS[dow]; }
+    else if (freq === 'monthly') { whenText = 'Every month on the ' + ord(dom); }
+    else if (freq === 'quarterly') { whenText = 'Every quarter on the ' + ord(dom); }
+    else { whenText = 'Every year on ' + ord(dom) + ' ' + MONTHS[mon - 1]; }
+
+    var kept = occs.filter(function (d) { return weekOf(d) >= 0 && weekOf(d) < WEEKS.length; })
+                   .sort(function (a, b) { return a - b; });
+
+    if (kept.length === 0) {
+      hint.textContent = whenText + ' — none of the occurrences fall inside this 13-week window. Move the forecast start forward or pick a later date.';
+      return;
+    }
+    var amtTxt = isNaN(amount) ? 'amount not set' : fmtMoney(amount);
+    var totalTxt = isNaN(amount) ? '' : ' · ' + kept.length + ' × ' + fmtMoney(amount) + ' = ' + fmtMoney(amount * kept.length);
+    hint.textContent = whenText + ' · lands in Wk ' + kept.map(function (d) { return weekOf(d) + 1; }).join(', Wk ') + ' · ' + amtTxt + totalTxt;
+  }
+
+  var freqSel = document.getElementById('twcf-frequency');
+  var recurWrap = document.getElementById('twcf-recur-wrap');
+  var dayWeek = document.getElementById('twcf-day-week-wrap');
+  var dayMonth = document.getElementById('twcf-day-month-wrap');
+  var monthWrap = document.getElementById('twcf-month-wrap');
+  var catSel = document.getElementById('twcf-category');
+
+  function syncFreq() {
+    var f = freqSel.value;
+    recurWrap.classList.toggle('hidden', f === 'oneoff');
+    dayWeek.classList.toggle('hidden', f !== 'weekly');
+    dayMonth.classList.toggle('hidden', !(f === 'monthly' || f === 'quarterly' || f === 'yearly'));
+    monthWrap.classList.toggle('hidden', f !== 'yearly');
+    updateHint();
+  }
+  function syncCat() {
+    var dir = currentDir();
+    Array.prototype.forEach.call(catSel.options, function (o) {
+      o.hidden = o.getAttribute('data-dir') !== dir;
+      if (o.hidden && o.selected) { o.selected = false; }
+    });
+    if (!catSel.value) {
+      Array.prototype.forEach.call(catSel.options, function (o) {
+        if (!o.hidden) { o.selected = true; }
+      });
+    }
+  }
+
+  freqSel.addEventListener('change', syncFreq);
+  Array.prototype.forEach.call(document.querySelectorAll('input[name="direction"]'), function (r) {
+    r.addEventListener('change', syncCat);
+  });
+  ['twcf-amount', 'twcf-start-date', 'twcf-day-week', 'twcf-day-month', 'twcf-month'].forEach(function (id) {
+    var el = document.getElementById(id);
+    el.addEventListener('input', updateHint);
+    el.addEventListener('change', updateHint);
+  });
+  syncFreq(); syncCat(); updateHint();
+
+  var thisWeekBtn = document.getElementById('twcf-this-week');
+  var dateInput = document.querySelector('input[name="start"]');
+  thisWeekBtn.addEventListener('click', function () {
+    var today = new Date();
+    var monday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - ((today.getDay() + 6) % 7));
+    var mm = ('0' + (monday.getMonth() + 1)).slice(-2);
+    var dd = ('0' + monday.getDate()).slice(-2);
+    dateInput.value = monday.getFullYear() + '-' + mm + '-' + dd;
+    dateInput.focus();
+  });
+})();
+</script>
+}
+}

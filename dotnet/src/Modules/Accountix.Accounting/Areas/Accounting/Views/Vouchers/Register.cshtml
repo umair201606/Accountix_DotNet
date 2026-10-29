@@ -1,0 +1,259 @@
+@model Accountix.Accounting.Controllers.RegisterModel
+@using System.Globalization
+@{
+    ViewData["Title"] = "Voucher Register - Accounting";
+    ViewData["Heading"] = "Voucher Register";
+    var labels = Accountix.Accounting.Controllers.VouchersController.Labels;
+    var f = Model.Filter;
+    string sub = f.Label + (Model.VType.Length > 0 ? " · " + labels[Model.VType] : "") + (Model.Status.Length > 0 ? " · " + ViewHelpers.Title(Model.Status) : "");
+    string Query(string fmt)
+    {
+        var q = Context.Request.Query.Where(kv => kv.Key != "fmt").Select(kv => $"{Uri.EscapeDataString(kv.Key)}={Uri.EscapeDataString(kv.Value.ToString())}").ToList();
+        q.Add("fmt=" + fmt);
+        return string.Join("&", q);
+    }
+}
+@section Head {
+<style>
+.voucher-page{max-width:1280px;margin:0 auto}
+.voucher-hero{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:22px;flex-wrap:wrap}
+.voucher-hero h1{margin:0;color:var(--ink);font-size:26px;letter-spacing:-.02em;line-height:1.25}
+.voucher-hero p{margin:6px 0 0;color:var(--muted);font-size:13px}
+.voucher-filters{border:1px solid var(--line);border-radius:12px;background:var(--surface);margin-bottom:18px;overflow:hidden}
+.voucher-filters-body{padding:16px 18px}
+.reg-filter-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:13px;align-items:end}
+.filter-field{min-width:0}
+.lbl{display:block;margin:0 0 6px;color:var(--muted);font-size:11.5px;font-weight:500}
+.sel{width:100%;min-height:38px;padding:8px 11px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);font-family:inherit;font-size:13px;outline:none}
+.voucher-results{border:1px solid var(--line);border-radius:12px;background:var(--surface);overflow:hidden}
+.results-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.results-title{color:var(--ink);font-size:14px;font-weight:600;display:flex;align-items:center;gap:10px}
+.result-count{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:24px;padding:0 8px;border-radius:999px;background:var(--v2-sunk);color:var(--v2-body);font-size:11px;font-weight:600}
+.results-note{color:var(--muted);font-size:11px}
+.results-actions{display:flex;gap:8px;flex-wrap:wrap}
+.results-actions .btn{white-space:nowrap}
+.voucher-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.voucher-table{width:100%;border-collapse:collapse;min-width:760px}
+.voucher-table th{padding:11px 14px;color:var(--muted);font-size:11.5px;font-weight:500;text-align:left;white-space:nowrap}
+.voucher-table td{padding:13px 14px;border-top:1px solid var(--border-soft);color:var(--ink);font-size:12.5px;vertical-align:middle}
+.voucher-table td.num,.voucher-table th.num{text-align:right;font-variant-numeric:tabular-nums}
+.voucher-table tfoot td{border-top:2px solid var(--line);font-weight:700;background:var(--surface)}
+.voucher-table a.vnum{color:var(--link);font-weight:700;text-decoration:none}
+.voucher-table a.vnum:hover{text-decoration:underline}
+.row-view{white-space:nowrap}
+.reg-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:18px}
+.reg-card{border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:10px 14px;display:flex;flex-direction:column;gap:2px}
+.reg-card span{font-size:12px;color:var(--muted)}
+.reg-card strong{font-size:17px;color:var(--ink)}
+.reg-foot{padding:12px 18px;color:var(--muted);font-size:12px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.reg-prompt{border:1px dashed var(--line);border-radius:12px;background:var(--surface);padding:34px 20px;text-align:center;color:var(--muted);font-size:13.5px}
+@@media print{
+  .no-print,.sidebar,.topbar,.app-flash-wrap{display:none!important}
+  .voucher-filters,.reg-cards,.row-view,.reg-prompt{display:none!important}
+  .voucher-page{max-width:none}
+  .voucher-results{border-color:var(--line-2);box-shadow:none}
+  .voucher-table{font-size:11px;min-width:0}
+  .voucher-table a.vnum{color:inherit}
+}
+</style>
+}
+<div class="voucher-page">
+<partial name="_PrintHeader" model="@("Voucher Register — " + f.Label)" />
+<div class="voucher-hero no-print">
+  <div>
+    <h1>Voucher Register</h1>
+    <p>@f.Label@if (Model.VType.Length > 0) {<text> &middot; @labels[Model.VType]</text>}@if (Model.Status.Length > 0) {<text> &middot; @ViewHelpers.Title(Model.Status)</text>}</p>
+  </div>
+</div>
+<div class="voucher-filters no-print">
+  <div class="voucher-filters-body">
+    <form method="GET" class="reg-filter-form" id="regFilterForm">
+      <div class="filter-field">
+        <label class="lbl" for="rgMode">Period</label>
+        <select name="mode" id="rgMode" class="sel">
+          <option value="month" selected="@(f.Mode == "month")">Month</option>
+          <option value="year" selected="@(f.Mode == "year")">Financial Year</option>
+          <option value="custom" selected="@(f.Mode == "custom")">Custom Range</option>
+        </select>
+      </div>
+      <div class="filter-field" data-for="month">
+        <label class="lbl">Month</label>
+        <input type="month" name="month" value="@f.Month" class="sel">
+      </div>
+      <div class="filter-field" data-for="year">
+        <label class="lbl">Financial Year</label>
+        <select name="period_id" class="sel">
+          @foreach (var p in f.Periods)
+          {
+          <option value="@p.Id" selected="@(f.PeriodId == p.Id)">@(string.IsNullOrEmpty(p.PeriodName) ? $"{p.StartDate:yyyy-MM-dd} to {p.EndDate:yyyy-MM-dd}" : p.PeriodName)</option>
+          }
+          @if (f.Periods.Count == 0) { <option value="">No financial years defined</option> }
+        </select>
+      </div>
+      <div class="filter-field" data-for="custom">
+        <label class="lbl">From</label>
+        <input type="date" name="from" value="@f.FromStr" class="sel">
+      </div>
+      <div class="filter-field" data-for="custom">
+        <label class="lbl">To</label>
+        <input type="date" name="to" value="@f.ToStr" class="sel">
+      </div>
+      <div class="filter-field">
+        <label class="lbl">Voucher Type</label>
+        <select name="vtype" class="sel">
+          <option value="">All types</option>
+          @foreach (var (code, name) in labels)
+          {
+          <option value="@code" selected="@(Model.VType == code)">@name</option>
+          }
+        </select>
+      </div>
+      <div class="filter-field">
+        <label class="lbl">Status</label>
+        <select name="status" class="sel">
+          <option value="" selected="@(Model.Status.Length == 0)">All</option>
+          <option value="approved" selected="@(Model.Status == "approved")">Approved</option>
+          <option value="unapproved" selected="@(Model.Status == "unapproved")">Unapproved</option>
+        </select>
+      </div>
+      <div class="filter-field">
+        <input type="hidden" name="view" value="1">
+        <button type="submit" class="btn btn-primary" id="regLoadBtn" style="min-height:38px;width:100%;">View</button>
+      </div>
+      <div class="filter-field">
+        <button type="submit" class="btn btn-outline" id="regDocsBtn" style="min-height:38px;width:100%;" formaction="/accounting/registers/vouchers/documents" title="Open every filtered voucher as full pages">Load Vouchers</button>
+      </div>
+    </form>
+  </div>
+</div>
+<div id="regLoaded" @Html.Raw(Model.Loaded ? "" : "style=\"display:none\"")>
+<div class="reg-cards no-print">
+  <div class="reg-card"><span>Vouchers</span><strong id="cardCount">@(Model.Loaded ? Model.Rows.Count : 0)</strong></div>
+  <div class="reg-card"><span>Total Debit</span><strong id="cardDebit">@Html.Amount(Model.TotalDebit, 0)</strong></div>
+  <div class="reg-card"><span>Total Credit</span><strong id="cardCredit">@Html.Amount(Model.TotalCredit, 0)</strong></div>
+</div>
+<div class="voucher-results">
+  <div class="results-head">
+    <div class="results-title">Voucher Register <span class="result-count" id="rowCount">@(Model.Loaded ? Model.Rows.Count : 0)</span></div>
+    <div class="results-note">@sub</div>
+    <div class="results-actions no-print" id="regActions">
+      <a href="/accounting/registers/vouchers/export?@Query("excel")" class="btn btn-outline btn-sm" id="actExcel">Excel</a>
+      <a href="/accounting/registers/vouchers/export?@Query("pdf")" class="btn btn-outline btn-sm" id="actPdf">PDF</a>
+      <button onclick="window.print()" class="btn btn-outline btn-sm">Print</button>
+    </div>
+  </div>
+  <div class="voucher-table-wrap">
+    <table class="voucher-table">
+      <thead>
+        <tr><th>Date</th><th>Voucher #</th><th>Description</th><th class="num">Debit</th><th class="num">Credit</th><th class="row-view no-print">View</th></tr>
+      </thead>
+      <tbody id="regBody">
+        @if (Model.Loaded) { <partial name="_VoucherTableBody" model="(IReadOnlyList<Accountix.Accounting.Controllers.RegisterRow>)Model.Rows" /> }
+      </tbody>
+      <tfoot id="regFoot">
+        @if (Model.Loaded) { <partial name="_VoucherTableTotals" model="(Model.TotalDebit, Model.TotalCredit)" /> }
+      </tfoot>
+    </table>
+  </div>
+  <div class="reg-foot"><span>Generated @Model.Now.ToString("dd MMM yyyy HH:mm", CultureInfo.InvariantCulture)</span><span>@(Context.Access()?.Profile?.CompanyName ?? Context.Access()?.Company?.Name ?? "") &middot; System generated</span></div>
+</div>
+</div>
+<div class="reg-prompt no-print" id="regPrompt" @Html.Raw(Model.Loaded ? "style=\"display:none\"" : "")>
+  Choose a period above and press <strong>Load Vouchers</strong> to build the register here.
+</div>
+</div>
+<script>
+(function(){
+  var mode=document.getElementById('rgMode');
+  function syncMode(){
+    if(!mode)return;
+    var m=mode.value;
+    document.querySelectorAll('[data-for]').forEach(function(el){
+      el.style.display=(el.getAttribute('data-for')===m)?'':'none';
+    });
+  }
+  if(mode){mode.addEventListener('change',syncMode);syncMode();}
+
+  var form=document.getElementById('regFilterForm');
+  if(!form)return;
+  var loaded=document.getElementById('regLoaded'),
+      prompt=document.getElementById('regPrompt'),
+      tbody=document.getElementById('regBody'),
+      controller=null, cancelled=false;
+
+  // Table loads run silently (button state only); the progress screen
+  // belongs to the full-documents Load action.
+  var btn=document.getElementById('regLoadBtn');
+  var btnLabel=btn.innerHTML;
+
+  form.addEventListener('submit',function(ev){
+    if(ev.submitter && ev.submitter.id==='regDocsBtn')return; // plain navigation
+    ev.preventDefault();
+    if(controller){try{controller.abort();}catch(e){}}
+    controller=new AbortController();cancelled=false;
+    var params=new URLSearchParams(new FormData(form));
+    params.delete('view');
+    var base=form.action||window.location.pathname;
+    var cardCount=document.getElementById('cardCount'),
+        cardDebit=document.getElementById('cardDebit'),
+        cardCredit=document.getElementById('cardCredit'),
+        rowCount=document.getElementById('rowCount');
+    tbody.innerHTML='';
+    loaded.style.display='none';prompt.style.display='none';
+    var got=0,total=0,done=false;
+    var btn=document.getElementById('regLoadBtn');
+    btn.disabled=true;btn.innerHTML='Loading…';
+    var DATA_URL="/accounting/registers/vouchers/data";
+    var EXPORT_URL="/accounting/registers/vouchers/export";
+
+    function finish(cancelledByUser){
+      btn.disabled=false;btn.innerHTML='View';controller=null;
+      // Keep the URL in sync so export/print links always match the view.
+      var qs=params.toString()+'&view=1';
+      try{history.replaceState(null,'',base+'?'+qs);}catch(e){}
+      var qx=new URLSearchParams(params.toString());qx.set('fmt','excel');
+      var qp=new URLSearchParams(params.toString());qp.set('fmt','pdf');
+      document.getElementById('actExcel').href=EXPORT_URL+'?'+qx.toString();
+      document.getElementById('actPdf').href=EXPORT_URL+'?'+qp.toString();
+      loaded.style.display='';
+    }
+
+    (async function(){
+      try{
+        var offset=0, limit=200;
+        while(true){
+          if(cancelled)break;
+          var url=DATA_URL+'?'+params.toString()+'&limit='+limit+'&offset='+offset;
+          var resp=await fetch(url,{signal:controller.signal,headers:{'Accept':'application/json'}});
+          if(!resp.ok)throw new Error('Server returned '+resp.status);
+          var data=await resp.json();
+          if(offset===0){
+            total=data.total||0;
+            cardCount.textContent=total;
+            cardDebit.textContent=data.debit_label;
+            cardCredit.textContent=data.credit_label;
+            rowCount.textContent=total;
+            tbody.innerHTML='';
+          }
+          var wrap=document.createElement('table');
+          wrap.innerHTML='<tbody>'+data.html+'</tbody>';
+          Array.prototype.forEach.call(
+            wrap.querySelectorAll('tbody tr'),function(tr){
+              tbody.appendChild(tr);
+            });
+          document.getElementById('regFoot').innerHTML=data.tfoot||'';
+          got+=data.rows||0;
+          if((data.rows||0)<limit||got>=total)break;
+          offset+=limit;
+        }
+        done=!cancelled;
+      }catch(e){
+        if(!cancelled){
+          tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--danger,#b91c1c)">Could not load the register. Please try again.</td></tr>';
+        }
+      }
+      finish(cancelled);
+    })();
+  });
+})();
+</script>

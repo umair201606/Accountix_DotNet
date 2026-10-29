@@ -1,0 +1,149 @@
+@model Accountix.Hr.Controllers.MssController.ApprovalsModel
+@{
+    ViewData["Title"] = "Approvals Inbox - Accountix ERP";
+}
+<div class="page-header">
+    <h1>Approvals Inbox</h1>
+</div>
+
+<div class="tab-nav mb-20">
+    <button class="tab-btn active" data-tab="leaves">Leave Requests (@Model.Leaves.Count)</button>
+    <button class="tab-btn" data-tab="timesheets">Timesheets (@Model.Timesheets.Count)</button>
+    <button class="tab-btn" data-tab="loans">Loan Requests (@Model.Loans.Count)</button>
+</div>
+
+<div class="tab-content" id="tab-leaves">
+    <div class="card">
+        <div class="card-header">Pending Leave Requests</div>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Employee</th><th>Type</th><th>Dates</th><th>Days</th><th>Reason</th><th>Action</th></tr></thead>
+                <tbody>
+                    @foreach (var a in Model.Leaves)
+                    {
+                    <tr>
+                        <td>@a.Employee</td>
+                        <td>@a.Type</td>
+                        <td>@Py.Date(a.Request.StartDate) to @Py.Date(a.Request.EndDate)</td>
+                        <td>@Py.Float(a.Request.TotalDays)</td>
+                        <td>@Py.Cut(a.Request.Reason, 40)</td>
+                        <td>
+                            <form method="POST" action="/mss/approve-leave/@a.Approval.Id" style="display:inline;">
+                                <input type="hidden" name="action" value="approve">
+                                <button class="btn btn-sm btn-accent">Approve</button>
+                            </form>
+                            <form method="POST" action="/mss/approve-leave/@a.Approval.Id" style="display:inline;">
+                                <input type="hidden" name="action" value="reject">
+                                <input type="text" name="comment" placeholder="Reason" style="width:80px;font-size:11px;padding:2px 4px;" required>
+                                <button class="btn btn-sm btn-danger">Reject</button>
+                            </form>
+                        </td>
+                    </tr>
+                    }
+                    @if (Model.Leaves.Count == 0)
+                    {
+                    <tr><td colspan="6" class="text-center" style="color:var(--muted);">No pending leaves</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="tab-content hidden" id="tab-timesheets">
+    <div class="card">
+        <div class="card-header">
+            <span>Pending Timesheets</span>
+            <button class="btn btn-sm btn-accent" id="bulk-approve-ts">Bulk Approve Selected</button>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th><input type="checkbox" id="select-all-ts"></th><th>Employee</th><th>Week</th><th>Hours</th><th>Action</th></tr></thead>
+                <tbody>
+                    @foreach (var a in Model.Timesheets)
+                    {
+                    <tr>
+                        <td><input type="checkbox" class="ts-check" value="@a.Approval.Id"></td>
+                        <td>@a.Employee</td>
+                        <td>@Py.Date(a.Week.WeekStart) to @Py.Date(a.Week.WeekEnd)</td>
+                        <td>@Py.Float(a.Week.TotalHours)</td>
+                        <td>
+                            <form method="POST" action="/mss/approve-timesheet/@a.Approval.Id" style="display:inline;">
+                                <input type="hidden" name="action" value="approve">
+                                <button class="btn btn-sm btn-accent">Approve</button>
+                            </form>
+                            <form method="POST" action="/mss/approve-timesheet/@a.Approval.Id" style="display:inline;">
+                                <input type="hidden" name="action" value="reject">
+                                <input type="text" name="comment" placeholder="Reason" style="width:80px;font-size:11px;padding:2px 4px;" required>
+                                <button class="btn btn-sm btn-danger">Reject</button>
+                            </form>
+                        </td>
+                    </tr>
+                    }
+                    @if (Model.Timesheets.Count == 0)
+                    {
+                    <tr><td colspan="5" class="text-center" style="color:var(--muted);">No pending timesheets</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="tab-content hidden" id="tab-loans">
+    <div class="card">
+        <div class="card-header">Pending Loan Requests</div>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Employee</th><th>Type</th><th>Amount</th><th>Installments</th><th>Purpose</th><th>Action</th></tr></thead>
+                <tbody>
+                    @foreach (var l in Model.Loans)
+                    {
+                    <tr>
+                        <td>@l.Employee</td>
+                        <td>@l.Loan.RequestType</td>
+                        <td>Rs. @Html.Amount(l.Loan.Amount, 0)</td>
+                        <td>@Py.Str(l.Loan.InstallmentMonths)</td>
+                        <td>@Py.Cut(l.Loan.Purpose, 40)</td>
+                        <td>
+                            <form method="POST" action="/mss/approve-loan/@l.Loan.Id" style="display:inline;">
+                                <input type="hidden" name="action" value="approve">
+                                <button class="btn btn-sm btn-accent">Approve</button>
+                            </form>
+                            <form method="POST" action="/mss/approve-loan/@l.Loan.Id" style="display:inline;">
+                                <input type="hidden" name="action" value="reject">
+                                <button class="btn btn-sm btn-danger">Reject</button>
+                            </form>
+                        </td>
+                    </tr>
+                    }
+                    @if (Model.Loans.Count == 0)
+                    {
+                    <tr><td colspan="6" class="text-center" style="color:var(--muted);">No pending loans</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+@section Scripts {
+<script>
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+        document.getElementById('tab-' + this.dataset.tab).classList.remove('hidden');
+    });
+});
+document.getElementById('select-all-ts')?.addEventListener('change', function() {
+    document.querySelectorAll('.ts-check').forEach(c => c.checked = this.checked);
+});
+document.getElementById('bulk-approve-ts')?.addEventListener('click', async function() {
+    const ids = [...document.querySelectorAll('.ts-check:checked')].map(c => c.value);
+    if (ids.length === 0) { alert('Select timesheets first.'); return; }
+    await fetch('/mss/bulk-approve-timesheets', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ids}) });
+    location.reload();
+});
+</script>
+}

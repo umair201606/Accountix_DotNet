@@ -1,0 +1,117 @@
+@model UsersController.ListModel
+@{
+    ViewData["Title"] = "Users - Super Admin";
+    int me = Context.Access()!.User.Id;
+}
+
+<h1 class="sa-page-title">Manage Users</h1>
+
+<div class="sa-card">
+  <div class="sa-card-header">
+    <div>
+      <h3 class="sa-card-title">Create User</h3>
+      <p class="sa-card-subtitle">Accounts are only ever created from this console. Everywhere else works with people who already exist: a company invites a registered email from its Settings, and HR fills in employee details once the invitation is accepted.</p>
+    </div>
+  </div>
+  <form method="POST" action="/superadmin/users/" asp-antiforgery="true">
+    <div class="fgrid">
+      <div class="fgroup">
+        <label class="lbl">Email</label>
+        <input type="email" name="email" class="inp" required placeholder="user@@example.com">
+      </div>
+      <div class="fgroup">
+        <label class="lbl">Full Name</label>
+        <input type="text" name="full_name" class="inp" placeholder="defaults to the email name">
+      </div>
+      <div class="fgroup">
+        <label class="lbl">Password</label>
+        <input type="text" name="password" class="inp" required minlength="8" placeholder="at least 8 characters">
+      </div>
+    </div>
+    <div class="sa-actions">
+      <button type="submit" class="btn btn-p">Create User</button>
+    </div>
+  </form>
+</div>
+
+<div class="sa-card">
+  <div class="sa-card-header">
+    <div>
+      <h3 class="sa-card-title">All Users</h3>
+      <p class="sa-card-subtitle">Default company creation limit is @Model.Limits.MaxCompaniesPerUser per user; open a user to override it.</p>
+    </div>
+    <a href="/superadmin/users/" class="btn btn-sm btn-ghost" style="visibility:hidden;">&nbsp;</a>
+  </div>
+  <div class="tbl-wrap">
+    <table class="sa-tbl">
+      <thead>
+        <tr>
+          <th>Email</th>
+          <th>Full Name</th>
+          <th>Super Admin</th>
+          <th>Account</th>
+          <th>Companies</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach (var (u, mc) in Model.Users)
+        {
+        <tr>
+          <td>@u.Email</td>
+          <td>
+            <a href="/superadmin/users/@u.Id/">@u.FullName</a>
+            @if (u.Id == me)
+            {
+            <span style="font-size:11.5px;color:var(--text-muted);margin-left:4px;">(you)</span>
+            }
+          </td>
+           <td>
+            @if (u.IsSuperAdmin == true) {<span class="pill pill-sa">yes</span>}
+            else {<span class="pill pill-off">no</span>}
+          </td>
+          <td>
+            @if (u.IsActive == true) {<span class="pill pill-on">active</span>}
+            else {<span class="pill pill-off">deactivated</span>}
+          </td>
+          <td>@mc</td>
+          <td>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
+              @if (u.IsSuperAdmin == true && u.Id != me)
+              {
+              <form method="POST" action="/superadmin/users/@u.Id/toggle-super" asp-antiforgery="true" onsubmit="return confirm('Revoke super admin access for ' + @Html.Raw(Py.TojsonForceescape(u.FullName)) + '?');">
+                <button type="submit" class="btn btn-sm btn-danger" title="Revoke super admin access">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+                  Revoke SA
+                </button>
+              </form>
+              }
+              else if (u.IsSuperAdmin != true)
+              {
+              <form method="POST" action="/superadmin/users/@u.Id/toggle-super" asp-antiforgery="true">
+                <button type="submit" class="btn btn-sm" title="Grant super admin access">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+                  Grant SA
+                </button>
+              </form>
+              }
+              <a class="btn btn-sm" href="/superadmin/users/@u.Id/">Manage</a>
+            </div>
+          </td>
+        </tr>
+        }
+        @if (Model.Users.Count == 0)
+        {
+        <tr>
+          <td colspan="6">
+            <div class="empty-state">
+              <div class="empty-state-icon">&#128100;</div>
+              No users yet.
+            </div>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

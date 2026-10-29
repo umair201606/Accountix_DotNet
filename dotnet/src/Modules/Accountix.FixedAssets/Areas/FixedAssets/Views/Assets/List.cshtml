@@ -1,0 +1,45 @@
+@model AssetListModel
+@{
+    ViewData["Title"] = "Fixed Assets";
+    ViewData["Heading"] = "Fixed Assets";
+}
+@section Actions {
+<a href="/fixed-assets/assets/create" class="btn btn-primary">+ New Asset</a>
+}
+<div class="card" style="margin-bottom:16px;">
+  <div class="card-body">
+    <form method="GET" class="form-inline" style="display:flex;gap:8px;flex-wrap:wrap;align-items:end;">
+      <div><label class="form-label">Search</label><input type="text" name="q" class="form-control" value="@Model.Q" placeholder="Name or code..."></div>
+      <div><label class="form-label">Status</label><select name="status" class="form-control"><option value="">All</option><option value="active" selected="@(Model.StatusFilter == "active")">Active</option><option value="disposed" selected="@(Model.StatusFilter == "disposed")">Disposed</option></select></div>
+      <div><label class="form-label">Category</label><select name="category_id" class="form-control"><option value="">All</option>@foreach (var c in Model.Categories) {<option value="@c.Id" selected="@(Model.CategoryFilter == c.Id.ToString())">@c.Name</option>}</select></div>
+      <div><button type="submit" class="btn btn-primary">Filter</button> <a href="/fixed-assets/assets/" class="btn btn-secondary">Clear</a></div>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <table class="table">
+      <thead><tr><th>Code</th><th>Name</th><th>Category</th><th>Purchase Date</th><th>Cost</th><th>Book Value</th><th>Status</th></tr></thead>
+      <tbody>
+        @foreach (var c in Model.Assets)
+        {
+        var a = c.Asset;
+        <tr>
+          <td>@a.AssetCode</td>
+          <td><a href="/fixed-assets/assets/@a.Id">@a.Name</a></td>
+          <td>@(a.Category?.Name ?? "")</td>
+          <td>@Py.Date(a.PurchaseDate)</td>
+          <td>@Py.Comma(a.PurchaseCost)</td>
+          <td>@Py.Comma(c.NetBookValue)</td>
+          <td><span class="badge @(a.Status == "active" ? "badge-success" : "badge-secondary")">@a.Status</span></td>
+        </tr>
+        }
+        @if (Model.Assets.Count == 0)
+        {
+        <tr><td colspan="7" class="text-muted">No assets found.</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

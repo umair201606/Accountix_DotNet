@@ -1,0 +1,62 @@
+@model Accountix.Hr.Controllers.EssController.PerformanceModel
+@{
+    ViewData["Title"] = "My Performance - Accountix ERP";
+    string Or(int? v) => v is int i && i != 0 ? i.ToString() : "-";
+}
+<div class="page-header">
+    <h1>Performance Reviews</h1>
+</div>
+<div class="card mb-20">
+    <div class="card-header">Review History</div>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Period</th><th>Score</th><th>Productivity</th><th>Quality</th><th>Teamwork</th><th>Feedback</th><th>Date</th></tr></thead>
+            <tbody>
+                @foreach (var r in Model.Reviews)
+                {
+                <tr>
+                    <td>@r.ReviewPeriod</td>
+                    <td>@(r.OverallScore is double sc && sc != 0 ? Py.Float(sc) : "-")</td>
+                    <td>@Or(r.ProductivityRating)/5</td>
+                    <td>@Or(r.QualityRating)/5</td>
+                    <td>@Or(r.TeamworkRating)/5</td>
+                    <td>@(string.IsNullOrEmpty(r.Feedback) ? "-" : Py.Cut(r.Feedback, 50))</td>
+                    <td>@(r.CompletedAt is null ? "-" : Py.DMonY(r.CompletedAt))</td>
+                </tr>
+                }
+                @if (Model.Reviews.Count == 0)
+                {
+                <tr><td colspan="7" class="text-center" style="color:var(--muted);">No reviews yet</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="card">
+    <div class="card-header">Active Goals</div>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Goal</th><th>Target Date</th><th>Progress</th><th>Status</th></tr></thead>
+            <tbody>
+                @foreach (var g in Model.Goals)
+                {
+                <tr>
+                    <td>@g.Title</td>
+                    <td>@(g.TargetDate is null ? "-" : Py.Date(g.TargetDate))</td>
+                    <td>
+                        <div style="background:var(--surface-variant);border-radius:10px;height:16px;width:100%;position:relative;">
+                            <div style="background:var(--primary);border-radius:10px;height:16px;width:@Py.Str(g.ProgressPct)%;"></div>
+                            <span style="position:absolute;top:0;left:50%;font-size:10px;font-weight:600;">@Py.Str(g.ProgressPct)%</span>
+                        </div>
+                    </td>
+                    <td><span class="badge badge-@(g.Status == "completed" ? "success" : "info")">@g.Status</span></td>
+                </tr>
+                }
+                @if (Model.Goals.Count == 0)
+                {
+                <tr><td colspan="4" class="text-center" style="color:var(--muted);">No goals set</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

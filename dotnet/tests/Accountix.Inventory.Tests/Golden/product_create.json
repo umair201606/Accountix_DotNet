@@ -1,0 +1,22 @@
+{
+  "captured": "2026-10-29, Python app (Flask), before it was removed",
+  "capture": "Golden/capture/products.py",
+  "inputs": {
+    "sku": "PRD-TAG",
+    "name": "Parity TAG",
+    "description": "From the test",
+    "category_id": "",
+    "unit_price": "1,250.50",
+    "cost_price": "70.125",
+    "reorder_level": "7",
+    "current_stock": "0",
+    "unit": "pcs",
+    "hs_code": " 8541 4000 ",
+    "weight": "",
+    "opening_date": ""
+  },
+  "expected": [
+    "product PRD-TAG|Parity TAG|From the test||1250.500000|70.125000|7|0.0000|pcs|8541 4000|0.000000|true",
+    "account 1-01-04-01-<P>|Parity TAG (PRD-TAG)|asset|5|1-01-04-01|true|false"
+  ]
+}

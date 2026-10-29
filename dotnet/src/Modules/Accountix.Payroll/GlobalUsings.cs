@@ -1,0 +1,12 @@
+global using Accountix.Core.Access;
+global using Accountix.Core.Data;
+global using Accountix.Core.Entities;
+global using Accountix.Core.Shared;
+global using Accountix.Web.Infrastructure;
+global using Microsoft.AspNetCore.Http;
+global using Microsoft.AspNetCore.Mvc;
+global using Microsoft.EntityFrameworkCore;
+global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.DependencyInjection;
+global using Accountix.Payroll.Models;
+global using Accountix.Payroll.Services;

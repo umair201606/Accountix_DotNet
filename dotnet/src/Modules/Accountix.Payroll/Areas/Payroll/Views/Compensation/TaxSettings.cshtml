@@ -1,0 +1,101 @@
+@model TaxSettingsModel
+@{
+    ViewData["Title"] = "Income Tax Settings - Accountix ERP";
+    var policy = Model.Policy;
+    string F(decimal? v) => Py.Repr(Py.F(v));
+}
+<div class="page-header">
+    <h1>Tax &amp; Payroll Settings</h1>
+    <form method="POST" style="display:inline;">
+        <input type="hidden" name="action" value="seed_defaults">
+        <button class="btn btn-outline" title="Salaried individuals, Finance Act 2025">Load tax year 2026 slabs</button>
+    </form>
+</div>
+<div class="card mb-20">
+    <div class="card-header">Payroll settings</div>
+    <form method="POST" style="padding:12px;">
+        <input type="hidden" name="action" value="policy">
+        <div class="form-row">
+            <div class="form-group"><label>Overtime rate (x hourly basic)</label><input type="number" name="overtime_multiplier" class="form-control" step="0.05" min="1" max="5" value="@F(policy.OvertimeMultiplier)"><small class="text-muted">Factories Act s.47: 2 for factory workers.</small></div>
+            <div class="form-group"><label>Hours a month (hourly basic = basic / hours)</label><input type="number" name="overtime_hours_basis" class="form-control" step="1" min="1" max="400" value="@F(policy.OvertimeHoursBasis)"></div>
+        </div>
+        <div class="form-group" style="display:flex;align-items:center;gap:8px;">
+            <input type="checkbox" id="eobi_enabled" name="eobi_enabled" value="1" checked="@(policy.EobiEnabled == true)">
+            <label for="eobi_enabled" style="margin:0;">Deduct and post EOBI</label>
+        </div>
+        <div class="form-row">
+            <div class="form-group"><label>EOBI wage base (Rs.)</label><input type="number" name="eobi_wage_base" class="form-control" step="1" min="0" value="@F(policy.EobiWageBase)"><small class="text-muted">The notified minimum wage.</small></div>
+            <div class="form-group"><label>Employee %</label><input type="number" name="eobi_employee_pct" class="form-control" step="0.01" min="0" max="100" value="@F(policy.EobiEmployeePct)"></div>
+            <div class="form-group"><label>Employer %</label><input type="number" name="eobi_employer_pct" class="form-control" step="0.01" min="0" max="100" value="@F(policy.EobiEmployerPct)"></div>
+        </div>
+        <div class="form-row">
+            <div class="form-group"><label>Surcharge above taxable income of (Rs.)</label><input type="number" name="surcharge_threshold" class="form-control" step="1" min="0" value="@F(policy.SurchargeThreshold)"></div>
+            <div class="form-group"><label>Surcharge (% of the tax)</label><input type="number" name="surcharge_pct" class="form-control" step="0.01" min="0" max="100" value="@F(policy.SurchargePct)"><small class="text-muted">Finance Act 2025: 9% for salaried income over 10m.</small></div>
+        </div>
+        <div style="font-weight:600;margin:6px 0;">Final settlement on leaving</div>
+        <div class="form-row">
+            <div class="form-group" style="display:flex;align-items:center;gap:8px;">
+                <input type="checkbox" id="gratuity_enabled" name="gratuity_enabled" value="1" checked="@(policy.GratuityEnabled == true)">
+                <label for="gratuity_enabled" style="margin:0;">Pay gratuity</label>
+            </div>
+            <div class="form-group"><label>Days' wages per year of service</label><input type="number" name="gratuity_days_per_year" class="form-control" step="1" min="0" max="365" value="@F(policy.GratuityDaysPerYear is null or 0 ? 30 : policy.GratuityDaysPerYear)"></div>
+            <div class="form-group"><label>On</label>
+                <select name="gratuity_basis" class="form-control">
+                    <option value="basic" selected="@((string.IsNullOrEmpty(policy.GratuityBasis) ? "basic" : policy.GratuityBasis) == "basic")">Last basic salary</option>
+                    <option value="gross" selected="@(policy.GratuityBasis == "gross")">Last gross salary</option>
+                </select></div>
+        </div>
+        <div class="form-group" style="display:flex;align-items:center;gap:8px;">
+            <input type="checkbox" id="leave_encashment_enabled" name="leave_encashment_enabled" value="1" checked="@(policy.LeaveEncashmentEnabled == true)">
+            <label for="leave_encashment_enabled" style="margin:0;">Encash unused leave (paid leave types that carry forward, at basic / 30 a day)</label>
+        </div>
+        <small class="text-muted" style="display:block;margin-bottom:8px;">Paid with the last month's salary once HR sets the last working day. A part year over six months counts as a full year. Both are taxed with that month as one-off pay and posted to their own expense accounts.</small>
+        <button type="submit" class="btn btn-primary btn-sm">Save settings</button>
+    </form>
+</div>
+<div class="card mb-20">
+    <div class="card-header">Add Tax Slab</div>
+    <form method="POST" style="padding:12px;">
+        <input type="hidden" name="action" value="add">
+        <div class="form-row">
+            <div class="form-group"><label>Min Annual Income (Rs.)</label><input type="number" name="min_income" class="form-control" required step="0.01"></div>
+            <div class="form-group"><label>Max Annual Income (Rs.)</label><input type="number" name="max_income" class="form-control" required step="0.01"></div>
+        </div>
+        <div class="form-row">
+            <div class="form-group"><label>Rate (%)</label><input type="number" name="rate_pct" class="form-control" required step="0.01"></div>
+            <div class="form-group"><label>Fixed Amount (Rs.)</label><input type="number" name="fixed_amount" class="form-control" step="0.01" value="0"></div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-sm">Add Slab</button>
+    </form>
+</div>
+<div class="card">
+    <div class="card-header">Current Slabs</div>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Min (Rs.)</th><th>Max (Rs.)</th><th>Rate (%)</th><th>Fixed (Rs.)</th><th>Active</th><th></th></tr></thead>
+            <tbody>
+                @foreach (var s in Model.Slabs)
+                {
+                <tr>
+                    <td>Rs. @Html.Amount(s.MinIncome, 0)</td>
+                    <td>Rs. @Html.Amount(s.MaxIncome, 0)</td>
+                    <td>@Py.Repr(Py.F(s.RatePct))%</td>
+                    <td>Rs. @Html.Amount(s.FixedAmount, 0)</td>
+                    <td><span class="badge badge-@(s.IsActive == true ? "success" : "default")">@(s.IsActive == true ? "Active" : "Inactive")</span></td>
+                    <td>
+                        <form method="POST" style="display:inline;">
+                            <input type="hidden" name="action" value="delete">
+                            <input type="hidden" name="slab_id" value="@s.Id">
+                            <button class="btn btn-sm btn-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                }
+                @if (Model.Slabs.Count == 0)
+                {
+                <tr><td colspan="6" class="text-center" style="color:var(--muted);">No slabs configured</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

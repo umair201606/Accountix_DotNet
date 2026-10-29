@@ -1,0 +1,31 @@
+{
+  "sheets": [
+    "Invoices",
+    "Items",
+    "Charges"
+  ],
+  "cells": {
+    "Invoices": [
+      "Date|Invoice #|Voucher #|Customer|Status|Due Date|Subtotal|Discount|Charges|Sales Tax|Further Tax|WHT|Total|Paid|Returned|Balance|Notes",
+      "2026-02-10 00:00|BP0-GOLD|BP0-GOLD|Tracking Test Customer GOLD|Unapproved|2026-03-12 00:00|140001.99|3125.05|1500|24644.65|0|0|163021.59|0|0|163021.59|",
+      "2026-02-10 01:00|BP1-GOLD|BP1-GOLD|Tracking Test Customer GOLD|Approved|2026-03-12 00:00|140001.99|3125.05|1500|22687.85|0|0|161064.79|0|0|161064.79|",
+      "2026-02-10 02:00|BP2-GOLD|BP2-GOLD|Tracking Test Customer GOLD|Approved|2026-03-12 00:00|140001.99|3125.05|1500|24644.65|0|0|163021.59|0|999.99|162021.6|Deliver <before> Friday & call",
+      "|||TOTAL|||420005.97|9375.15|4500|71977.15|0|0|487107.97|0|999.99|486107.98|"
+    ],
+    "Items": [
+      "Invoice #|Voucher #|Date|Customer|Line|SKU|Description|Qty|Unit|Unit Price|Discount %|Discount|Delivery|Installation|Tax %|Excl. Tax|Sales Tax|Incl. Tax|Line Total",
+      "BP0-GOLD|BP0-GOLD|2026-02-10 00:00|Tracking Test Customer GOLD|1|BP-GOLD|Solar panel 550W|4|pcs|31250.5|2.5|3125.05|0|0|18|121876.95|21943.91|143820.86|125002",
+      "BP0-GOLD|BP0-GOLD|2026-02-10 00:00|Tracking Test Customer GOLD|2||Installation & wiring|1.5|job|9999.99|0|0|0|0|18|14999.99|2700.74|17700.73|14999.99",
+      "BP1-GOLD|BP1-GOLD|2026-02-10 01:00|Tracking Test Customer GOLD|1|BP-GOLD|Solar panel 550W|4|pcs|31250.5|2.5|3125.05|0|0|18|121876.95|21937.85|143814.8|125002",
+      "BP1-GOLD|BP1-GOLD|2026-02-10 01:00|Tracking Test Customer GOLD|2||Installation & wiring|1.5|job|9999.99|0|0|0|0|5|14999.99|750|15749.99|14999.99",
+      "BP2-GOLD|BP2-GOLD|2026-02-10 02:00|Tracking Test Customer GOLD|1|BP-GOLD|Solar panel 550W|4|pcs|31250.5|2.5|3125.05|0|0|18|121876.95|21943.91|143820.86|125002",
+      "BP2-GOLD|BP2-GOLD|2026-02-10 02:00|Tracking Test Customer GOLD|2||Installation & wiring|1.5|job|9999.99|0|0|0|0|18|14999.99|2700.74|17700.73|14999.99"
+    ],
+    "Charges": [
+      "Invoice #|Voucher #|Date|Customer|Description|Account|Amount|Treatment|Scope|In sales-tax base|In WHT base",
+      "BP0-GOLD|BP0-GOLD|2026-02-10 00:00|Tracking Test Customer GOLD|Freight|Main Cash|1500|Bill|General|Yes|No",
+      "BP1-GOLD|BP1-GOLD|2026-02-10 01:00|Tracking Test Customer GOLD|Freight|Main Cash|1500|Bill|General|Yes|No",
+      "BP2-GOLD|BP2-GOLD|2026-02-10 02:00|Tracking Test Customer GOLD|Freight|Main Cash|1500|Bill|General|Yes|No"
+    ]
+  }
+}

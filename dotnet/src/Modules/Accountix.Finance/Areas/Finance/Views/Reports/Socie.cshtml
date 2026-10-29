@@ -1,0 +1,130 @@
+@model Accountix.Finance.Controllers.SociePage
+@using System.Globalization
+@{
+    ViewData["Title"] = "SOCIE";
+    ViewData["Heading"] = "Statement of Changes in Equity";
+    var inv = CultureInfo.InvariantCulture;
+    var specs = Model.Specs;
+    // Accounting presentation: negatives in parentheses, absent amounts as a dash.
+    Microsoft.AspNetCore.Html.IHtmlContent Cell(decimal? v) =>
+        v is null ? new Microsoft.AspNetCore.Html.HtmlString("<span class=\"nil\">—</span>")
+        : v < 0 ? new Microsoft.AspNetCore.Html.HtmlString($"<span class=\"neg\">({System.Net.WebUtility.HtmlEncode(Html.Amount(Math.Abs(v.Value)))})</span>")
+        : new Microsoft.AspNetCore.Html.HtmlString(System.Net.WebUtility.HtmlEncode(Html.Amount(v.Value)));
+}
+@section Head { <partial name="_FinanceHead" /> }
+@section Actions {
+<partial name="_ExportLinks" model="(Model.Period, Model.Loaded, true)" />
+<button onclick="window.print()" class="btn btn-outline btn-sm"><i class="fas fa-print"></i> Print</button>
+}
+<style>
+  table.socie td.lbl { white-space: normal; min-width: 260px; }
+  /* The shared sheet gives column 2 a 180px min-width; here every component
+     column must be the same width or the matrix looks lopsided. */
+  table.socie td:nth-child(2), table.socie th:nth-child(2) { min-width: 150px; white-space: nowrap; }
+  table.socie .num { text-align: right; font-variant-numeric: tabular-nums; }
+  table.socie thead th.num { text-align: right; }
+  /* The total column is the one the reader scans, so it carries the emphasis:
+     an ink header cell over a sunk body column. */
+  table.socie thead th.total-col { background: var(--v2-ink); color: var(--v2-ground); }
+  table.socie tbody td.total-col { background: var(--v2-sunk); font-weight: 600; }
+  table.socie tr.socie-opening td, table.socie tr.socie-closing td {
+      font-weight: 600; background: var(--v2-hover); border-top: 1px solid var(--v2-line-2);
+      border-bottom: 1px solid var(--v2-line-2); }
+  table.socie tr.socie-closing td.total-col, table.socie tr.socie-opening td.total-col {
+      background: var(--v2-sunk); }
+  table.socie tr.socie-section td { background: var(--v2-hover); font-weight: 600; font-size: 12px;
+      color: var(--v2-ink); }
+  table.socie tr.socie-subtotal td { font-weight: 600; border-top: 1px solid var(--v2-line-2);
+      background: var(--v2-surface); }
+  table.socie tr.socie-grand td { font-weight: 600; font-size: 14px; background: var(--v2-ink);
+      color: var(--v2-ground); border-top: 1px solid var(--v2-ground); }
+  table.socie tr.socie-grand td.total-col { background: var(--v2-ink); }
+  /* On the inverted grand-total row --v2-neg is a dark red on a dark fill in
+     light mode and a pale salmon on a pale fill in dark mode — unreadable both
+     ways. Both states ride the ground colour there instead; the minus sign and
+     the em dash still carry the meaning. */
+  table.socie tr.socie-grand .neg, table.socie tr.socie-grand .nil { color: var(--v2-ground); opacity: .82; }
+  table.socie .neg { color: var(--v2-neg); }
+  table.socie .nil { color: var(--v2-muted); }
+  table.socie .ind-1 { padding-left: 30px; }
+  /* The shared row-hover would wash out the emphasised balance rows. */
+  table.socie tbody tr.socie-opening:hover td, table.socie tbody tr.socie-closing:hover td { background: var(--v2-hover); }
+  table.socie tbody tr.socie-section:hover td { background: var(--v2-hover); }
+  table.socie tbody tr.socie-grand:hover td { background: var(--v2-ink); }
+  table.socie tbody tr:hover td.total-col { background: var(--v2-sunk); }
+  table.socie tbody tr.socie-grand:hover td.total-col { background: var(--v2-ink); }
+  .socie-note { font-size: 12px; color: var(--v2-muted); margin-top: 12px; line-height: 1.6; }
+  @@media print { table.socie { font-size: 11px; } }
+</style>
+
+<partial name="_ViewForm" model="Model.Period.FilterModel(Model.Loaded)" />
+
+<div class="card report-sheet">
+  <div class="report-head">
+    <div>
+      <div class="report-company"><partial name="_CompanyName" /></div>
+      <div class="report-title-lg">Statement of Changes in Equity</div>
+      <div class="report-period">
+        @if (specs.Count > 0)
+        {
+          <text>For the @(specs.Count > 1 ? "periods" : "period")
+          @specs[0].Start.ToString("dd MMMM yyyy", inv) to @specs[^1].End.ToString("dd MMMM yyyy", inv)</text>
+        }
+        else
+        {
+          <text>Select a period and click <strong>View</strong></text>
+        }
+      </div>
+    </div>
+    @if (Model.Columns.Count > 0)
+    {
+    <div class="report-sub" style="text-align:right;">
+      Amounts in @(Context.Access()?.Company?.Currency is { Length: > 0 } cur ? cur : "PKR")
+    </div>
+    }
+  </div>
+
+  @if (Model.Rows.Count > 0)
+  {
+  <div class="overflow-x-auto">
+    <table class="report-table statement socie">
+      <thead>
+        <tr>
+          <th style="min-width:260px;"></th>
+          @foreach (var c in Model.Columns)
+          {
+          <th class="num @(c.Key == "total" ? "total-col" : "")" style="min-width:150px;">@c.Label</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @foreach (var r in Model.Rows)
+        {
+        <tr class="socie-@r.Kind">
+          @if (r.Kind == "section")
+          {
+          <td class="lbl" colspan="@(1 + Model.Columns.Count)">@r.Label</td>
+          }
+          else
+          {
+          <td class="lbl @(r.Indent > 0 ? $"ind-{r.Indent}" : "")">@r.Label</td>
+              foreach (var c in Model.Columns)
+              {
+          <td class="num @(c.Key == "total" ? "total-col" : "")">@Cell(r.Values.TryGetValue(c.Key, out var v) ? v : null)</td>
+              }
+          }
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  <div class="socie-note">
+    Each closing balance carries forward as the opening balance of the following period.
+    Total equity agrees with the equity section of the balance sheet at the same date.
+  </div>
+  }
+  else if (specs.Count > 0)
+  {
+  <p class="t-muted" style="padding:24px 0;">No equity balances or movements in the selected period(s).</p>
+  }
+</div>

@@ -1,0 +1,68 @@
+@model PartyModel
+@{
+    var row = Model.Row;
+    ViewData["Title"] = row.Name;
+    ViewData["Heading"] = row.Name;
+    var inv = System.Globalization.CultureInfo.InvariantCulture;
+}
+@section Head {
+<partial name="_Style" />
+}
+@section Actions {
+<partial name="_ExportButtons" model='new ExportButtons("excel", "pdf", "csv")' />
+}
+<div class="exr">
+
+  <div class="exr-head">
+    <div class="exr-total @(row.Side == "receivable" ? "in" : "out")">
+      <span class="lbl">@Model.Meta.Title</span>
+      <span class="val">@Html.Amount(row.Amount, 2)</span>
+      <span class="sub">@row.Code · @row.Group</span>
+    </div>
+    <div class="exr-total">
+      <span class="lbl">Debit</span>
+      <span class="val" style="font-size:19px;">@Html.Amount(row.Debit, 2)</span>
+    </div>
+    <div class="exr-total">
+      <span class="lbl">Credit</span>
+      <span class="val" style="font-size:19px;">@Html.Amount(row.Credit, 2)</span>
+    </div>
+    <span class="exr-asof">
+      <a href="@(row.Side == "receivable" ? "/executive/receivables" : "/executive/payables")"
+         class="exr-link">&larr; Back to @Model.Meta.Title.ToLowerInvariant()</a>
+    </span>
+  </div>
+
+  <div class="exr-wrap">
+    <table class="exr-table">
+      <thead>
+        <tr>
+          <th>Date</th><th>Voucher</th><th>Narration</th>
+          <th class="num">Debit</th><th class="num">Credit</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach (var l in Model.Lines)
+        {
+        <tr>
+          <td data-label="Date">@l.Date.ToString("dd MMM yyyy", inv)</td>
+          <td data-label="Voucher">
+            <span class="exr-group">@l.VoucherType</span>
+            @l.VoucherNumber
+          </td>
+          <td data-label="Narration">@l.Description</td>
+          <td data-label="Debit" class="num">@(l.Debit != 0 ? Html.Amount(l.Debit, 2) : "—")</td>
+          <td data-label="Credit" class="num">@(l.Credit != 0 ? Html.Amount(l.Credit, 2) : "—")</td>
+        </tr>
+        }
+        @if (Model.Lines.Count == 0)
+        {
+        <tr><td colspan="5" class="exr-empty">
+          <strong>No postings</strong>
+          <p>Nothing has been posted to this account yet.</p>
+        </td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

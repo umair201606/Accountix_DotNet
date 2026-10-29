@@ -1,0 +1,59 @@
+{
+  "responses": [
+    {
+      "step": 0,
+      "status": 302,
+      "location": "/fbr/settings/",
+      "body": null
+    },
+    {
+      "step": 1,
+      "status": 302,
+      "location": "/fbr/settings/",
+      "body": null
+    },
+    {
+      "step": 2,
+      "status": 200,
+      "location": null,
+      "body": "{\"message\":\"Connection successful: OK\",\"ok\":true}\n"
+    },
+    {
+      "step": 3,
+      "status": 200,
+      "location": null,
+      "body": "{\"message\":\"Connection failed: down\",\"ok\":false}\n"
+    }
+  ],
+  "sent": [
+    {
+      "method": "GET",
+      "url": "https://sandbox.fbr.gov.pk/di/api/heartbeat",
+      "body": null,
+      "auth": "Bearer tok"
+    },
+    {
+      "method": "GET",
+      "url": "https://sandbox.fbr.gov.pk/di/api/heartbeat",
+      "body": null,
+      "auth": "Bearer tok"
+    }
+  ],
+  "row": {
+    "company": "B",
+    "environment": "sandbox",
+    "access_token": "tok",
+    "seller_ntn": "",
+    "seller_strn": "",
+    "seller_cnic": "",
+    "seller_name": "",
+    "seller_business_name": "",
+    "seller_address": "",
+    "seller_phone": "",
+    "seller_email": "",
+    "is_active": false,
+    "token_expiry": null,
+    "created": true,
+    "updated_not_before_created": true
+  }
+}

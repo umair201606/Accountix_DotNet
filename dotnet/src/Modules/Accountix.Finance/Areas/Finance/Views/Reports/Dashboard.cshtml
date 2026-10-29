@@ -1,0 +1,51 @@
+@{
+    ViewData["Title"] = "Finance Dashboard";
+    ViewData["Heading"] = "Finance Dashboard";
+}
+@section Head { <partial name="_FinanceHead" /> }
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+  <a href="/finance/trial-balance" class="stat-card">
+    <div class="value"><i class="fas fa-balance-scale"></i></div>
+    <div class="label">Trial Balance</div>
+  </a>
+  <a href="/finance/profit-loss" class="stat-card">
+    <div class="value"><i class="fas fa-chart-line"></i></div>
+    <div class="label">Profit & Loss</div>
+  </a>
+  <a href="/finance/balance-sheet" class="stat-card">
+    <div class="value"><i class="fas fa-file-invoice"></i></div>
+    <div class="label">Balance Sheet</div>
+  </a>
+  <a href="/finance/socie" class="stat-card">
+    <div class="value"><i class="fas fa-layer-group"></i></div>
+    <div class="label">SOCIE</div>
+  </a>
+  <a href="/finance/cash-flow" class="stat-card">
+    <div class="value"><i class="fas fa-money-bill-wave"></i></div>
+    <div class="label">Cash Flow</div>
+  </a>
+  <a href="/finance/twcf" class="stat-card">
+    <div class="value"><i class="fas fa-calendar-week"></i></div>
+    <div class="label">13-Week Cash Flow</div>
+  </a>
+  <a href="/finance/ledger" class="stat-card">
+    <div class="value"><i class="fas fa-book"></i></div>
+    <div class="label">General Ledger</div>
+  </a>
+</div>
+<div class="card">
+  <div class="card-header">Quick reference</div>
+  <div class="overflow-x-auto">
+  <table class="report-table">
+    <tr><th>Report</th><th>Description</th><th>Format</th></tr>
+    <tr><td>General Ledger</td><td>View transactions for any account with running balance</td><td><span class="badge badge-default">Filter by Account & Date</span></td></tr>
+    <tr><td>Trial Balance</td><td>List all accounts with debit/credit totals as of a date</td><td><span class="badge badge-default">As of Date</span></td></tr>
+    <tr><td>Profit & Loss</td><td>Revenue minus expenses for a period</td><td><span class="badge badge-default">Date Range</span></td></tr>
+    <tr><td>Balance Sheet</td><td>Assets = Liabilities + Equity as of a date</td><td><span class="badge badge-default">As of Date</span></td></tr>
+    <tr><td>SOCIE</td><td>Statement of Changes in Equity over a period</td><td><span class="badge badge-default">Date Range</span></td></tr>
+    <tr><td>Cash Flow</td><td>Operating / Investing / Financing activities</td><td><span class="badge badge-default">Date Range</span></td></tr>
+    <tr><td>13-Week Cash Flow (TWCF)</td><td>Rolling weekly liquidity forecast: opening cash, aged AR/AP schedule, plan lines, actuals &amp; headroom</td><td><span class="badge badge-default">13 Weekly Columns</span></td></tr>
+  </table>
+  </div>
+  <p class="mt-4 text-sm t-muted">All reports support <strong>Excel (.xlsx)</strong> and <strong>PDF</strong> download.</p>
+</div>

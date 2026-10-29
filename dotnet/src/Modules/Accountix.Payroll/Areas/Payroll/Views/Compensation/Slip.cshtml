@@ -1,0 +1,56 @@
+@model SlipModel
+@{
+    ViewData["Title"] = "Salary Slip - Accountix ERP";
+    var s = Model.Slip;
+    var p = Model.Print;
+    string fmt = Context.Access()?.NumberFormat ?? "en";
+}
+<div class="page-header">
+    <h1>Salary Slip</h1>
+    <a href="/compensation/slip/@s.Id/pdf" class="btn btn-primary">Download PDF</a>
+</div>
+<div class="card" style="max-width:700px;">
+    <div style="text-align:center;margin-bottom:20px;border-bottom:2px solid var(--ledger);padding-bottom:12px;">
+        <h2 style="color:var(--ledger);margin:0;">@(string.IsNullOrEmpty(Model.CompanyName) ? "Salary Slip" : Model.CompanyName)</h2>
+        <p style="font-size:13px;color:var(--muted);margin:4px 0 0;">Salary Slip - @p.Month/@p.Year</p>
+    </div>
+    @* Scrolls inside its own box on a phone (the Python template let it push the page sideways at 320px). *@
+    <div style="overflow-x:auto;max-width:100%;">
+    <table style="margin-bottom:16px;">
+        <tr><td style="font-weight:600;width:140px;">Employee</td><td>@p.EmployeeName</td>
+            <td style="font-weight:600;width:140px;">Designation</td><td>@(string.IsNullOrEmpty(p.Designation) ? "-" : p.Designation)</td></tr>
+        <tr><td style="font-weight:600;">Department</td><td>@(string.IsNullOrEmpty(p.Department) ? "-" : p.Department)</td>
+            <td style="font-weight:600;">Code</td><td>@p.Code</td></tr>
+        <tr><td style="font-weight:600;">CNIC</td><td colspan="3">@(string.IsNullOrEmpty(p.Cnic) ? "-" : p.Cnic)</td></tr>
+    </table>
+    </div>
+    <div class="grid-2" style="gap:20px;">
+        <div>
+            <h4 style="color:var(--ledger);margin-bottom:8px;">Earnings</h4>
+            <table>
+                <tr style="background:var(--ledger-dim);"><th style="padding:6px;">Component</th><th style="padding:6px;text-align:right;">Amount</th></tr>
+                <tr><td>Basic Salary</td><td style="text-align:right;">Rs. @Html.Amount(s.BasicSalary, 0)</td></tr>
+                @foreach (var (name, val) in p.Components.Allowances)
+                {
+                <tr><td>@name</td><td style="text-align:right;">Rs. @Py.Amount(val, 0, fmt)</td></tr>
+                }
+                <tr style="font-weight:700;background:var(--green-dim);"><td>Gross Pay</td><td style="text-align:right;">Rs. @Html.Amount(s.GrossPay, 0)</td></tr>
+            </table>
+        </div>
+        <div>
+            <h4 style="color:var(--red);margin-bottom:8px;">Deductions</h4>
+            <table>
+                <tr style="background:var(--ledger-dim);"><th style="padding:6px;">Component</th><th style="padding:6px;text-align:right;">Amount</th></tr>
+                @foreach (var (name, val) in p.Components.Deductions)
+                {
+                <tr><td>@name</td><td style="text-align:right;">Rs. @Py.Amount(val, 0, fmt)</td></tr>
+                }
+                <tr style="font-weight:700;background:var(--red-dim);"><td>Total Deductions</td><td style="text-align:right;">Rs. @Html.Amount(s.TotalDeductions, 0)</td></tr>
+            </table>
+        </div>
+    </div>
+    <div style="margin-top:16px;padding:12px;background:var(--green-dim);border-radius:4px;text-align:center;border:1px solid var(--green);">
+        <span style="font-size:14px;color:var(--ink);">Net Payable: </span>
+        <span style="font-size:22px;font-weight:700;color:var(--green);">Rs. @Html.Amount(s.NetPay, 0)</span>
+    </div>
+</div>

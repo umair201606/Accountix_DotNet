@@ -1,0 +1,740 @@
+{
+ "none": {
+  "ages": {
+   "1-01-02-01-9107": {
+    "avg_days": 378.5782508274065,
+    "oldest_days": 389,
+    "buckets": {
+     "current": 0.0,
+     "d31": 0.0,
+     "d61": 0.0,
+     "d91": 7100.5
+    }
+   },
+   "1-01-02-01-9102": {
+    "avg_days": 217.6,
+    "oldest_days": 256,
+    "buckets": {
+     "current": 0.0,
+     "d31": 0.0,
+     "d61": 0.0,
+     "d91": 5000.0
+    }
+   },
+   "1-01-02-01-9101": {
+    "avg_days": 166.0,
+    "oldest_days": 166,
+    "buckets": {
+     "current": 0.0,
+     "d31": 0.0,
+     "d61": 0.0,
+     "d91": 600.0
+    }
+   },
+   "1-01-02-01-9103": {
+    "avg_days": 141.0,
+    "oldest_days": 141,
+    "buckets": {
+     "current": 0.0,
+     "d31": 0.0,
+     "d61": 0.0,
+     "d91": 650.0
+    }
+   },
+   "2-01-01-01-9103": {
+    "avg_days": 150.0,
+    "oldest_days": 150,
+    "buckets": {
+     "current": 0.0,
+     "d31": 0.0,
+     "d61": 0.0,
+     "d91": 700.0
+    }
+   },
+   "1-01-02-01-9106": {
+    "avg_days": 106.0,
+    "oldest_days": 106,
+    "buckets": {
+     "current": 0.0,
+     "d31": 0.0,
+     "d61": 0.0,
+     "d91": 1200.0
+    }
+   },
+   "2-01-01-01-9102": {
+    "avg_days": 217.0,
+    "oldest_days": 242,
+    "buckets": {
+     "current": 0.0,
+     "d31": 0.0,
+     "d61": 0.0,
+     "d91": 9000.0
+    }
+   },
+   "1-01-02-01-9104": {
+    "avg_days": 123.0,
+    "oldest_days": 123,
+    "buckets": {
+     "current": 0.0,
+     "d31": 0.0,
+     "d61": 0.0,
+     "d91": 500.0
+    }
+   },
+   "2-01-01-01-9101": {
+    "avg_days": 126.0,
+    "oldest_days": 126,
+    "buckets": {
+     "current": 0.0,
+     "d31": 0.0,
+     "d61": 0.0,
+     "d91": 2000.0
+    }
+   }
+  },
+  "rows": {
+   "amounts": [
+    9000.0,
+    7100.5,
+    5000.0,
+    2000.0,
+    1200.0,
+    700.0,
+    650.0,
+    600.0,
+    500.0
+   ],
+   "by_code": {
+    "2-01-01-01-9102": {
+     "account": "2-01-01-01-9102",
+     "name": "Exec Supplier 2",
+     "type": "liability",
+     "group": "2-01-01-01",
+     "group_label": "2-01-01-01 \u00b7 Trade Creditors",
+     "debit": 4000.0,
+     "credit": 13000.0,
+     "side": "payable"
+    },
+    "1-01-02-01-9107": {
+     "account": "1-01-02-01-9107",
+     "name": "Exec Customer 7",
+     "type": "asset",
+     "group": "1-01-02-01",
+     "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+     "debit": 9300.49,
+     "credit": 2199.99,
+     "side": "receivable"
+    },
+    "1-01-02-01-9102": {
+     "account": "1-01-02-01-9102",
+     "name": "Exec Customer 2",
+     "type": "asset",
+     "group": "1-01-02-01",
+     "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+     "debit": 8000.0,
+     "credit": 3000.0,
+     "side": "receivable"
+    },
+    "2-01-01-01-9101": {
+     "account": "2-01-01-01-9101",
+     "name": "Exec Supplier 1",
+     "type": "liability",
+     "group": "2-01-01-01",
+     "group_label": "2-01-01-01 \u00b7 Trade Creditors",
+     "debit": 0.0,
+     "credit": 2000.0,
+     "side": "payable"
+    },
+    "1-01-02-01-9106": {
+     "account": "1-01-02-01-9106",
+     "name": "Exec Customer 6",
+     "type": "asset",
+     "group": "1-01-02-01",
+     "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+     "debit": 1200.0,
+     "credit": 0.0,
+     "side": "receivable"
+    },
+    "2-01-01-01-9103": {
+     "account": "2-01-01-01-9103",
+     "name": "Exec Supplier 3",
+     "type": "liability",
+     "group": "2-01-01-01",
+     "group_label": "2-01-01-01 \u00b7 Trade Creditors",
+     "debit": 700.0,
+     "credit": 0.0,
+     "side": "receivable"
+    },
+    "1-01-02-01-9103": {
+     "account": "1-01-02-01-9103",
+     "name": "Exec Customer 3",
+     "type": "asset",
+     "group": "1-01-02-01",
+     "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+     "debit": 1000.0,
+     "credit": 350.0,
+     "side": "receivable"
+    },
+    "1-01-02-01-9101": {
+     "account": "1-01-02-01-9101",
+     "name": "Exec Customer 1",
+     "type": "asset",
+     "group": "1-01-02-01",
+     "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+     "debit": 1000.0,
+     "credit": 400.0,
+     "side": "receivable"
+    },
+    "1-01-02-01-9104": {
+     "account": "1-01-02-01-9104",
+     "name": "Exec Customer 4",
+     "type": "asset",
+     "group": "1-01-02-01",
+     "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+     "debit": 800.0,
+     "credit": 1300.0,
+     "side": "payable"
+    }
+   }
+  },
+  "recv": {
+   "amounts": [
+    7100.5,
+    5000.0,
+    1200.0,
+    650.0,
+    600.0
+   ],
+   "by_code": {
+    "1-01-02-01-9107": {
+     "account": "1-01-02-01-9107",
+     "name": "Exec Customer 7",
+     "type": "asset",
+     "group": "1-01-02-01",
+     "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+     "debit": 9300.49,
+     "credit": 2199.99,
+     "side": "receivable"
+    },
+    "1-01-02-01-9102": {
+     "account": "1-01-02-01-9102",
+     "name": "Exec Customer 2",
+     "type": "asset",
+     "group": "1-01-02-01",
+     "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+     "debit": 8000.0,
+     "credit": 3000.0,
+     "side": "receivable"
+    },
+    "1-01-02-01-9106": {
+     "account": "1-01-02-01-9106",
+     "name": "Exec Customer 6",
+     "type": "asset",
+     "group": "1-01-02-01",
+     "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+     "debit": 1200.0,
+     "credit": 0.0,
+     "side": "receivable"
+    },
+    "1-01-02-01-9103": {
+     "account": "1-01-02-01-9103",
+     "name": "Exec Customer 3",
+     "type": "asset",
+     "group": "1-01-02-01",
+     "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+     "debit": 1000.0,
+     "credit": 350.0,
+     "side": "receivable"
+    },
+    "1-01-02-01-9101": {
+     "account": "1-01-02-01-9101",
+     "name": "Exec Customer 1",
+     "type": "asset",
+     "group": "1-01-02-01",
+     "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+     "debit": 1000.0,
+     "credit": 400.0,
+     "side": "receivable"
+    }
+   }
+  },
+  "groups": [
+   {
+    "group": "1-01-02-01",
+    "label": "1-01-02-01 \u00b7 Trade Debtors"
+   },
+   {
+    "group": "2-01-01-01",
+    "label": "2-01-01-01 \u00b7 Trade Creditors"
+   }
+  ],
+  "both": {
+   "receivable": {
+    "amount": 15250.5,
+    "parties": 6
+   },
+   "payable": {
+    "amount": 11500.0,
+    "parties": 3
+   }
+  }
+ },
+ "2026-06-30": {
+  "ages": {
+   "1-01-02-01-9107": {
+    "avg_days": 257.5782508274065,
+    "oldest_days": 268,
+    "buckets": {
+     "current": 0.0,
+     "d31": 0.0,
+     "d61": 0.0,
+     "d91": 7100.5
+    }
+   },
+   "1-01-02-01-9102": {
+    "avg_days": 96.6,
+    "oldest_days": 135,
+    "buckets": {
+     "current": 0.0,
+     "d31": 0.0,
+     "d61": 3000.0,
+     "d91": 2000.0
+    }
+   },
+   "1-01-02-01-9101": {
+    "avg_days": 45.0,
+    "oldest_days": 45,
+    "buckets": {
+     "current": 0.0,
+     "d31": 600.0,
+     "d61": 0.0,
+     "d91": 0.0
+    }
+   },
+   "1-01-02-01-9103": {
+    "avg_days": 20.0,
+    "oldest_days": 20,
+    "buckets": {
+     "current": 650.0,
+     "d31": 0.0,
+     "d61": 0.0,
+     "d91": 0.0
+    }
+   },
+   "2-01-01-01-9103": {
+    "avg_days": 29.0,
+    "oldest_days": 29,
+    "buckets": {
+     "current": 700.0,
+     "d31": 0.0,
+     "d61": 0.0,
+     "d91": 0.0
+    }
+   },
+   "2-01-01-01-9102": {
+    "avg_days": 96.0,
+    "oldest_days": 121,
+    "buckets": {
+     "current": 0.0,
+     "d31": 3000.0,
+     "d61": 0.0,
+     "d91": 6000.0
+    }
+   },
+   "1-01-02-01-9104": {
+    "avg_days": 2.0,
+    "oldest_days": 2,
+    "buckets": {
+     "current": 500.0,
+     "d31": 0.0,
+     "d61": 0.0,
+     "d91": 0.0
+    }
+   },
+   "2-01-01-01-9101": {
+    "avg_days": 5.0,
+    "oldest_days": 5,
+    "buckets": {
+     "current": 2000.0,
+     "d31": 0.0,
+     "d61": 0.0,
+     "d91": 0.0
+    }
+   }
+  },
+  "rows": {
+   "amounts": [
+    9000.0,
+    7100.5,
+    5000.0,
+    2000.0,
+    700.0,
+    650.0,
+    600.0,
+    500.0
+   ],
+   "by_code": {
+    "2-01-01-01-9102": {
+     "account": "2-01-01-01-9102",
+     "name": "Exec Supplier 2",
+     "type": "liability",
+     "group": "2-01-01-01",
+     "group_label": "2-01-01-01 \u00b7 Trade Creditors",
+     "debit": 4000.0,
+     "credit": 13000.0,
+     "side": "payable"
+    },
+    "1-01-02-01-9107": {
+     "account": "1-01-02-01-9107",
+     "name": "Exec Customer 7",
+     "type": "asset",
+     "group": "1-01-02-01",
+     "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+     "debit": 9300.49,
+     "credit": 2199.99,
+     "side": "receivable"
+    },
+    "1-01-02-01-9102": {
+     "account": "1-01-02-01-9102",
+     "name": "Exec Customer 2",
+     "type": "asset",
+     "group": "1-01-02-01",
+     "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+     "debit": 8000.0,
+     "credit": 3000.0,
+     "side": "receivable"
+    },
+    "2-01-01-01-9101": {
+     "account": "2-01-01-01-9101",
+     "name": "Exec Supplier 1",
+     "type": "liability",
+     "group": "2-01-01-01",
+     "group_label": "2-01-01-01 \u00b7 Trade Creditors",
+     "debit": 0.0,
+     "credit": 2000.0,
+     "side": "payable"
+    },
+    "2-01-01-01-9103": {
+     "account": "2-01-01-01-9103",
+     "name": "Exec Supplier 3",
+     "type": "liability",
+     "group": "2-01-01-01",
+     "group_label": "2-01-01-01 \u00b7 Trade Creditors",
+     "debit": 700.0,
+     "credit": 0.0,
+     "side": "receivable"
+    },
+    "1-01-02-01-9103": {
+     "account": "1-01-02-01-9103",
+     "name": "Exec Customer 3",
+     "type": "asset",
+     "group": "1-01-02-01",
+     "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+     "debit": 1000.0,
+     "credit": 350.0,
+     "side": "receivable"
+    },
+    "1-01-02-01-9101": {
+     "account": "1-01-02-01-9101",
+     "name": "Exec Customer 1",
+     "type": "asset",
+     "group": "1-01-02-01",
+     "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+     "debit": 1000.0,
+     "credit": 400.0,
+     "side": "receivable"
+    },
+    "1-01-02-01-9104": {
+     "account": "1-01-02-01-9104",
+     "name": "Exec Customer 4",
+     "type": "asset",
+     "group": "1-01-02-01",
+     "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+     "debit": 800.0,
+     "credit": 1300.0,
+     "side": "payable"
+    }
+   }
+  },
+  "recv": {
+   "amounts": [
+    7100.5,
+    5000.0,
+    650.0,
+    600.0
+   ],
+   "by_code": {
+    "1-01-02-01-9107": {
+     "account": "1-01-02-01-9107",
+     "name": "Exec Customer 7",
+     "type": "asset",
+     "group": "1-01-02-01",
+     "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+     "debit": 9300.49,
+     "credit": 2199.99,
+     "side": "receivable"
+    },
+    "1-01-02-01-9102": {
+     "account": "1-01-02-01-9102",
+     "name": "Exec Customer 2",
+     "type": "asset",
+     "group": "1-01-02-01",
+     "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+     "debit": 8000.0,
+     "credit": 3000.0,
+     "side": "receivable"
+    },
+    "1-01-02-01-9103": {
+     "account": "1-01-02-01-9103",
+     "name": "Exec Customer 3",
+     "type": "asset",
+     "group": "1-01-02-01",
+     "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+     "debit": 1000.0,
+     "credit": 350.0,
+     "side": "receivable"
+    },
+    "1-01-02-01-9101": {
+     "account": "1-01-02-01-9101",
+     "name": "Exec Customer 1",
+     "type": "asset",
+     "group": "1-01-02-01",
+     "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+     "debit": 1000.0,
+     "credit": 400.0,
+     "side": "receivable"
+    }
+   }
+  },
+  "groups": [
+   {
+    "group": "1-01-02-01",
+    "label": "1-01-02-01 \u00b7 Trade Debtors"
+   },
+   {
+    "group": "2-01-01-01",
+    "label": "2-01-01-01 \u00b7 Trade Creditors"
+   }
+  ],
+  "both": {
+   "receivable": {
+    "amount": 14050.5,
+    "parties": 5
+   },
+   "payable": {
+    "amount": 11500.0,
+    "parties": 3
+   }
+  }
+ },
+ "2026-05-01": {
+  "ages": {
+   "1-01-02-01-9107": {
+    "avg_days": 197.57825082740655,
+    "oldest_days": 208,
+    "buckets": {
+     "current": 0.0,
+     "d31": 0.0,
+     "d61": 0.0,
+     "d91": 7100.5
+    }
+   },
+   "1-01-02-01-9102": {
+    "avg_days": 51.0,
+    "oldest_days": 75,
+    "buckets": {
+     "current": 3000.0,
+     "d31": 0.0,
+     "d61": 5000.0,
+     "d91": 0.0
+    }
+   },
+   "2-01-01-01-9102": {
+    "avg_days": 61.0,
+    "oldest_days": 61,
+    "buckets": {
+     "current": 0.0,
+     "d31": 0.0,
+     "d61": 6000.0,
+     "d91": 0.0
+    }
+   }
+  },
+  "rows": {
+   "amounts": [
+    8000.0,
+    7100.5,
+    6000.0
+   ],
+   "by_code": {
+    "1-01-02-01-9102": {
+     "account": "1-01-02-01-9102",
+     "name": "Exec Customer 2",
+     "type": "asset",
+     "group": "1-01-02-01",
+     "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+     "debit": 8000.0,
+     "credit": 0.0,
+     "side": "receivable"
+    },
+    "1-01-02-01-9107": {
+     "account": "1-01-02-01-9107",
+     "name": "Exec Customer 7",
+     "type": "asset",
+     "group": "1-01-02-01",
+     "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+     "debit": 9300.49,
+     "credit": 2199.99,
+     "side": "receivable"
+    },
+    "2-01-01-01-9102": {
+     "account": "2-01-01-01-9102",
+     "name": "Exec Supplier 2",
+     "type": "liability",
+     "group": "2-01-01-01",
+     "group_label": "2-01-01-01 \u00b7 Trade Creditors",
+     "debit": 4000.0,
+     "credit": 10000.0,
+     "side": "payable"
+    }
+   }
+  },
+  "recv": {
+   "amounts": [
+    8000.0,
+    7100.5
+   ],
+   "by_code": {
+    "1-01-02-01-9102": {
+     "account": "1-01-02-01-9102",
+     "name": "Exec Customer 2",
+     "type": "asset",
+     "group": "1-01-02-01",
+     "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+     "debit": 8000.0,
+     "credit": 0.0,
+     "side": "receivable"
+    },
+    "1-01-02-01-9107": {
+     "account": "1-01-02-01-9107",
+     "name": "Exec Customer 7",
+     "type": "asset",
+     "group": "1-01-02-01",
+     "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+     "debit": 9300.49,
+     "credit": 2199.99,
+     "side": "receivable"
+    }
+   }
+  },
+  "groups": [
+   {
+    "group": "1-01-02-01",
+    "label": "1-01-02-01 \u00b7 Trade Debtors"
+   },
+   {
+    "group": "2-01-01-01",
+    "label": "2-01-01-01 \u00b7 Trade Creditors"
+   }
+  ],
+  "both": {
+   "receivable": {
+    "amount": 15100.5,
+    "parties": 2
+   },
+   "payable": {
+    "amount": 6000.0,
+    "parties": 1
+   }
+  }
+ },
+ "2025-12-31": {
+  "ages": {
+   "1-01-02-01-9107": {
+    "avg_days": 78.8686193066315,
+    "oldest_days": 87,
+    "buckets": {
+     "current": 0.0,
+     "d31": 1999.99,
+     "d61": 7100.51,
+     "d91": 0.0
+    }
+   },
+   "2-01-01-01-9104": {
+    "avg_days": 30.0,
+    "oldest_days": 30,
+    "buckets": {
+     "current": 4500.25,
+     "d31": 0.0,
+     "d61": 0.0,
+     "d91": 0.0
+    }
+   }
+  },
+  "rows": {
+   "amounts": [
+    9100.5,
+    4500.25
+   ],
+   "by_code": {
+    "1-01-02-01-9107": {
+     "account": "1-01-02-01-9107",
+     "name": "Exec Customer 7",
+     "type": "asset",
+     "group": "1-01-02-01",
+     "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+     "debit": 9300.49,
+     "credit": 199.99,
+     "side": "receivable"
+    },
+    "2-01-01-01-9104": {
+     "account": "2-01-01-01-9104",
+     "name": "Exec Supplier 4",
+     "type": "liability",
+     "group": "2-01-01-01",
+     "group_label": "2-01-01-01 \u00b7 Trade Creditors",
+     "debit": 0.0,
+     "credit": 4500.25,
+     "side": "payable"
+    }
+   }
+  },
+  "recv": {
+   "amounts": [
+    9100.5
+   ],
+   "by_code": {
+    "1-01-02-01-9107": {
+     "account": "1-01-02-01-9107",
+     "name": "Exec Customer 7",
+     "type": "asset",
+     "group": "1-01-02-01",
+     "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+     "debit": 9300.49,
+     "credit": 199.99,
+     "side": "receivable"
+    }
+   }
+  },
+  "groups": [
+   {
+    "group": "1-01-02-01",
+    "label": "1-01-02-01 \u00b7 Trade Debtors"
+   },
+   {
+    "group": "2-01-01-01",
+    "label": "2-01-01-01 \u00b7 Trade Creditors"
+   }
+  ],
+  "both": {
+   "receivable": {
+    "amount": 9100.5,
+    "parties": 1
+   },
+   "payable": {
+    "amount": 4500.25,
+    "parties": 1
+   }
+  }
+ }
+}

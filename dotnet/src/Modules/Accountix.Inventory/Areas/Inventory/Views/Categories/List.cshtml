@@ -1,0 +1,36 @@
+@model List<Accountix.Inventory.Controllers.CategoryRow>
+@{
+    ViewData["Title"] = "Categories";
+    ViewData["Heading"] = "Categories";
+}
+<div class="page-header">
+  <a href="/inventory/categories/create" class="btn btn-primary">+ New Category</a>
+</div>
+<div class="card">
+  <div class="table-responsive">
+    <table class="table">
+      <thead><tr><th>Name</th><th>Description</th><th>Parent</th><th>Status</th><th>Products</th><th>Actions</th></tr></thead>
+      <tbody>
+        @foreach (var row in Model)
+        {
+          var cat = row.Category;
+        <tr class="@(cat.IsActive == true ? "" : "inactive-row")">
+          <td>@cat.Name</td>
+          <td>@(string.IsNullOrEmpty(cat.Description) ? "-" : cat.Description)</td>
+          <td>@(row.ParentName ?? "-")</td>
+          <td><span class="badge @(cat.IsActive == true ? "badge-success" : "badge-secondary")">@(cat.IsActive == true ? "Active" : "Inactive")</span></td>
+          <td>@row.Products</td>
+          <td class="actions">
+            <a href="/inventory/categories/edit/@cat.Id" class="btn btn-sm btn-outline">Edit</a>
+            <form method="POST" action="/inventory/categories/delete/@cat.Id" style="display:inline;" onsubmit="return confirm('Delete this category?')"><button type="submit" class="btn btn-sm btn-danger">Delete</button></form>
+          </td>
+        </tr>
+        }
+        @if (Model.Count == 0)
+        {
+        <tr><td colspan="6" class="empty">No categories</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,496 @@
+{
+ "alembic_version": [
+  "0018_report_indexes"
+ ],
+ "global_limits": [
+  {
+   "default_max_members": 25,
+   "id": 1,
+   "max_companies_per_user": 3,
+   "updated_by": null
+  }
+ ],
+ "permissions": [
+  {
+   "can_delete": true,
+   "can_read": true,
+   "can_write": true,
+   "id": 1,
+   "resource": "attendance",
+   "role_id": 1
+  },
+  {
+   "can_delete": true,
+   "can_read": true,
+   "can_write": true,
+   "id": 2,
+   "resource": "leaves",
+   "role_id": 1
+  },
+  {
+   "can_delete": true,
+   "can_read": true,
+   "can_write": true,
+   "id": 3,
+   "resource": "ess",
+   "role_id": 1
+  },
+  {
+   "can_delete": true,
+   "can_read": true,
+   "can_write": true,
+   "id": 4,
+   "resource": "reports",
+   "role_id": 1
+  },
+  {
+   "can_delete": true,
+   "can_read": true,
+   "can_write": true,
+   "id": 5,
+   "resource": "mss",
+   "role_id": 1
+  },
+  {
+   "can_delete": true,
+   "can_read": true,
+   "can_write": true,
+   "id": 6,
+   "resource": "workplace",
+   "role_id": 1
+  },
+  {
+   "can_delete": true,
+   "can_read": true,
+   "can_write": true,
+   "id": 7,
+   "resource": "timesheets",
+   "role_id": 1
+  },
+  {
+   "can_delete": true,
+   "can_read": true,
+   "can_write": true,
+   "id": 8,
+   "resource": "digital_files",
+   "role_id": 1
+  },
+  {
+   "can_delete": true,
+   "can_read": true,
+   "can_write": true,
+   "id": 9,
+   "resource": "compensation",
+   "role_id": 1
+  },
+  {
+   "can_delete": true,
+   "can_read": true,
+   "can_write": true,
+   "id": 10,
+   "resource": "communications",
+   "role_id": 1
+  },
+  {
+   "can_delete": true,
+   "can_read": true,
+   "can_write": true,
+   "id": 11,
+   "resource": "pf",
+   "role_id": 1
+  },
+  {
+   "can_delete": true,
+   "can_read": true,
+   "can_write": true,
+   "id": 12,
+   "resource": "users",
+   "role_id": 1
+  },
+  {
+   "can_delete": true,
+   "can_read": true,
+   "can_write": true,
+   "id": 13,
+   "resource": "products",
+   "role_id": 1
+  },
+  {
+   "can_delete": true,
+   "can_read": true,
+   "can_write": true,
+   "id": 14,
+   "resource": "suppliers",
+   "role_id": 1
+  },
+  {
+   "can_delete": true,
+   "can_read": true,
+   "can_write": true,
+   "id": 15,
+   "resource": "purchase_invoice",
+   "role_id": 1
+  },
+  {
+   "can_delete": true,
+   "can_read": true,
+   "can_write": true,
+   "id": 16,
+   "resource": "purchase_return",
+   "role_id": 1
+  },
+  {
+   "can_delete": true,
+   "can_read": true,
+   "can_write": true,
+   "id": 17,
+   "resource": "sales",
+   "role_id": 1
+  },
+  {
+   "can_delete": true,
+   "can_read": true,
+   "can_write": true,
+   "id": 18,
+   "resource": "inventory",
+   "role_id": 1
+  },
+  {
+   "can_delete": false,
+   "can_read": true,
+   "can_write": true,
+   "id": 19,
+   "resource": "attendance",
+   "role_id": 2
+  },
+  {
+   "can_delete": false,
+   "can_read": true,
+   "can_write": true,
+   "id": 20,
+   "resource": "leaves",
+   "role_id": 2
+  },
+  {
+   "can_delete": false,
+   "can_read": true,
+   "can_write": true,
+   "id": 21,
+   "resource": "ess",
+   "role_id": 2
+  },
+  {
+   "can_delete": false,
+   "can_read": true,
+   "can_write": false,
+   "id": 22,
+   "resource": "reports",
+   "role_id": 2
+  },
+  {
+   "can_delete": false,
+   "can_read": true,
+   "can_write": true,
+   "id": 23,
+   "resource": "mss",
+   "role_id": 2
+  },
+  {
+   "can_delete": false,
+   "can_read": true,
+   "can_write": true,
+   "id": 24,
+   "resource": "workplace",
+   "role_id": 2
+  },
+  {
+   "can_delete": false,
+   "can_read": true,
+   "can_write": true,
+   "id": 25,
+   "resource": "timesheets",
+   "role_id": 2
+  },
+  {
+   "can_delete": false,
+   "can_read": true,
+   "can_write": false,
+   "id": 26,
+   "resource": "digital_files",
+   "role_id": 2
+  },
+  {
+   "can_delete": false,
+   "can_read": true,
+   "can_write": false,
+   "id": 27,
+   "resource": "compensation",
+   "role_id": 2
+  },
+  {
+   "can_delete": false,
+   "can_read": true,
+   "can_write": false,
+   "id": 28,
+   "resource": "communications",
+   "role_id": 2
+  },
+  {
+   "can_delete": false,
+   "can_read": true,
+   "can_write": false,
+   "id": 29,
+   "resource": "pf",
+   "role_id": 2
+  },
+  {
+   "can_delete": false,
+   "can_read": false,
+   "can_write": false,
+   "id": 30,
+   "resource": "users",
+   "role_id": 2
+  },
+  {
+   "can_delete": false,
+   "can_read": true,
+   "can_write": true,
+   "id": 31,
+   "resource": "products",
+   "role_id": 2
+  },
+  {
+   "can_delete": false,
+   "can_read": true,
+   "can_write": true,
+   "id": 32,
+   "resource": "suppliers",
+   "role_id": 2
+  },
+  {
+   "can_delete": false,
+   "can_read": true,
+   "can_write": true,
+   "id": 33,
+   "resource": "purchase_invoice",
+   "role_id": 2
+  },
+  {
+   "can_delete": false,
+   "can_read": true,
+   "can_write": true,
+   "id": 34,
+   "resource": "purchase_return",
+   "role_id": 2
+  },
+  {
+   "can_delete": false,
+   "can_read": true,
+   "can_write": true,
+   "id": 35,
+   "resource": "sales",
+   "role_id": 2
+  },
+  {
+   "can_delete": false,
+   "can_read": true,
+   "can_write": false,
+   "id": 36,
+   "resource": "inventory",
+   "role_id": 2
+  },
+  {
+   "can_delete": false,
+   "can_read": true,
+   "can_write": true,
+   "id": 37,
+   "resource": "attendance",
+   "role_id": 3
+  },
+  {
+   "can_delete": false,
+   "can_read": true,
+   "can_write": true,
+   "id": 38,
+   "resource": "leaves",
+   "role_id": 3
+  },
+  {
+   "can_delete": false,
+   "can_read": true,
+   "can_write": true,
+   "id": 39,
+   "resource": "ess",
+   "role_id": 3
+  },
+  {
+   "can_delete": false,
+   "can_read": false,
+   "can_write": false,
+   "id": 40,
+   "resource": "reports",
+   "role_id": 3
+  },
+  {
+   "can_delete": false,
+   "can_read": false,
+   "can_write": false,
+   "id": 41,
+   "resource": "mss",
+   "role_id": 3
+  },
+  {
+   "can_delete": false,
+   "can_read": true,
+   "can_write": false,
+   "id": 42,
+   "resource": "workplace",
+   "role_id": 3
+  },
+  {
+   "can_delete": false,
+   "can_read": true,
+   "can_write": true,
+   "id": 43,
+   "resource": "timesheets",
+   "role_id": 3
+  },
+  {
+   "can_delete": false,
+   "can_read": true,
+   "can_write": false,
+   "id": 44,
+   "resource": "digital_files",
+   "role_id": 3
+  },
+  {
+   "can_delete": false,
+   "can_read": false,
+   "can_write": false,
+   "id": 45,
+   "resource": "compensation",
+   "role_id": 3
+  },
+  {
+   "can_delete": false,
+   "can_read": true,
+   "can_write": false,
+   "id": 46,
+   "resource": "communications",
+   "role_id": 3
+  },
+  {
+   "can_delete": false,
+   "can_read": true,
+   "can_write": false,
+   "id": 47,
+   "resource": "pf",
+   "role_id": 3
+  },
+  {
+   "can_delete": false,
+   "can_read": false,
+   "can_write": false,
+   "id": 48,
+   "resource": "users",
+   "role_id": 3
+  },
+  {
+   "can_delete": false,
+   "can_read": false,
+   "can_write": false,
+   "id": 49,
+   "resource": "products",
+   "role_id": 3
+  },
+  {
+   "can_delete": false,
+   "can_read": false,
+   "can_write": false,
+   "id": 50,
+   "resource": "suppliers",
+   "role_id": 3
+  },
+  {
+   "can_delete": false,
+   "can_read": false,
+   "can_write": false,
+   "id": 51,
+   "resource": "purchase_invoice",
+   "role_id": 3
+  },
+  {
+   "can_delete": false,
+   "can_read": false,
+   "can_write": false,
+   "id": 52,
+   "resource": "purchase_return",
+   "role_id": 3
+  },
+  {
+   "can_delete": false,
+   "can_read": false,
+   "can_write": false,
+   "id": 53,
+   "resource": "sales",
+   "role_id": 3
+  },
+  {
+   "can_delete": false,
+   "can_read": false,
+   "can_write": false,
+   "id": 54,
+   "resource": "inventory",
+   "role_id": 3
+  }
+ ],
+ "roles": [
+  {
+   "description": "Admin role",
+   "id": 1,
+   "name": "admin"
+  },
+  {
+   "description": "Manager role",
+   "id": 2,
+   "name": "manager"
+  },
+  {
+   "description": "Employee role",
+   "id": 3,
+   "name": "employee"
+  }
+ ],
+ "sysadmin": {
+  "address": null,
+  "bank_account_number": null,
+  "bank_account_title": null,
+  "bank_name": null,
+  "cnic": null,
+  "date_of_birth": null,
+  "department": null,
+  "designation": "System Administrator",
+  "email": "admin@gmail.com",
+  "emergency_contact": null,
+  "emergency_phone": null,
+  "employee_code": "SYSADMIN",
+  "full_name": "Administrator",
+  "has_accounting_access": false,
+  "has_executive_access": false,
+  "has_fbr_access": false,
+  "has_finance_access": false,
+  "has_fixed_assets_access": false,
+  "has_hr_access": true,
+  "has_inventory_access": true,
+  "has_invoicing_access": false,
+  "is_active": true,
+  "is_super_admin": true,
+  "login_id": "admin@gmail.com",
+  "manager_id": null,
+  "max_companies_joined": null,
+  "max_companies_owned": null,
+  "phone": null,
+  "profile_image": null,
+  "role_id": 1
+ }
+}

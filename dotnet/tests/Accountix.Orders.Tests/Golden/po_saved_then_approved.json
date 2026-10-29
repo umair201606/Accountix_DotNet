@@ -1,0 +1,133 @@
+{
+  "captured": "2026-10-29, Python app (Flask), before it was removed",
+  "capture": "Golden/capture/po_saved_then_approved.py",
+  "inputs": {
+    "draft": {
+      "id": null,
+      "action": "save",
+      "po_number": "(auto)",
+      "supplier_id": "S1",
+      "party_account_id": null,
+      "order_date": "2026-05-14",
+      "expected_date": 0,
+      "discount_mode": "general",
+      "charges_mode": "general",
+      "tax_mode": "individual",
+      "global_discount_pct": 0,
+      "global_discount_value": 0,
+      "global_sales_tax_pct": 0,
+      "withholding_tax_pct": 0,
+      "apply_withholding_tax": false,
+      "notes": "po parity",
+      "driver_name": "Aslam",
+      "driver_contact": 0,
+      "vehicle_number": "LEA-1234",
+      "gate_pass": 0,
+      "subtotal": 92250.5,
+      "total_discount": 0,
+      "total_charges": 0,
+      "total_tax": 15682.585,
+      "total_withholding_tax": 0,
+      "total_amount": 107933.085,
+      "items": [
+        {
+          "product_id": "P3",
+          "description": "Panels",
+          "quantity": 3,
+          "unit": "pcs",
+          "unit_price": 30750.1666666,
+          "discount_pct": 0,
+          "discount_amount": 0,
+          "sales_tax_pct": 17,
+          "total_before_discount": 92250.5,
+          "total_after_discount": 0,
+          "total_price": 92250.5
+        },
+        {
+          "product_id": "P1",
+          "description": "Cable",
+          "quantity": 0.25,
+          "unit": "pcs",
+          "unit_price": 1,
+          "discount_pct": 0,
+          "discount_amount": 0,
+          "sales_tax_pct": 0,
+          "total_before_discount": 0.25,
+          "total_after_discount": 0,
+          "total_price": 0.25
+        }
+      ],
+      "charges": [],
+      "edit_version": null
+    },
+    "approve": {
+      "id": "PO1",
+      "action": "approve",
+      "po_number": "",
+      "supplier_id": "S1",
+      "party_account_id": null,
+      "order_date": "2026-05-14",
+      "expected_date": 0,
+      "discount_mode": "general",
+      "charges_mode": "general",
+      "tax_mode": "individual",
+      "global_discount_pct": 0,
+      "global_discount_value": 0,
+      "global_sales_tax_pct": 0,
+      "withholding_tax_pct": 0,
+      "apply_withholding_tax": false,
+      "notes": "po parity v2",
+      "driver_name": "Aslam",
+      "driver_contact": 0,
+      "vehicle_number": "LEA-1234",
+      "gate_pass": 0,
+      "subtotal": 92250.5,
+      "total_discount": 0,
+      "total_charges": 0,
+      "total_tax": 15682.585,
+      "total_withholding_tax": 0,
+      "total_amount": 107933.085,
+      "items": [
+        {
+          "product_id": "P3",
+          "description": "Panels",
+          "quantity": 3,
+          "unit": "pcs",
+          "unit_price": 30750.1666666,
+          "discount_pct": 0,
+          "discount_amount": 0,
+          "sales_tax_pct": 17,
+          "total_before_discount": 92250.5,
+          "total_after_discount": 0,
+          "total_price": 92250.5
+        },
+        {
+          "product_id": "P1",
+          "description": "Cable",
+          "quantity": 0.25,
+          "unit": "pcs",
+          "unit_price": 1,
+          "discount_pct": 0,
+          "discount_amount": 0,
+          "sales_tax_pct": 0,
+          "total_before_discount": 0.25,
+          "total_after_discount": 0,
+          "total_price": 0.25
+        }
+      ],
+      "charges": [],
+      "edit_version": 0
+    }
+  },
+  "expected": {
+    "answers": [
+      "200 {\"edit_version\":0,\"id\":\"PO1\",\"message\":\"Order saved as unapproved\",\"number\":\"<PO1>\",\"ok\":true,\"status\":\"unapproved\"}",
+      "200 {\"edit_version\":1,\"id\":\"PO1\",\"message\":\"Order approved and locked\",\"number\":\"<PO1>\",\"ok\":true,\"status\":\"approved\"}"
+    ],
+    "PO1": [
+      "PO PO1|CO|S1|null|2026-05-14|null|approved|open|individual|0|92250.75|15682.59|107933.34|po parity v2|Aslam|0|LEA-1234|0|U|U|True|1|True|True",
+      "  item CO|P3|Panels|pcs|3|0|30750.166667|17|92250.5|0|92250.5",
+      "  item CO|P1|Cable|pcs|0.25|0|1|0|0.25|0|0.25"
+    ]
+  }
+}

@@ -1,0 +1,1385 @@
+{
+ "today": "2026-06-10",
+ "windows": [
+  {
+   "start": "2026-04-27",
+   "matrix": {
+    "weeks": [
+     {
+      "start": "2026-04-27",
+      "end": "2026-05-03",
+      "is_past": true
+     },
+     {
+      "start": "2026-05-04",
+      "end": "2026-05-10",
+      "is_past": true
+     },
+     {
+      "start": "2026-05-11",
+      "end": "2026-05-17",
+      "is_past": true
+     },
+     {
+      "start": "2026-05-18",
+      "end": "2026-05-24",
+      "is_past": true
+     },
+     {
+      "start": "2026-05-25",
+      "end": "2026-05-31",
+      "is_past": true
+     },
+     {
+      "start": "2026-06-01",
+      "end": "2026-06-07",
+      "is_past": true
+     },
+     {
+      "start": "2026-06-08",
+      "end": "2026-06-14",
+      "is_past": false
+     },
+     {
+      "start": "2026-06-15",
+      "end": "2026-06-21",
+      "is_past": false
+     },
+     {
+      "start": "2026-06-22",
+      "end": "2026-06-28",
+      "is_past": false
+     },
+     {
+      "start": "2026-06-29",
+      "end": "2026-07-05",
+      "is_past": false
+     },
+     {
+      "start": "2026-07-06",
+      "end": "2026-07-12",
+      "is_past": false
+     },
+     {
+      "start": "2026-07-13",
+      "end": "2026-07-19",
+      "is_past": false
+     },
+     {
+      "start": "2026-07-20",
+      "end": "2026-07-26",
+      "is_past": false
+     }
+    ],
+    "rows": [
+     {
+      "key": "opening",
+      "kind": "opening",
+      "label": "Opening cash & equivalents",
+      "auto": false,
+      "source": null,
+      "total": 18553987.190000057,
+      "values": [
+       18553987.190000057,
+       null,
+       null,
+       null,
+       null,
+       null,
+       null,
+       null,
+       null,
+       null,
+       null,
+       null,
+       null
+      ]
+     },
+     {
+      "key": "sec_in",
+      "kind": "section",
+      "label": "RECEIPTS",
+      "auto": false,
+      "source": null,
+      "total": null,
+      "values": null
+     },
+     {
+      "key": "in_collections",
+      "kind": "account",
+      "label": "Collections from customers",
+      "auto": true,
+      "source": null,
+      "total": null,
+      "values": [
+       180736710.78,
+       180736710.78,
+       45923725.16,
+       45923725.16,
+       45923725.16,
+       5577220.02,
+       5577220.02,
+       5577220.02,
+       31538.47,
+       31538.47,
+       31538.47,
+       31538.47,
+       31538.47
+      ]
+     },
+     {
+      "key": "in_other_in",
+      "kind": "account",
+      "label": "other_in",
+      "auto": false,
+      "source": null,
+      "total": null,
+      "values": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ]
+     },
+     {
+      "key": "total_in",
+      "kind": "total",
+      "label": "Total receipts",
+      "auto": false,
+      "source": null,
+      "total": 516133949.45,
+      "values": [
+       180736710.78,
+       180736710.78,
+       45923725.16,
+       45923725.16,
+       45923725.16,
+       5577220.02,
+       5577220.02,
+       5577220.02,
+       31538.47,
+       31538.47,
+       31538.47,
+       31538.47,
+       31538.47
+      ]
+     },
+     {
+      "key": "sec_out",
+      "kind": "section",
+      "label": "DISBURSEMENTS",
+      "auto": false,
+      "source": null,
+      "total": null,
+      "values": null
+     },
+     {
+      "key": "out_suppliers",
+      "kind": "account",
+      "label": "Payments to suppliers",
+      "auto": true,
+      "source": null,
+      "total": null,
+      "values": [
+       96647355.69,
+       96647355.69,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ]
+     },
+     {
+      "key": "out_payroll",
+      "kind": "account",
+      "label": "payroll",
+      "auto": false,
+      "source": null,
+      "total": null,
+      "values": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ]
+     },
+     {
+      "key": "out_rent",
+      "kind": "account",
+      "label": "rent",
+      "auto": false,
+      "source": null,
+      "total": null,
+      "values": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ]
+     },
+     {
+      "key": "out_taxes",
+      "kind": "account",
+      "label": "taxes",
+      "auto": false,
+      "source": null,
+      "total": null,
+      "values": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ]
+     },
+     {
+      "key": "out_capex",
+      "kind": "account",
+      "label": "capex",
+      "auto": false,
+      "source": null,
+      "total": null,
+      "values": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ]
+     },
+     {
+      "key": "out_debt",
+      "kind": "account",
+      "label": "debt",
+      "auto": false,
+      "source": null,
+      "total": null,
+      "values": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ]
+     },
+     {
+      "key": "out_other_out",
+      "kind": "account",
+      "label": "other_out",
+      "auto": false,
+      "source": null,
+      "total": null,
+      "values": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ]
+     },
+     {
+      "key": "total_out",
+      "kind": "total",
+      "label": "Total disbursements",
+      "auto": false,
+      "source": null,
+      "total": 193294711.38,
+      "values": [
+       96647355.69,
+       96647355.69,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ]
+     },
+     {
+      "key": "net",
+      "kind": "net",
+      "label": "Net cash flow",
+      "auto": false,
+      "source": null,
+      "total": 17585132.22,
+      "values": [
+       72200713.1,
+       -33209566.159999996,
+       12855904.690000013,
+       12406457.11,
+       -53585397.39,
+       -4395111.520000011,
+       5577220.02,
+       5577220.02,
+       31538.47,
+       31538.47,
+       31538.47,
+       31538.47,
+       31538.47
+      ]
+     },
+     {
+      "key": "variance",
+      "kind": "variance",
+      "label": "Variance (actual vs forecast)",
+      "auto": false,
+      "source": null,
+      "total": null,
+      "values": [
+       -11888641.99,
+       -117298921.25,
+       -33067820.47,
+       -33517268.05,
+       -99509122.55,
+       -9972331.54,
+       null,
+       null,
+       null,
+       null,
+       null,
+       null,
+       null
+      ]
+     },
+     {
+      "key": "closing",
+      "kind": "grand",
+      "label": "Closing cash & equivalents",
+      "auto": false,
+      "source": null,
+      "total": 36139119.41,
+      "values": [
+       90754700.29,
+       57545134.13,
+       70401038.82,
+       82807495.93,
+       29222098.54,
+       24826987.02,
+       30404207.04,
+       35981427.06,
+       36012965.53,
+       36044504.0,
+       36076042.47,
+       36107580.94,
+       36139119.41
+      ]
+     }
+    ],
+    "opening": 18553987.190000057,
+    "total_in": 516133949.45,
+    "total_out": 193294711.38,
+    "net": 17585132.22,
+    "closing": [
+     90754700.29,
+     57545134.13,
+     70401038.82,
+     82807495.93,
+     29222098.54,
+     24826987.02,
+     30404207.04,
+     35981427.06,
+     36012965.53,
+     36044504.0,
+     36076042.47,
+     36107580.94,
+     36139119.41
+    ],
+    "has_past_weeks": true,
+    "floor": null,
+    "has_scope": true,
+    "has_payroll_auto": false
+   }
+  },
+  {
+   "start": "2026-04-27",
+   "matrix": {
+    "weeks": [
+     {
+      "start": "2026-04-27",
+      "end": "2026-05-03",
+      "is_past": true
+     },
+     {
+      "start": "2026-05-04",
+      "end": "2026-05-10",
+      "is_past": true
+     },
+     {
+      "start": "2026-05-11",
+      "end": "2026-05-17",
+      "is_past": true
+     },
+     {
+      "start": "2026-05-18",
+      "end": "2026-05-24",
+      "is_past": true
+     },
+     {
+      "start": "2026-05-25",
+      "end": "2026-05-31",
+      "is_past": true
+     },
+     {
+      "start": "2026-06-01",
+      "end": "2026-06-07",
+      "is_past": true
+     },
+     {
+      "start": "2026-06-08",
+      "end": "2026-06-14",
+      "is_past": false
+     },
+     {
+      "start": "2026-06-15",
+      "end": "2026-06-21",
+      "is_past": false
+     },
+     {
+      "start": "2026-06-22",
+      "end": "2026-06-28",
+      "is_past": false
+     },
+     {
+      "start": "2026-06-29",
+      "end": "2026-07-05",
+      "is_past": false
+     },
+     {
+      "start": "2026-07-06",
+      "end": "2026-07-12",
+      "is_past": false
+     },
+     {
+      "start": "2026-07-13",
+      "end": "2026-07-19",
+      "is_past": false
+     },
+     {
+      "start": "2026-07-20",
+      "end": "2026-07-26",
+      "is_past": false
+     }
+    ],
+    "rows": [
+     {
+      "key": "opening",
+      "kind": "opening",
+      "label": "Opening cash & equivalents",
+      "auto": false,
+      "source": null,
+      "total": 18553987.190000057,
+      "values": [
+       18553987.190000057,
+       null,
+       null,
+       null,
+       null,
+       null,
+       null,
+       null,
+       null,
+       null,
+       null,
+       null,
+       null
+      ]
+     },
+     {
+      "key": "sec_in",
+      "kind": "section",
+      "label": "RECEIPTS",
+      "auto": false,
+      "source": null,
+      "total": null,
+      "values": null
+     },
+     {
+      "key": "in_collections",
+      "kind": "account",
+      "label": "Collections from customers",
+      "auto": true,
+      "source": null,
+      "total": null,
+      "values": [
+       180736710.78,
+       180736710.78,
+       45923725.16,
+       45923725.16,
+       45923725.16,
+       5577220.02,
+       5577220.02,
+       5577220.02,
+       31538.47,
+       31538.47,
+       31538.47,
+       31538.47,
+       31538.47
+      ]
+     },
+     {
+      "key": "in_other_in",
+      "kind": "account",
+      "label": "other_in",
+      "auto": false,
+      "source": null,
+      "total": null,
+      "values": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ]
+     },
+     {
+      "key": "total_in",
+      "kind": "total",
+      "label": "Total receipts",
+      "auto": false,
+      "source": null,
+      "total": 516133949.45,
+      "values": [
+       180736710.78,
+       180736710.78,
+       45923725.16,
+       45923725.16,
+       45923725.16,
+       5577220.02,
+       5577220.02,
+       5577220.02,
+       31538.47,
+       31538.47,
+       31538.47,
+       31538.47,
+       31538.47
+      ]
+     },
+     {
+      "key": "sec_out",
+      "kind": "section",
+      "label": "DISBURSEMENTS",
+      "auto": false,
+      "source": null,
+      "total": null,
+      "values": null
+     },
+     {
+      "key": "out_suppliers",
+      "kind": "account",
+      "label": "Payments to suppliers",
+      "auto": true,
+      "source": null,
+      "total": null,
+      "values": [
+       96647355.69,
+       96647355.69,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ]
+     },
+     {
+      "key": "out_payroll",
+      "kind": "account",
+      "label": "payroll",
+      "auto": false,
+      "source": null,
+      "total": null,
+      "values": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ]
+     },
+     {
+      "key": "out_rent",
+      "kind": "account",
+      "label": "rent",
+      "auto": false,
+      "source": null,
+      "total": null,
+      "values": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ]
+     },
+     {
+      "key": "out_taxes",
+      "kind": "account",
+      "label": "taxes",
+      "auto": false,
+      "source": null,
+      "total": null,
+      "values": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ]
+     },
+     {
+      "key": "out_capex",
+      "kind": "account",
+      "label": "capex",
+      "auto": false,
+      "source": null,
+      "total": null,
+      "values": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ]
+     },
+     {
+      "key": "out_debt",
+      "kind": "account",
+      "label": "debt",
+      "auto": false,
+      "source": null,
+      "total": null,
+      "values": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ]
+     },
+     {
+      "key": "out_other_out",
+      "kind": "account",
+      "label": "other_out",
+      "auto": false,
+      "source": null,
+      "total": null,
+      "values": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ]
+     },
+     {
+      "key": "total_out",
+      "kind": "total",
+      "label": "Total disbursements",
+      "auto": false,
+      "source": null,
+      "total": 193294711.38,
+      "values": [
+       96647355.69,
+       96647355.69,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ]
+     },
+     {
+      "key": "net",
+      "kind": "net",
+      "label": "Net cash flow",
+      "auto": false,
+      "source": null,
+      "total": 17585132.22,
+      "values": [
+       72200713.1,
+       -33209566.159999996,
+       12855904.690000013,
+       12406457.11,
+       -53585397.39,
+       -4395111.520000011,
+       5577220.02,
+       5577220.02,
+       31538.47,
+       31538.47,
+       31538.47,
+       31538.47,
+       31538.47
+      ]
+     },
+     {
+      "key": "variance",
+      "kind": "variance",
+      "label": "Variance (actual vs forecast)",
+      "auto": false,
+      "source": null,
+      "total": null,
+      "values": [
+       -11888641.99,
+       -117298921.25,
+       -33067820.47,
+       -33517268.05,
+       -99509122.55,
+       -9972331.54,
+       null,
+       null,
+       null,
+       null,
+       null,
+       null,
+       null
+      ]
+     },
+     {
+      "key": "closing",
+      "kind": "grand",
+      "label": "Closing cash & equivalents",
+      "auto": false,
+      "source": null,
+      "total": 36139119.41,
+      "values": [
+       90754700.29,
+       57545134.13,
+       70401038.82,
+       82807495.93,
+       29222098.54,
+       24826987.02,
+       30404207.04,
+       35981427.06,
+       36012965.53,
+       36044504.0,
+       36076042.47,
+       36107580.94,
+       36139119.41
+      ]
+     }
+    ],
+    "opening": 18553987.190000057,
+    "total_in": 516133949.45,
+    "total_out": 193294711.38,
+    "net": 17585132.22,
+    "closing": [
+     90754700.29,
+     57545134.13,
+     70401038.82,
+     82807495.93,
+     29222098.54,
+     24826987.02,
+     30404207.04,
+     35981427.06,
+     36012965.53,
+     36044504.0,
+     36076042.47,
+     36107580.94,
+     36139119.41
+    ],
+    "has_past_weeks": true,
+    "floor": null,
+    "has_scope": true,
+    "has_payroll_auto": false
+   }
+  },
+  {
+   "start": "2025-07-01",
+   "matrix": {
+    "weeks": [
+     {
+      "start": "2025-07-01",
+      "end": "2025-07-07",
+      "is_past": true
+     },
+     {
+      "start": "2025-07-08",
+      "end": "2025-07-14",
+      "is_past": true
+     },
+     {
+      "start": "2025-07-15",
+      "end": "2025-07-21",
+      "is_past": true
+     },
+     {
+      "start": "2025-07-22",
+      "end": "2025-07-28",
+      "is_past": true
+     },
+     {
+      "start": "2025-07-29",
+      "end": "2025-08-04",
+      "is_past": true
+     },
+     {
+      "start": "2025-08-05",
+      "end": "2025-08-11",
+      "is_past": true
+     },
+     {
+      "start": "2025-08-12",
+      "end": "2025-08-18",
+      "is_past": true
+     },
+     {
+      "start": "2025-08-19",
+      "end": "2025-08-25",
+      "is_past": true
+     },
+     {
+      "start": "2025-08-26",
+      "end": "2025-09-01",
+      "is_past": true
+     },
+     {
+      "start": "2025-09-02",
+      "end": "2025-09-08",
+      "is_past": true
+     },
+     {
+      "start": "2025-09-09",
+      "end": "2025-09-15",
+      "is_past": true
+     },
+     {
+      "start": "2025-09-16",
+      "end": "2025-09-22",
+      "is_past": true
+     },
+     {
+      "start": "2025-09-23",
+      "end": "2025-09-29",
+      "is_past": true
+     }
+    ],
+    "rows": [
+     {
+      "key": "opening",
+      "kind": "opening",
+      "label": "Opening cash & equivalents",
+      "auto": false,
+      "source": null,
+      "total": 0.0,
+      "values": [
+       0.0,
+       null,
+       null,
+       null,
+       null,
+       null,
+       null,
+       null,
+       null,
+       null,
+       null,
+       null,
+       null
+      ]
+     },
+     {
+      "key": "sec_in",
+      "kind": "section",
+      "label": "RECEIPTS",
+      "auto": false,
+      "source": null,
+      "total": null,
+      "values": null
+     },
+     {
+      "key": "in_collections",
+      "kind": "account",
+      "label": "Collections from customers",
+      "auto": true,
+      "source": null,
+      "total": null,
+      "values": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ]
+     },
+     {
+      "key": "in_other_in",
+      "kind": "account",
+      "label": "other_in",
+      "auto": false,
+      "source": null,
+      "total": null,
+      "values": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ]
+     },
+     {
+      "key": "total_in",
+      "kind": "total",
+      "label": "Total receipts",
+      "auto": false,
+      "source": null,
+      "total": 0.0,
+      "values": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ]
+     },
+     {
+      "key": "sec_out",
+      "kind": "section",
+      "label": "DISBURSEMENTS",
+      "auto": false,
+      "source": null,
+      "total": null,
+      "values": null
+     },
+     {
+      "key": "out_suppliers",
+      "kind": "account",
+      "label": "Payments to suppliers",
+      "auto": true,
+      "source": null,
+      "total": null,
+      "values": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ]
+     },
+     {
+      "key": "out_payroll",
+      "kind": "account",
+      "label": "payroll",
+      "auto": false,
+      "source": null,
+      "total": null,
+      "values": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ]
+     },
+     {
+      "key": "out_rent",
+      "kind": "account",
+      "label": "rent",
+      "auto": false,
+      "source": null,
+      "total": null,
+      "values": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ]
+     },
+     {
+      "key": "out_taxes",
+      "kind": "account",
+      "label": "taxes",
+      "auto": false,
+      "source": null,
+      "total": null,
+      "values": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ]
+     },
+     {
+      "key": "out_capex",
+      "kind": "account",
+      "label": "capex",
+      "auto": false,
+      "source": null,
+      "total": null,
+      "values": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ]
+     },
+     {
+      "key": "out_debt",
+      "kind": "account",
+      "label": "debt",
+      "auto": false,
+      "source": null,
+      "total": null,
+      "values": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ]
+     },
+     {
+      "key": "out_other_out",
+      "kind": "account",
+      "label": "other_out",
+      "auto": false,
+      "source": null,
+      "total": null,
+      "values": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ]
+     },
+     {
+      "key": "total_out",
+      "kind": "total",
+      "label": "Total disbursements",
+      "auto": false,
+      "source": null,
+      "total": 0.0,
+      "values": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ]
+     },
+     {
+      "key": "net",
+      "kind": "net",
+      "label": "Net cash flow",
+      "auto": false,
+      "source": null,
+      "total": 12979929.65,
+      "values": [
+       156921358.0,
+       -18349510.04,
+       -117086014.83999999,
+       -9894986.89,
+       -417185.2400000021,
+       -1635924.8400000036,
+       2458252.039999999,
+       -1811059.3900000006,
+       -2431541.3599999994,
+       405975.5799999982,
+       1242512.7599999905,
+       2190444.4399999976,
+       1387609.4300000072
+      ]
+     },
+     {
+      "key": "variance",
+      "kind": "variance",
+      "label": "Variance (actual vs forecast)",
+      "auto": false,
+      "source": null,
+      "total": null,
+      "values": [
+       156921358.0,
+       -18349510.04,
+       -117086014.84,
+       -9894986.89,
+       -417185.24,
+       -1635924.84,
+       2458252.04,
+       -1811059.39,
+       -2431541.36,
+       405975.58,
+       1242512.76,
+       2190444.44,
+       1387609.43
+      ]
+     },
+     {
+      "key": "closing",
+      "kind": "grand",
+      "label": "Closing cash & equivalents",
+      "auto": false,
+      "source": null,
+      "total": 12979929.65,
+      "values": [
+       156921358.0,
+       138571847.96,
+       21485833.12,
+       11590846.23,
+       11173660.99,
+       9537736.15,
+       11995988.19,
+       10184928.8,
+       7753387.44,
+       8159363.02,
+       9401875.78,
+       11592320.22,
+       12979929.65
+      ]
+     }
+    ],
+    "opening": 0.0,
+    "total_in": 0.0,
+    "total_out": 0.0,
+    "net": 12979929.65,
+    "closing": [
+     156921358.0,
+     138571847.96,
+     21485833.12,
+     11590846.23,
+     11173660.99,
+     9537736.15,
+     11995988.19,
+     10184928.8,
+     7753387.44,
+     8159363.02,
+     9401875.78,
+     11592320.22,
+     12979929.65
+    ],
+    "has_past_weeks": true,
+    "floor": null,
+    "has_scope": true,
+    "has_payroll_auto": false
+   }
+  }
+ ]
+}

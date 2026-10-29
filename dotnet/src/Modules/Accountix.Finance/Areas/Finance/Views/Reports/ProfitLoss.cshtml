@@ -1,0 +1,97 @@
+@model Accountix.Finance.Controllers.ProfitLossPage
+@using System.Globalization
+@{
+    ViewData["Title"] = "Profit & Loss";
+    ViewData["Heading"] = "Profit & Loss Statement";
+    var inv = CultureInfo.InvariantCulture;
+    var comp = Model.Comp;
+    bool hasComp = comp.Count > 0;
+    int compOffset = comp.Count;
+    string toLabel = Model.To is DateOnly t ? t.ToString("dd MMMM, yyyy", inv) : "Amount";
+    var lastSubtotal = Model.Rows.LastOrDefault(r => r.Kind == "subtotal");
+}
+@section Head { <partial name="_FinanceHead" /> }
+@section Actions {
+<partial name="_ExportLinks" model="(Model.Period, Model.Loaded, true)" />
+<button onclick="window.print()" class="btn btn-outline btn-sm"><i class="fas fa-print"></i> Print</button>
+}
+<partial name="_ViewForm" model="Model.Period.FilterModel(Model.Loaded)" />
+
+<div class="card report-sheet">
+  <div class="report-head">
+    <div>
+      <div class="report-company"><partial name="_CompanyName" /></div>
+      <div class="report-title-lg">Profit &amp; Loss Statement</div>
+      <div class="report-period">@if (Model.From is DateOnly f && Model.To is DateOnly to) {<text>For the period @f.ToString("dd MMMM, yyyy", inv) to @to.ToString("dd MMMM, yyyy", inv)</text>} else {<text>Select a period and click <strong>View</strong></text>}</div>
+    </div>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="report-table statement">
+      <thead>
+        <tr>
+          <th style="width:130px;">Code</th>
+          <th>Account</th>
+          @if (hasComp)
+          {
+          <th class="num" style="width:140px;">@toLabel</th>
+          foreach (var cp in comp)
+          {
+          <th class="num" style="width:140px;">@cp.EndDate.ToString("dd MMMM, yyyy", inv)</th>
+          }
+          }
+          else
+          {
+          <th class="num" style="width:150px;">@toLabel</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @foreach (var row in Model.Rows)
+        {
+            var amounts = hasComp && row.CompAmounts is { Count: > 0 } ? row.CompAmounts : [row.Amount];
+            if (row.Kind == "header")
+            {
+        <tr class="sec-head"><td colspan="@(2 + (1 + compOffset))">@row.Label</td></tr>
+            }
+            else if (row.Kind == "account")
+            {
+        <tr>
+          <td class="mono">@row.Code</td>
+          <td class="indent">@row.Name</td>
+          @foreach (var amt in amounts) {<td class="num">@Html.Amount(amt)</td>}
+        </tr>
+            }
+            else if (row.Kind == "total")
+            {
+        <tr class="sec-total">
+          <td></td><td>@row.Label</td>
+          @foreach (var amt in amounts) {<td class="num">@Html.Amount(amt)</td>}
+        </tr>
+            }
+            else if (row.Kind == "subtotal")
+            {
+        <tr class="profit-line @(row.Amount < 0 ? "neg" : "")">
+          <td></td><td>@row.Label</td>
+          @foreach (var amt in amounts) {<td class="num">@Html.Amount(amt)</td>}
+        </tr>
+            }
+        }
+        @if (Model.Rows.Count == 0)
+        {
+        <tr><td colspan="@(Model.Loaded && Model.Period.CompPeriods.Count > 0 ? 3 + Model.Period.CompPeriods.Count : 3)" class="t-muted text-center" style="padding:24px;">No profit &amp; loss activity in this period</td></tr>
+        }
+      </tbody>
+      <tfoot>
+        <tr class="grand-total">
+          <td colspan="2">NET PROFIT / (LOSS)</td>
+          <td class="num @(Model.Net >= 0 ? "num-pos" : "num-neg")">@Html.Amount(Model.Net)</td>
+          @if (hasComp && lastSubtotal?.CompAmounts is { Count: > 0 } la)
+          {
+              foreach (var amt in la.Skip(1)) {<td class="num">@Html.Amount(amt)</td>}
+          }
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+  <p class="report-footnote no-print">Section order, names and profit-line labels are adjustable in <a href="/settings/?tab=reports">Settings &rsaquo; Report Structure</a>.</p>
+</div>

@@ -1,0 +1,90 @@
+[
+ {
+  "key": "trial_balance",
+  "label": "Trial balance (debits = credits)",
+  "ok": false,
+  "expected": 170918.48,
+  "actual": 170905.98,
+  "detail": "Total posted debits vs credits"
+ },
+ {
+  "key": "journals_balanced",
+  "label": "Every journal balances",
+  "ok": false,
+  "expected": 0,
+  "actual": 1,
+  "detail": "Unbalanced: EXEC-SEED-001"
+ },
+ {
+  "key": "reporting_table",
+  "label": "Reporting table matches the ledger",
+  "ok": false,
+  "expected": 0.0,
+  "actual": 2.0,
+  "detail": "Accounts whose report totals differ from their journal lines \u2014 run tools/rebuild_gl_summary.py (2 differ)"
+ },
+ {
+  "key": "inventory_vs_gl",
+  "label": "Inventory account = stock valuation",
+  "ok": true,
+  "expected": 103005.0,
+  "actual": 103005.0,
+  "detail": "General-ledger inventory balance vs the stock ledger's value"
+ },
+ {
+  "key": "stock_layers",
+  "label": "Cost layers back the stock ledger",
+  "ok": false,
+  "expected": 0,
+  "actual": 1,
+  "detail": "#{EXP-1} layers 15012.2500 vs ledger 15005.0000"
+ },
+ {
+  "key": "stock_quantity",
+  "label": "On-hand quantity = stock ledger",
+  "ok": false,
+  "expected": 0,
+  "actual": 1,
+  "detail": "Exec Panel: shows 12.5, ledger 1E+1"
+ },
+ {
+  "key": "fixed_assets_vs_gl",
+  "label": "Asset register = fixed-asset accounts",
+  "ok": true,
+  "expected": 0.0,
+  "actual": 0.0,
+  "detail": "Cost 0.00 vs GL 0.00; accumulated depreciation 0.00 vs GL 0.00"
+ },
+ {
+  "key": "documents_posted",
+  "label": "Approved documents = posted journals",
+  "ok": true,
+  "expected": 0,
+  "actual": 0,
+  "detail": "0 documents checked"
+ },
+ {
+  "key": "payroll_vs_gl",
+  "label": "Payroll runs = salary journals",
+  "ok": true,
+  "expected": 0.0,
+  "actual": 0.0,
+  "detail": "0 runs checked"
+ },
+ {
+  "key": "staff_loans_vs_gl",
+  "label": "Staff loans = loan accounts",
+  "ok": true,
+  "expected": 0.0,
+  "actual": 0.0,
+  "detail": "0 loans paid out through payroll checked"
+ },
+ {
+  "key": "pf_fund_vs_gl",
+  "label": "PF members' ledger = PF Payable",
+  "ok": true,
+  "expected": 0.0,
+  "actual": 0.0,
+  "detail": "Members' balances 0.00 vs PF Payable 0.00"
+ }
+]

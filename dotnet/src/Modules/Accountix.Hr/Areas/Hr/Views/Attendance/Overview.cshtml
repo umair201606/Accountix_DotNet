@@ -1,0 +1,68 @@
+@model Accountix.Hr.Controllers.AttendanceController.OverviewModel
+@{
+    ViewData["Title"] = "Attendance Overview - Accountix ERP";
+    string P(string p) => Model.Period == p ? "btn-primary" : "btn-outline";
+    string Ot(DateOnly d)
+    {
+        // ot_records|selectattr('date','equalto', d)|map(attribute='overtime_hours')|first|default(0, true)
+        var hit = Model.Overtime.FirstOrDefault(o => o.Date == d);
+        return hit?.OvertimeHours is double h && h != 0 ? Py.Float(h) : "0";
+    }
+}
+<div class="page-header">
+    <h1>Attendance Overview</h1>
+    <div>
+        <a href="?period=daily" class="btn btn-sm @P("daily")">Daily</a>
+        <a href="?period=weekly" class="btn btn-sm @P("weekly")">Weekly</a>
+        <a href="?period=monthly" class="btn btn-sm @P("monthly")">Monthly</a>
+        <a href="?period=yearly" class="btn btn-sm @P("yearly")">Yearly</a>
+    </div>
+</div>
+<div class="card mb-20">
+    <div class="card-header">Attendance Records</div>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Date</th><th>Clock In</th><th>Clock Out</th><th>Working Hrs</th><th>OT Hrs</th><th>Status</th></tr></thead>
+            <tbody>
+                @foreach (var r in Model.Records)
+                {
+                <tr>
+                    <td>@Py.Date(r.Date)</td>
+                    <td>@(r.ClockIn is null ? "-" : Py.Hm(r.ClockIn))</td>
+                    <td>@(r.ClockOut is null ? "-" : Py.Hm(r.ClockOut))</td>
+                    <td>@(r.ClockIn is { } ci && r.ClockOut is { } co ? Py.Round((co - ci).TotalSeconds / 3600, 1) + "h" : "-")</td>
+                    <td>@(Ot(r.Date))h</td>
+                    <td><span class="badge badge-@(r.Status == "present" ? "success" : "warning")">@r.Status</span></td>
+                </tr>
+                }
+                @if (Model.Records.Count == 0)
+                {
+                <tr><td colspan="6" class="text-center" style="color:var(--muted);">No records</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="card">
+    <div class="card-header">Overtime Account</div>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Date</th><th>Regular</th><th>Overtime</th><th>Double OT</th></tr></thead>
+            <tbody>
+                @foreach (var o in Model.Overtime)
+                {
+                <tr>
+                    <td>@Py.Date(o.Date)</td>
+                    <td>@(Py.Float(o.RegularHours))h</td>
+                    <td>@(Py.Float(o.OvertimeHours))h</td>
+                    <td>@(Py.Float(o.DoubleOvertime))h</td>
+                </tr>
+                }
+                @if (Model.Overtime.Count == 0)
+                {
+                <tr><td colspan="4" class="text-center" style="color:var(--muted);">No overtime records</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

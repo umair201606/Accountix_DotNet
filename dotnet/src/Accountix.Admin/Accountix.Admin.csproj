@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Maintenance commands of the app (dotnet Accountix.Web.dll admin <name>): the live-data tools that
+    were Python scripts under tools/. Loaded by the host like a module (it registers IAdminCommand
+    services); it has no pages.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Accountix.Admin</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Accountix.Core\Accountix.Core.csproj" />
+    <ProjectReference Include="..\Accountix.Web.Shared\Accountix.Web.Shared.csproj" />
+    <ProjectReference Include="..\Modules\Accountix.Accounting\Accountix.Accounting.csproj" />
+    <ProjectReference Include="..\Modules\Accountix.Executive\Accountix.Executive.csproj" />
+    <ProjectReference Include="..\Modules\Accountix.Inventory\Accountix.Inventory.csproj" />
+    <ProjectReference Include="..\Modules\Accountix.Platform\Accountix.Platform.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Accountix.Admin.Tests" />
+  </ItemGroup>
+
+</Project>

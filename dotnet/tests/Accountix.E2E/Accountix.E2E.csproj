@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Browser end-to-end tests of the .NET app (Playwright + xUnit). See docs/E2E.md.
+
+    Module assemblies are found at run time (Accountix.<Name>.dll next to the tests),
+    never through compile-time types, so a module that is mid-edit elsewhere can be
+    left out of the build without touching the test code:
+
+      dotnet test tests/Accountix.E2E -p:E2EModules="Accounting;Inventory"
+
+    The default list holds the modules marked done in docs/modules/*.md (and
+    compiling). A module that is not in the build is skipped with that reason.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <E2EModules Condition="'$(E2EModules)' == ''">Accounting;Finance;Inventory;Invoicing;Parties;Orders;Returns;Hr;HrRecords;Payroll;FixedAssets;Fbr;Executive;Platform;SuperAdmin</E2EModules>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="Microsoft.Playwright" Version="1.64.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Accountix.TestSupport\Accountix.TestSupport.csproj" />
+    <_E2EModule Include="$(E2EModules)" />
+    <ProjectReference Include="@(_E2EModule->'..\..\src\Modules\Accountix.%(Identity)\Accountix.%(Identity).csproj')" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>E2EModules</_Parameter1>
+      <_Parameter2>$(E2EModules)</_Parameter2>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,50 @@
+@model List<LoanAdvanceRequest>
+@{
+    ViewData["Title"] = "My Loans - Accountix ERP";
+    string Badge(string? s) => s == "approved" ? "success" : s == "pending" ? "warning" : "danger";
+}
+<div class="page-header">
+    <h1>Loans & Advances</h1>
+</div>
+<div class="card mb-20">
+    <div class="card-header">Request New Loan/Advance</div>
+    <form method="POST" style="max-width:400px;padding:12px;">
+        <div class="form-group">
+            <label>Type</label>
+            <select name="type" class="form-control">
+                <option value="loan">Company Loan</option>
+                <option value="advance">Salary Advance</option>
+            </select>
+        </div>
+        <div class="form-group"><label>Amount *</label><input type="number" name="amount" class="form-control" required min="1" step="1"></div>
+        <div class="form-group"><label>Purpose *</label><textarea name="purpose" class="form-control form-textarea" required></textarea></div>
+        <div class="form-group"><label>Installment Months</label><input type="number" name="installments" class="form-control" value="12"></div>
+        <button type="submit" class="btn btn-primary">Submit Request</button>
+    </form>
+</div>
+<div class="card">
+    <div class="card-header">My Requests</div>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Type</th><th>Amount</th><th>Installments</th><th>Monthly</th><th>Remaining</th><th>Status</th><th>Date</th></tr></thead>
+            <tbody>
+                @foreach (var l in Model)
+                {
+                <tr>
+                    <td>@Py.Title(l.RequestType)</td>
+                    <td>Rs. @Html.Amount(l.Amount, 0)</td>
+                    <td>@Py.Str(l.InstallmentMonths)</td>
+                    <td>Rs. @Html.Amount(l.MonthlyInstallment, 0)</td>
+                    <td>Rs. @Html.Amount(l.RemainingAmount, 0)</td>
+                    <td><span class="badge badge-@Badge(l.Status)">@l.Status</span></td>
+                    <td>@Py.DMonY(l.CreatedAt)</td>
+                </tr>
+                }
+                @if (Model.Count == 0)
+                {
+                <tr><td colspan="7" class="text-center" style="color:var(--muted);">No requests</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

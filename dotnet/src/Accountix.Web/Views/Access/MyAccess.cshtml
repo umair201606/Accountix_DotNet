@@ -1,0 +1,58 @@
+@model EffectiveAccess
+@{ ViewData["Title"] = "My access"; }
+<div class="net-card">
+    <h2>Signed in</h2>
+    <dl class="net-kv">
+        <dt>Name</dt><dd>@Model.User.DisplayName</dd>
+        <dt>Email</dt><dd>@Model.User.Email</dd>
+        <dt>Company</dt><dd>@(Model.Company?.Name ?? "None open")</dd>
+        <dt>Role here</dt><dd>@(Model.RoleName ?? "—")@(Model.IsOwner ? " (owner)" : "")@(Model.IsSuperAdmin ? " · platform administrator" : "")</dd>
+        <dt>Section rights</dt><dd>@(Model.IsAdmin ? "Administrator: everything" : Model.RightsConfigured ? "Set by an administrator" : "Never set: unrestricted")</dd>
+    </dl>
+</div>
+@if (Model.Company is not null)
+{
+    <div class="net-card">
+        <h2>Modules</h2>
+        <div class="net-table-wrap">
+            <table class="net-table" id="modules">
+                <thead><tr><th>Module</th><th>Company has it</th><th>Your switch</th><th>You can open it</th></tr></thead>
+                <tbody>
+                @foreach (var m in Modules.All)
+                {
+                    <tr data-module="@m.Key">
+                        <td>@m.Label</td>
+                        <td class="@(Model.ModuleEntitled(m.Key) ? "net-yes" : "net-no")">@(Model.ModuleEntitled(m.Key) ? "Yes" : "No")</td>
+                        <td class="@(Model.ModuleFlag(m.Key) ? "net-yes" : "net-no")">@(Model.ModuleFlag(m.Key) ? "On" : "Off")</td>
+                        <td class="@(Model.CanOpenModule(m.Key) ? "net-yes" : "net-no")" data-open="@(Model.CanOpenModule(m.Key) ? "1" : "0")">@(Model.CanOpenModule(m.Key) ? "Yes" : "No")</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="net-card">
+        <h2>Section rights</h2>
+        <div class="net-table-wrap">
+            <table class="net-table" id="rights">
+                <thead><tr><th>Section</th>@foreach (var a in Rights.Actions) { <th>@a</th> }</tr></thead>
+                <tbody>
+                @foreach (var m in Model.OpenModules())
+                {
+                    foreach (var s in m.Sections)
+                    {
+                        <tr data-section="@s.Key">
+                            <td>@s.Label</td>
+                            @foreach (var a in Rights.Actions)
+                            {
+                                bool ok = Model.Can(s.Key, a);
+                                <td class="@(ok ? "net-yes" : "net-no")" data-action="@a" data-ok="@(ok ? "1" : "0")">@(ok ? "✓" : "—")</td>
+                            }
+                        </tr>
+                    }
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

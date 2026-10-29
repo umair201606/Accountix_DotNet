@@ -1,0 +1,57 @@
+{
+  "captured": "2026-10-29, Python app (Flask), before it was removed",
+  "capture": "Golden/capture/vouchers.py",
+  "inputs": {
+    "url": "/inventory/vouchers/consumption",
+    "stock": {
+      "P": [
+        "10",
+        "12.5",
+        10
+      ]
+    },
+    "form": [
+      [
+        "department",
+        "Workshop"
+      ],
+      [
+        "reason",
+        "Repairs"
+      ],
+      [
+        "date",
+        "D-2"
+      ],
+      [
+        "charge_account_id",
+        ""
+      ],
+      [
+        "label_id",
+        ""
+      ],
+      [
+        "status",
+        "approved"
+      ],
+      [
+        "product_id[]",
+        "P"
+      ],
+      [
+        "qty[]",
+        "3"
+      ]
+    ]
+  },
+  "expected": [
+    "voucher CONS|approved|D-2 00:00:00|Workshop|Repairs|||owner_b",
+    "item P|Voucher Part TAGP|3.0000|12.5000|37.5000",
+    "row P|CONS|OUT|3.0000|12.5000|37.5000|7.0000|87.5000|12.5000|weighted_average|D-2|N|Consumption: Repairs",
+    "journal CONS|N|Consumption N: Repairs|D-2 00:00:00|true",
+    "  line 5-01-02-01-0003|37.5000|0.0000|Consumption: Repairs|",
+    "  line 1-01-04-01-0001|0.0000|37.5000|Stock reduction at historic cost|"
+  ],
+  "redirect": "/inventory/vouchers/consumption/list"
+}

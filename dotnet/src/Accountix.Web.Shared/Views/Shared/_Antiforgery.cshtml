@@ -1,0 +1,50 @@
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+@* Every same-site write carries the antiforgery token. The shared JS in /static was written for the
+   Python app (which checks Origin/Referer) and sends no token, so this adds it:
+   - fetch() and XMLHttpRequest get the X-CSRF-Token header;
+   - forms get a hidden __RequestVerificationToken: on the submit event, and also through
+     form.submit(), which fires no submit event (E2E finding F4: in-page confirms that call
+     f.submit() were refused with 400).
+   Cross-origin requests never get the token.
+   Use it in every layout: <partial name="_Antiforgery" /> inside <head>. *@
+<meta name="csrf-token" content="@(Antiforgery.GetAndStoreTokens(Context).RequestToken)">
+<script>
+(function () {
+    var token = document.querySelector('meta[name="csrf-token"]').content;
+    var safe = /^(GET|HEAD|OPTIONS|TRACE)$/i;
+    function sameSite(url) {
+        url = url || '';
+        return !/^(https?:)?\/\//i.test(url) || url.indexOf(location.origin + '/') === 0 || url === location.origin;
+    }
+    function stamp(f) {
+        if (!f || safe.test(f.method || 'GET') || !sameSite(f.getAttribute('action'))) return;
+        if (f.querySelector('input[name="__RequestVerificationToken"]')) return;
+        var i = document.createElement('input');
+        i.type = 'hidden'; i.name = '__RequestVerificationToken'; i.value = token;
+        f.appendChild(i);
+    }
+    var origFetch = window.fetch;
+    if (origFetch) window.fetch = function (input, init) {
+        init = init || {};
+        var method = (init.method || (input && input.method) || 'GET');
+        var url = typeof input === 'string' ? input : (input && input.url) || String(input || '');
+        if (!safe.test(method) && sameSite(url)) {
+            var h = new Headers(init.headers || (input && input.headers) || {});
+            if (!h.has('X-CSRF-Token')) h.set('X-CSRF-Token', token);
+            init.headers = h;
+        }
+        return origFetch.call(this, input, init);
+    };
+    var origOpen = XMLHttpRequest.prototype.open, origSend = XMLHttpRequest.prototype.send;
+    XMLHttpRequest.prototype.open = function (m, url) { this.__m = m; this.__u = url; return origOpen.apply(this, arguments); };
+    XMLHttpRequest.prototype.send = function () {
+        if (!safe.test(this.__m || 'GET') && sameSite(String(this.__u || ''))) {
+            try { this.setRequestHeader('X-CSRF-Token', token); } catch (e) {}
+        }
+        return origSend.apply(this, arguments);
+    };
+    document.addEventListener('submit', function (e) { stamp(e.target); }, true);
+    var origSubmit = HTMLFormElement.prototype.submit;
+    HTMLFormElement.prototype.submit = function () { stamp(this); return origSubmit.call(this); };
+})();
+</script>

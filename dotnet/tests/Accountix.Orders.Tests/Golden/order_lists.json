@@ -1,0 +1,150 @@
+{
+  "captured": "2026-10-29, Python app (Flask), before it was removed",
+  "capture": "Golden/capture/order_lists.py",
+  "inputs": {
+    "odd": {
+      "id": null,
+      "action": "save",
+      "so_number": "(auto)",
+      "customer_id": "C1",
+      "party_account_id": null,
+      "order_date": "2026-1-5",
+      "expected_date": "2026-05-30",
+      "discount_mode": "general",
+      "charges_mode": "general",
+      "tax_mode": "general",
+      "global_discount_pct": 0,
+      "global_discount_value": 0,
+      "global_delivery": 0,
+      "global_installation": 0,
+      "global_sales_tax_pct": "17",
+      "further_tax_pct": 0,
+      "apply_further_tax": false,
+      "withholding_tax_pct": 0,
+      "apply_withholding_tax": false,
+      "notes": "list",
+      "subtotal": 83333.33,
+      "total_discount": 0,
+      "total_charges": 0,
+      "total_tax": 0.30000000000000004,
+      "total_further_tax": 0,
+      "total_withholding_tax": 0,
+      "total_amount": 1234567.5,
+      "items": [
+        {
+          "product_id": "P1",
+          "description": "First line",
+          "quantity": 2.5,
+          "unit": "pcs",
+          "unit_price": 33333.333333333,
+          "discount_pct": 0,
+          "discount_amount": 0,
+          "sales_tax_pct": 0,
+          "total_before_discount": 83333.33,
+          "total_after_discount": 0,
+          "total_price": 83333.33
+        },
+        {
+          "product_id": "P2",
+          "description": "Second line",
+          "quantity": 1,
+          "unit": "pcs",
+          "unit_price": 145000,
+          "discount_pct": 0,
+          "discount_amount": 0,
+          "sales_tax_pct": 0,
+          "total_before_discount": 145000,
+          "total_after_discount": 0,
+          "total_price": 145000
+        }
+      ],
+      "charges": [],
+      "edit_version": null
+    },
+    "po": {
+      "id": null,
+      "action": "approve",
+      "po_number": "(auto)",
+      "supplier_id": "S1",
+      "party_account_id": null,
+      "order_date": "2026-05-14",
+      "expected_date": 0,
+      "discount_mode": "general",
+      "charges_mode": "general",
+      "tax_mode": "individual",
+      "global_discount_pct": 0,
+      "global_discount_value": 0,
+      "global_sales_tax_pct": 0,
+      "withholding_tax_pct": 0,
+      "apply_withholding_tax": false,
+      "notes": "list",
+      "driver_name": "Aslam",
+      "driver_contact": 0,
+      "vehicle_number": "LEA-1234",
+      "gate_pass": 0,
+      "subtotal": 92250.5,
+      "total_discount": 0,
+      "total_charges": 0,
+      "total_tax": 15682.585,
+      "total_withholding_tax": 0,
+      "total_amount": 107933.085,
+      "items": [
+        {
+          "product_id": "P3",
+          "description": "Panels",
+          "quantity": 3,
+          "unit": "pcs",
+          "unit_price": 30750.1666666,
+          "discount_pct": 0,
+          "discount_amount": 0,
+          "sales_tax_pct": 17,
+          "total_before_discount": 92250.5,
+          "total_after_discount": 0,
+          "total_price": 92250.5
+        },
+        {
+          "product_id": "P1",
+          "description": "Cable",
+          "quantity": 0.25,
+          "unit": "pcs",
+          "unit_price": 1,
+          "discount_pct": 0,
+          "discount_amount": 0,
+          "sales_tax_pct": 0,
+          "total_before_discount": 0.25,
+          "total_after_discount": 0,
+          "total_price": 0.25
+        }
+      ],
+      "charges": [],
+      "edit_version": null
+    }
+  },
+  "expected": {
+    "/inventory/sales/list": [
+      "<div class=\"page-header\"><a href=\"/inventory/sales/\" class=\"btn btn-primary\">+ New Sales Order</a></div><div class=\"card\"><div class=\"card-body\" style=\"padding-bottom:8px;\"><form method=\"GET\" class=\"search-form\"><select name=\"status\" class=\"form-control focus-ring\" style=\"width:200px;display:inline-block;\" onchange=\"this.form.submit()\"><option value=\"\">All Status</option><option value=\"unapproved\">Unapproved</option><option value=\"approved\">Approved</option><option value=\"delivered\">Delivered</option><option value=\"cancelled\">Cancelled</option></select></form></div><div class=\"table-responsive\"><table class=\"table\"><thead>",
+      "<tr><th>SO #</th><th>Customer</th><th>Date</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead><tbody>",
+      "<tr><td><strong><SO1></strong></td><td>Solar City Traders</td><td>2026-01-05</td><td>267,150</td><td><span class=\"badge badge-unapproved\">Unapproved</span></td><td class=\"actions\" style=\"display:flex;gap:4px;\"><a href=\"/inventory/sales/SO1\" class=\"btn btn-sm btn-outline\">View / Edit</a><form method=\"POST\" action=\"/inventory/sales/cancel/SO1\" style=\"display:inline;\" onsubmit=\"return confirm('Cancel this order? What is still unbilled can no longer be invoiced.')\"><button type=\"submit\" class=\"btn btn-sm btn-warning\">Cancel</button></form><form method=\"POST\" action=\"/inventory/sales/delete/SO1\" style=\"display:inline;\" onsubmit=\"return confirm('Delete?')\"><button type=\"submit\" class=\"btn btn-sm btn-danger\">Delete</button></form></td></tr></tbody></table></div></div>"
+    ],
+    "/inventory/sales/list?status=approved": [
+      "<div class=\"page-header\"><a href=\"/inventory/sales/\" class=\"btn btn-primary\">+ New Sales Order</a></div><div class=\"card\"><div class=\"card-body\" style=\"padding-bottom:8px;\"><form method=\"GET\" class=\"search-form\"><select name=\"status\" class=\"form-control focus-ring\" style=\"width:200px;display:inline-block;\" onchange=\"this.form.submit()\"><option value=\"\">All Status</option><option value=\"unapproved\">Unapproved</option><option value=\"approved\" selected>Approved</option><option value=\"delivered\">Delivered</option><option value=\"cancelled\">Cancelled</option></select></form></div><div class=\"table-responsive\"><table class=\"table\"><thead>",
+      "<tr><th>SO #</th><th>Customer</th><th>Date</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead><tbody>",
+      "<tr><td colspan=\"6\" class=\"empty\">No sales orders</td></tr></tbody></table></div></div>"
+    ],
+    "/inventory/purchases/list": [
+      "<div class=\"page-header\"><a href=\"/inventory/purchases/\" class=\"btn btn-primary\">+ New Purchase Order</a></div><div class=\"card\"><div class=\"card-body\" style=\"padding-bottom:8px;\"><form method=\"GET\" class=\"search-form\"><select name=\"status\" class=\"form-control focus-ring\" style=\"width:200px;display:inline-block;\" onchange=\"this.form.submit()\"><option value=\"\">All Status</option><option value=\"unapproved\">Unapproved</option><option value=\"approved\">Approved</option><option value=\"received\">Received</option><option value=\"cancelled\">Cancelled</option></select></form></div><div class=\"table-responsive\"><table class=\"table\"><thead>",
+      "<tr><th>PO #</th><th>Supplier</th><th>Date</th><th>Expected</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead><tbody>",
+      "<tr><td><strong><PO1></strong></td><td>Sun Power Imports</td><td>2026-05-14</td><td>-</td><td>107,933</td><td><span class=\"badge badge-cancelled\">Cancelled</span></td><td class=\"actions\" style=\"display:flex;gap:4px;\"><a href=\"/inventory/purchases/PO1\" class=\"btn btn-sm btn-outline\">View / Edit</a><form method=\"POST\" action=\"/inventory/purchases/delete/PO1\" style=\"display:inline;\" onsubmit=\"return confirm('Delete?')\"><button type=\"submit\" class=\"btn btn-sm btn-danger\">Delete</button></form></td></tr></tbody></table></div></div>"
+    ],
+    "/inventory/purchases/list?status=cancelled": [
+      "<div class=\"page-header\"><a href=\"/inventory/purchases/\" class=\"btn btn-primary\">+ New Purchase Order</a></div><div class=\"card\"><div class=\"card-body\" style=\"padding-bottom:8px;\"><form method=\"GET\" class=\"search-form\"><select name=\"status\" class=\"form-control focus-ring\" style=\"width:200px;display:inline-block;\" onchange=\"this.form.submit()\"><option value=\"\">All Status</option><option value=\"unapproved\">Unapproved</option><option value=\"approved\">Approved</option><option value=\"received\">Received</option><option value=\"cancelled\" selected>Cancelled</option></select></form></div><div class=\"table-responsive\"><table class=\"table\"><thead>",
+      "<tr><th>PO #</th><th>Supplier</th><th>Date</th><th>Expected</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead><tbody>",
+      "<tr><td><strong><PO1></strong></td><td>Sun Power Imports</td><td>2026-05-14</td><td>-</td><td>107,933</td><td><span class=\"badge badge-cancelled\">Cancelled</span></td><td class=\"actions\" style=\"display:flex;gap:4px;\"><a href=\"/inventory/purchases/PO1\" class=\"btn btn-sm btn-outline\">View / Edit</a><form method=\"POST\" action=\"/inventory/purchases/delete/PO1\" style=\"display:inline;\" onsubmit=\"return confirm('Delete?')\"><button type=\"submit\" class=\"btn btn-sm btn-danger\">Delete</button></form></td></tr></tbody></table></div></div>"
+    ],
+    "/inventory/purchases/list?status=received": [
+      "<div class=\"page-header\"><a href=\"/inventory/purchases/\" class=\"btn btn-primary\">+ New Purchase Order</a></div><div class=\"card\"><div class=\"card-body\" style=\"padding-bottom:8px;\"><form method=\"GET\" class=\"search-form\"><select name=\"status\" class=\"form-control focus-ring\" style=\"width:200px;display:inline-block;\" onchange=\"this.form.submit()\"><option value=\"\">All Status</option><option value=\"unapproved\">Unapproved</option><option value=\"approved\">Approved</option><option value=\"received\" selected>Received</option><option value=\"cancelled\">Cancelled</option></select></form></div><div class=\"table-responsive\"><table class=\"table\"><thead>",
+      "<tr><th>PO #</th><th>Supplier</th><th>Date</th><th>Expected</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead><tbody>",
+      "<tr><td colspan=\"7\" class=\"empty\">No purchase orders</td></tr></tbody></table></div></div>"
+    ]
+  }
+}

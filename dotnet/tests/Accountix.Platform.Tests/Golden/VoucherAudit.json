@@ -1,0 +1,7 @@
+[
+  "create|accounting|Accounting voucher|NUM|Accounting voucher NUM created|{\"company_id\": C, \"voucher_type\": \"JV\", \"voucher_number\": \"NUM\", \"voucher_date\": \"2026-04-10T09:30:00\", \"notes\": \"first\", \"status\": \"unapproved\", \"created_by\": \"ADMIN\"}",
+  "update|accounting|Accounting voucher|NUM|Accounting voucher NUM edited (voucher date, notes)|[{\"field\": \"voucher_date\", \"old\": \"2026-04-10T09:30:00\", \"new\": \"2026-04-11T09:30:00\"}, {\"field\": \"notes\", \"old\": \"first\", \"new\": \"second\"}]",
+  "approve|accounting|Accounting voucher|NUM|Accounting voucher NUM approved|[{\"field\": \"status\", \"old\": \"unapproved\", \"new\": \"approved\"}]",
+  "unapprove|accounting|Accounting voucher|NUM|Accounting voucher NUM unapproved|[{\"field\": \"status\", \"old\": \"approved\", \"new\": \"unapproved\"}]",
+  "delete|accounting|Accounting voucher|NUM|Accounting voucher NUM deleted|{\"company_id\": C, \"voucher_type\": \"JV\", \"voucher_number\": \"NUM\", \"voucher_date\": \"2026-04-11T09:30:00\", \"notes\": \"second\", \"status\": \"unapproved\", \"created_by\": \"ADMIN\"}"
+]

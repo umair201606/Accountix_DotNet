@@ -1,0 +1,121 @@
+@using Accountix.Inventory.Services
+@model Accountix.Inventory.Controllers.ProductLedgerController.PreviewModel
+@{
+    Layout = null;
+    var inv = System.Globalization.CultureInfo.InvariantCulture;
+    var company = Context.Access()?.Company;
+    string companyName = Context.Access()?.Profile?.CompanyName is { Length: > 0 } pn ? pn : company?.Name ?? "My Company";
+    bool adj = Model.Adjustment && Model.Items.Count > 0;
+}
+<!DOCTYPE html>
+<html lang="en" data-ui="v2">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>@Model.Title - @Model.Number</title>
+<script>(function(){try{var t=localStorage.getItem("ax-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
+<link rel="stylesheet" href="/static/css/app.css">
+<link rel="stylesheet" href="/static/css/ui.css">
+<style>
+  body { font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; padding: 20px; background: var(--bg,#f5f5f5); }
+  .print-area { max-width: 800px; margin: 0 auto; background: var(--card,#ffffff); border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,.08); padding: 32px 40px; }
+  .voucher-header { text-align: center; border-bottom: 2px solid var(--primary,#1a1a2e); padding-bottom: 16px; margin-bottom: 24px; }
+  .voucher-header h1 { margin: 0; font-size: 20px; color: var(--primary,#1a1a2e); }
+  .voucher-header .voucher-no { font-size: 16px; color: var(--accent,#6c63ff); font-weight: 600; margin-top: 4px; }
+  .voucher-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; font-size: 14px; }
+  .voucher-meta .label { color: var(--muted,#666); font-weight: 500; }
+  .voucher-meta .value { color: var(--text,#1a1a2e); }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; font-variant-numeric: tabular-nums; }
+  th { background: var(--bg-top,#f8f9ff); padding: 10px 12px; text-align: left; font-weight: 600; color: var(--text,#1a1a2e); border-bottom: 2px solid var(--border,#e8eaff); }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border-soft,#eef0f5); }
+  tfoot td { font-weight: 600; background: var(--bg-top,#f8f9ff); }
+  .status-badge { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+  .status-new,.status-unapproved { background: var(--warning-light,#fef3c7); color: var(--warning,#d97706); }
+  .status-approved { background: var(--success-light,#dcfce7); color: var(--success,#16a34a); }
+  .status-in_progress { background: var(--accent-light,#dbeafe); color: var(--accent,#2563eb); }
+  .status-paid { background: var(--success-light,#dcfce7); color: var(--success,#16a34a); }
+  .status-unpaid { background: var(--danger-light,#fee2e2); color: var(--danger,#dc2626); }
+  .actions { text-align: center; margin-top: 24px; }
+  .btn-print { padding: 10px 32px; background: var(--accent,#6c63ff); color: var(--card,#ffffff); border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
+  .btn-print:hover { filter: brightness(.94); }
+  .btn-close { padding: 10px 32px; background: var(--card,#ffffff); color: var(--muted,#6b7280); border: 1px solid var(--border,#d0d5dd); border-radius: 8px; font-size: 15px; cursor: pointer; margin-left: 8px; text-decoration: none; display: inline-block; }
+  /* Phones (not in the Python page, which scrolled sideways at 320px): less padding, the table scrolls in its box. */
+  @@media screen and (max-width: 480px) {
+    .print-area { padding: 16px 12px; }
+    .print-area table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  }
+  @@media print {
+    body { background: #fff; padding: 0; font-size: 11px; }
+    .print-area { box-shadow: none; border-radius: 0; padding: 14px 18px; max-width: none; margin: 0; }
+    .voucher-header { margin-bottom: 12px; padding-bottom: 8px; }
+    .voucher-header h1 { font-size: 16px; }
+    .voucher-header .voucher-no { font-size: 13px; }
+    .voucher-meta { font-size: 11px; margin-bottom: 10px; }
+    table { font-size: 10px; margin: 8px 0; }
+    th, td { padding: 4px 6px; }
+    .actions { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="print-area" id="print-area">
+  <div style="text-align:center;margin-bottom:10px;">
+    <div style="font-size:19px;font-weight:800;color:var(--text,#1a1a2e);line-height:1.1;">@companyName</div>
+    <div style="font-size:10px;color:var(--muted,#555);margin-top:2px;">@if (company is not null)
+      {<text>@(company.Address ?? "")</text>@if (!string.IsNullOrEmpty(company.City)) {<text>, @company.City</text>}
+      @if (!string.IsNullOrEmpty(company.Phone)) {<text> &bull; Tel: @company.Phone</text>}@if (!string.IsNullOrEmpty(company.TaxId)) {<text> &bull; NTN: @company.TaxId</text>}}</div>
+  </div>
+  <div class="voucher-header">
+    <h1>@Model.Title</h1>
+    <div class="voucher-no">@Model.Number</div>
+  </div>
+
+  <div class="voucher-meta">
+    <div><span class="label">Date:</span> <span class="value">@(Model.Date?.ToString("dd-MMM-yyyy", inv) ?? "")</span></div>
+    <div><span class="label">Status:</span> <span class="value"><span class="status-badge status-@PyText.Str(Model.Status)">@PyText.Str(Model.Status)</span></span></div>
+    @foreach (var (k, v) in Model.Extra)
+    {
+    <div><span class="label">@k:</span> <span class="value">@v</span></div>
+    }
+  </div>
+
+  <table>
+    <thead><tr>
+      <th>#</th><th>Product</th>
+      @if (adj) {<th>System Qty</th><th>Physical Qty</th><th>Diff</th>}
+      <th>Qty</th><th>Unit Cost</th><th>Total</th>
+    </tr></thead>
+    <tbody>
+      @{ int n = 0; }
+      @foreach (var it in Model.Items)
+      {
+      n++;
+      <tr>
+        <td>@n</td>
+        <td>@it.Product</td>
+        @if (it.SystemQty is not null) {<td>@it.SystemQty</td><td>@it.PhysicalQty</td><td>@it.Diff</td>}
+        <td>@it.Qty</td>
+        <td>@Html.Amount(it.UnitCost, 0)</td>
+        <td>@Html.Amount(it.Total, 0)</td>
+      </tr>
+      }
+    </tbody>
+    <tfoot><tr><td colspan="@(adj ? 6 : 4)" style="text-align:right;">Total:</td>
+      <td>@Html.Amount(Model.Items.Sum(i => i.Total))</td>
+    </tr></tfoot>
+  </table>
+
+  @if (Model.ApprovedBy is int by && by != 0)
+  {
+  <div style="margin-top:16px;font-size:12px;color:var(--muted,#666);border-top:1px solid var(--border-soft,#eee);padding-top:12px;">
+    Approved by: @by on @(Model.ApprovedAt?.ToString("dd-MMM-yyyy HH:mm", inv) ?? "")
+  </div>
+  }
+</div>
+
+<div class="actions">
+  <button class="btn-print" onclick="window.print()">Print</button>
+  <a href="javascript:window.close()" class="btn-close">Close</a>
+</div>
+</body>
+</html>

@@ -1,0 +1,41 @@
+{
+ "add": {
+  "answer": {
+   "status": 302,
+   "location": "/finance/twcf?start=2026-09-07"
+  },
+  "line": {
+   "direction": "out",
+   "category": "payroll",
+   "amount": 2500.5,
+   "start_date": "2026-09-28",
+   "frequency": "monthly",
+   "day_of_week": 0,
+   "day_of_month": 1,
+   "month": 1
+  }
+ },
+ "edit": {
+  "answer": {
+   "status": 302,
+   "location": "/finance/twcf?start=2026-09-07"
+  },
+  "line": {
+   "direction": "in",
+   "category": "other_in",
+   "amount": 12.3456,
+   "start_date": "2026-09-28",
+   "frequency": "yearly",
+   "day_of_week": 6,
+   "day_of_month": 31,
+   "month": 1
+  }
+ },
+ "delete": {
+  "answer": {
+   "status": 302,
+   "location": "/finance/twcf?start=2026-09-07"
+  },
+  "gone": true
+ }
+}

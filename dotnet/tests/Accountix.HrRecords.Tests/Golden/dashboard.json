@@ -1,0 +1,9 @@
+{
+ "answers": [
+  {"who": "admin", "status": 200, "body": "{\"active_payroll\":true,\"pending_leaves\":3,\"today_absent\":1,\"today_present\":3,\"total_employees\":4}\n"},
+  {"who": "mgr", "status": 200, "body": "{\"active_payroll\":true,\"pending_leaves\":3,\"today_absent\":1,\"today_present\":3,\"total_employees\":4}\n"},
+  {"who": "e1", "status": 200, "body": "{\"active_payroll\":false,\"pending_leaves\":2,\"today_absent\":\"-\",\"today_present\":\"Clocked In\",\"total_employees\":\"-\"}\n"},
+  {"who": "e2", "status": 200, "body": "{\"active_payroll\":false,\"pending_leaves\":0,\"today_absent\":\"-\",\"today_present\":\"Done\",\"total_employees\":\"-\"}\n"},
+  {"who": "e3", "status": 200, "body": "{\"active_payroll\":false,\"pending_leaves\":0,\"today_absent\":\"-\",\"today_present\":\"Not Clocked\",\"total_employees\":\"-\"}\n"}
+ ]
+}

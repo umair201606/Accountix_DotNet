@@ -1,0 +1,22 @@
+{
+  "capitalisation": "to_fixed_asset|approved|{P}|{P}|2.000000|250001.000000|Press line|2024-03-10||FA-CAP",
+  "transfer": "to_inventory|approved|{P}||1.000000|211959.180000||2025-02-15||FA-TRF",
+  "asset": "{NAME}|transferred|False|2024-03-10|250001.000000|1000.000000|38041.820000|211959.180000|6|straight_line|1-02-01-01-{A}|1-02-02-01-{A}|-|-|Plant|Press line||",
+  "cap_journal": [
+    "E|FA-CAP-{N}|Capitalise {PRODUCT} as fixed asset {CODE}|2024-03-10 00:00:00",
+    "L|1-02-01-01-{A}|250001.0000|0.0000|Fixed asset - {NAME}|",
+    "L|1-01-04-01-{P}|0.0000|250001.0000|Transfer from stock - {PRODUCT}|"
+  ],
+  "transfer_journal": [
+    "E|FA-TRF-{N}|Transfer to inventory: {NAME} at BV 211,959|2025-02-15 00:00:00",
+    "L|1-02-02-01-{A}|38041.8200|0.0000|Derecognise accum dep - {NAME}|",
+    "L|1-01-04-01-{P}|211959.1800|0.0000|Transfer to stock - {PRODUCT}|",
+    "L|1-02-01-01-{A}|0.0000|250001.0000|Derecognise asset - {NAME}|"
+  ],
+  "depreciation": [
+    "2025-02-15|38041.820000|38041.820000|211959.180000|Depreciation posted 2025-02-15|True",
+    "E|FA-DEP-{CODE}-{V}|Depreciation for {NAME} - 2025-02-15|2025-02-15 00:00:00",
+    "L|5-02-04-01-0001|38041.8200|0.0000|Depreciation expense - {NAME}|",
+    "L|1-02-02-01-{A}|0.0000|38041.8200|Accumulated depreciation - {NAME}|"
+  ]
+}

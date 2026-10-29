@@ -1,0 +1,58 @@
+@using Accountix.Inventory.Services
+@model Accountix.Inventory.Controllers.StockController.ListModel
+@{
+    ViewData["Title"] = "Stock";
+    ViewData["Heading"] = "Stock";
+}
+<div class="page-header">
+  <a href="/inventory/stock/movements" class="btn btn-outline">View Movements</a>
+</div>
+<div class="card">
+  <div class="card-body" style="padding-bottom:8px;">
+    <form method="GET" class="search-form">
+      <input type="text" name="q" class="form-control focus-ring" placeholder="Search..." value="@Model.Q">
+      <label style="display:inline-flex;align-items:center;gap:4px;cursor:pointer;">
+        <input type="checkbox" name="low_only" value="1" checked="@Model.LowOnly" onchange="this.form.submit()">
+        Low stock only
+      </label>
+      <button type="submit" class="btn btn-outline">Search</button>
+    </form>
+  </div>
+  <div class="table-responsive">
+    <table class="table">
+      <thead><tr><th>SKU</th><th>Name</th><th>Category</th><th>Stock</th><th>Reorder</th><th>Value</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>
+        @foreach (var p in Model.Products)
+        {
+        <tr class="@(p.Low ? "table-danger" : "")">
+          <td><strong>@p.Sku</strong></td>
+          <td><a href="/inventory/products/edit/@p.Id">@p.Name</a></td>
+          <td>@(p.Category ?? "-")</td>
+          <td>
+            <span class="badge @(p.Low ? "badge-danger" : "badge-success")">@PyText.Qty(p.CurrentStock)</span>
+          </td>
+          <td>@(p.ReorderLevel?.ToString() ?? "None")</td>
+          <td class="num">@Html.Amount((p.CurrentStock ?? 0) * (p.CostPrice ?? 0), 0)</td>
+          <td>
+            @if (p.Low)
+            {
+            <span class="badge badge-danger">Low Stock</span>
+            }
+            else
+            {
+            <span class="badge badge-success">OK</span>
+            }
+          </td>
+          <td>
+            <a href="/inventory/products/adjust-stock/@p.Id" class="btn btn-sm btn-outline">Adjust</a>
+          </td>
+        </tr>
+        }
+        @if (Model.Products.Count == 0)
+        {
+        <tr><td colspan="8" class="empty">No products</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

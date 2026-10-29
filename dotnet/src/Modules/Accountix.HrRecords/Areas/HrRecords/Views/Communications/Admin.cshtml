@@ -1,0 +1,111 @@
+@model CommunicationsController.AdminModel
+@{
+    ViewData["Title"] = "Communications - Accountix ERP";
+}
+<div class="page-header">
+    <h1>Communications</h1>
+    <div>
+        <button class="btn btn-primary" id="show-send-notif">Send Notification</button>
+        <button class="btn btn-outline" id="show-send-email">Log Email</button>
+    </div>
+</div>
+
+<div id="send-notif-form" class="card hidden mb-20" style="max-width:500px;">
+    <form method="POST" action="/communications/send-notification">
+        <div class="form-group"><label>Title *</label><input name="title" class="form-control" required></div>
+        <div class="form-group"><label>Message *</label><textarea name="message" class="form-control form-textarea" required></textarea></div>
+        <div class="form-group"><label>Type</label>
+            <select name="type" class="form-control">
+                <option value="info">Info</option>
+                <option value="warning">Warning</option>
+                <option value="success">Success</option>
+                <option value="danger">Alert</option>
+            </select>
+        </div>
+        <div class="form-group"><label>Send To</label>
+            <select name="target" class="form-control" id="notif-target">
+                <option value="all">All Employees</option>
+                <option value="role">By Role</option>
+            </select>
+        </div>
+        <div class="form-group hidden" id="role-group">
+            <label>Role</label>
+            <select name="role" class="form-control">
+                <option value="manager">Managers</option>
+                <option value="employee">Employees</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Send</button>
+    </form>
+</div>
+
+<div id="send-email-form" class="card hidden mb-20" style="max-width:500px;">
+    <form method="POST" action="/communications/send-email">
+        <div class="form-group"><label>Recipient *</label><input name="recipient" class="form-control" required placeholder="email@@example.com"></div>
+        <div class="form-group"><label>Subject *</label><input name="subject" class="form-control" required></div>
+        <div class="form-group"><label>Body</label><textarea name="body" class="form-control form-textarea"></textarea></div>
+        <button type="submit" class="btn btn-outline">Log Email</button>
+    </form>
+</div>
+
+<div class="card mb-20">
+    <div class="card-header">Sent Notifications</div>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Title</th><th>Message</th><th>Type</th><th>Sent</th><th>Recipients</th></tr></thead>
+            <tbody>
+                @foreach (var n in Model.Notifications)
+                {
+                <tr>
+                    <td>@n.Title</td>
+                    <td>@Py.Cut(n.Message, 60)@(n.Message.Length > 60 ? "..." : "")</td>
+                    <td><span class="badge badge-@(n.Type ?? "None")">@(n.Type ?? "None")</span></td>
+                    <td>@Py.DMonYHm(n.CreatedAt)</td>
+                    <td>@n.Recipients</td>
+                </tr>
+                }
+                @if (Model.Notifications.Count == 0)
+                {
+                <tr><td colspan="5" class="text-center" style="color:var(--muted);">No notifications sent</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">Email Log</div>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Recipient</th><th>Subject</th><th>Status</th><th>Sent At</th></tr></thead>
+            <tbody>
+                @foreach (var e in Model.EmailLogs)
+                {
+                <tr>
+                    <td>@e.Recipient</td>
+                    <td>@Py.Cut(e.Subject, 50)</td>
+                    <td><span class="badge badge-@(e.Status == "sent" ? "success" : "warning")">@((e.Status ?? "None").Replace("_", " "))</span></td>
+                    <td>@Py.DMonYHm(e.SentAt)</td>
+                </tr>
+                }
+                @if (Model.EmailLogs.Count == 0)
+                {
+                <tr><td colspan="4" class="text-center" style="color:var(--muted);">No emails logged</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+@section Scripts {
+<script>
+document.getElementById('show-send-notif')?.addEventListener('click', () => {
+    document.getElementById('send-notif-form').classList.toggle('hidden');
+});
+document.getElementById('show-send-email')?.addEventListener('click', () => {
+    document.getElementById('send-email-form').classList.toggle('hidden');
+});
+document.getElementById('notif-target')?.addEventListener('change', function() {
+    document.getElementById('role-group').classList.toggle('hidden', this.value !== 'role');
+});
+</script>
+}

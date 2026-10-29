@@ -1,0 +1,47 @@
+@model EmployeeCompensationModel
+@{
+    ViewData["Title"] = "My Compensation - Accountix ERP";
+}
+<div class="page-header">
+    <h1>My Compensation</h1>
+</div>
+<div class="card mb-20">
+    <div class="card-header">Payroll Profile</div>
+    @if (Model.Profile is { } profile)
+    {
+    <table>
+        <tr><td style="font-weight:600;width:180px;">Basic Salary</td><td>Rs. @Html.Amount(profile.BasicSalary, 0)</td></tr>
+        <tr><td style="font-weight:600;">Effective From</td><td>@profile.EffectiveFrom.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)</td></tr>
+    </table>
+    }
+    else
+    {
+    <p style="color:var(--muted);">No payroll profile configured. Contact HR.</p>
+    }
+</div>
+<div class="card">
+    <div class="card-header">Salary Slips</div>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Period</th><th>Basic</th><th>Allowances</th><th>Deductions</th><th>Gross</th><th>Net Pay</th><th></th></tr></thead>
+            <tbody>
+                @foreach (var s in Model.Slips)
+                {
+                <tr>
+                    <td>@s.PayrollRun.Month/@s.PayrollRun.Year</td>
+                    <td>Rs. @Html.Amount(s.BasicSalary, 0)</td>
+                    <td>Rs. @Html.Amount(s.Allowances, 0)</td>
+                    <td>Rs. @Html.Amount(s.TotalDeductions, 0)</td>
+                    <td>Rs. @Html.Amount(s.GrossPay, 0)</td>
+                    <td><strong>Rs. @Html.Amount(s.NetPay, 0)</strong></td>
+                    <td><a href="/compensation/slip/@s.Id/pdf" class="btn btn-sm btn-primary">PDF</a></td>
+                </tr>
+                }
+                @if (Model.Slips.Count == 0)
+                {
+                <tr><td colspan="7" class="text-center" style="color:var(--muted);">No slips yet</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

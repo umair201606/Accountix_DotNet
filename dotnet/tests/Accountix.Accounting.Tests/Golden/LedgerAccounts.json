@@ -1,0 +1,572 @@
+{
+ "roles": {
+  "cash": {
+   "code": "1-01-01-01-0001",
+   "name": "Main Cash",
+   "type": "asset",
+   "level": 5,
+   "parent": "1-01-01-01",
+   "is_fixed": false,
+   "is_active": true
+  },
+  "ar": {
+   "code": "1-01-02-01-0001",
+   "name": "Trade Debtors \u2014 General",
+   "type": "asset",
+   "level": 5,
+   "parent": "1-01-02-01",
+   "is_fixed": false,
+   "is_active": true
+  },
+  "inventory": {
+   "code": "1-01-04-01-0001",
+   "name": "Stock \u2014 General",
+   "type": "asset",
+   "level": 5,
+   "parent": "1-01-04-01",
+   "is_fixed": false,
+   "is_active": true
+  },
+  "fixed_assets": {
+   "code": "1-02-01-01-0001",
+   "name": "Fixed Assets \u2014 General",
+   "type": "asset",
+   "level": 5,
+   "parent": "1-02-01-01",
+   "is_fixed": false,
+   "is_active": true
+  },
+  "input_tax": {
+   "code": "1-01-05-01-0001",
+   "name": "Input Sales Tax",
+   "type": "asset",
+   "level": 5,
+   "parent": "1-01-05-01",
+   "is_fixed": false,
+   "is_active": true
+  },
+  "ap": {
+   "code": "2-01-01-01-0001",
+   "name": "Trade Creditors \u2014 General",
+   "type": "liability",
+   "level": 5,
+   "parent": "2-01-01-01",
+   "is_fixed": false,
+   "is_active": true
+  },
+  "accrued": {
+   "code": "2-01-02-03-0001",
+   "name": "Accrued Expenses \u2014 General",
+   "type": "liability",
+   "level": 5,
+   "parent": "2-01-02-03",
+   "is_fixed": false,
+   "is_active": true
+  },
+  "loans": {
+   "code": "2-02-01-01-0001",
+   "name": "Long-term Loans \u2014 General",
+   "type": "liability",
+   "level": 5,
+   "parent": "2-02-01-01",
+   "is_fixed": false,
+   "is_active": true
+  },
+  "wht_payable": {
+   "code": "2-01-03-03-0001",
+   "name": "WHT Payable",
+   "type": "liability",
+   "level": 5,
+   "parent": "2-01-03-03",
+   "is_fixed": false,
+   "is_active": true
+  },
+  "sales_tax_payable": {
+   "code": "2-01-03-01-0001",
+   "name": "Output Sales Tax",
+   "type": "liability",
+   "level": 5,
+   "parent": "2-01-03-01",
+   "is_fixed": false,
+   "is_active": true
+  },
+  "further_tax_payable": {
+   "code": "2-01-03-04-0001",
+   "name": "Further Tax Payable",
+   "type": "liability",
+   "level": 5,
+   "parent": "2-01-03-04",
+   "is_fixed": false,
+   "is_active": true
+  },
+  "revenue": {
+   "code": "4-01-01-01-0001",
+   "name": "Sales \u2014 General",
+   "type": "revenue",
+   "level": 5,
+   "parent": "4-01-01-01",
+   "is_fixed": false,
+   "is_active": true
+  },
+  "cogs": {
+   "code": "5-01-01-01-0001",
+   "name": "Cost of Goods Sold",
+   "type": "expense",
+   "level": 5,
+   "parent": "5-01-01-01",
+   "is_fixed": false,
+   "is_active": true
+  },
+  "inventory_variance": {
+   "code": "5-01-02-01-0004",
+   "name": "Inventory Cost Variance",
+   "type": "expense",
+   "level": 5,
+   "parent": "5-01-02-01",
+   "is_fixed": false,
+   "is_active": true
+  },
+  "sales_returns": {
+   "code": "4-02-01-01-0001",
+   "name": "Sales Returns \u2014 General",
+   "type": "revenue",
+   "level": 5,
+   "parent": "4-02-01-01",
+   "is_fixed": false,
+   "is_active": true
+  },
+  "retained_earnings": {
+   "code": "3-02-01-02-0001",
+   "name": "Retained Earnings \u2014 Closing",
+   "type": "equity",
+   "level": 5,
+   "parent": "3-02-01-02",
+   "is_fixed": false,
+   "is_active": true
+  },
+  "dividends": {
+   "code": "3-02-02-01-0001",
+   "name": "Dividends",
+   "type": "equity",
+   "level": 5,
+   "parent": "3-02-02-01",
+   "is_fixed": false,
+   "is_active": true
+  },
+  "other_comprehensive_income": {
+   "code": "3-02-03-01-0001",
+   "name": "Other Comprehensive Income",
+   "type": "equity",
+   "level": 5,
+   "parent": "3-02-03-01",
+   "is_fixed": false,
+   "is_active": true
+  },
+  "suspense_equity": {
+   "code": "3-01-01-01-0002",
+   "name": "Suspense Equity",
+   "type": "equity",
+   "level": 5,
+   "parent": "3-01-01-01",
+   "is_fixed": false,
+   "is_active": true
+  },
+  "accumulated_depreciation": {
+   "code": "1-02-02-01-0001",
+   "name": "Accumulated Depreciation \u2014 General",
+   "type": "asset",
+   "level": 5,
+   "parent": "1-02-02-01",
+   "is_fixed": false,
+   "is_active": true
+  },
+  "depreciation_expense": {
+   "code": "5-02-04-01-0001",
+   "name": "Depreciation Expense",
+   "type": "expense",
+   "level": 5,
+   "parent": "5-02-04-01",
+   "is_fixed": false,
+   "is_active": true
+  },
+  "disposal_gain_loss": {
+   "code": "5-04-01-01-0002",
+   "name": "Loss/(Gain) on Disposal of Fixed Assets",
+   "type": "expense",
+   "level": 5,
+   "parent": "5-04-01-01",
+   "is_fixed": false,
+   "is_active": true
+  }
+ },
+ "legacy": [
+  {
+   "ask": "5710",
+   "same_again": true,
+   "code": "5-04-01-01-0003",
+   "name": "Impairment Loss on Fixed Assets",
+   "type": "expense",
+   "level": 5,
+   "parent": "5-04-01-01",
+   "is_fixed": false,
+   "is_active": true
+  },
+  {
+   "ask": "2125",
+   "same_again": true,
+   "code": "2-01-02-03-0002",
+   "name": "EOBI Payable",
+   "type": "liability",
+   "level": 5,
+   "parent": "2-01-02-03",
+   "is_fixed": false,
+   "is_active": true
+  },
+  {
+   "ask": "5123",
+   "same_again": true,
+   "code": "5-04-01-01-0004",
+   "name": "EOBI Employer Expense",
+   "type": "expense",
+   "level": 5,
+   "parent": "5-04-01-01",
+   "is_fixed": false,
+   "is_active": true
+  },
+  {
+   "ask": "5124",
+   "same_again": true,
+   "code": "5-04-01-01-0005",
+   "name": "Gratuity Expense",
+   "type": "expense",
+   "level": 5,
+   "parent": "5-04-01-01",
+   "is_fixed": false,
+   "is_active": true
+  },
+  {
+   "ask": "5125",
+   "same_again": true,
+   "code": "5-04-01-01-0006",
+   "name": "Leave Encashment Expense",
+   "type": "expense",
+   "level": 5,
+   "parent": "5-04-01-01",
+   "is_fixed": false,
+   "is_active": true
+  },
+  {
+   "ask": "5126",
+   "same_again": true,
+   "code": "5-04-01-01-0007",
+   "name": "PF Profit Credited to Members",
+   "type": "expense",
+   "level": 5,
+   "parent": "5-04-01-01",
+   "is_fixed": false,
+   "is_active": true
+  },
+  {
+   "ask": "5121",
+   "same_again": true,
+   "code": "5-02-01-01-0001",
+   "name": "Salary Expense",
+   "type": "expense",
+   "level": 5,
+   "parent": "5-02-01-01",
+   "is_fixed": false,
+   "is_active": true
+  },
+  {
+   "ask": "5122",
+   "same_again": true,
+   "code": "5-02-01-01-0002",
+   "name": "PF Employer Expense",
+   "type": "expense",
+   "level": 5,
+   "parent": "5-02-01-01",
+   "is_fixed": false,
+   "is_active": true
+  },
+  {
+   "ask": "2121",
+   "same_again": true,
+   "code": "2-01-02-02-0001",
+   "name": "Salary Payable",
+   "type": "liability",
+   "level": 5,
+   "parent": "2-01-02-02",
+   "is_fixed": false,
+   "is_active": true
+  },
+  {
+   "ask": "2122",
+   "same_again": true,
+   "code": "2-01-03-02-0001",
+   "name": "Income Tax Payable",
+   "type": "liability",
+   "level": 5,
+   "parent": "2-01-03-02",
+   "is_fixed": false,
+   "is_active": true
+  },
+  {
+   "ask": "2123",
+   "same_again": true,
+   "code": "2-01-02-02-0002",
+   "name": "PF Payable",
+   "type": "liability",
+   "level": 5,
+   "parent": "2-01-02-02",
+   "is_fixed": false,
+   "is_active": true
+  },
+  {
+   "ask": "2124",
+   "same_again": true,
+   "code": "2-01-02-02-0003",
+   "name": "Loan Deductions Clearing",
+   "type": "liability",
+   "level": 5,
+   "parent": "2-01-02-02",
+   "is_fixed": false,
+   "is_active": true
+  },
+  {
+   "ask": "5700",
+   "same_again": true,
+   "code": "5-01-02-01-0003",
+   "name": "Consumption Expense",
+   "type": "expense",
+   "level": 5,
+   "parent": "5-01-02-01",
+   "is_fixed": false,
+   "is_active": true
+  },
+  {
+   "ask": "5800",
+   "same_again": true,
+   "code": "5-01-02-01-0001",
+   "name": "Scrap / Write-off",
+   "type": "expense",
+   "level": 5,
+   "parent": "5-01-02-01",
+   "is_fixed": false,
+   "is_active": true
+  },
+  {
+   "ask": "5900",
+   "same_again": true,
+   "code": "5-01-02-01-0002",
+   "name": "Inventory Adjustment",
+   "type": "expense",
+   "level": 5,
+   "parent": "5-01-02-01",
+   "is_fixed": false,
+   "is_active": true
+  },
+  {
+   "ask": "1200",
+   "same_again": true,
+   "code": "1-01-04-01-0001",
+   "name": "Stock \u2014 General",
+   "type": "asset",
+   "level": 5,
+   "parent": "1-01-04-01",
+   "is_fixed": false,
+   "is_active": true
+  },
+  {
+   "ask": "2-01-02-02-0004",
+   "same_again": true,
+   "code": "2-01-02-02-0004",
+   "name": "Other Payroll Deductions Payable",
+   "type": "liability",
+   "level": 5,
+   "parent": "2-01-02-02",
+   "is_fixed": false,
+   "is_active": true
+  },
+  {
+   "ask": "4-03-01-01-0099",
+   "same_again": true,
+   "code": "4-03-01-01-0099",
+   "name": "Golden Other Income",
+   "type": "revenue",
+   "level": 5,
+   "parent": "4-03-01-01",
+   "is_fixed": false,
+   "is_active": true
+  }
+ ],
+ "entities": [
+  {
+   "kind": "supplier",
+   "entity_id": 1,
+   "same_again": true,
+   "code": "2-01-01-01-0101",
+   "name": "Golden supplier 1 renamed",
+   "type": "liability",
+   "level": 5,
+   "parent": "2-01-01-01",
+   "is_fixed": false,
+   "is_active": true
+  },
+  {
+   "kind": "supplier",
+   "entity_id": 57,
+   "same_again": true,
+   "code": "2-01-01-01-0157",
+   "name": "Golden supplier 57 renamed",
+   "type": "liability",
+   "level": 5,
+   "parent": "2-01-01-01",
+   "is_fixed": false,
+   "is_active": true
+  },
+  {
+   "kind": "customer",
+   "entity_id": 1,
+   "same_again": true,
+   "code": "1-01-02-01-0101",
+   "name": "Golden customer 1 renamed",
+   "type": "asset",
+   "level": 5,
+   "parent": "1-01-02-01",
+   "is_fixed": false,
+   "is_active": true
+  },
+  {
+   "kind": "customer",
+   "entity_id": 57,
+   "same_again": true,
+   "code": "1-01-02-01-0157",
+   "name": "Golden customer 57 renamed",
+   "type": "asset",
+   "level": 5,
+   "parent": "1-01-02-01",
+   "is_fixed": false,
+   "is_active": true
+  },
+  {
+   "kind": "product",
+   "entity_id": 1,
+   "same_again": true,
+   "code": "1-01-04-01-0101",
+   "name": "Golden product 1 renamed",
+   "type": "asset",
+   "level": 5,
+   "parent": "1-01-04-01",
+   "is_fixed": false,
+   "is_active": true
+  },
+  {
+   "kind": "product",
+   "entity_id": 57,
+   "same_again": true,
+   "code": "1-01-04-01-0157",
+   "name": "Golden product 57 renamed",
+   "type": "asset",
+   "level": 5,
+   "parent": "1-01-04-01",
+   "is_fixed": false,
+   "is_active": true
+  },
+  {
+   "kind": "employee",
+   "entity_id": 1,
+   "same_again": true,
+   "code": "2-01-02-01-0101",
+   "name": "Golden employee 1 renamed",
+   "type": "liability",
+   "level": 5,
+   "parent": "2-01-02-01",
+   "is_fixed": false,
+   "is_active": true
+  },
+  {
+   "kind": "employee",
+   "entity_id": 57,
+   "same_again": true,
+   "code": "2-01-02-01-0157",
+   "name": "Golden employee 57 renamed",
+   "type": "liability",
+   "level": 5,
+   "parent": "2-01-02-01",
+   "is_fixed": false,
+   "is_active": true
+  },
+  {
+   "kind": "loan",
+   "entity_id": 1,
+   "same_again": true,
+   "code": "1-01-03-01-0101",
+   "name": "Golden loan 1 renamed",
+   "type": "asset",
+   "level": 5,
+   "parent": "1-01-03-01",
+   "is_fixed": false,
+   "is_active": true
+  },
+  {
+   "kind": "loan",
+   "entity_id": 57,
+   "same_again": true,
+   "code": "1-01-03-01-0157",
+   "name": "Golden loan 57 renamed",
+   "type": "asset",
+   "level": 5,
+   "parent": "1-01-03-01",
+   "is_fixed": false,
+   "is_active": true
+  },
+  {
+   "kind": "fixed_asset",
+   "entity_id": 1,
+   "same_again": true,
+   "code": "1-02-01-01-0101",
+   "name": "Golden fixed_asset 1 renamed",
+   "type": "asset",
+   "level": 5,
+   "parent": "1-02-01-01",
+   "is_fixed": false,
+   "is_active": true
+  },
+  {
+   "kind": "fixed_asset",
+   "entity_id": 57,
+   "same_again": true,
+   "code": "1-02-01-01-0157",
+   "name": "Golden fixed_asset 57 renamed",
+   "type": "asset",
+   "level": 5,
+   "parent": "1-02-01-01",
+   "is_fixed": false,
+   "is_active": true
+  },
+  {
+   "kind": "accum_dep",
+   "entity_id": 1,
+   "same_again": true,
+   "code": "1-02-02-01-0101",
+   "name": "Golden accum_dep 1 renamed",
+   "type": "asset",
+   "level": 5,
+   "parent": "1-02-02-01",
+   "is_fixed": false,
+   "is_active": true
+  },
+  {
+   "kind": "accum_dep",
+   "entity_id": 57,
+   "same_again": true,
+   "code": "1-02-02-01-0157",
+   "name": "Golden accum_dep 57 renamed",
+   "type": "asset",
+   "level": 5,
+   "parent": "1-02-02-01",
+   "is_fixed": false,
+   "is_active": true
+  }
+ ]
+}

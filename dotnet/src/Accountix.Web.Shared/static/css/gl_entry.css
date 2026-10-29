@@ -1,0 +1,79 @@
+/* Accounting entry: floating button + slide-in panel (partials/gl_entry.html).
+   Theme tokens from ui.css (with fallbacks), so it follows light and dark. */
+
+.gle-fab{position:fixed;right:22px;bottom:22px;z-index:1400;display:inline-flex;align-items:center;gap:9px;
+  height:44px;padding:0 16px 0 6px;border-radius:999px;cursor:pointer;
+  background:var(--v2-surface,#fff);color:var(--v2-ink,#17181A);
+  border:1px solid var(--v2-line,#E4E5E8);
+  box-shadow:0 8px 24px -10px rgba(17,24,39,.35),0 1px 2px rgba(17,24,39,.06);
+  font:500 13.5px/1 inherit;font-family:inherit;transition:transform .15s,box-shadow .15s,border-color .15s}
+.gle-fab:hover{transform:translateY(-1px);border-color:var(--v2-line-2,#C9CDD3);
+  box-shadow:0 12px 28px -10px rgba(17,24,39,.4),0 1px 2px rgba(17,24,39,.06)}
+.gle-fab:focus-visible{outline:2px solid var(--v2-accent,#275650);outline-offset:3px}
+.gle-fab-ico{width:32px;height:32px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;
+  background:var(--v2-accent-soft,#E8F4F2);color:var(--v2-accent-ink,#275650)}
+.gle-dot{width:8px;height:8px;border-radius:50%;border:1.5px solid var(--v2-faint,#8A8F98);box-sizing:border-box}
+.gle-fab[data-state="posted"] .gle-dot{background:var(--v2-pos,#275650);border-color:var(--v2-pos,#275650)}
+.gle-fab[data-state="unposted"] .gle-dot{background:transparent}
+
+.gle-overlay{position:fixed;inset:0;z-index:2990;background:rgba(9,11,13,.42);backdrop-filter:blur(2px)}
+.gle-overlay[hidden],.gle-panel[hidden]{display:none}
+.gle-panel{position:fixed;top:0;right:0;bottom:0;z-index:3000;width:min(560px,100vw);display:flex;flex-direction:column;
+  background:var(--v2-surface,#fff);color:var(--v2-ink,#17181A);border-left:1px solid var(--v2-line,#E4E5E8);
+  box-shadow:-18px 0 40px -20px rgba(0,0,0,.35);animation:gleIn .2s ease}
+@keyframes gleIn{from{transform:translateX(24px);opacity:.4}to{transform:none;opacity:1}}
+.gle-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:20px 22px 14px;
+  border-bottom:1px solid var(--v2-line,#E4E5E8)}
+.gle-title{margin:0;font-size:18px;font-weight:650;letter-spacing:-.01em}
+.gle-sub{margin:4px 0 0;font-size:13px;color:var(--v2-muted,#5B6068)}
+.gle-x{width:36px;height:36px;border-radius:9px;border:0;background:var(--v2-sunk,#F2F3F5);color:var(--v2-muted,#5B6068);
+  display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex:none}
+.gle-x:hover{color:var(--v2-ink,#17181A)}
+.gle-body{flex:1;overflow-y:auto;padding:16px 22px 28px;display:flex;flex-direction:column;gap:16px}
+
+.gle-empty{border:1px dashed var(--v2-line-2,#C9CDD3);border-radius:12px;padding:22px 18px;text-align:center;
+  color:var(--v2-muted,#5B6068);font-size:13.5px;line-height:1.55}
+.gle-empty b{display:block;color:var(--v2-ink,#17181A);font-size:15px;margin-bottom:4px}
+
+.gle-card{border:1px solid var(--v2-line,#E4E5E8);border-radius:12px;overflow:hidden}
+.gle-card-h{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:12px 14px;
+  background:var(--v2-sunk,#F7F7F5)}
+.gle-card-t{font-size:14px;font-weight:600}
+.gle-card-m{font-size:12px;color:var(--v2-muted,#5B6068);margin-top:2px}
+.gle-tag{font-size:11px;font-weight:600;padding:3px 8px;border-radius:999px;white-space:nowrap;
+  background:var(--v2-accent-soft,#E8F4F2);color:var(--v2-accent-ink,#275650)}
+.gle-tag.warn{background:var(--v2-warn-bg,#F7F2E4);color:var(--v2-warn,#6E6340)}
+.gle-tag.muted{background:var(--v2-sunk,#F2F3F5);color:var(--v2-muted,#5B6068)}
+
+.gle-tbl{width:100%;border-collapse:collapse;font-size:13px}
+.gle-tbl th{text-align:left;font-size:11.5px;font-weight:500;color:var(--v2-muted,#5B6068);padding:8px 14px;
+  border-bottom:1px solid var(--v2-line,#E4E5E8);background:transparent}
+.gle-tbl td{padding:9px 14px;border-top:1px solid var(--v2-line,#EEEEEC);vertical-align:top}
+.gle-tbl .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.gle-tbl th.num{text-align:right}
+.gle-acc{display:flex;flex-direction:column;gap:2px;min-width:0}
+.gle-acc a{color:var(--v2-ink,#17181A);text-decoration:none;font-weight:550}
+.gle-acc a:hover{text-decoration:underline}
+.gle-code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:11px;color:var(--v2-faint,#8A8F98)}
+.gle-note{font-size:11.5px;color:var(--v2-muted,#5B6068)}
+.gle-cr td:first-child .gle-acc{padding-left:18px}   /* credits indented, the way a journal is written */
+.gle-tot td{font-weight:650;border-top:1.5px solid var(--v2-ink,#17181A)}
+.gle-bal{display:flex;align-items:center;gap:6px;font-size:12px;padding:8px 14px 12px;color:var(--v2-pos,#275650)}
+.gle-bal.bad{color:var(--v2-neg,#B4453B)}
+
+.gle-sec-t{font-size:12px;font-weight:600;color:var(--v2-muted,#5B6068);margin:2px 0 -6px}
+.gle-hist summary{cursor:pointer;font-size:13px;color:var(--v2-muted,#5B6068);padding:4px 0}
+.gle-hist[open] summary{margin-bottom:10px}
+.gle-hist .gle-card{opacity:.75}
+
+@media (max-width:768px){
+  .gle-fab{right:14px;bottom:16px;height:42px}
+  /* Above the document's pinned action bar. */
+  body:has(.pg-a .ab) .gle-fab{bottom:84px}
+  .gle-fab-txt{font-size:13px}
+  .gle-panel{width:100vw;border-left:0}
+  .gle-head{padding:16px 16px 12px}
+  .gle-body{padding:14px 14px 24px}
+  .gle-tbl td,.gle-tbl th{padding-left:10px;padding-right:10px}
+}
+@media print{.gle-fab,.gle-panel,.gle-overlay{display:none!important}}

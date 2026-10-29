@@ -1,0 +1,93 @@
+@model Accountix.Parties.Controllers.PartyFormModel
+@{
+    var k = Model.Kind;
+    ViewData["Title"] = (Model.IsEdit ? "Edit" : "New") + " " + k.Title;
+    var f = Model.Fields;
+    string V(string field) => f?.GetValueOrDefault(field) ?? "";
+    string[] terms = ["Due on Receipt", "Net 15", "Net 30", "Net 45", "Net 60"];
+}
+<div class="card" style="max-width:800px;">
+  <form method="POST" class="form">
+    <h4 style="margin-bottom:16px;color:var(--accent);border-bottom:2px solid var(--border);padding-bottom:8px;">&#128100; Company Information</h4>
+    <div class="form-row">
+      <div class="form-group">
+        <label>@(k.CreditLimit ? "Customer Name *" : "Company Name *")</label>
+        <input type="text" name="name" class="form-control focus-ring" required value="@V("name")">
+        <small style="display:block;margin-top:4px;color:var(--success);font-weight:500;">&#9432; This name will appear in ledgers — a 4th-level ledger account is created automatically under @k.Ledger.</small>
+      </div>
+      <div class="form-group">
+        <label>Website</label>
+        <input type="text" name="website" class="form-control focus-ring" value="@V("website")">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Tax ID / NTN</label>
+        <input type="text" name="tax_id" class="form-control focus-ring" value="@V("tax_id")">
+      </div>
+      <div class="form-group">
+        <label>Payment Terms</label>
+        <select name="payment_terms" class="form-control focus-ring">
+          <option value="">Select Terms</option>
+          @foreach (var t in terms)
+          {
+          <option value="@t" selected="@(f is not null && V("payment_terms") == t)">@t</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <h4 style="margin:20px 0 12px;color:var(--accent);border-bottom:2px solid var(--border);padding-bottom:8px;">&#128222; Contact Details</h4>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Contact Person</label>
+        <input type="text" name="contact_person" class="form-control focus-ring" value="@V("contact_person")">
+      </div>
+      <div class="form-group">
+        <label>Phone</label>
+        <input type="text" name="phone" class="form-control focus-ring" value="@V("phone")">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Mobile</label>
+        <input type="text" name="mobile" class="form-control focus-ring" value="@V("mobile")">
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" name="email" class="form-control focus-ring" value="@V("email")">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>City</label>
+        <input type="text" name="city" class="form-control focus-ring" value="@V("city")">
+      </div>
+      @if (k.CreditLimit)
+      {
+      <div class="form-group">
+        <label>Credit Limit</label>
+        <input type="number" step="0.01" name="credit_limit" class="form-control focus-ring" value="@(f is null || V("credit_limit").Length == 0 ? "0" : V("credit_limit"))">
+      </div>
+      }
+    </div>
+    <div class="form-group">
+      <label>Address</label>
+      <textarea name="address" class="form-control focus-ring" rows="2">@V("address")</textarea>
+    </div>
+    <div class="form-group">
+      <label>Notes</label>
+      <textarea name="notes" class="form-control focus-ring" rows="2">@V("notes")</textarea>
+    </div>
+    @if (Model.IsEdit)
+    {
+    <div class="form-group">
+      <label><input type="checkbox" name="is_active" checked="@Model.IsActive"> Active</label>
+    </div>
+    }
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">@(Model.IsEdit ? "Update" : "Create")</button>
+      <a href="@k.Prefix/" class="btn btn-outline">Cancel</a>
+    </div>
+  </form>
+</div>

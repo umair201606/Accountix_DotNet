@@ -1,0 +1,187 @@
+@model ConsoleQueries.MyCompaniesPage
+@{
+    ViewData["Title"] = "My Books - Super Admin";
+    bool full = Model.QuotaUsed >= Model.QuotaTotal;
+    string Members(int id) => Model.ActiveMembers.GetValueOrDefault(id).ToString();
+}
+
+<h1 class="sa-page-title">My Books</h1>
+
+<div class="sa-card">
+  <div class="sa-card-header">
+    <div>
+      <h3 class="sa-card-title">Create Company</h3>
+      <p class="sa-card-subtitle">Create a new company. You'll be its admin and its books will be provisioned automatically. Your creation limit is @Model.QuotaTotal — you've used @Model.QuotaUsed.</p>
+    </div>
+  </div>
+  <form method="POST" action="/superadmin/my-companies/" asp-antiforgery="true">
+    <div class="fgrid">
+      <div class="fgroup">
+        <label class="lbl">Company Name</label>
+        <input type="text" name="name" class="inp" required placeholder="Acme Corp">
+      </div>
+      <div class="fgroup">
+        <label class="lbl">Company Address (slug)</label>
+        <input type="text" name="slug" class="inp" required placeholder="acme-corp" pattern="[a-z0-9][a-z0-9-]{1,60}">
+        <p class="field-hint">Lowercase letters, numbers, hyphens. 2–62 characters. This becomes the company's permanent address.</p>
+      </div>
+    </div>
+    <div class="sa-actions">
+      <button type="submit" class="btn btn-p" disabled="@full">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+        Create Company
+      </button>
+      @if (full)
+      {
+      <span class="field-hint" style="margin:0;color:var(--warning);">You've reached your creation limit.</span>
+      }
+    </div>
+  </form>
+</div>
+
+@if (Model.Owned.Count > 0)
+{
+<div class="sa-card">
+  <div class="sa-card-header">
+    <div>
+      <h3 class="sa-card-title">Companies I Created</h3>
+      <p class="sa-card-subtitle">Companies you set up. Click "Open books" to enter.</p>
+    </div>
+  </div>
+  <div class="tbl-wrap">
+    <table class="sa-tbl">
+      <thead>
+        <tr>
+          <th>Company</th>
+          <th>Slug</th>
+          <th>Plan</th>
+          <th>Members</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach (var c in Model.Owned)
+        {
+        <tr>
+          <td><strong>@c.Name</strong></td>
+          <td><code>@c.Slug</code></td>
+          <td>@(string.IsNullOrEmpty(c.PlanName) ? "free" : c.PlanName)</td>
+          <td>@Members(c.Id)</td>
+          <td>
+            @if (c.IsActive == true) {<span class="pill pill-on">active</span>}
+            else {<span class="pill pill-off">inactive</span>}
+          </td>
+          <td>
+            <a class="btn btn-sm btn-p" href="/company/switch/@c.Id">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20"/><path d="M5 20V8l7-4 7 4v12"/><path d="M9 20v-6h6v6"/></svg>
+              Open Books
+            </a>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+}
+
+@if (Model.Memberships.Count > 0)
+{
+<div class="sa-card">
+  <div class="sa-card-header">
+    <div>
+      <h3 class="sa-card-title">Companies I Belong To</h3>
+      <p class="sa-card-subtitle">Companies where another admin assigned you a role.</p>
+    </div>
+  </div>
+  <div class="tbl-wrap">
+    <table class="sa-tbl">
+      <thead>
+        <tr>
+          <th>Company</th>
+          <th>Role</th>
+          <th>Members</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach (var (m, c, role) in Model.Memberships)
+        {
+        <tr>
+          <td><strong>@(c is not null ? c.Name : "—")</strong></td>
+          <td>@role</td>
+          <td>@(c is not null ? Members(c.Id) : "—")</td>
+          <td>
+            @if (c?.IsActive == true) {<span class="pill pill-on">active</span>}
+            else {<span class="pill pill-off">inactive</span>}
+          </td>
+          <td>
+            <a class="btn btn-sm btn-p" href="/company/switch/@(c?.Id ?? m.CompanyId)">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20"/><path d="M5 20V8l7-4 7 4v12"/><path d="M9 20v-6h6v6"/></svg>
+              Open Books
+            </a>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+}
+
+@if (Model.Invites.Count > 0)
+{
+<div class="sa-card">
+  <div class="sa-card-header">
+    <div>
+      <h3 class="sa-card-title">Pending Invitations</h3>
+      <p class="sa-card-subtitle">Companies that have invited you. Accept to join, or decline to ignore.</p>
+    </div>
+  </div>
+  <div class="tbl-wrap">
+    <table class="sa-tbl">
+      <thead>
+        <tr>
+          <th>Company</th>
+          <th>Role offered</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach (var (inv, c, role) in Model.Invites)
+        {
+        <tr>
+          <td><strong>@(c is not null ? c.Name : "—")</strong></td>
+          <td>@role</td>
+          <td>
+            <div style="display:flex;gap:8px;justify-content:flex-end;">
+              <form method="POST" action="/settings/invitations/@inv.Id/accept" asp-antiforgery="true">
+                <input type="hidden" name="next" value="/superadmin/my-companies/">
+                <button type="submit" class="btn btn-sm btn-p">Accept</button>
+              </form>
+              <form method="POST" action="/settings/invitations/@inv.Id/decline" asp-antiforgery="true">
+                <input type="hidden" name="next" value="/superadmin/my-companies/">
+                <button type="submit" class="btn btn-sm">Decline</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+}
+
+@if (Model.Owned.Count == 0 && Model.Memberships.Count == 0 && Model.Invites.Count == 0)
+{
+<div class="sa-card">
+  <div class="empty-state">
+    <div class="empty-state-icon" style="font-size:40px;">&#127970;</div>
+    <p style="font-weight:600;color:var(--text);margin-bottom:4px;">No companies yet</p>
+    <p style="max-width:400px;margin:0 auto;">Create your first company above, or wait for an invitation from another company's admin.</p>
+  </div>
+</div>
+}

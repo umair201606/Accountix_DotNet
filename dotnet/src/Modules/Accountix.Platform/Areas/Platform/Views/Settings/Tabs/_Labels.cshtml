@@ -1,0 +1,187 @@
+@model SettingsController.SettingsPage
+@{ var t = (SettingsController.LabelsTab)Model.TabModel!; }
+<style>
+  .pill-vd { background: var(--accent-light); color: var(--accent); }
+  .pill-id { background: var(--warning-light); color: var(--warning); }
+  .lbl-acts { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .lbl-rename { display: inline-flex; gap: 6px; }
+  .lbl-rename .inp { width: 170px; padding: 5px 8px; font-size: 12px; }
+  .stbl td { vertical-align: middle; }
+  .lbl-use { font-size: 11.5px; color: var(--muted); }
+  .set-note b { font-weight: 700; }
+  /* Toggle switch — a simple on/off control that saves itself on change. */
+  .sw { position: relative; display: inline-block; width: 42px; height: 24px;
+        flex: none; vertical-align: middle; }
+  .sw input { position: absolute; opacity: 0; width: 100%; height: 100%;
+              margin: 0; cursor: pointer; z-index: 2; }
+  .sw-k { position: absolute; inset: 0; background: var(--border); border-radius: 999px;
+          transition: background .18s ease; pointer-events: none; }
+  .sw-k::before { content: ""; position: absolute; width: 18px; height: 18px;
+                  left: 3px; top: 3px; background: var(--card); border-radius: 50%;
+                  box-shadow: 0 1px 2px rgba(0, 0, 0, .25);
+                  transition: transform .18s ease; }
+  .sw input:checked + .sw-k { background: var(--accent); }
+  .sw input:checked + .sw-k::before { transform: translateX(18px); }
+  .sw input:focus-visible + .sw-k { outline: 2px solid var(--accent);
+                                    outline-offset: 2px; }
+  .sw-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .sw-row + .sw-row, form + form > .sw-row { margin-top: 14px; }
+  .sw-lbl { font-weight: 600; font-size: 13.5px; color: var(--text); }
+  .sw-sub { font-size: 12px; color: var(--muted); }
+  @@media (max-width: 500px) {
+    .lbl-rename .inp { width: 110px; }
+    .lbl-use { display: none; }
+  }
+</style>
+
+<div class="set-card set-boxed" style="margin-bottom:16px">
+  <div class="set-card-hd">Per-line labeling
+    <span class="sub">a label pick on every row, independently per document type</span>
+  </div>
+  <div class="set-card-bd">
+    <form method="POST" asp-antiforgery="true" action="/settings/labels/per-line" id="perLineFormV">
+      <input type="hidden" name="scope" value="voucher">
+      <div class="sw-row">
+        <label class="sw">
+          <input type="checkbox" name="enabled" value="on"
+                 @J.Chk(t.PerLineVoucher)
+                 onchange="this.form.requestSubmit()"
+                 aria-label="Per-line labels on vouchers">
+          <span class="sw-k"></span>
+        </label>
+        <div>
+          <div class="sw-lbl">Vouchers</div>
+          <div class="sw-sub">cash/bank voucher rows show their own label column</div>
+        </div>
+      </div>
+    </form>
+    <form method="POST" asp-antiforgery="true" action="/settings/labels/per-line" id="perLineFormI">
+      <input type="hidden" name="scope" value="invoice">
+      <div class="sw-row">
+        <label class="sw">
+          <input type="checkbox" name="enabled" value="on"
+                 @J.Chk(t.PerLineInvoice)
+                 onchange="this.form.requestSubmit()"
+                 aria-label="Per-line labels on invoices">
+          <span class="sw-k"></span>
+        </label>
+        <div>
+          <div class="sw-lbl">Invoices</div>
+          <div class="sw-sub">sales/purchase invoice item rows show their own label column</div>
+        </div>
+      </div>
+    </form>
+    <p class="help" style="margin:12px 0 0">When a toggle is on, the form shows one label pick per row —
+      prefilled with the header/party label (or the class default), editable per line. When off, the
+      column is hidden and lines take the header/party label, then the class default, when saved
+      without a pick.</p>
+  </div>
+</div>
+
+<div class="set-card set-boxed" style="margin-bottom:16px">
+  <div class="set-card-hd">Default labels
+    <span class="sub">auto-assigned to documents saved without a label</span>
+  </div>
+  <div class="set-card-bd">
+    <form method="POST" asp-antiforgery="true" action="/settings/labels/defaults"
+          style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
+      <label style="font-size:12.5px;font-weight:600;color:var(--text);display:flex;flex-direction:column;gap:4px">
+        Voucher default
+        <select name="default_voucher_label_id" class="inp">
+          <option value="">— none —</option>
+          @foreach (var l in t.Labels.Where(x => x.IsActive == true)) {
+          <option value="@l.Id" selected="@(l.Id == t.DefaultVoucher)">@l.Name</option>
+          }
+        </select>
+      </label>
+      <label style="font-size:12.5px;font-weight:600;color:var(--text);display:flex;flex-direction:column;gap:4px">
+        Invoice default
+        <select name="default_invoice_label_id" class="inp">
+          <option value="">— none —</option>
+          @foreach (var l in t.Labels.Where(x => x.IsActive == true)) {
+          <option value="@l.Id" selected="@(l.Id == t.DefaultInvoice)">@l.Name</option>
+          }
+        </select>
+      </label>
+      <button type="submit" class="btn btn-sm btn-primary">Save defaults</button>
+    </form>
+    <p class="help" style="margin:12px 0 0">A voucher or invoice saved without an explicit pick gets its
+      class default. Deactivating a default label clears it here.</p>
+  </div>
+</div>
+
+<div class="set-card set-boxed" style="margin-bottom:16px">
+  <div class="set-card-hd">Create a label
+    <span class="sub">one pool shared by vouchers and invoices</span>
+  </div>
+  <div class="set-card-bd">
+    <p class="help" style="margin:0 0 14px">Labels tag the lines of any document: the header/party pick
+      lands on the bank/cash or AR/AP line, per-line picks on the economic or item lines. Lines inherit
+      the header/party label unless changed per line.</p>
+    <form method="POST" asp-antiforgery="true" action="/settings/labels"
+          style="display:flex;gap:8px;flex-wrap:wrap">
+      <input type="text" name="name" class="inp" style="flex:1;min-width:220px"
+             placeholder="e.g. Highway Project - North" required>
+      <button type="submit" class="btn btn-p">+ Create Label</button>
+    </form>
+  </div>
+</div>
+
+<div class="set-card set-boxed">
+  <div class="set-card-hd">Labels (@t.Labels.Count)</div>
+  <div class="set-card-bd" style="padding:0">
+    @if (t.Labels.Count == 0) {
+    <p class="help" style="padding:14px 18px;margin:0">No labels yet. Create one above, then pick it as
+      the voucher or invoice default, or tag rows while entering documents.</p>
+    } else {
+    <div class="tbl-scroll">
+      <table class="stbl">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Default for</th>
+            <th>Status</th>
+            <th>Used by</th>
+            <th style="text-align:right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach (var l in t.Labels) {
+          <tr>
+            <td style="font-weight:600;color:var(--text)">@l.Name</td>
+            <td>
+              <span style="display:flex;gap:5px;flex-wrap:wrap">
+                @if (l.Id == t.DefaultVoucher) {<span class="pill pill-vd">Vouchers</span>}
+                @if (l.Id == t.DefaultInvoice) {<span class="pill pill-id">Invoices</span>}
+                @if (l.Id != t.DefaultVoucher && l.Id != t.DefaultInvoice) {<span class="muted" style="font-size:12px">—</span>}
+              </span>
+            </td>
+            <td><span class="pill @(l.IsActive == true ? "pill-on" : "pill-off")">@(l.IsActive == true ? "Active" : "Inactive")</span></td>
+            <td class="lbl-use">@(t.InUse.Contains(l.Id) ? "Referenced by postings — kept for history" : "Not used yet")</td>
+            <td>
+              <div class="lbl-acts" style="justify-content:flex-end">
+                <form method="POST" asp-antiforgery="true" action="/settings/labels/@l.Id/rename" class="lbl-rename">
+                  <input type="text" name="name" class="inp" value="@l.Name" aria-label="Rename label to">
+                  <button type="submit" class="btn btn-sm btn-outline">Rename</button>
+                </form>
+                <form method="POST" asp-antiforgery="true" action="/settings/labels/@l.Id/toggle" style="margin:0">
+                  <button type="submit" class="btn btn-sm @(l.IsActive == true ? "btn-danger" : "btn-primary")">
+                    @(l.IsActive == true ? "Deactivate" : "Activate")
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    }
+  </div>
+</div>
+
+<div class="set-note"><b>Defaults.</b> Each document class keeps its own default: a voucher header, voucher
+  line, invoice party or invoice item saved without a pick falls back to the class default. Item lines
+  inherit the header/party label unless changed manually; changing a header afterwards only follows
+  through to lines still on the old value. Deactivating a default label clears it, so an archived label
+  can never keep auto-assigning.</div>

@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    <RootNamespace>Accountix.Web</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Accountix.Core\Accountix.Core.csproj" />
+  </ItemGroup>
+
+  <!--
+    /static: the CSS and JS every page links (/static/css/app.css, /static/js/doc_form.js, ...).
+    Copied as static/ next to the build and the publish output of every project that references
+    Web.Shared (the host, each module's tests, the E2E suite), where AccountixApp serves it.
+    Not wwwroot: that would make them Razor static web assets under /_content/.
+  -->
+  <ItemGroup>
+    <None Remove="static\**" />
+    <Content Include="static\**" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

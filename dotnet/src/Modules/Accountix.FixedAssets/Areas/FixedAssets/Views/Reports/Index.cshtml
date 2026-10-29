@@ -1,0 +1,73 @@
+@model RegisterModel
+@{
+    ViewData["Title"] = "Asset Reports";
+    ViewData["Heading"] = "Asset Reports";
+}
+@section Actions {
+<partial name="_ExportButtons" model="@(new ExportButtons("excel", "pdf", "csv"))" />
+}
+<div class="dashboard-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px;">
+  <div class="stat-card"><div class="stat-value">@Py.Comma(Model.TotalCost)</div><div class="stat-label">Total Cost</div></div>
+  <div class="stat-card"><div class="stat-value">@Py.Comma(Model.TotalDep)</div><div class="stat-label">Total Depreciation</div></div>
+  <div class="stat-card"><div class="stat-value">@Py.Comma(Model.NetBookValue)</div><div class="stat-label">Net Book Value</div></div>
+</div>
+
+<div class="card" style="margin-bottom:16px;">
+  <div class="card-header"><h3>Summary by Category</h3></div>
+  <div class="card-body">
+    <table class="table">
+      <thead><tr><th>Category</th><th>Count</th><th>Total Cost</th><th>Total Depreciation</th><th>Net Book Value</th></tr></thead>
+      <tbody>
+        @foreach (var c in Model.ByCategory)
+        {
+        <tr>
+          <td>@c.Name</td>
+          <td>@c.Count</td>
+          <td>@Py.Comma(c.Cost)</td>
+          <td>@Py.Comma(c.Depreciation)</td>
+          <td>@Py.Comma(c.Cost - c.Depreciation)</td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:16px;">
+  <div class="card-header"><h3>Summary by Status</h3></div>
+  <div class="card-body">
+    <table class="table">
+      <thead><tr><th>Status</th><th>Count</th><th>Total Cost</th></tr></thead>
+      <tbody>
+        @foreach (var s in Model.ByStatus)
+        {
+        <tr><td>@ViewHelpers.Title(s.Status)</td><td>@s.Count</td><td>@Py.Comma(s.Cost)</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header"><h3>All Assets</h3></div>
+  <div class="card-body">
+    <table class="table">
+      <thead><tr><th>Code</th><th>Name</th><th>Category</th><th>Purchase Cost</th><th>Acc. Depreciation</th><th>Book Value</th><th>Status</th></tr></thead>
+      <tbody>
+        @foreach (var c in Model.Assets)
+        {
+        var a = c.Asset;
+        <tr>
+          <td>@a.AssetCode</td>
+          <td><a href="/fixed-assets/assets/@a.Id">@a.Name</a></td>
+          <td>@(a.Category?.Name ?? "")</td>
+          <td>@Py.Comma(a.PurchaseCost)</td>
+          <td>@Py.Comma(c.PostedDepreciation)</td>
+          <td>@Py.Comma(c.NetBookValue)</td>
+          <td><span class="badge @(a.Status == "active" ? "badge-success" : "badge-secondary")">@a.Status</span></td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

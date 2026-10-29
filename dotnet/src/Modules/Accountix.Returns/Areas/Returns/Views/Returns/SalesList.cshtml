@@ -1,0 +1,65 @@
+@model Accountix.Returns.Models.ReturnListModel
+@*
+  Ported from invoicing_app/templates/sales_return/list_return.html. The amounts are
+  formatted (amount_format(0)); Python's "x or 0|amount_format(0)" bound the filter to
+  the 0 only and printed the raw float ("312.345") for every non-zero return.
+*@
+@{
+    ViewData["Title"] = "Sales Returns";
+    ViewData["Heading"] = "Sales Returns (Credit Notes)";
+}
+<div class="page-header">
+  <a href="/invoicing/sales-return/" class="btn btn-primary" style="background:var(--danger);">+ New Return</a>
+</div>
+<div class="card">
+  <div class="table-responsive">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Return #</th>
+          <th>Original Invoice</th>
+          <th>Customer</th>
+          <th>Date</th>
+          <th>Gross Return</th>
+          <th>Net Return</th>
+          <th>Cost Returned</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach (var ret in Model.Rows)
+        {
+        <tr>
+          <td><strong>@ret.ReturnNumber</strong></td>
+          <td>@(ret.InvoiceNumber ?? "-")</td>
+          <td>@(ret.PartyName ?? "-")</td>
+          <td>@(ret.CreatedAt?.ToString("yyyy-MM-dd") ?? "")</td>
+          <td>@Html.Amount(ret.GrossReturnValue ?? 0, 0)</td>
+          <td>@Html.Amount(ret.NetReturnAmount ?? 0, 0)</td>
+          <td>@Html.Amount(ret.TotalCostReturned ?? 0, 0)</td>
+          <td>
+            <span class="badge badge-@(ret.Status)">
+              @(ret.Status switch { "new" => "New", "unapproved" => "Unapproved", "approved" => "Approved", _ => ret.Status })
+            </span>
+          </td>
+          <td class="actions">
+            <a href="/invoicing/sales-return/@ret.Id" class="btn btn-sm btn-outline">
+              @(ret.Status == "approved" ? "View" : "Edit")
+            </a>
+          </td>
+        </tr>
+        }
+        @if (Model.Rows.Count == 0)
+        {
+        <tr><td colspan="9" class="empty">No sales returns</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+<style>
+.badge-new { background:var(--bg-top); color:var(--accent); }
+.badge-unapproved { background:var(--danger-light); color:var(--danger); }
+.badge-approved { background:var(--bg-top); color:var(--success); }
+</style>

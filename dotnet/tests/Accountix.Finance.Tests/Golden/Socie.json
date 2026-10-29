@@ -1,0 +1,588 @@
+{
+ "filter_mode=period&period_id={FY 2026}": {
+  "columns": [
+   {
+    "key": "a:3-01-01-01-0001",
+    "label": "Share Capital"
+   },
+   {
+    "key": "a:3-01-01-01-0002",
+    "label": "Suspense Equity"
+   },
+   {
+    "key": "a:3-02-03-01-0001",
+    "label": "Other Comprehensive Income"
+   },
+   {
+    "key": "re",
+    "label": "Retained Earnings"
+   },
+   {
+    "key": "total",
+    "label": "Total Equity"
+   }
+  ],
+  "rows": [
+   {
+    "kind": "opening",
+    "label": "Balance as at 01 January 2026",
+    "indent": 0,
+    "values": {
+     "a:3-01-01-01-0001": 500000.0,
+     "a:3-01-01-01-0002": 0.0,
+     "a:3-02-03-01-0001": 0.0,
+     "re": -23655.08,
+     "total": 476344.92
+    }
+   },
+   {
+    "kind": "section",
+    "label": "Total comprehensive income",
+    "indent": 0,
+    "values": {
+     "a:3-01-01-01-0001": null,
+     "a:3-01-01-01-0002": null,
+     "a:3-02-03-01-0001": null,
+     "re": null,
+     "total": null
+    }
+   },
+   {
+    "kind": "movement",
+    "label": "Profit for the year ended 31 December 2026",
+    "indent": 1,
+    "values": {
+     "a:3-01-01-01-0001": null,
+     "a:3-01-01-01-0002": null,
+     "a:3-02-03-01-0001": null,
+     "re": 46248.77,
+     "total": 46248.77
+    }
+   },
+   {
+    "kind": "movement",
+    "label": "Other comprehensive income for the year ended 31 December 2026",
+    "indent": 1,
+    "values": {
+     "a:3-01-01-01-0001": null,
+     "a:3-01-01-01-0002": null,
+     "a:3-02-03-01-0001": 12000.0,
+     "re": null,
+     "total": 12000.0
+    }
+   },
+   {
+    "kind": "subtotal",
+    "label": "Total comprehensive income for the year ended 31 December 2026",
+    "indent": 1,
+    "values": {
+     "a:3-01-01-01-0001": null,
+     "a:3-01-01-01-0002": null,
+     "a:3-02-03-01-0001": 12000.0,
+     "re": 46248.77,
+     "total": 58248.77
+    }
+   },
+   {
+    "kind": "section",
+    "label": "Transactions with owners",
+    "indent": 0,
+    "values": {
+     "a:3-01-01-01-0001": null,
+     "a:3-01-01-01-0002": null,
+     "a:3-02-03-01-0001": null,
+     "re": null,
+     "total": null
+    }
+   },
+   {
+    "kind": "movement",
+    "label": "Shares issued during the year",
+    "indent": 1,
+    "values": {
+     "a:3-01-01-01-0001": null,
+     "a:3-01-01-01-0002": 2500.0,
+     "a:3-02-03-01-0001": null,
+     "re": null,
+     "total": 2500.0
+    }
+   },
+   {
+    "kind": "movement",
+    "label": "Dividends declared",
+    "indent": 1,
+    "values": {
+     "a:3-01-01-01-0001": null,
+     "a:3-01-01-01-0002": null,
+     "a:3-02-03-01-0001": null,
+     "re": -30000.0,
+     "total": -30000.0
+    }
+   },
+   {
+    "kind": "subtotal",
+    "label": "Total transactions with owners",
+    "indent": 1,
+    "values": {
+     "a:3-01-01-01-0001": null,
+     "a:3-01-01-01-0002": 2500.0,
+     "a:3-02-03-01-0001": null,
+     "re": -30000.0,
+     "total": -27500.0
+    }
+   },
+   {
+    "kind": "section",
+    "label": "Other movements",
+    "indent": 0,
+    "values": {
+     "a:3-01-01-01-0001": null,
+     "a:3-01-01-01-0002": null,
+     "a:3-02-03-01-0001": null,
+     "re": null,
+     "total": null
+    }
+   },
+   {
+    "kind": "movement",
+    "label": "Prior-period adjustments and transfers",
+    "indent": 1,
+    "values": {
+     "a:3-01-01-01-0001": null,
+     "a:3-01-01-01-0002": null,
+     "a:3-02-03-01-0001": null,
+     "re": -2500.0,
+     "total": -2500.0
+    }
+   },
+   {
+    "kind": "grand",
+    "label": "Balance as at 31 December 2026",
+    "indent": 0,
+    "values": {
+     "a:3-01-01-01-0001": 500000.0,
+     "a:3-01-01-01-0002": 2500.0,
+     "a:3-02-03-01-0001": 12000.0,
+     "re": -9906.31,
+     "total": 504593.69
+    }
+   }
+  ]
+ },
+ "filter_mode=custom&from=2025-03-01&to=2026-06-30&label_ids={Proj Alpha}": {
+  "columns": [
+   {
+    "key": "a:3-01-01-01-0001",
+    "label": "Share Capital"
+   },
+   {
+    "key": "re",
+    "label": "Retained Earnings"
+   },
+   {
+    "key": "total",
+    "label": "Total Equity"
+   }
+  ],
+  "rows": [
+   {
+    "kind": "opening",
+    "label": "Balance as at 01 March 2025",
+    "indent": 0,
+    "values": {
+     "a:3-01-01-01-0001": 0.0,
+     "re": 0.0,
+     "total": 0.0
+    }
+   },
+   {
+    "kind": "section",
+    "label": "Total comprehensive income",
+    "indent": 0,
+    "values": {
+     "a:3-01-01-01-0001": null,
+     "re": null,
+     "total": null
+    }
+   },
+   {
+    "kind": "movement",
+    "label": "Loss for the year ended 30 June 2026",
+    "indent": 1,
+    "values": {
+     "a:3-01-01-01-0001": null,
+     "re": -18234.56,
+     "total": -18234.56
+    }
+   },
+   {
+    "kind": "grand",
+    "label": "Balance as at 30 June 2026",
+    "indent": 0,
+    "values": {
+     "a:3-01-01-01-0001": 0.0,
+     "re": -18234.56,
+     "total": -18234.56
+    }
+   }
+  ]
+ },
+ "filter_mode=comparative&period_id={FY 2026}&comp_mode=1&comp_period_ids={FY 2025},{FY 2024}": {
+  "columns": [
+   {
+    "key": "a:3-01-01-01-0001",
+    "label": "Share Capital"
+   },
+   {
+    "key": "a:3-01-01-01-0002",
+    "label": "Suspense Equity"
+   },
+   {
+    "key": "a:3-02-03-01-0001",
+    "label": "Other Comprehensive Income"
+   },
+   {
+    "key": "re",
+    "label": "Retained Earnings"
+   },
+   {
+    "key": "total",
+    "label": "Total Equity"
+   }
+  ],
+  "rows": [
+   {
+    "kind": "opening",
+    "label": "Balance as at 01 January 2024",
+    "indent": 0,
+    "values": {
+     "a:3-01-01-01-0001": 0.0,
+     "a:3-01-01-01-0002": 0.0,
+     "a:3-02-03-01-0001": 0.0,
+     "re": 0.0,
+     "total": 0.0
+    }
+   },
+   {
+    "kind": "closing",
+    "label": "Balance as at 31 December 2024",
+    "indent": 0,
+    "values": {
+     "a:3-01-01-01-0001": 0.0,
+     "a:3-01-01-01-0002": 0.0,
+     "a:3-02-03-01-0001": 0.0,
+     "re": 0.0,
+     "total": 0.0
+    }
+   },
+   {
+    "kind": "section",
+    "label": "Total comprehensive income",
+    "indent": 0,
+    "values": {
+     "a:3-01-01-01-0001": null,
+     "a:3-01-01-01-0002": null,
+     "a:3-02-03-01-0001": null,
+     "re": null,
+     "total": null
+    }
+   },
+   {
+    "kind": "movement",
+    "label": "Loss for the year ended 31 December 2025",
+    "indent": 1,
+    "values": {
+     "a:3-01-01-01-0001": null,
+     "a:3-01-01-01-0002": null,
+     "a:3-02-03-01-0001": null,
+     "re": -23655.08,
+     "total": -23655.08
+    }
+   },
+   {
+    "kind": "section",
+    "label": "Transactions with owners",
+    "indent": 0,
+    "values": {
+     "a:3-01-01-01-0001": null,
+     "a:3-01-01-01-0002": null,
+     "a:3-02-03-01-0001": null,
+     "re": null,
+     "total": null
+    }
+   },
+   {
+    "kind": "movement",
+    "label": "Shares issued during the year",
+    "indent": 1,
+    "values": {
+     "a:3-01-01-01-0001": 500000.0,
+     "a:3-01-01-01-0002": null,
+     "a:3-02-03-01-0001": null,
+     "re": null,
+     "total": 500000.0
+    }
+   },
+   {
+    "kind": "closing",
+    "label": "Balance as at 31 December 2025",
+    "indent": 0,
+    "values": {
+     "a:3-01-01-01-0001": 500000.0,
+     "a:3-01-01-01-0002": 0.0,
+     "a:3-02-03-01-0001": 0.0,
+     "re": -23655.08,
+     "total": 476344.92
+    }
+   },
+   {
+    "kind": "section",
+    "label": "Total comprehensive income",
+    "indent": 0,
+    "values": {
+     "a:3-01-01-01-0001": null,
+     "a:3-01-01-01-0002": null,
+     "a:3-02-03-01-0001": null,
+     "re": null,
+     "total": null
+    }
+   },
+   {
+    "kind": "movement",
+    "label": "Profit for the year ended 31 December 2026",
+    "indent": 1,
+    "values": {
+     "a:3-01-01-01-0001": null,
+     "a:3-01-01-01-0002": null,
+     "a:3-02-03-01-0001": null,
+     "re": 46248.77,
+     "total": 46248.77
+    }
+   },
+   {
+    "kind": "movement",
+    "label": "Other comprehensive income for the year ended 31 December 2026",
+    "indent": 1,
+    "values": {
+     "a:3-01-01-01-0001": null,
+     "a:3-01-01-01-0002": null,
+     "a:3-02-03-01-0001": 12000.0,
+     "re": null,
+     "total": 12000.0
+    }
+   },
+   {
+    "kind": "subtotal",
+    "label": "Total comprehensive income for the year ended 31 December 2026",
+    "indent": 1,
+    "values": {
+     "a:3-01-01-01-0001": null,
+     "a:3-01-01-01-0002": null,
+     "a:3-02-03-01-0001": 12000.0,
+     "re": 46248.77,
+     "total": 58248.77
+    }
+   },
+   {
+    "kind": "section",
+    "label": "Transactions with owners",
+    "indent": 0,
+    "values": {
+     "a:3-01-01-01-0001": null,
+     "a:3-01-01-01-0002": null,
+     "a:3-02-03-01-0001": null,
+     "re": null,
+     "total": null
+    }
+   },
+   {
+    "kind": "movement",
+    "label": "Shares issued during the year",
+    "indent": 1,
+    "values": {
+     "a:3-01-01-01-0001": null,
+     "a:3-01-01-01-0002": 2500.0,
+     "a:3-02-03-01-0001": null,
+     "re": null,
+     "total": 2500.0
+    }
+   },
+   {
+    "kind": "movement",
+    "label": "Dividends declared",
+    "indent": 1,
+    "values": {
+     "a:3-01-01-01-0001": null,
+     "a:3-01-01-01-0002": null,
+     "a:3-02-03-01-0001": null,
+     "re": -30000.0,
+     "total": -30000.0
+    }
+   },
+   {
+    "kind": "subtotal",
+    "label": "Total transactions with owners",
+    "indent": 1,
+    "values": {
+     "a:3-01-01-01-0001": null,
+     "a:3-01-01-01-0002": 2500.0,
+     "a:3-02-03-01-0001": null,
+     "re": -30000.0,
+     "total": -27500.0
+    }
+   },
+   {
+    "kind": "section",
+    "label": "Other movements",
+    "indent": 0,
+    "values": {
+     "a:3-01-01-01-0001": null,
+     "a:3-01-01-01-0002": null,
+     "a:3-02-03-01-0001": null,
+     "re": null,
+     "total": null
+    }
+   },
+   {
+    "kind": "movement",
+    "label": "Prior-period adjustments and transfers",
+    "indent": 1,
+    "values": {
+     "a:3-01-01-01-0001": null,
+     "a:3-01-01-01-0002": null,
+     "a:3-02-03-01-0001": null,
+     "re": -2500.0,
+     "total": -2500.0
+    }
+   },
+   {
+    "kind": "grand",
+    "label": "Balance as at 31 December 2026",
+    "indent": 0,
+    "values": {
+     "a:3-01-01-01-0001": 500000.0,
+     "a:3-01-01-01-0002": 2500.0,
+     "a:3-02-03-01-0001": 12000.0,
+     "re": -9906.31,
+     "total": 504593.69
+    }
+   }
+  ]
+ },
+ "filter_mode=custom&from=2025-01-01&to=2026-12-31&label_ids={Proj Alpha},{Proj Beta}": {
+  "columns": [
+   {
+    "key": "a:3-01-01-01-0001",
+    "label": "Share Capital"
+   },
+   {
+    "key": "re",
+    "label": "Retained Earnings"
+   },
+   {
+    "key": "total",
+    "label": "Total Equity"
+   }
+  ],
+  "rows": [
+   {
+    "kind": "opening",
+    "label": "Balance as at 01 January 2025",
+    "indent": 0,
+    "values": {
+     "a:3-01-01-01-0001": 0.0,
+     "re": 0.0,
+     "total": 0.0
+    }
+   },
+   {
+    "kind": "section",
+    "label": "Total comprehensive income",
+    "indent": 0,
+    "values": {
+     "a:3-01-01-01-0001": null,
+     "re": null,
+     "total": null
+    }
+   },
+   {
+    "kind": "movement",
+    "label": "Profit for the year ended 31 December 2026",
+    "indent": 1,
+    "values": {
+     "a:3-01-01-01-0001": null,
+     "re": 19693.94,
+     "total": 19693.94
+    }
+   },
+   {
+    "kind": "grand",
+    "label": "Balance as at 31 December 2026",
+    "indent": 0,
+    "values": {
+     "a:3-01-01-01-0001": 0.0,
+     "re": 19693.94,
+     "total": 19693.94
+    }
+   }
+  ]
+ },
+ "filter_mode=custom&from=2025-06-01&to=2025-06-30": {
+  "columns": [
+   {
+    "key": "a:3-01-01-01-0001",
+    "label": "Share Capital"
+   },
+   {
+    "key": "re",
+    "label": "Retained Earnings"
+   },
+   {
+    "key": "total",
+    "label": "Total Equity"
+   }
+  ],
+  "rows": [
+   {
+    "kind": "opening",
+    "label": "Balance as at 01 June 2025",
+    "indent": 0,
+    "values": {
+     "a:3-01-01-01-0001": 500000.0,
+     "re": 45000.0,
+     "total": 545000.0
+    }
+   },
+   {
+    "kind": "section",
+    "label": "Total comprehensive income",
+    "indent": 0,
+    "values": {
+     "a:3-01-01-01-0001": null,
+     "re": null,
+     "total": null
+    }
+   },
+   {
+    "kind": "movement",
+    "label": "Loss for the period ended 30 June 2025",
+    "indent": 1,
+    "values": {
+     "a:3-01-01-01-0001": null,
+     "re": -52500.75,
+     "total": -52500.75
+    }
+   },
+   {
+    "kind": "grand",
+    "label": "Balance as at 30 June 2025",
+    "indent": 0,
+    "values": {
+     "a:3-01-01-01-0001": 500000.0,
+     "re": -7500.75,
+     "total": 492499.25
+    }
+   }
+  ]
+ }
+}

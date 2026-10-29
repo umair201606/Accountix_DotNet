@@ -1,0 +1,70 @@
+@model SettingsController.SettingsPage
+@{ var t = (SettingsController.DocumentsTab)Model.TabModel!; bool isP = Model.Tab == "purchase"; string party = isP ? "supplier" : "customer"; string current = SettingsController.PartyMode(t.Settings, Model.Tab); }
+<div class="set-card">
+  <h3>@(isP ? "Procurement" : "Sales")</h3>
+  <p class="hint">
+    Controls which accounts a @(isP ? "purchase" : "sales") invoice may post its
+    @(isP ? "payable" : "receivable") to.
+  </p>
+
+  <form method="POST" asp-antiforgery="true" action="/settings/documents/@Model.Tab">
+    <div class="fgroup">
+      <label class="lbl">Party Selection</label>
+      <div class="radio-row">
+        <label class="radio-card">
+          <input type="radio" name="party_mode" value="relevant" @J.Chk(current != "all")>
+          <span class="rc-h">@ViewHelpers.Title(party)s only</span>
+          <div class="rc-d">
+            The form offers only @(party)s. The @(isP ? "payable" : "receivable")
+            posts to that @(party)'s own ledger account.
+          </div>
+        </label>
+        <label class="radio-card">
+          <input type="radio" name="party_mode" value="all" @J.Chk(current == "all")>
+          <span class="rc-h">Allow any ledger account</span>
+          <div class="rc-d">
+            Adds an optional <strong>Post To Ledger Account</strong> field, so the
+            @(isP ? "payable" : "receivable") can be posted to any
+            level-5 account instead of the @(party)'s.
+          </div>
+        </label>
+      </div>
+      <div class="help">
+        The invoice still belongs to a @party either way — this only changes which account
+        the @(isP ? "credit" : "debit") lands on. Existing invoices keep the account
+        they were posted to.
+      </div>
+    </div>
+
+    <div class="set-actions">
+      <button type="submit" class="btn btn-p">Save @(isP ? "Procurement" : "Sales") Settings</button>
+    </div>
+  </form>
+</div>
+
+<div class="set-card" style="margin-top:16px;">
+  <h3 style="font-size:15px;">Currently</h3>
+  <p class="hint" style="margin-bottom:0;">
+    Procurement: <strong>@(SettingsController.PartyMode(t.Settings, "purchase") == "all" ? "any ledger account" : "suppliers only")</strong>
+    &nbsp;·&nbsp;
+    Sales: <strong>@(SettingsController.PartyMode(t.Settings, "sales") == "all" ? "any ledger account" : "customers only")</strong>
+  </p>
+</div>
+
+<div class="set-card" style="margin-top:16px;">
+  <h3 style="font-size:15px;">@(isP ? "Procurement" : "Sales") Invoice Template</h3>
+  <p class="hint">Select which print template to use for @(isP ? "procurement" : "sales") invoices. <a href="/settings/?tab=templates">Manage templates</a></p>
+  <form method="POST" asp-antiforgery="true" action="/settings/documents/@Model.Tab/select-template">
+    <div class="fgroup">
+      <select name="template_id" class="sel">
+        <option value="">-- No template (use default layout) --</option>
+        @foreach (var tp in t.Templates) {
+        <option value="@tp.Id" selected="@((isP ? t.Settings.PurchaseTemplateId : t.Settings.SalesTemplateId) == tp.Id)">@tp.Name@(tp.IsDefault == true ? " (Default)" : "")</option>
+        }
+      </select>
+    </div>
+    <div class="set-actions">
+      <button type="submit" class="btn btn-p">Save</button>
+    </div>
+  </form>
+</div>

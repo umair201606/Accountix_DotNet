@@ -1,0 +1,43 @@
+@model PfConfigModel
+@{
+    ViewData["Title"] = "PF Configuration - Accountix ERP";
+    var config = Model.Config;
+    string Or(decimal? v, double fallback) => Py.Repr(v is decimal d && d != 0 ? Py.F(d) : fallback);
+    string contributionBase = string.IsNullOrEmpty(config.ContributionBase) ? "gross" : config.ContributionBase;
+}
+<div class="page-header">
+    <h1>Provident Fund Configuration</h1>
+</div>
+<div class="card" style="max-width:500px;">
+    <form method="POST">
+        <div class="form-group">
+            <label>Employee Contribution (%)</label>
+            <input type="number" name="employee_pct" class="form-control" step="0.5" value="@Or(config.EmployeeContributionPct, 5.0)" required>
+        </div>
+        <div class="form-group">
+            <label>Employer Contribution (%)</label>
+            <input type="number" name="employer_pct" class="form-control" step="0.5" value="@Or(config.EmployerContributionPct, 5.0)" required>
+        </div>
+        <div class="form-group">
+            <label>Contributions are a percentage of</label>
+            <select name="contribution_base" class="form-control">
+                <option value="basic" selected="@(contributionBase == "basic")">Basic salary (usual practice)</option>
+                <option value="gross" selected="@(contributionBase == "gross")">Gross pay</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Max Loan (% of balance)</label>
+            <input type="number" name="max_loan_pct" class="form-control" step="5" value="@Or(config.MaxLoanPercentage, 50.0)" required>
+        </div>
+        <div class="form-group">
+            <label>Interest Rate (%)</label>
+            <input type="number" name="interest_rate" class="form-control" step="0.5" value="@Or(config.InterestRate, 0.0)" required>
+        </div>
+        <div class="form-group">
+            <label>Minimum Service (months) for Loan</label>
+            <input type="number" name="min_months" class="form-control" value="@(config.MinServiceMonthsForLoan is int m && m != 0 ? m : 12)" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Save Configuration</button>
+        <a href="/pf/" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>

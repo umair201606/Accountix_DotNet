@@ -1,0 +1,165 @@
+@model Accountix.Hr.Controllers.DashboardController.Model
+@using Accountix.Hr.Services
+@{
+    ViewData["Title"] = "Dashboard - Accountix ERP";
+    var chart = Model.Chart;
+}
+<div class="page-header">
+    <div>
+        <h1>Dashboard</h1>
+        <p class="subtitle">Welcome back, @Model.FullName</p>
+    </div>
+</div>
+
+<div class="stats-grid" id="dashboard-stats">
+    @if (Model.Lead)
+    {
+    <div class="stat-card"><div class="stat-label">Total Employees</div><div class="stat-value" id="stat-employees">-</div></div>
+    <div class="stat-card"><div class="stat-label">Present Today</div><div class="stat-value" id="stat-present">-</div></div>
+    <div class="stat-card"><div class="stat-label">Absent Today</div><div class="stat-value" id="stat-absent">-</div></div>
+    <div class="stat-card"><div class="stat-label">Pending Leaves</div><div class="stat-value" id="stat-leaves">-</div></div>
+    }
+    else
+    {
+    <div class="stat-card"><div class="stat-label">My Status</div><div class="stat-value" id="stat-present">-</div></div>
+    <div class="stat-card"><div class="stat-label">My Leaves</div><div class="stat-value" id="stat-leaves">-</div></div>
+    }
+</div>
+
+<div class="grid-2">
+    <div class="card">
+        <div class="card-header">Quick Actions</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+            <a href="/attendance/" class="btn btn-outline btn-block">Clock In / Out</a>
+            <a href="/leaves/apply" class="btn btn-outline btn-block">Apply for Leave</a>
+            <a href="/ess/" class="btn btn-outline btn-block">My Profile</a>
+        </div>
+    </div>
+
+    <div class="card">
+        @if (Model.Lead)
+        {
+        <div class="card-header">Needs Your Attention</div>
+        <div style="display:flex;flex-direction:column;gap:2px;">
+            <a href="/mss/approvals" class="attention-row">
+                <span>Pending leave requests</span><strong id="att-pending-leaves">-</strong>
+            </a>
+            <a href="/attendance/admin" class="attention-row">
+                <span>Employees absent today</span><strong id="att-absent-today">-</strong>
+            </a>
+            <a href="/mss/approvals" class="attention-row">
+                <span>Review timesheets</span><strong>&rarr;</strong>
+            </a>
+        </div>
+        }
+        else
+        {
+        <div class="card-header">My Day</div>
+        <div style="display:flex;flex-direction:column;gap:2px;">
+            <div class="attention-row">
+                <span>Today's status</span><strong id="att-my-status">-</strong>
+            </div>
+            <a href="/leaves/" class="attention-row">
+                <span>My pending leaves</span><strong id="att-my-leaves">-</strong>
+            </a>
+        </div>
+        }
+    </div>
+</div>
+
+@if (Model.Lead)
+{
+    if (chart.Count == 0)
+    {
+<div class="card mt-20"><div class="card-header">Attendance Trend</div><div style="padding:30px;text-align:center;color:var(--muted);">No attendance data for this year.</div></div>
+    }
+    else
+    {
+        const int W = 600, pt = 24, pr = 16, pb = 28, pl = 40, H = 220;
+        const int cw = W - pl - pr, ch = H - pt - pb, maxPct = 100;
+        int xStep = chart.Count > 1 ? cw / (chart.Count - 1) : cw;
+        string Y(double pct) => Py.Float(Math.Round(pt + ch - (pct / maxPct * ch), 0, MidpointRounding.ToEven));
+        double Yv(double pct) => Math.Round(pt + ch - (pct / maxPct * ch), 0, MidpointRounding.ToEven);
+        string PctText(WeekPointView p) => p.IsInt ? "0" : Py.Float(p.Pct);
+        var line = new System.Text.StringBuilder();
+        var area = new System.Text.StringBuilder();
+        for (int i = 0; i < chart.Count; i++)
+        {
+            int x = pl + i * xStep;
+            string y = Y(chart[i].Pct);
+            if (i == 0) { line.Append($"M{x},{y}"); area.Append($"M{x},{y}"); }
+            else { line.Append($" L{x},{y}"); area.Append($" L{x},{y}"); }
+        }
+        area.Append($" L{pl + (chart.Count - 1) * xStep},{pt + ch} L{pl},{pt + ch} Z");
+<div class="card mt-20">
+    <div class="card-header">Weekly Attendance Trend <span style="font-weight:400;font-size:12px;color:var(--muted);">&bull; @chart.Count weeks</span></div>
+    <div style="width:100%;height:220px;">
+        <svg width="100%" height="220" viewBox="0 0 @W 220" style="display:block;">
+            <defs>
+                <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" style="stop-color:var(--accent);"/>
+                    <stop offset="100%" style="stop-color:var(--accent);" stop-opacity="0"/>
+                </linearGradient>
+            </defs>
+            @for (int i = 0; i < 5; i++)
+            {
+                int gy = pt + (ch / 4) * i;
+            <line x1="@pl" x2="@(W - pr)" y1="@gy" y2="@gy" style="stroke:var(--border-soft);" stroke-width="1"/>
+            @:<text x="@(pl - 6)" y="@(gy + 4)" text-anchor="end" font-size="10" style="fill:var(--light);">@(maxPct - (maxPct / 4) * i)%</text>
+            }
+            @if (chart.Count > 1)
+            {
+            <path d="@area" fill="url(#chartGrad)" opacity="0.15"/>
+            <path d="@line" style="stroke:var(--accent);" stroke-width="2.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+            }
+            @for (int i = 0; i < chart.Count; i++)
+            {
+                var d = chart[i];
+                var pv = new WeekPointView(d.Pct, d.PctIsInt);
+                int x = pl + i * xStep;
+                double yv = Yv(d.Pct);
+            <circle cx="@x" cy="@Py.Float(yv)" r="5" style="fill:var(--accent);stroke:var(--card);" stroke-width="2.5">
+                <title>Week of @d.Label: @PctText(pv)% (@d.Total records)&#10;@d.Late late, @d.Half half-day</title>
+            </circle>
+            @:<text x="@x" y="@Py.Float(yv - 14)" text-anchor="middle" font-size="12" font-weight="700" style="fill:var(--text);stroke:var(--card);" stroke-width="4" paint-order="stroke">@Py.G(d.Pct)%</text>
+            @:<text x="@x" y="@(pt + ch + 18)" text-anchor="middle" font-size="9" style="fill:var(--muted);">@d.Label</text>
+            }
+        </svg>
+    </div>
+</div>
+    }
+}
+
+@section Scripts {
+@{
+    const string LeadJs = @"
+        document.getElementById('stat-employees').textContent = d.total_employees;
+        document.getElementById('stat-present').textContent = d.today_present;
+        document.getElementById('stat-absent').textContent = d.today_absent;
+        document.getElementById('stat-leaves').textContent = d.pending_leaves;
+        document.getElementById('att-pending-leaves').textContent = d.pending_leaves;
+        document.getElementById('att-absent-today').textContent = d.today_absent;
+        ";
+    const string SelfJs = @"
+        document.getElementById('stat-present').textContent = d.today_present;
+        document.getElementById('stat-leaves').textContent = d.pending_leaves;
+        document.getElementById('att-my-status').textContent =
+            d.today_present === 1 ? 'Present' : (d.today_present === 0 ? 'Absent' : '-');
+        document.getElementById('att-my-leaves').textContent = d.pending_leaves;
+        ";
+}
+<script>
+async function loadDashboard() {
+    try {
+        const r = await fetch('/reports/dashboard');
+        const d = await r.json();
+        @Html.Raw(Model.Lead ? LeadJs : SelfJs)
+    } catch(e) {}
+}
+loadDashboard();
+</script>
+}
+
+@functions {
+    public sealed record WeekPointView(double Pct, bool IsInt);
+}

@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    <RootNamespace>Accountix.Parties</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Reading uploaded customer / supplier sheets and writing the import templates (MIT; same version as Finance). -->
+    <PackageReference Include="ClosedXML" Version="0.105.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Accountix.Core\Accountix.Core.csproj" />
+    <ProjectReference Include="..\..\Accountix.Web.Shared\Accountix.Web.Shared.csproj" />
+    <!-- The invoice print renderer and totals chain (InvoicePrint, InvoiceTotals, Py) for the register's bulk print. -->
+    <ProjectReference Include="..\Accountix.Invoicing\Accountix.Invoicing.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Accountix.Parties.Tests" />
+  </ItemGroup>
+
+</Project>

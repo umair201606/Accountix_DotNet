@@ -1,0 +1,54 @@
+{
+  "captured": "2026-10-29, Python app (Flask), before it was removed",
+  "capture": "Golden/capture/vouchers.py",
+  "inputs": {
+    "url": "/inventory/vouchers/scrap",
+    "stock": {
+      "P": [
+        "8",
+        "7.3333",
+        9
+      ]
+    },
+    "form": [
+      [
+        "reason",
+        "Broken in transit"
+      ],
+      [
+        "date",
+        "D-1"
+      ],
+      [
+        "charge_account_id",
+        "CHARGE"
+      ],
+      [
+        "label_id",
+        "LABEL"
+      ],
+      [
+        "status",
+        "approved"
+      ],
+      [
+        "product_id[]",
+        "P"
+      ],
+      [
+        "qty[]",
+        "2.5"
+      ]
+    ],
+    "charge_code": "5-04-01-01-0001"
+  },
+  "expected": [
+    "voucher SCRAP|approved|D-1 00:00:00|Broken in transit|5-04-01-01-0001|label|owner_b",
+    "item P|Voucher Part TAGP|2.5000|7.3338|18.3300",
+    "row P|SCRAP|OUT|2.5000|7.3338|18.3300|5.5000|40.3400|7.3345|weighted_average|D-1|N|Scrap: Broken in transit",
+    "journal SCRAP|N|Scrap N: Broken in transit|D-1 00:00:00|true",
+    "  line 5-04-01-01-0001|18.3300|0.0000|Scrap: Broken in transit|label",
+    "  line 1-01-04-01-0001|0.0000|18.3300|Stock scrapped at historic cost|label"
+  ],
+  "redirect": "/inventory/vouchers/scrap/list"
+}

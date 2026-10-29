@@ -1,0 +1,43 @@
+@model List<Accountix.Hr.Controllers.LeaveController.ApprovalRow>
+@{
+    ViewData["Title"] = "Leave Approvals - Accountix ERP";
+}
+<div class="page-header">
+    <h1>Leave Approval Requests</h1>
+</div>
+<div class="card">
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>Employee</th><th>Type</th><th>Dates</th><th>Days</th><th>Reason</th><th>Action</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var a in Model)
+                {
+                <tr>
+                    <td>@a.Employee</td>
+                    <td>@a.Type</td>
+                    <td>@Py.Date(a.Request.StartDate) to @Py.Date(a.Request.EndDate)</td>
+                    <td>@Py.Float(a.Request.TotalDays)</td>
+                    <td>@Py.Cut(a.Request.Reason, 50)</td>
+                    <td>
+                        <form method="POST" action="/leaves/review/@a.Approval.Id" style="display:flex;gap:4px;">
+                            <input type="hidden" name="action" value="approve">
+                            <button class="btn btn-sm btn-accent">Approve</button>
+                        </form>
+                        <form method="POST" action="/leaves/review/@a.Approval.Id" style="display:flex;gap:4px;margin-top:4px;">
+                            <input type="hidden" name="action" value="reject">
+                            <input type="text" name="comment" placeholder="Reason..." class="form-control" style="width:120px;font-size:11px;padding:4px 8px;">
+                            <button class="btn btn-sm btn-danger">Reject</button>
+                        </form>
+                    </td>
+                </tr>
+                }
+                @if (Model.Count == 0)
+                {
+                <tr><td colspan="6" class="text-center" style="color:var(--muted);">No pending approvals</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

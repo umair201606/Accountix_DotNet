@@ -1,0 +1,61 @@
+@model MovementModel
+@{
+    ViewData["Title"] = "Asset Movement";
+    ViewData["Heading"] = "Fixed Asset Movement Schedule";
+    var data = Model.Data;
+}
+@section Actions {
+<partial name="_ExportButtons" model="@(new ExportButtons("excel", "pdf", "csv"))" />
+}
+<form method="GET" class="card" style="margin-bottom:12px;">
+  <div class="card-body" style="display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;">
+    <div class="form-group" style="margin:0;"><label for="mv-from">From</label>
+      <input type="date" id="mv-from" name="from" value="@Py.Date(Model.From)" class="form-control"></div>
+    <div class="form-group" style="margin:0;"><label for="mv-to">To</label>
+      <input type="date" id="mv-to" name="to" value="@Py.Date(Model.To)" class="form-control"></div>
+    <button type="submit" class="btn btn-outline">View</button>
+    <a href="/fixed-assets/reports/" class="btn btn-outline">Asset register</a>
+  </div>
+</form>
+
+<div class="card">
+  <div class="card-body">
+    <p class="text-muted" style="font-size:.85rem;">Property, plant &amp; equipment roll-forward for @Py.DateLong(Model.From) to @Py.DateLong(Model.To): what the books carried at the start, what came in and went out, and the depreciation charged. Disposals include sales, write-offs and assets moved back to stock.</p>
+    @if (data.Rows.Count > 0)
+    {
+    <div class="table-responsive">
+    <table class="table mv-table">
+      <thead>
+        <tr><th rowspan="2">Category</th><th colspan="4" class="mv-grp">Cost</th><th colspan="4" class="mv-grp">Accumulated depreciation</th><th colspan="2" class="mv-grp">Net book value</th></tr>
+        <tr><th>b/f</th><th>Additions</th><th>Disposals</th><th>c/f</th><th>b/f</th><th>Charge</th><th>Disposals</th><th>c/f</th><th>b/f</th><th>c/f</th></tr>
+      </thead>
+      <tbody>
+        @foreach (var r in data.Rows)
+        {
+        <tr><td>@r.Category</td>
+          <td>@Py.Comma(r.CostOpen)</td><td>@Py.Comma(r.Additions)</td><td>@Py.Comma(r.CostDisposals)</td><td><strong>@Py.Comma(r.CostClose)</strong></td>
+          <td>@Py.Comma(r.DepOpen)</td><td>@Py.Comma(r.Charge)</td><td>@Py.Comma(r.DepDisposals)</td><td><strong>@Py.Comma(r.DepClose)</strong></td>
+          <td>@Py.Comma(r.NbvOpen)</td><td><strong>@Py.Comma(r.NbvClose)</strong></td></tr>
+        }
+      </tbody>
+      <tfoot>
+        @{ var t = data.Total; }
+        <tr><th>Total</th>
+          <th>@Py.Comma(t.CostOpen)</th><th>@Py.Comma(t.Additions)</th><th>@Py.Comma(t.CostDisposals)</th><th>@Py.Comma(t.CostClose)</th>
+          <th>@Py.Comma(t.DepOpen)</th><th>@Py.Comma(t.Charge)</th><th>@Py.Comma(t.DepDisposals)</th><th>@Py.Comma(t.DepClose)</th>
+          <th>@Py.Comma(t.NbvOpen)</th><th>@Py.Comma(t.NbvClose)</th></tr>
+      </tfoot>
+    </table>
+    </div>
+    }
+    else
+    {
+    <p class="text-muted">No assets were held in this period.</p>
+    }
+  </div>
+</div>
+<style>
+  .mv-table th, .mv-table td { text-align: right; white-space: nowrap; }
+  .mv-table th:first-child, .mv-table td:first-child { text-align: left; }
+  .mv-table .mv-grp { text-align: center; border-bottom: 1px solid var(--border, #e5e7eb); }
+</style>

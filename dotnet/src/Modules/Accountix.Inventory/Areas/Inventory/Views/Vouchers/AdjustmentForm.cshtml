@@ -1,0 +1,154 @@
+@model Accountix.Inventory.Controllers.VoucherFormModel
+@using System.Globalization
+@{
+    ViewData["Title"] = (Model.Exists ? "Edit" : "New") + " Stock Adjustment";
+    ViewData["Heading"] = Model.Exists ? "Edit: " + Model.Number : "New Stock Adjustment";
+    string Inv(decimal? d) => (d ?? 0m).ToString(CultureInfo.InvariantCulture);
+}
+@{ var gle = new GlEntryButton("ADJ", Model.Id); }
+<partial name="_GlEntryButton" model="gle" />
+<form method="POST" class="voucher-form">
+  @if (Model.Approved)
+  {
+  <div class="vf-locked">Approved and posted@(Model.ApprovedAt is DateTime at ? " on " + at.ToString("dd MMM yyyy", CultureInfo.InvariantCulture) : "") — read only. Unapprove to make changes.</div>
+  }
+  <fieldset class="vf-fieldset" disabled="@Model.Approved">
+  <div class="card">
+    <div class="card-body">
+      <div class="form-group">
+        <label>Reason</label>
+        <textarea name="reason" class="form-control" rows="2" required>@(Model.Reason ?? "")</textarea>
+      </div>
+      <partial name="_VoucherMeta" model="Model.Meta" />
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><strong>Items</strong> <span class="badge badge-info" style="background:var(--accent);color:var(--card);">Adjustment</span></div>
+    <div class="card-body">
+      <div class="vf-table-wrap"><table class="table" id="items-table">
+        <thead><tr><th>Product</th><th>System Qty</th><th>Physical Qty</th><th>Diff</th><th>Unit Cost</th><th>Total</th><th></th></tr></thead>
+        <tbody id="items-body">
+          @foreach (var item in Model.Items)
+          {
+          <tr>
+            <td><input type="hidden" name="product_id[]" value="@item.ProductId"><input type="text" class="form-control product-auto" value="@item.ProductName" readonly></td>
+            <td><input type="number" step="any" name="system_qty[]" class="form-control sys-qty" readonly title="Stock on hand per the ledger at this date — recalculated when saved" value="@Inv(item.SystemQty)"></td>
+            <td><input type="number" step="any" name="physical_qty[]" class="form-control phys-qty" value="@Inv(item.PhysicalQty)"></td>
+            <td><input type="text" class="form-control diff-display" value="@Inv(item.Difference)" readonly></td>
+            <td><input type="text" class="form-control cost-display" value="@Inv(item.UnitCost)" readonly></td>
+            <td><input type="text" class="form-control total-display" value="@Inv(item.TotalCost)" readonly></td>
+            <td><button type="button" class="btn btn-sm btn-danger" onclick="this.closest('tr').remove()">X</button></td>
+          </tr>
+          }
+        </tbody>
+      </table></div>
+      <button type="button" class="btn btn-outline" onclick="addRow()">+ Add Item</button>
+    </div>
+  </div>
+  </fieldset>
+
+  @if (!Model.Exists)
+  {
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary" onclick="this.form.status.value='unapproved'">Save as draft</button>
+    <button type="submit" class="btn btn-success" onclick="this.form.status.value='approved'">Save &amp; approve</button>
+    <a href="/inventory/vouchers/adjustment/list" class="btn btn-outline">Cancel</a>
+  </div>
+  }
+  else if (Model.Approved)
+  {
+  <div class="form-actions">
+    <button type="submit" class="btn btn-warning" formnovalidate
+            formaction="/inventory/vouchers/adjustment/@Model.Id/unapprove"
+            onclick="return confirm('Unapprove @Model.Number? Its stock and journal are reversed and later issues re-costed.')">Unapprove</button>
+    <a href="/inventory/vouchers/preview/ADJ/@Model.Id" target="_blank" class="btn btn-outline">Print</a>
+    <a href="/inventory/vouchers/adjustment/list" class="btn btn-outline">Back</a>
+  </div>
+  }
+  else
+  {
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary" onclick="this.form.status.value='unapproved'">Save</button>
+    <button type="submit" class="btn btn-success" onclick="this.form.status.value='approved'">Approve</button>
+    <a href="/inventory/vouchers/preview/ADJ/@Model.Id" target="_blank" class="btn btn-outline">Print</a>
+    <button type="submit" class="btn btn-danger" formnovalidate
+            formaction="/inventory/vouchers/adjustment/@Model.Id/delete"
+            onclick="return confirm('Delete @Model.Number?')">Delete</button>
+    <a href="/inventory/vouchers/adjustment/list" class="btn btn-outline">Cancel</a>
+  </div>
+  }
+</form>
+
+<script>
+function addRow(data) {
+  data = data || {};
+  var tr = document.createElement('tr');
+  tr.innerHTML = '<td><input type="hidden" name="product_id[]" value="'+(data.id||'')+'">'
+    + '<input type="text" class="form-control product-auto" placeholder="Search..." data-id="'+(data.id||'')+'" value="'+(data.name||'')+'"></td>'
+    + '<td><input type="number" step="any" name="system_qty[]" class="form-control sys-qty" readonly title="Stock on hand per the ledger at this date — recalculated when saved" value="'+(data.sys||'')+'"></td>'
+    + '<td><input type="number" step="any" name="physical_qty[]" class="form-control phys-qty" value="'+(data.phys||'')+'"></td>'
+    + '<td><input type="text" class="form-control diff-display" readonly value="0"></td>'
+    + '<td><input type="text" class="form-control cost-display" readonly value="0"></td>'
+    + '<td><input type="text" class="form-control total-display" readonly value="0"></td>'
+    + '<td><button type="button" class="btn btn-sm btn-danger" onclick="this.closest(\'tr\').remove()">X</button></td>';
+  document.getElementById('items-body').appendChild(tr);
+  attachAutocomplete(tr.querySelector('.product-auto'));
+}
+function attachAutocomplete(el) {
+  var timer;
+  el.addEventListener('input', function() {
+    clearTimeout(timer);
+    var val = this.value;
+    timer = setTimeout(function() {
+      if(val.length < 2) return;
+      fetch('/inventory/vouchers/api/products?q='+encodeURIComponent(val))
+        .then(r=>r.json()).then(data => {
+          if(data.length === 1) { selectProduct(el, data[0]); return; }
+          var list = document.createElement('datalist');
+          list.id = 'suggest-'+Date.now();
+          data.forEach(p => {
+            var opt = document.createElement('option');
+            opt.value = p.name + ' ('+p.sku+')';
+            opt.dataset.id = p.id;
+            opt.dataset.stock = p.stock;
+            list.appendChild(opt);
+          });
+          document.body.appendChild(list);
+          el.setAttribute('list', list.id);
+        });
+    }, 300);
+  });
+  el.addEventListener('change', function() {
+    var opt = document.querySelector('option[value="'+this.value+'"]');
+    if(opt) selectProduct(this, {id:opt.dataset.id, name:this.value});
+  });
+}
+function selectProduct(el, p) {
+  el.value = p.name;
+  el.dataset.id = p.id;
+  el.closest('tr').querySelector('[name="product_id[]"]').value = p.id;
+  var tr = el.closest('tr');
+  fetch('/inventory/vouchers/api/product-stock/'+p.id)
+    .then(r=>r.json()).then(d => {
+      tr.querySelector('.sys-qty').value = d.qty;
+      tr.querySelector('.cost-display').value = d.cost;
+    });
+}
+document.querySelector('#items-body').addEventListener('input', function(e) {
+  if(e.target.classList.contains('sys-qty')||e.target.classList.contains('phys-qty')) {
+    var tr = e.target.closest('tr');
+    var sys = parseFloat(tr.querySelector('.sys-qty').value)||0;
+    var phys = parseFloat(tr.querySelector('.phys-qty').value)||0;
+    var cost = parseFloat(tr.querySelector('.cost-display').value)||0;
+    tr.querySelector('.diff-display').value = phys - sys;
+    tr.querySelector('.total-display').value = Math.abs(phys-sys)*cost;
+  }
+});
+document.addEventListener('DOMContentLoaded', function() {
+  var existing = document.querySelectorAll('.product-auto');
+  existing.forEach(function(el) { attachAutocomplete(el); });
+  if (existing.length === 0) addRow({});
+});
+document.addEventListener('keydown',function(e){if((e.key==='ArrowUp'||e.key==='ArrowDown')&&e.target.type==='number'){e.preventDefault()}});
+</script>

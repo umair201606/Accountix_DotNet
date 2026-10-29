@@ -1,0 +1,179 @@
+@model Accountix.Hr.Controllers.EssController.IndexModel
+@{
+    ViewData["Title"] = "My Profile - Accountix ERP";
+    var user = Model.User;
+    string Badge(string? s) => s == "approved" ? "success" : s == "pending" ? "warning" : "danger";
+}
+<div class="page-header">
+    <h1>Employee Self-Service</h1>
+    <p class="subtitle">@user.FullName (@user.EmployeeCode)</p>
+</div>
+
+<div class="tab-nav mb-20">
+    <button class="tab-btn active" data-tab="profile">Profile</button>
+    <button class="tab-btn" data-tab="leaves">Leave Balances</button>
+    <button class="tab-btn" data-tab="loans">Loans</button>
+    <button class="tab-btn" data-tab="slips">Salary Slips</button>
+    <button class="tab-btn" data-tab="performance">Performance</button>
+</div>
+
+<div class="tab-content" id="tab-profile">
+    <div class="card mb-20">
+        <div class="card-header">Profile Picture</div>
+        <div class="profile-pic-section" style="padding:12px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+            <div class="profile-pic-preview">
+                @if (!string.IsNullOrEmpty(user.ProfileImage))
+                {
+                <img src="/ess/avatar/@Uri.EscapeDataString(user.ProfileImage)" alt="@user.FullName">
+                }
+                else
+                {
+                <div class="profile-pic-initial">@Py.Cut(user.FullName, 1)</div>
+                }
+            </div>
+            <form method="POST" action="/ess/upload-picture" enctype="multipart/form-data" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                <input type="file" name="profile_picture" accept="image/png,image/jpeg,image/gif,image/webp" class="form-control" style="width:auto;max-width:200px;">
+                <button type="submit" class="btn btn-primary btn-sm">Upload</button>
+            </form>
+        </div>
+    </div>
+    <div class="card mb-20">
+        <div class="card-header">Personal Information</div>
+        <form method="POST" action="/ess/update-profile">
+            <div class="grid-2" style="padding:12px;">
+                <div class="form-group"><label>Full Name</label><input name="full_name" class="form-control" value="@user.FullName"></div>
+                <div class="form-group"><label>Phone</label><input name="phone" class="form-control" value="@Py.Text(user.Phone)"></div>
+                <div class="form-group"><label>Emergency Contact</label><input name="emergency_contact" class="form-control" value="@(user.EmergencyContact ?? "")"></div>
+                <div class="form-group"><label>Emergency Phone</label><input name="emergency_phone" class="form-control" value="@(user.EmergencyPhone ?? "")"></div>
+                <div class="form-group"><label>Address</label><textarea name="address" class="form-control form-textarea">@(user.Address ?? "")</textarea></div>
+            </div>
+            <div class="card-header">Bank Details (Requires HR Approval)</div>
+            <div class="grid-2" style="padding:12px;">
+                <div class="form-group"><label>Bank Name</label><input name="bank_name" class="form-control" value="@(user.BankName ?? "")"></div>
+                <div class="form-group"><label>Account Title</label><input name="bank_account_title" class="form-control" value="@(user.BankAccountTitle ?? "")"></div>
+                <div class="form-group"><label>Account Number</label><input name="bank_account_number" class="form-control" value="@(user.BankAccountNumber ?? "")"></div>
+            </div>
+            <div style="padding:12px;">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="tab-content hidden" id="tab-leaves">
+    <div class="card">
+        <div class="card-header">Leave Balances</div>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Leave Type</th><th>Total</th><th>Used</th><th>Pending</th><th>Remaining</th></tr></thead>
+                <tbody>
+                    @foreach (var (q, type) in Model.Quotas)
+                    {
+                    <tr>
+                        <td>@type</td>
+                        <td>@Py.G(q.Total)</td>
+                        <td>@Py.G(q.Used)</td>
+                        <td>@Py.G(q.Pending)</td>
+                        <td><strong>@Py.G(q.Remaining)</strong></td>
+                    </tr>
+                    }
+                    @if (Model.Quotas.Count == 0)
+                    {
+                    <tr><td colspan="5" class="text-center" style="color:var(--muted);">No quotas</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="tab-content hidden" id="tab-loans">
+    <div class="card">
+        <div class="card-header">Loan Requests</div>
+        <a href="/ess/loans" class="btn btn-sm btn-outline" style="margin:12px;">Manage Loans</a>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Type</th><th>Amount</th><th>Status</th><th>Remaining</th></tr></thead>
+                <tbody>
+                    @foreach (var l in Model.Loans.Take(5))
+                    {
+                    <tr>
+                        <td>@Py.Title(l.RequestType)</td>
+                        <td>Rs. @Html.Amount(l.Amount, 0)</td>
+                        <td><span class="badge badge-@Badge(l.Status)">@l.Status</span></td>
+                        <td>Rs. @Html.Amount(l.RemainingAmount ?? 0, 0)</td>
+                    </tr>
+                    }
+                    @if (Model.Loans.Count == 0)
+                    {
+                    <tr><td colspan="4" class="text-center" style="color:var(--muted);">No loan requests</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="tab-content hidden" id="tab-slips">
+    <div class="card">
+        <div class="card-header">Salary Slips</div>
+        <a href="/ess/slips" class="btn btn-sm btn-outline" style="margin:12px;">View All Slips</a>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Period</th><th>Net Pay</th><th></th></tr></thead>
+                <tbody>
+                    @foreach (var s in Model.Slips.Take(6))
+                    {
+                    <tr>
+                        <td>@s.Month/@s.Year</td>
+                        <td><strong>Rs. @Html.Amount(s.Slip.NetPay, 0)</strong></td>
+                        <td><a href="/compensation/slip/@s.Slip.Id/pdf" class="btn btn-sm btn-primary">PDF</a></td>
+                    </tr>
+                    }
+                    @if (Model.Slips.Count == 0)
+                    {
+                    <tr><td colspan="3" class="text-center" style="color:var(--muted);">No slips</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="tab-content hidden" id="tab-performance">
+    <div class="card">
+        <div class="card-header">Performance Reviews</div>
+        <a href="/ess/performance" class="btn btn-sm btn-outline" style="margin:12px;">View All</a>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Period</th><th>Score</th><th>Feedback</th></tr></thead>
+                <tbody>
+                    @foreach (var r in Model.Reviews.Take(5))
+                    {
+                    <tr>
+                        <td>@r.ReviewPeriod</td>
+                        <td>@(r.OverallScore is double sc && sc != 0 ? Py.Float(sc) : "-")</td>
+                        <td>@(string.IsNullOrEmpty(r.Feedback) ? "-" : Py.Cut(r.Feedback, 60))</td>
+                    </tr>
+                    }
+                    @if (Model.Reviews.Count == 0)
+                    {
+                    <tr><td colspan="3" class="text-center" style="color:var(--muted);">No reviews</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+@section Scripts {
+<script>
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+        document.getElementById('tab-' + this.dataset.tab).classList.remove('hidden');
+    });
+});
+</script>
+}

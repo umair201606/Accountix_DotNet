@@ -1,0 +1,129 @@
+@model SettingsController.UserRightsPage
+@{
+    var t = Model;
+    ViewData["Title"] = "Access Rights — " + t.U.FullName;
+    ViewData["Heading"] = "Access Rights — " + t.U.FullName;
+    ViewData["Module"] = "settings";
+}
+@section Head {
+<style>
+  .rights-wrap { max-width: 1100px; }
+  .mod-card { background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+              margin-bottom: 16px; overflow: hidden; }
+  .mod-head { display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+              background: var(--bg-top); border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  .mod-head label { display: flex; align-items: center; gap: 8px; font-weight: 700;
+                    font-size: 14px; cursor: pointer; }
+  .mod-note { font-size: 12px; color: var(--muted); }
+  .grid-scroll { overflow-x: auto; }
+  .pgrid { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 520px; }
+  .pgrid th { text-align: left; color: var(--muted); padding: 8px 16px; font-size: 11px; }
+  .pgrid th.act { text-align: center; }
+  .pgrid td { padding: 8px 16px; border-top: 1px solid var(--bg-top); }
+  .pgrid td.act { text-align: center; }
+  .warn { background: var(--warning-light); border: 1px solid var(--warning); color: var(--warning);
+          padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; }
+  .pw-row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .pw-row input { flex: 1; min-width: 200px; padding: 9px 12px; border: 1px solid var(--line);
+                  border-radius: 6px; font: inherit; font-size: 13px; }
+  @@media (max-width: 600px) {
+    .pgrid { min-width: 0; font-size: 12px; }
+    .pgrid th, .pgrid td { padding: 6px 8px; }
+    .pgrid th.act, .pgrid td.act { text-align: left; }
+    .mod-head { padding: 10px 12px; }
+    .mod-head label { font-size: 13px; }
+    .mod-note { font-size: 11px; }
+    .rights-wrap { padding: 0; }
+  }
+</style>
+}
+<div class="rights-wrap">
+  <p style="font-size:12.5px;color:var(--muted);margin:0 0 14px;">
+    @t.U.Email &middot; @t.U.EmployeeCode &middot; @ViewHelpers.Title(J.Or(t.Role, "member"))
+    &nbsp;·&nbsp;<a href="/settings/?tab=rights" style="color:var(--link);">&larr; All users</a>
+  </p>
+
+  @if (t.IsAdmin) {
+  <div class="warn">
+    <strong>@t.U.FullName is an administrator</strong> — admins bypass every check, so the
+    grid below has no effect until their role changes.
+  </div>
+  } else if (!t.Configured) {
+  <div class="warn">
+    This user has <strong>no rights configured yet</strong> — they currently have unrestricted access
+    inside their allowed modules. Saving this form makes every checkbox below the explicit rule.
+  </div>
+  }
+
+  <form method="post">
+    @foreach (var mod in Modules.All) {
+    <div class="mod-card">
+      <div class="mod-head">
+        <label>
+          <input type="checkbox" name="module_@mod.Key" @J.Chk(t.Flags.GetValueOrDefault(mod.Key))
+                 data-module="@mod.Key">
+          @mod.Label
+        </label>
+        <span class="mod-note">— untick to hide this whole module from the user</span>
+      </div>
+      <div class="grid-scroll">
+        <table class="pgrid" id="grid_@mod.Key">
+          <thead>
+            <tr>
+              <th>Section</th>
+              @foreach (var a in Rights.Actions) {<th class="act">@ViewHelpers.Title(a)</th>}
+            </tr>
+          </thead>
+          <tbody>
+            @foreach (var sec in mod.Sections) { var p = t.Perms.GetValueOrDefault(sec.Key);
+            <tr>
+              <td>@sec.Label</td>
+              @foreach (var a in Rights.Actions) {
+              <td class="act">
+                <input type="checkbox" name="perm_@(sec.Key)_@a"
+                       @J.Chk((p is not null && p.Allows(a)) || !t.Configured)>
+              </td>
+              }
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+    }
+
+    <div class="mod-card" style="padding:16px;">
+      <div style="font-weight:700;font-size:14px;margin-bottom:10px;">
+        &#128274; Set New Password
+        @if (t.LoginRefusal is null) {
+        <span style="font-weight:400;font-size:12px;color:var(--muted);">(optional — leave both blank to keep the current password)</span>
+        }
+      </div>
+      @if (t.LoginRefusal is not null) {
+      <p style="margin:0;font-size:13px;color:var(--muted);">@t.LoginRefusal</p>
+      } else {
+      <div class="pw-row">
+        <input type="password" name="new_password" placeholder="New password" autocomplete="new-password">
+        <input type="password" name="confirm_password" placeholder="Enter new password again" autocomplete="new-password">
+      </div>
+      }
+    </div>
+
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:40px;flex-wrap:wrap;">
+      <button type="submit" class="btn btn-p">Save Access Rights</button>
+      <a href="/settings/?tab=rights" class="bsm">Cancel</a>
+    </div>
+  </form>
+</div>
+<script>
+  (function () {
+    function sync(cb) {
+      var grid = document.getElementById('grid_' + cb.dataset.module);
+      if (grid) grid.style.opacity = cb.checked ? '1' : '0.35';
+    }
+    document.querySelectorAll('input[data-module]').forEach(function (cb) {
+      cb.addEventListener('change', function () { sync(cb); });
+      sync(cb);
+    });
+  })();
+</script>

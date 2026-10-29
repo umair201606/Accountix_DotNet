@@ -1,0 +1,501 @@
+@model Accountix.Returns.Models.ReturnFormModel
+@*
+  Ported from invoicing_app/templates/sales_return/form_return.html: markup, ids, classes,
+  styles and scripts as Python renders them (style/script copied verbatim).
+*@
+@{
+    ViewData["Title"] = $"{Model.PageMode} Sales Return";
+    ViewData["Heading"] = $"{Model.PageMode} Sales Return";
+    bool editable = !Model.IsApproved;
+}
+@section Head {
+<style>
+*,*::before,*::after{box-sizing:border-box}
+:root{
+  /* Palette bridge — see static/css/ui.css. Every name here resolves to a v2
+     token so this page follows the shell's theme instead of holding a private
+     light-only palette. Literals are fallbacks, not values. */
+  --bg:var(--v2-ground,#f7f6f3); --bg-top:var(--v2-hover,#f1efea);
+  --card:var(--v2-surface,#ffffff);
+  --border:var(--v2-line-2,#ddd9d1); --border-soft:var(--v2-line,#e8e5df);
+  --surface-low:var(--v2-hover,#f1efea); --surface-variant:var(--v2-sunk,#ebe8e2);
+  --text:var(--v2-ink,#1a1917); --muted:var(--v2-body,#57544e); --light:var(--v2-faint,#ada79d);
+  --primary:var(--v2-ink,#1a1917); --primary-hover:var(--v2-ink-2,#33312d);
+  --primary-light:var(--v2-sunk,#ebe8e2);
+  --accent:var(--v2-accent,#2563eb); --accent-light:var(--v2-accent-soft,#eff4fe);
+  --danger:var(--v2-neg,#c0392b); --danger-light:var(--v2-neg-bg,#fdecea);
+  --success:var(--v2-pos,#12794f); --success-light:var(--v2-pos-bg,#e7f6ee);
+  --success-dark:var(--v2-pos,#12794f);
+  --warning:var(--v2-warn,#8f6100); --warning-light:var(--v2-warn-bg,#fdf3e0);
+  --warning-dark:var(--v2-warn,#8f6100);
+  --radius:8px; --radius-card:8px;
+  --shadow-sm:none;
+  --shadow:var(--v2-shadow,0 1px 2px rgba(23,24,26,.04));
+  --shadow-lg:var(--v2-pop,0 4px 16px -4px rgba(23,24,26,.12));
+}
+body{background:var(--bg);font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:var(--text);margin:0;font-size:14px}
+.wrap{max-width:1200px;margin:0 auto;padding:24px}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:16px;overflow:hidden}
+.card-h{padding:12px 20px;border-bottom:1px solid var(--border);font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;background:var(--surface-low)}
+.card-b{padding:16px 20px}
+.lbl{display:block;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px}
+.inp,.sel{display:block;width:100%;padding:7px 10px;font-size:13px;color:var(--text);background:var(--card);border:1px solid var(--border);border-radius:5px;outline:none;transition:border-color .12s,box-shadow .12s}
+.inp:focus,.sel:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(220,38,38,.12)}
+.inp:disabled,.sel:disabled{background:var(--surface-low);color:var(--light)}
+textarea.inp{resize:vertical;font-family:inherit}
+.hdr-g{display:grid;grid-template-columns:2fr 1fr 1fr;gap:20px;align-items:start}
+.tb-w{overflow-x:auto;border:1px solid var(--border);border-radius:5px;-webkit-overflow-scrolling:touch}
+.tb-w::after{content:'\2190  Scroll for more columns  \2192';display:block;text-align:center;font-size:10px;color:var(--light);padding:2px;background:var(--surface-low);border-top:1px solid var(--border)}
+.tb{width:100%;border-collapse:collapse;font-size:13px}
+.tb th{padding:8px 10px;font-size:11px;font-weight:700;color:var(--danger);background:var(--danger-light);border-bottom:2px solid var(--border);text-transform:uppercase;letter-spacing:.3px;white-space:nowrap}
+.tb td{padding:4px 6px;border-bottom:1px solid var(--surface-variant);vertical-align:middle;white-space:nowrap}
+.tb tr:hover td{background:var(--surface-low)}
+.tb .ri{width:100%;border:1px solid transparent;padding:7px 8px;font-size:13px;background:transparent;outline:none;border-radius:4px;font-family:inherit;min-height:34px;box-sizing:border-box}
+.tb .ri:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba(220,38,38,.1);outline:none;background:var(--card)}
+.tb .ri:disabled{background:transparent;color:var(--muted)}
+.tb .ri.rc{font-weight:700;border:none;background:transparent;color:var(--text)}
+.tb .rn{width:32px;text-align:center;color:var(--light);font-size:11px;font-weight:600}
+.tb .num{text-align:right}
+.tb th.num{padding-right:14px}
+.tb .rqty{font-weight:600;border:1px solid var(--border);background:var(--card)}
+.tb .rqty:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba(220,38,38,.15)}
+.tb .rqty:disabled{background:var(--surface-low);color:var(--muted)}
+/* Cost columns are informational: what the return puts back into stock. */
+.tb th.cost{color:var(--accent);background:var(--accent-light);border-bottom-color:var(--border)}
+.tb .ri.cost{color:var(--accent)}
+.bsm{padding:5px 12px;font-size:12px;font-weight:600;border:1px solid var(--border);background:var(--card);border-radius:4px;cursor:pointer;font-family:inherit}
+.bsm:hover{background:var(--surface-variant)}
+/* Status badges */
+.bdg{display:inline-block;padding:3px 12px;font-size:11px;font-weight:700;border-radius:12px}
+.bdg-new{background:var(--surface-variant);color:var(--muted)}
+.bdg-unapproved{background:var(--warning-light);color:var(--warning)}
+.bdg-approved{background:var(--success-light);color:var(--success)}
+/* Summary */
+.btm{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.btm-l{padding:16px 20px;border-right:1px solid var(--border)}
+.btm-r{padding:16px 20px;background:var(--surface-low)}
+.sl{display:flex;align-items:center;justify-content:space-between;padding:4px 0;font-size:13px}
+.sl .sll{color:var(--muted)}
+.sl .slv{font-weight:600;text-align:right;min-width:100px}
+.tl{border-top:2px solid var(--text);margin-top:4px;padding-top:8px}
+.tl .slv{font-size:20px;font-weight:800;color:var(--primary)}
+.cost-note{margin-top:10px;padding:8px 10px;background:var(--accent-light);border:1px solid var(--border);border-radius:5px;font-size:12px;color:var(--accent)}
+.ap-b{background:var(--success-light);border:1px solid var(--success);border-radius:var(--radius);padding:10px 16px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--success)}
+.ap-b .ap-t{font-weight:700;display:flex;align-items:center;gap:6px}
+.ab{display:flex;gap:10px;justify-content:flex-end;align-items:center;padding:14px 20px;border-top:1px solid var(--border)}
+.btn{padding:8px 22px;border:none;font-size:13px;font-weight:600;cursor:pointer;border-radius:5px;transition:all .12s;display:inline-flex;align-items:center;gap:5px;font-family:inherit}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-p{background:var(--primary);color:var(--card)}
+.btn-p:hover:not(:disabled){background:var(--primary-hover)}
+.btn-o{background:var(--card);color:var(--text);border:1px solid var(--border)}
+.btn-o:hover:not(:disabled){background:var(--surface-variant)}
+.btn-d{background:var(--primary);color:var(--card)}
+.btn-d:hover:not(:disabled){background:var(--primary-hover)}
+.toast-c{position:fixed;top:16px;right:16px;z-index:3000;display:flex;flex-direction:column;gap:6px}
+.toast{padding:10px 18px;color:var(--card);font-size:13px;font-weight:500;border-radius:5px;box-shadow:0 4px 16px rgba(0,0,0,.12);display:flex;align-items:center;gap:8px;min-width:240px}
+.toast-success{background:var(--success)}
+.toast-error{background:var(--primary)}
+.toast-info{background:var(--accent)}
+.modal-o{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:2000;justify-content:center;align-items:center}
+.modal-o.show{display:flex}
+.modal-b{background:var(--card);padding:24px;border-radius:var(--radius);width:420px;max-width:90vw;box-shadow:0 10px 40px rgba(0,0,0,.15)}
+.modal-b h3{margin:0 0 12px;font-size:16px}
+.modal-acts{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+@@media(max-width:768px){.wrap{padding:12px}.card-h{padding:10px 14px;flex-wrap:wrap;gap:8px}.card-b{padding:12px 14px}.hdr-g{grid-template-columns:1fr;gap:12px}.btm{grid-template-columns:1fr}.btm-l{border-right:none;border-bottom:1px solid var(--border)}.tb-w::after{content:'\2190  Scroll for more  \2192'}.tb{font-size:12px}.tb .ri{padding:5px 6px;font-size:12px;min-height:30px}.tb th{padding:6px 6px;font-size:10px}.ab{flex-wrap:wrap}.btn{width:100%;justify-content:center}.hdr-g>div>div{grid-template-columns:1fr!important}#originalInvoiceRef>div{grid-template-columns:1fr!important}}
+@@media(max-width:480px){.wrap{padding:8px}.card-h{font-size:10px}.card-b{padding:8px 10px}.modal-b{width:95vw;padding:16px}}
+@@media print{.sidebar,.topbar,.ab,.toast-c,.btn,.modal-o,.tb-w::after{display:none!important}.wrap{padding:0}.card{box-shadow:none;border:none}body{background:var(--bg)}}
+</style>
+}
+
+@await Html.PartialAsync("_GlEntryButton", new GlEntryButton("SR", Model.Id, "#returnId"))
+<div class="wrap">
+  <div class="toast-c" id="toastContainer"></div>
+  <input type="hidden" id="returnId" value="@Model.Id">
+  <input type="hidden" id="returnStatus" value="@Model.Status">
+
+  @if (Model.IsApproved)
+  {
+  <div class="ap-b"><span class="ap-t">&#10003; APPROVED</span><span>@Model.ApproverName @@ @(Model.ApprovedAt?.ToString("yyyy-MM-dd HH:mm"))</span></div>
+  }
+  else if (Model.IsUnapproved)
+  {
+  <div style="background:var(--warning-light);border:1px solid var(--warning);border-radius:var(--radius);padding:10px 16px;margin-bottom:16px;font-size:13px;color:var(--warning);">&#9888; Unapproved — quantities can be edited</div>
+  }
+
+  <!-- HEADER: Invoice Selection -->
+  <div class="card">
+    <div class="card-h">Original Invoice Selection</div>
+    <div class="card-b">
+      <div class="hdr-g">
+        <div>
+          <label class="lbl">Select Approved Sales Invoice <span style="color:var(--primary);">*</span></label>
+          <select class="sel" id="originalInvoiceSelect" disabled="@(!editable)" onchange="loadInvoiceData(this.value)">
+            <option value="">-- Select Invoice --</option>
+            @foreach (var inv in Model.Invoices)
+            {
+            <option value="@inv.Id" selected="@(Model.OriginalInvoiceId == inv.Id)">
+              @inv.Number - @(inv.PartyName ?? "") (@(inv.Date?.ToString("yyyy-MM-dd")))
+            </option>
+            }
+          </select>
+        </div>
+        <div>
+          <label class="lbl">Return / Credit Note #</label>
+          <input type="text" class="inp" readonly style="background:var(--surface-low);" value="@(Model.ReturnNumber ?? "(auto-assigned)")">
+        </div>
+        <div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div><label class="lbl">Status</label><span class="bdg bdg-@(Model.Status)" id="statusBadge">@ViewHelpers.Title(Model.Status)</span></div>
+            <div><label class="lbl">Date</label><input type="date" name="date" class="inp" id="returnDate" value="@(Model.ReturnDate?.ToString("yyyy-MM-dd"))" disabled="@(!editable)"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reference data -->
+      <div id="originalInvoiceRef" style="display:none;margin-top:12px;padding:12px;background:var(--surface-low);border-radius:5px;border:1px solid var(--border);">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
+          <div><span class="lbl">Invoice #</span><span id="refInvNumber" style="font-weight:600;font-size:14px;">-</span></div>
+          <div><span class="lbl">Customer</span><span id="refCustomer" style="font-weight:600;">-</span></div>
+          <div><span class="lbl">Date</span><span id="refInvDate" style="font-weight:600;">-</span></div>
+          <div><span class="lbl">Invoice Total</span><span id="refTotal" style="font-weight:600;">-</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RETURN ITEMS GRID -->
+  <div class="card">
+    <div class="card-h">Return Items</div>
+    <div style="padding:0;">
+      @if (editable)
+      {
+      <div style="padding:8px 12px;display:flex;gap:8px;border-bottom:1px solid var(--border);background:var(--surface-low);">
+        <button type="button" class="bsm" style="border-color:var(--danger);color:var(--primary);" onclick="returnAll()">Return All</button>
+        <button type="button" class="bsm" onclick="resetQuantities()">Reset</button>
+        <span style="flex:1;"></span>
+      </div>
+      }
+      <div class="tb-w" style="border:none;border-radius:0;">
+        <table class="tb" id="itemsTable">
+          <thead>
+            <tr>
+              <th style="width:32px;">#</th>
+              <th>Code</th>
+              <th style="min-width:140px;">Description</th>
+              <th class="num">Original</th>
+              <th class="num">Prev Ret.</th>
+              <th class="num">Max Ret.</th>
+              <th class="num">Return Qty *</th>
+              <th>Unit</th>
+              <th class="num">Price</th>
+              <th class="num">Disc. %</th>
+              <th class="num">Sales Tax %</th>
+              <th class="num">Prop. Disc.</th>
+              <th class="num">Prop. Tax</th>
+              <th class="num">Net Return</th>
+              <th class="num cost">Cost Basis</th>
+              <th class="num cost">Cost Back</th>
+            </tr>
+          </thead>
+          <tbody id="itemsBody"></tbody>
+        </table>
+      </div>
+      <div id="noInvoiceMsg" style="text-align:center;padding:40px;color:var(--light);font-size:14px;">Select an approved invoice above to load items</div>
+    </div>
+  </div>
+
+  <!-- BOTTOM: Notes left, Summary right -->
+  <div class="card">
+    <div class="card-b" style="padding:0;">
+      <div class="btm">
+        <div class="btm-l">
+          <label class="lbl">Notes / Comments</label>
+          <textarea id="returnNotes" class="inp" rows="4" disabled="@(!editable)">@Model.Notes</textarea>
+          <div class="cost-note">
+            Returned goods re-enter stock at the cost they were <strong>sold</strong> at, not
+            today's valuation — so a sale and its return cancel out exactly and
+            the COGS credited here matches the COGS the invoice debited.
+          </div>
+        </div>
+        <div class="btm-r">
+          <div class="sl"><span class="sll">Gross Return Value</span><span class="slv" id="summaryGrossReturn">0.00</span></div>
+          <div class="sl"><span class="sll">Proportional Discount</span><span class="slv" id="summaryDiscount" style="color:var(--primary);">-0.00</span></div>
+          <div class="sl">
+            <span class="sll">Reverse Charges</span>
+            <span style="display:flex;align-items:center;gap:6px;">
+              <label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;">
+                <input type="checkbox" id="reverseCharges" checked="@(Model.Id is null || Model.Reverse)" disabled="@(!editable)" onchange="recalc()">
+                Yes
+              </label>
+              <span class="slv" id="summaryCharges" style="min-width:80px;">0.00</span>
+            </span>
+          </div>
+          <div class="sl"><span class="sll">Proportional Sales Tax</span><span class="slv" id="summarySalesTax">0.00</span></div>
+          <div class="sl tl"><span class="sll" style="font-weight:700;">Credit Note Value</span><span class="slv" id="summaryNetReturn">0.00</span></div>
+          <div class="sl" style="margin-top:8px;"><span class="sll" style="color:var(--accent);">Cost Back to Stock</span><span class="slv" id="summaryCostBack" style="color:var(--accent);">0.00</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="ab">
+      @if (Model.IsNew)
+      {
+        <button type="button" class="btn btn-p" id="saveBtn">Save as Unapproved Return</button>
+      }
+      else if (Model.IsUnapproved)
+      {
+        <button type="button" class="btn btn-o" id="saveChangesBtn">Save Changes</button>
+        <button type="button" class="btn btn-p" id="approveBtn">Approve Return</button>
+      }
+      else if (Model.IsApproved)
+      {
+        <button type="button" class="btn btn-d" id="unapproveBtn">Unapprove Return</button>
+        <button type="button" class="btn btn-o" onclick="window.print()">Print</button>
+      }
+      <a href="/invoicing/sales-return/list" class="btn btn-o">Cancel</a>
+    </div>
+  </div>
+</div>
+
+<div class="modal-o" id="confirmModal">
+  <div class="modal-b">
+    <h3 id="confirmTitle">Confirm</h3>
+    <p id="confirmMsg" style="color:var(--muted);font-size:14px;margin:0 0 16px;"></p>
+    <div class="modal-acts">
+      <button type="button" class="btn btn-o" onclick="closeConfirm()">Cancel</button>
+      <button type="button" class="btn btn-p" id="confirmOkBtn">Yes, Continue</button>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+@* The version this page loaded: saves from a stale copy are refused (static/js/edit_version.js). *@
+<input type="hidden" id="editVersion" value="@Model.EditVersion">
+<script src="/static/js/edit_version.js"></script>
+<script>
+var invoiceData = null, itemsData = [], editable = @(Model.IsApproved ? "false" : "true");
+function fmt(v){return window.formatAmount(v,2)}
+function cv(s){return parseFloat((s||'').replace(/Rs\.\s*/,'').replace(/,/g,''))||0}
+
+function toast(m,t){var c=document.getElementById('toastContainer'),d=document.createElement('div');d.className='toast toast-'+t;d.innerHTML=m+'<button style="background:none;border:none;color:inherit;font-size:16px;cursor:pointer;margin-left:auto;padding:0;line-height:1;" onclick="this.parentElement.remove()">&times;</button>';c.appendChild(d);setTimeout(function(){d.style.opacity='0';d.style.transition='opacity .3s';setTimeout(function(){d.remove()},300)},4000)}
+function showConfirm(t,m,cb){document.getElementById('confirmTitle').textContent=t;document.getElementById('confirmMsg').textContent=m;document.getElementById('confirmModal').classList.add('show');document.getElementById('confirmOkBtn').onclick=function(){document.getElementById('confirmModal').classList.remove('show');cb()}}
+function closeConfirm(){document.getElementById('confirmModal').classList.remove('show')}
+
+async function loadInvoiceData(invoiceId) {
+  if (!invoiceId) {
+    document.getElementById('originalInvoiceRef').style.display = 'none';
+    document.getElementById('itemsBody').innerHTML = '';
+    document.getElementById('noInvoiceMsg').style.display = 'block';
+    invoiceData = null; recalc(); return;
+  }
+  // The return being edited is left out of "previously returned" (its own lines are not a prior return).
+  var rid = document.getElementById('returnId').value;
+  var r = await fetch('/invoicing/sales-return/api/invoice/' + invoiceId + (rid ? '?return_id=' + rid : ''));
+  var res = await r.json();
+  if (!res.ok) { toast(res.error, 'error'); return; }
+  invoiceData = res; itemsData = res.items;
+  document.getElementById('originalInvoiceRef').style.display = 'block';
+  document.getElementById('noInvoiceMsg').style.display = 'none';
+  var inv = res.invoice;
+  document.getElementById('refInvNumber').textContent = inv.invoice_number;
+  document.getElementById('refCustomer').textContent = inv.customer_name;
+  document.getElementById('refInvDate').textContent = inv.date;
+  document.getElementById('refTotal').textContent = 'Rs. '+fmt(inv.total_amount);
+  renderItems();
+}
+
+function renderItems() {
+  var tbody = document.getElementById('itemsBody'); tbody.innerHTML = '';
+  if (!itemsData || itemsData.length === 0) { document.getElementById('noInvoiceMsg').style.display = 'block'; return; }
+  document.getElementById('noInvoiceMsg').style.display = 'none';
+  itemsData.forEach(function(item, i) {
+    var tr = document.createElement('tr');
+    var d = editable ? '' : 'disabled';
+    tr.dataset.productId = item.product_id;
+    tr.innerHTML =
+      '<td class="rn">' + (i + 1) + '</td>' +
+      '<td><input type="text" class="ri" value="' + (item.sku || '') + '" disabled></td>' +
+      '<td><input type="text" class="ri" value="' + (item.description || '') + '" disabled></td>' +
+      '<td><input type="text" class="ri num" value="' + item.original_quantity + '" disabled></td>' +
+      '<td><input type="text" class="ri num" value="' + item.previously_returned + '" disabled></td>' +
+      '<td><input type="text" class="ri num" value="' + item.max_returnable_qty + '" disabled></td>' +
+      '<td><input type="number" class="ri num rqty" data-col="return_qty" value="0" min="0" step="any" ' + d + ' onchange="validateQty(this)" oninput="recalc()"></td>' +
+      '<td><input type="text" class="ri" value="' + (item.unit || 'pcs') + '" disabled></td>' +
+      '<td><input type="text" class="ri num" value="' + (item.unit_price || 0).toFixed(2) + '" disabled></td>' +
+      '<td><input type="text" class="ri num" value="' + (item.discount_pct || 0) + '" disabled></td>' +
+      '<td><input type="text" class="ri num" value="' + (item.sales_tax_pct || 0) + '" disabled></td>' +
+      '<td><input type="text" class="ri num rc" data-col="prop_discount" value="0" readonly></td>' +
+      '<td><input type="text" class="ri num rc" data-col="prop_tax" value="0" readonly></td>' +
+      '<td><input type="text" class="ri num rc" data-col="net_return" value="0" readonly></td>' +
+      '<td><input type="text" class="ri num rc cost" value="' + (item.cost_basis || 0).toFixed(2) + '" disabled></td>' +
+      '<td><input type="text" class="ri num rc cost" data-col="cost_back" value="0" readonly></td>';
+    if (item.max_returnable_qty <= 0) { tr.style.opacity = '0.5'; var qi = tr.querySelector('[data-col="return_qty"]'); if (qi) qi.disabled = true; }
+    tbody.appendChild(tr);
+  });
+  recalc();
+}
+
+function validateQty(input) {
+  var tr = input.closest('tr'), idx = Array.from(tr.parentElement.children).indexOf(tr);
+  var item = itemsData[idx]; if (!item) return;
+  var val = parseFloat(input.value) || 0;
+  if (val < 0) { input.value = 0; val = 0; }
+  if (val > item.max_returnable_qty) {
+    toast('Row ' + (idx + 1) + ': Exceeds max (' + item.max_returnable_qty + ')', 'error');
+    input.value = item.max_returnable_qty; val = item.max_returnable_qty;
+  }
+  recalc();
+}
+
+function returnAll() {
+  if (!editable) return;
+  document.querySelectorAll('#itemsBody tr').forEach(function(tr, i) {
+    var item = itemsData[i]; if (!item) return;
+    var inp = tr.querySelector('[data-col="return_qty"]');
+    if (inp && !inp.disabled) { inp.value = item.max_returnable_qty; }
+  });
+  recalc();
+}
+
+function resetQuantities() {
+  if (!editable) return;
+  document.querySelectorAll('#itemsBody tr').forEach(function(tr) {
+    var inp = tr.querySelector('[data-col="return_qty"]');
+    if (inp && !inp.disabled) inp.value = '0';
+  });
+  recalc();
+}
+
+function recalc() {
+  if (!itemsData || itemsData.length === 0) return;
+  var grossReturn = 0, totalDisc = 0, totalCharges = 0, totalSTax = 0, totalCostBack = 0;
+  var reverseCh = document.getElementById('reverseCharges').checked;
+  document.querySelectorAll('#itemsBody tr').forEach(function(tr, i) {
+    var item = itemsData[i]; if (!item) return;
+    var qEl = tr.querySelector('[data-col="return_qty"]');
+    var rqty = parseFloat(qEl && qEl.value) || 0;
+    var origTotal = rqty * (item.unit_price || 0); grossReturn += origTotal;
+    var ratio = item.original_quantity > 0 ? rqty / item.original_quantity : 0;
+    var propDisc = 0;
+    if (item.discount_pct > 0) { propDisc = origTotal * item.discount_pct / 100; }
+    else if (item.discount_amount > 0) { propDisc = item.discount_amount * ratio; }
+    totalDisc += propDisc;
+    var afterDisc = Math.max(0, origTotal - propDisc);
+    var chargesShare = reverseCh ? ((item.delivery || 0) + (item.installation || 0)) * ratio : 0;
+    totalCharges += chargesShare;
+    var propSTax = afterDisc * (item.sales_tax_pct || 0) / 100;
+    totalSTax += propSTax;
+    var netVal = afterDisc + chargesShare + propSTax;
+    // Cost side: what this line puts back into stock, at the basis it left at.
+    var costBack = rqty * (item.cost_basis || 0);
+    totalCostBack += costBack;
+    var td = tr.querySelector('[data-col="prop_discount"]'); if (td) td.value = propDisc.toFixed(2);
+    var tt = tr.querySelector('[data-col="prop_tax"]'); if (tt) tt.value = propSTax.toFixed(2);
+    var tn = tr.querySelector('[data-col="net_return"]'); if (tn) tn.value = netVal.toFixed(2);
+    var cb = tr.querySelector('[data-col="cost_back"]'); if (cb) cb.value = costBack.toFixed(2);
+  });
+  document.getElementById('summaryGrossReturn').textContent = fmt(grossReturn);
+  document.getElementById('summaryDiscount').textContent = '-' + fmt(totalDisc);
+  document.getElementById('summaryCharges').textContent = fmt(totalCharges);
+  document.getElementById('summarySalesTax').textContent = fmt(totalSTax);
+  document.getElementById('summaryNetReturn').textContent = 'Rs. '+fmt(grossReturn - totalDisc + totalCharges + totalSTax);
+  document.getElementById('summaryCostBack').textContent = 'Rs. '+fmt(totalCostBack);
+}
+
+function collectData() {
+  if (!invoiceData) { toast('Select an original invoice first', 'error'); return null; }
+  var items = [];
+  document.querySelectorAll('#itemsBody tr').forEach(function(tr, i) {
+    var item = itemsData[i]; if (!item) return;
+    var qEl = tr.querySelector('[data-col="return_qty"]');
+    var rqty = parseFloat(qEl && qEl.value) || 0;
+    if (rqty <= 0) return;
+    var pd = tr.querySelector('[data-col="prop_discount"]');
+    var pt = tr.querySelector('[data-col="prop_tax"]');
+    var nr = tr.querySelector('[data-col="net_return"]');
+    items.push({
+      product_id: item.product_id, description: item.description,
+      original_quantity: item.original_quantity, previously_returned: item.previously_returned,
+      max_returnable_qty: item.max_returnable_qty, current_return_qty: rqty,
+      unit: item.unit, unit_price: item.unit_price,
+      discount_pct: item.discount_pct, discount_amount: item.discount_amount,
+      delivery: item.delivery, installation: item.installation,
+      sales_tax_pct: item.sales_tax_pct,
+      total_before_discount: item.total_before_discount, total_after_discount: item.total_after_discount,
+      proportional_discount: parseFloat(pd && pd.value) || 0,
+      proportional_sales_tax: parseFloat(pt && pt.value) || 0,
+      proportional_delivery: 0, proportional_installation: 0,
+      net_return_value: parseFloat(nr && nr.value) || 0,
+    });
+  });
+  if (items.length === 0) { toast('Enter return quantity for at least one item', 'error'); return null; }
+  return {
+    id: document.getElementById('returnId').value || null,
+    original_invoice_id: invoiceData.invoice.id, customer_id: invoiceData.invoice.customer_id,
+    date: document.getElementById('returnDate').value,
+    notes: document.getElementById('returnNotes').value,
+    reverse_charges: document.getElementById('reverseCharges').checked,
+    gross_return_value: cv(document.getElementById('summaryGrossReturn').textContent),
+    total_discount: cv(document.getElementById('summaryDiscount').textContent),
+    total_charges: cv(document.getElementById('summaryCharges').textContent),
+    total_tax: cv(document.getElementById('summarySalesTax').textContent),
+    net_return_amount: cv(document.getElementById('summaryNetReturn').textContent),
+    items: items,
+  };
+}
+
+function disableAll(frozen){document.querySelectorAll('#itemsBody input, #itemsBody button, .inp, .sel, #reverseCharges, .bsm, #saveBtn, #saveChangesBtn, #approveBtn, #originalInvoiceSelect').forEach(function(el){el.disabled=frozen})}
+function rebuildActionBar(st){var bar=document.querySelector('.ab');if(!bar)return;bar.innerHTML='';if(st==='approved'){bar.innerHTML='<button type="button" class="btn btn-d" id="unapproveBtn">Unapprove Return</button><button type="button" class="btn btn-o" onclick="window.print()">Print</button><a href="/invoicing/sales-return/list" class="btn btn-o">New Return</a>';var ub=document.getElementById('unapproveBtn');if(ub)ub.addEventListener('click',function(){showConfirm('Unapprove Return','Reverse the stock that came back and unlock quantities?',unapproveReturn)})}else if(st==='unapproved'){bar.innerHTML='<button type="button" class="btn btn-o" onclick="window.print()">Print</button><a href="/invoicing/sales-return/list" class="btn btn-o">New Return</a>'}else if(st==='new'){bar.innerHTML='<button type="button" class="btn btn-p" id="saveBtn">Save as Unapproved Return</button><a href="/invoicing/sales-return/list" class="btn btn-o">Cancel</a>';var sb=document.getElementById('saveBtn');if(sb)sb.addEventListener('click',function(){saveReturn('save')})}}
+
+async function saveReturn(action) {
+  var data = collectData();
+  if (!data) return;
+  data.action = action;
+  var r = await fetch('/invoicing/sales-return/save', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
+  var res = await r.json();
+  if (!res.ok) { toast(res.error || 'Save failed', 'error'); return; }
+  toast(res.message, 'success');
+  document.getElementById('returnId').value = res.id;
+  var badge = document.getElementById('statusBadge');
+  var displayMap = { new: 'New', unapproved: 'Unapproved', approved: 'Approved' };
+  badge.className = 'bdg bdg-' + res.status;
+  badge.textContent = displayMap[res.status] || res.status;
+  if (res.status === 'approved') { var eb=document.querySelector('.ap-b'); if(!eb){var nb=document.createElement('div');nb.className='ap-b';nb.innerHTML='<span class="ap-t">&#10003; APPROVED</span><span>'+new Date().toLocaleString()+'</span>';var w=document.querySelector('.wrap');if(w)w.insertBefore(nb,w.querySelector('.card'))}} else { var eb2=document.querySelector('.ap-b'); if(eb2)eb2.remove() }
+  disableAll(true); rebuildActionBar(res.status); recalc();
+}
+
+async function unapproveReturn() {
+  var id = document.getElementById('returnId').value; if (!id) return;
+  var ub = document.getElementById('unapproveBtn');
+  if (ub) { ub.disabled = true; ub.textContent = 'Processing...'; }
+  var r = await fetch('/invoicing/sales-return/unapprove/' + id, { method: 'POST' });
+  var res = await r.json();
+  if (!res.ok) { toast(res.error, 'error'); var ub2=document.getElementById('unapproveBtn'); if(ub2){ub2.disabled=false;ub2.textContent='Unapprove Return'} return; }
+  toast(res.message, 'success');
+  var badge2=document.getElementById('statusBadge'); if(badge2){badge2.className='bdg bdg-unapproved';badge2.textContent='Unapproved'}
+  disableAll(false); rebuildActionBar('unapproved');
+}
+
+document.getElementById('saveBtn')?.addEventListener('click', function() { saveReturn('save'); });
+document.getElementById('saveChangesBtn')?.addEventListener('click', function() { saveReturn('save'); });
+document.getElementById('approveBtn')?.addEventListener('click', function() { showConfirm('Approve Return', 'Approving will put the goods back into stock at the cost they were sold at, and credit the customer. Proceed?', function() { saveReturn('approve'); }); });
+document.getElementById('unapproveBtn')?.addEventListener('click', function() { showConfirm('Unapprove Return', 'Reverse the stock that came back and unlock quantities?', unapproveReturn); });
+
+// Auto-populate date for new returns
+(function(){
+  var d = document.getElementById('returnDate');
+  if (d && !d.value) {
+    var n = new Date();
+    d.value = n.getFullYear() + '-' +
+      String(n.getMonth() + 1).padStart(2, '0') + '-' +
+      String(n.getDate()).padStart(2, '0');
+  }
+})();
+
+// Auto-load if editing
+(async function init() {
+  @Html.Raw(Model.InitScript())
+})();
+</script>
+}

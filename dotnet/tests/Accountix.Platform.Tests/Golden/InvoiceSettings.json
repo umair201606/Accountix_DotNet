@@ -1,0 +1,3 @@
+{
+  "invoice_settings": "allow_partial_payment=False|auto_add_line=True|create_from_orders_enabled=True|default_charges_mode=individual|default_discount_mode=general|default_discount_pct=0|default_further_tax_pct=3|default_party_mode=all|default_sales_tax_pct=18|default_tax_mode=individual|default_withholding_tax_pct=4.5|over_invoice_tolerance_pct=2.5|per_line_discount_enabled=False|per_line_tax_enabled=True|require_approval=True|show_charges_column=False|show_discount_column=True|show_further_tax=False|show_tax_column=False|show_transport_block=True|show_withholding_tax=False|withholding_base=gross"
+}

@@ -1,0 +1,54 @@
+{
+ "all": [
+  {
+   "date": "2026-01-15 10:00:00",
+   "voucher_type": "EXEC",
+   "voucher_number": "EXEC-SEED-017",
+   "description": "Receipt 2000",
+   "debit": 0.0,
+   "credit": 2000.0
+  },
+  {
+   "date": "2025-11-20 10:00:00",
+   "voucher_type": "EXEC",
+   "voucher_number": "EXEC-SEED-016",
+   "description": "Executive test posting",
+   "debit": 0.0,
+   "credit": 199.99
+  },
+  {
+   "date": "2025-11-11 10:00:00",
+   "voucher_type": "EXEC",
+   "voucher_number": "EXEC-SEED-015",
+   "description": "Invoice 1999.99",
+   "debit": 1999.99,
+   "credit": 0.0
+  },
+  {
+   "date": "2025-10-05 10:00:00",
+   "voucher_type": "EXEC",
+   "voucher_number": "EXEC-SEED-014",
+   "description": "Invoice 7300.5",
+   "debit": 7300.5,
+   "credit": 0.0
+  }
+ ],
+ "asof": [
+  {
+   "date": "2025-11-20 10:00:00",
+   "voucher_type": "EXEC",
+   "voucher_number": "EXEC-SEED-016",
+   "description": "Executive test posting",
+   "debit": 0.0,
+   "credit": 199.99
+  },
+  {
+   "date": "2025-11-11 10:00:00",
+   "voucher_type": "EXEC",
+   "voucher_number": "EXEC-SEED-015",
+   "description": "Invoice 1999.99",
+   "debit": 1999.99,
+   "credit": 0.0
+  }
+ ]
+}

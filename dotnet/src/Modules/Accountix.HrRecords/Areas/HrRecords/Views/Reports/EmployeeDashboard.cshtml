@@ -1,0 +1,60 @@
+@*
+  /reports/ for someone who is neither admin nor manager: Python renders the
+  HR dashboard template (dashboard/index.html) in its employee form. Copied
+  here (the employee branch only) so this project does not lean on the HR
+  project's view model; keep it in step with Accountix.Hr's Dashboard/Index.
+*@
+@{
+    ViewData["Title"] = "Dashboard - Accountix ERP";
+}
+<div class="page-header">
+    <div>
+        <h1>Dashboard</h1>
+        <p class="subtitle">Welcome back, @(Context.Access()?.User.FullName)</p>
+    </div>
+</div>
+
+<div class="stats-grid" id="dashboard-stats">
+    <div class="stat-card"><div class="stat-label">My Status</div><div class="stat-value" id="stat-present">-</div></div>
+    <div class="stat-card"><div class="stat-label">My Leaves</div><div class="stat-value" id="stat-leaves">-</div></div>
+</div>
+
+<div class="grid-2">
+    <div class="card">
+        <div class="card-header">Quick Actions</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+            <a href="/attendance/" class="btn btn-outline btn-block">Clock In / Out</a>
+            <a href="/leaves/apply" class="btn btn-outline btn-block">Apply for Leave</a>
+            <a href="/ess/" class="btn btn-outline btn-block">My Profile</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">My Day</div>
+        <div style="display:flex;flex-direction:column;gap:2px;">
+            <div class="attention-row">
+                <span>Today's status</span><strong id="att-my-status">-</strong>
+            </div>
+            <a href="/leaves/" class="attention-row">
+                <span>My pending leaves</span><strong id="att-my-leaves">-</strong>
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+async function loadDashboard() {
+    try {
+        const r = await fetch('/reports/dashboard');
+        const d = await r.json();
+        document.getElementById('stat-present').textContent = d.today_present;
+        document.getElementById('stat-leaves').textContent = d.pending_leaves;
+        document.getElementById('att-my-status').textContent =
+            d.today_present === 1 ? 'Present' : (d.today_present === 0 ? 'Absent' : '-');
+        document.getElementById('att-my-leaves').textContent = d.pending_leaves;
+    } catch(e) {}
+}
+loadDashboard();
+</script>
+}

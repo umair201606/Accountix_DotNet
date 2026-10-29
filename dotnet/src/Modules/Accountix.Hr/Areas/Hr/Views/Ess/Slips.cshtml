@@ -1,0 +1,36 @@
+@model List<Accountix.Hr.Controllers.EssController.SlipRow>
+@{
+    ViewData["Title"] = "My Salary Slips - Accountix ERP";
+}
+<div class="page-header">
+    <h1>Salary Slips</h1>
+</div>
+<div class="card">
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Period</th><th>Basic</th><th>Allowances</th><th>Deductions</th><th>Gross</th><th>Net Pay</th><th></th></tr></thead>
+            <tbody>
+                @foreach (var row in Model)
+                {
+                var s = row.Slip;
+                <tr>
+                    <td>@row.Month/@row.Year</td>
+                    <td>Rs. @Html.Amount(s.BasicSalary, 0)</td>
+                    <td>Rs. @Html.Amount(s.Allowances, 0)</td>
+                    <td>Rs. @Html.Amount(s.TotalDeductions, 0)</td>
+                    <td>Rs. @Html.Amount(s.GrossPay, 0)</td>
+                    <td><strong>Rs. @Html.Amount(s.NetPay, 0)</strong></td>
+                    <td>
+                        <a href="/compensation/slip/@s.Id" class="btn btn-sm btn-outline">View</a>
+                        <a href="/compensation/slip/@s.Id/pdf" class="btn btn-sm btn-primary">PDF</a>
+                    </td>
+                </tr>
+                }
+                @if (Model.Count == 0)
+                {
+                <tr><td colspan="7" class="text-center" style="color:var(--muted);">No slips yet</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,288 @@
+@model Accountix.Inventory.Controllers.ProductFormModel
+@using Accountix.Inventory.Services
+@{
+    string mode = Model.Product is null ? "New" : "Edit";
+    ViewData["Title"] = $"{mode} Product";
+    ViewData["Heading"] = $"{mode} Product";
+    var draft = Model.Draft;
+}
+@section Head {
+<style>
+  .dup-check{font-size:11px;margin-top:2px;min-height:16px}
+  .dup-check.ok{color:var(--success)}
+  .dup-check.err{color:var(--danger)}
+  .dup-check.wait{color:var(--muted)}
+  .dup-inp.ok{border-color:var(--success)!important;background:var(--success-light)}
+  .dup-inp.err{border-color:var(--danger)!important;background:var(--danger-light)}
+</style>
+}
+<div class="card" style="max-width:700px;">
+  <form method="POST" class="form">
+    <div class="form-row">
+      <div class="form-group">
+        <label>SKU *</label>
+        <input type="text" name="sku" id="sku" class="form-control focus-ring dup-inp" required value="@Model.Or("sku")">
+        <div class="dup-check" id="skuCheck"></div>
+      </div>
+      <div class="form-group">
+        <label>Unit</label>
+        <div style="display:flex;gap:6px;">
+          <select name="unit" class="form-control focus-ring" style="flex:1;">
+            @foreach (var u in Model.Units)
+            {
+            <option value="@u.Abbreviation" selected="@(Model.HasF && Model.F("unit") is string fu && fu == u.Abbreviation)">@u.Name (@u.Abbreviation)</option>
+            }
+          </select>
+          <button type="button" class="btn btn-outline btn-sm" onclick="openUnitModal()" style="white-space:nowrap;" title="Add new unit">+ Unit</button>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Name *</label>
+      <input type="text" name="name" id="name" class="form-control focus-ring dup-inp" required value="@Model.Or("name")">
+      <small style="display:block;margin-top:4px;color:var(--accent);font-weight:500;">&#9432; This name will appear in ledgers — a 4th-level ledger account is created automatically under Inventory.</small>
+      <div class="dup-check" id="nameCheck"></div>
+    </div>
+    <div class="form-group">
+      <label>Description</label>
+      <textarea name="description" class="form-control focus-ring" rows="3">@Model.Or("description")</textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Category</label>
+        <select name="category_id" class="form-control focus-ring">
+          <option value="">None</option>
+          @foreach (var c in Model.Categories)
+          {
+          <option value="@c.Id" selected="@(Model.HasF && Model.AsString("category_id") == c.Id.ToString())">@c.Name</option>
+          }
+        </select>
+      </div>
+      <div class="form-group">
+        <label>HS Code</label>
+        <input type="text" name="hs_code" class="form-control focus-ring" value="@Model.Or("hs_code")" placeholder="e.g. 8541.4000">
+        <small style="display:block;margin-top:4px;color:var(--muted);">Harmonised System tariff code — sent to FBR Digital Invoicing.</small>
+      </div>
+      <div class="form-group">
+        <label>Unit Weight</label>
+        <input type="number" name="weight" step="any" min="0" class="form-control focus-ring" value="@Model.NotBlank("weight", "")" placeholder="0.00">
+        <small style="display:block;margin-top:4px;color:var(--muted);">Weight of one unit. Used to split charges set to &ldquo;By weight&rdquo; — lines with no weight fall back to value.</small>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Unit Price</label>
+        <input type="number" step="0.01" name="unit_price" class="form-control focus-ring" value="@Model.NotBlank("unit_price", "0")">
+      </div>
+      <div class="form-group">
+        <label>Cost Price</label>
+        @if (Model.CostLocked)
+        {
+        <input type="number" step="0.01" name="cost_price" class="form-control focus-ring" value="@Model.NotBlank("cost_price", "0")" readonly title="Kept at the current valuation cost by the stock ledger">
+        }
+        else
+        {
+        <input type="number" step="0.01" name="cost_price" class="form-control focus-ring" value="@Model.NotBlank("cost_price", "0")">
+        }
+      </div>
+      <div class="form-group">
+        <label>Reorder Level</label>
+        <input type="number" name="reorder_level" class="form-control focus-ring" value="@Model.NotBlank("reorder_level", "0")">
+      </div>
+    </div>
+    @if (Model.Product is null)
+    {
+    <div class="form-row">
+      <div class="form-group">
+        <label>Opening Stock</label>
+        <input type="number" step="any" min="0" name="current_stock" class="form-control focus-ring" value="@(draft is not null && MasterData.Truthy(draft.Get("current_stock")) ? draft.Cell("current_stock") : "0")">
+        <small style="color:var(--muted);">Valued at the Cost Price above and posted Dr Inventory / Cr Opening Balance Equity.</small>
+      </div>
+      <div class="form-group">
+        <label>Opening date</label>
+        <input type="date" name="opening_date" class="form-control focus-ring" value="@(draft is not null ? draft.Cell("opening_date") : "")">
+        <small style="color:var(--muted);">Blank = today. Date it before your first purchase or sale.</small>
+      </div>
+    </div>
+    }
+    @if (Model.Product is not null)
+    {
+    <div class="form-group">
+      <label><input type="checkbox" name="is_active" checked="@MasterData.Truthy(Model.F("is_active"))"> Active</label>
+    </div>
+    }
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary" onclick="return checkDupBeforeSubmit()">@(Model.Product is null ? "Create" : "Update")</button>
+      <a href="/inventory/products/" class="btn btn-outline">Cancel</a>
+    </div>
+  </form>
+</div>
+
+<div id="unitModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:var(--card);border-radius:8px;padding:24px;width:440px;max-width:94vw;box-shadow:var(--shadow-lg);">
+    <h3 style="margin:0 0 16px;font-size:17px;">New Unit</h3>
+    <div class="form-group">
+      <label>Name *</label>
+      <input type="text" id="unitName" class="form-control focus-ring" style="border:1px solid var(--border);">
+      <div id="unitNameMsg" style="font-size:11px;margin-top:2px;"></div>
+    </div>
+    <div class="form-group">
+      <label>Abbreviation *</label>
+      <input type="text" id="unitAbbr" class="form-control focus-ring" maxlength="20" style="border:1px solid var(--border);">
+      <div id="unitAbbrMsg" style="font-size:11px;margin-top:2px;"></div>
+    </div>
+    <div class="form-group">
+      <label>Explanation</label>
+      <textarea id="unitExpl" class="form-control focus-ring" rows="2" style="border:1px solid var(--border);"></textarea>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;">
+      <button type="button" class="btn btn-outline" onclick="closeUnitModal()">Cancel</button>
+      <button type="button" class="btn btn-primary" id="unitSaveBtn" onclick="saveUnit()">Create</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var CHECK_URL = '/inventory/products/check';
+var UNIT_CHECK_URL = '/inventory/units/check';
+var UNIT_CREATE_URL = '/inventory/units/quick-create';
+var dupTimers = {};
+var EXCLUDE = @(Model.Product is null ? "null" : Model.Product.Id.ToString());
+var unitTimers = {};
+
+function checkField(field, value, msgEl, inp) {
+  if (!value) { msgEl.textContent = ''; msgEl.className = 'dup-check'; inp.className = 'form-control focus-ring dup-inp'; return; }
+  var url = CHECK_URL + '?field=' + encodeURIComponent(field) + '&value=' + encodeURIComponent(value);
+  if (EXCLUDE) url += '&exclude=' + EXCLUDE;
+  fetch(url, { credentials: 'same-origin' })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      inp.className = 'form-control focus-ring dup-inp';
+      if (d.exists) {
+        inp.classList.add('err');
+        msgEl.className = 'dup-check err';
+        msgEl.textContent = 'Already taken';
+      } else {
+        inp.classList.add('ok');
+        msgEl.className = 'dup-check ok';
+        msgEl.textContent = 'Available';
+      }
+    })
+    .catch(function(e){ console.warn('Dup check err:', e); });
+}
+
+function debounce(field, msgId) {
+  clearTimeout(dupTimers[field]);
+  var inp = document.getElementById(field);
+  var msgEl = document.getElementById(msgId);
+  var val = inp.value.trim();
+  inp.className = 'form-control focus-ring dup-inp';
+  msgEl.className = 'dup-check wait';
+  msgEl.textContent = 'Checking...';
+  if (!val) { msgEl.textContent = ''; msgEl.className = 'dup-check'; return; }
+  dupTimers[field] = setTimeout(function(){ checkField(field, val, msgEl, inp); }, 400);
+}
+
+document.getElementById('sku').addEventListener('input', function(){ debounce('sku', 'skuCheck'); });
+document.getElementById('name').addEventListener('input', function(){ debounce('name', 'nameCheck'); });
+
+function checkDupBeforeSubmit() {
+  var sku = document.getElementById('sku');
+  var name = document.getElementById('name');
+  if (sku.classList.contains('err')) { alert('SKU "' + sku.value.trim() + '" is already taken.'); return false; }
+  if (name.classList.contains('err')) { alert('Name "' + name.value.trim() + '" is already taken.'); return false; }
+  return true;
+}
+
+// ---- Unit modal ----
+function openUnitModal() {
+  document.getElementById('unitModal').style.display = 'flex';
+  document.getElementById('unitName').value = '';
+  document.getElementById('unitAbbr').value = '';
+  document.getElementById('unitExpl').value = '';
+  clearUnitMsgs();
+}
+
+function closeUnitModal() {
+  document.getElementById('unitModal').style.display = 'none';
+  clearUnitMsgs();
+}
+
+function clearUnitMsgs() {
+  var els = document.querySelectorAll('#unitNameMsg, #unitAbbrMsg');
+  for (var i = 0; i < els.length; i++) { els[i].textContent = ''; els[i].className = ''; }
+  document.getElementById('unitName').style.borderColor = 'var(--border)';
+  document.getElementById('unitAbbr').style.borderColor = 'var(--border)';
+}
+
+function checkUnitField(field, value, msgEl, inp) {
+  if (!value) { msgEl.textContent = ''; msgEl.className = ''; inp.style.borderColor = 'var(--border)'; return; }
+  var url = UNIT_CHECK_URL + '?field=' + encodeURIComponent(field) + '&value=' + encodeURIComponent(value);
+  fetch(url, { credentials: 'same-origin' })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d.exists) {
+        inp.style.borderColor = 'var(--danger)';
+        msgEl.className = 'dup-check err';
+        msgEl.textContent = 'Already taken';
+      } else {
+        inp.style.borderColor = 'var(--success)';
+        msgEl.className = 'dup-check ok';
+        msgEl.textContent = 'Available';
+      }
+    });
+}
+
+function debounceUnit(field, msgId, inpId) {
+  var key = field;
+  clearTimeout(unitTimers[key]);
+  var inp = document.getElementById(inpId);
+  var msgEl = document.getElementById(msgId);
+  var val = inp.value.trim();
+  inp.style.borderColor = 'var(--border)';
+  msgEl.textContent = 'Checking...';
+  msgEl.className = '';
+  if (!val) { msgEl.textContent = ''; return; }
+  unitTimers[key] = setTimeout(function(){ checkUnitField(field, val, msgEl, inp); }, 400);
+}
+
+document.getElementById('unitName').addEventListener('input', function(){ debounceUnit('name', 'unitNameMsg', 'unitName'); });
+document.getElementById('unitAbbr').addEventListener('input', function(){ debounceUnit('abbreviation', 'unitAbbrMsg', 'unitAbbr'); });
+
+function saveUnit() {
+  var name = document.getElementById('unitName').value.trim();
+  var abbr = document.getElementById('unitAbbr').value.trim();
+  var expl = document.getElementById('unitExpl').value.trim();
+  var btn = document.getElementById('unitSaveBtn');
+  btn.disabled = true;
+  btn.textContent = 'Saving...';
+
+  var fd = new FormData();
+  fd.append('name', name);
+  fd.append('abbreviation', abbr);
+  fd.append('explanation', expl);
+
+  fetch(UNIT_CREATE_URL, { method: 'POST', body: fd, credentials: 'same-origin' })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      btn.disabled = false;
+      btn.textContent = 'Create';
+      if (d.ok) {
+        var sel = document.querySelector('select[name="unit"]');
+        var opt = document.createElement('option');
+        opt.value = d.abbreviation;
+        opt.textContent = d.name + ' (' + d.abbreviation + ')';
+        opt.selected = true;
+        sel.appendChild(opt);
+        closeUnitModal();
+      } else {
+        alert(d.error || 'Failed to create unit.');
+      }
+    })
+    .catch(function(e){
+      btn.disabled = false;
+      btn.textContent = 'Create';
+      alert('Error: ' + e.message);
+    });
+}
+</script>

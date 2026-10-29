@@ -1,0 +1,8 @@
+bin/
+obj/
+*.user
+.vs/
+TestResults/
+# Holds a throwaway database's connection and test secret; regenerate with tools/make_reference_db.py
+tools/reference.json
+tools/perf.json

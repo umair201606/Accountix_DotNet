@@ -1,0 +1,88 @@
+@model SettingsController.SettingsPage
+@{ var t = (SettingsController.PeriodsTab)Model.TabModel!; }
+<div class="set-card">
+  <h3>Fiscal Year Rule</h3>
+  <p class="hint">Set the start month and day for all financial periods. Every fiscal year will follow this pattern (e.g., 1 July to 30 June, or 1 January to 31 December). Changing this rule will regenerate all periods retroactively.</p>
+  <form method="POST" asp-antiforgery="true" action="/settings/periods/rule">
+    <div class="fgrid" style="grid-template-columns:1fr 1fr;">
+      <div class="fgroup">
+        <label class="lbl">Start Month</label>
+        <select name="start_month" class="inp">
+          @for (int m = 1; m <= 12; m++) {
+          <option value="@m" selected="@(t.Rule.StartMonth == m)">@SettingsController.Months[m - 1]</option>
+          }
+        </select>
+      </div>
+      <div class="fgroup">
+        <label class="lbl">Start Day</label>
+        <select name="start_day" class="inp">
+          @for (int d = 1; d <= 28; d++) {
+          <option value="@d" selected="@(t.Rule.StartDay == d)">@d</option>
+          }
+        </select>
+      </div>
+    </div>
+    <div class="set-actions">
+      <button type="submit" class="btn btn-p" onclick="return confirm('This will regenerate ALL financial periods. Existing periods and their open/closed status will be reset. Continue?')">Save &amp; Regenerate Periods</button>
+    </div>
+  </form>
+  <p class="hint" style="margin-top:8px;">
+    Each financial year runs <strong>@(t.ExStart.Day + " " + t.ExStart.ToString("MMMM", System.Globalization.CultureInfo.InvariantCulture))</strong> &rarr;
+    <strong>@(t.ExEnd.Day + " " + t.ExEnd.ToString("MMMM", System.Globalization.CultureInfo.InvariantCulture))</strong>.
+    The current one is @J.Dmy(t.ExStart) &ndash; @J.Dmy(t.ExEnd).
+  </p>
+</div>
+
+<div class="set-card" style="margin-top:16px;">
+  <h3>Generated Periods</h3>
+  <p class="hint">Closing a period prevents new postings in that date range. Periods are auto-generated from the fiscal year rule above.</p>
+  @{ var rp = t.Review is null ? null : t.Periods.FirstOrDefault(p => p.Id == t.Review.Id); }
+  @if (t.Review is not null && rp is not null && rp.IsClosed != true) {
+  <div class="set-card" style="margin:10px 0;border-color:var(--warning, #b45309);">
+    <strong>Still open in @rp.PeriodName</strong>
+    <ul style="margin:6px 0 10px 18px;">
+      @foreach (var line in t.Review.Issues) {<li>@line</li>}
+    </ul>
+    <p class="hint" style="margin:0 0 8px;">Once closed, none of this can be posted into the period: drafts would have to be re-dated into an open period.</p>
+    <form method="POST" asp-antiforgery="true" action="/settings/periods/@rp.Id/close">
+      <input type="hidden" name="force" value="1">
+      <button type="submit" class="btn btn-sm btn-danger">Close anyway</button>
+    </form>
+  </div>
+  }
+  <div class="tbl-scroll">
+    <table class="stbl">
+      <thead>
+        <tr><th>Period</th><th>Start</th><th>End</th><th>Status</th><th></th></tr>
+      </thead>
+      <tbody>
+        @foreach (var p in t.Periods) {
+        <tr>
+          <td>@p.PeriodName</td>
+          <td>@J.Dmy(p.StartDate)</td>
+          <td>@J.Dmy(p.EndDate)</td>
+          <td>
+            @if (p.IsClosed == true) {<span class="pill pill-off">Closed</span>}
+            else {<span class="pill pill-on">Open</span>}
+          </td>
+          <td style="text-align:right;">
+            @if (p.IsClosed == true) {
+            <form method="POST" asp-antiforgery="true" action="/settings/periods/@p.Id/reopen" style="display:inline;">
+              <button type="submit" class="btn btn-sm btn-outline">Reopen</button>
+            </form>
+            } else {
+            <form method="POST" asp-antiforgery="true" action="/settings/periods/@p.Id/close" style="display:inline;"
+                  onsubmit="return confirm('Close ' + @System.Text.Json.JsonSerializer.Serialize(p.PeriodName) + '?');">
+              <button type="submit" class="btn btn-sm btn-danger">Close</button>
+            </form>
+            }
+          </td>
+        </tr>
+        }
+        @if (t.Periods.Count == 0) {
+        <tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px;">No periods generated yet. Save the rule above to generate periods.</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

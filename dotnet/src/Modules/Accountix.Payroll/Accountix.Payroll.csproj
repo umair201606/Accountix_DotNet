@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    <RootNamespace>Accountix.Payroll</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The bank sheet, the bulk template and the salary slip keep Python's own layouts (openpyxl /
+         reportlab), so they are written with the export pipeline's libraries, same versions as Finance:
+         ClosedXML (MIT) and PDFsharp-MigraDoc PINNED to 6.2.4, the last MIT release (6.5+ is AGPL). -->
+    <PackageReference Include="ClosedXML" Version="0.105.1" />
+    <PackageReference Include="PDFsharp-MigraDoc" Version="[6.2.4]" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.14" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Liberation Sans (SIL OFL), metric-compatible with Helvetica, as Finance embeds them. -->
+    <EmbeddedResource Include="Fonts\*.ttf" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Accountix.Core\Accountix.Core.csproj" />
+    <ProjectReference Include="..\..\Accountix.Web.Shared\Accountix.Web.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Accountix.Payroll.Tests" />
+  </ItemGroup>
+
+</Project>

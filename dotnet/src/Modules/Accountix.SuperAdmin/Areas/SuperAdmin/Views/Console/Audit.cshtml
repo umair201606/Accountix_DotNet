@@ -1,0 +1,72 @@
+@model ConsoleController.AuditModel
+@{
+    ViewData["Title"] = "Audit - Super Admin";
+    string cid = Model.Arg("company_id");
+    string act = Model.Arg("action");
+    string Link(int page)
+    {
+        // args.to_dict() with page replaced (or added), as url_for builds it.
+        var pairs = Model.Args.Select(a => a.Key == "page" ? new KeyValuePair<string, string>("page", page.ToString()) : a).ToList();
+        if (!Model.HasArg("page")) pairs.Add(new("page", page.ToString()));
+        return "/superadmin/audit/?" + Py.UrlEncode(pairs);
+    }
+    static bool Present(JsonElement? v) => v is { ValueKind: not JsonValueKind.Null };
+}
+<h1 class="sa-page-title">Audit Trail</h1>
+
+<div class="sa-card">
+  <form method="GET" class="sa-audit-filter">
+    <div class="fgroup"><label class="lbl" for="saCo">Company</label>
+      <select id="saCo" name="company_id" class="inp">
+        <option value="">All companies</option>
+        <option value="platform" selected="@(cid == "platform")">Platform (no company)</option>
+        @foreach (var (id, name) in Model.Companies){<option value="@id" selected="@(cid == id.ToString())">@name</option>}
+      </select></div>
+    <div class="fgroup"><label class="lbl" for="saAct">Action</label>
+      <select id="saAct" name="action" class="inp">
+        <option value="">All</option>
+        @foreach (var a in ConsoleController.Actions){<option value="@a" selected="@(act == a)">@ViewHelpers.Title(a.Replace('_', ' '))</option>}
+      </select></div>
+    <div class="fgroup" style="flex:1 1 220px"><label class="lbl" for="saQ">Search</label>
+      <input id="saQ" type="search" name="q" class="inp" value="@Model.Arg("q")" placeholder="Reference, user, IP…"></div>
+    <div><button type="submit" class="btn btn-p">Apply</button></div>
+  </form>
+  <p style="font-size:12px;color:var(--muted);margin:8px 0">@Model.Total @("entr" + (Model.Total == 1 ? "y" : "ies"))@if (Model.Pages > 1) {<text> · page @Model.Page of @Model.Pages</text>}</p>
+
+  <div style="overflow-x:auto">
+    <table class="sa-tbl" style="width:100%;min-width:760px">
+      <thead><tr><th>When (UTC)</th><th>Company</th><th>User</th><th>Action</th><th>Record</th><th>What happened</th></tr></thead>
+      <tbody>
+        @foreach (var (r, changes) in Model.Rows)
+        {
+        <tr>
+          <td style="white-space:nowrap">@r.CreatedAt.ToString("dd MMM yyyy HH:mm", System.Globalization.CultureInfo.InvariantCulture)</td>
+          <td>@(r.CompanyId is int rc && rc != 0 ? Model.CompanyNames.GetValueOrDefault(rc, "Platform") : "Platform")</td>
+          <td>@(string.IsNullOrEmpty(r.UserName) ? "System" : r.UserName)@if (!string.IsNullOrEmpty(r.IpAddress)) {<div style="font-size:11px;color:var(--muted)">@r.IpAddress</div>}</td>
+          <td style="text-transform:capitalize">@r.Action.Replace('_', ' ')</td>
+          <td>@(string.IsNullOrEmpty(r.EntityType) ? "—" : r.EntityType)@if (!string.IsNullOrEmpty(r.Reference)) {<div style="font-size:11px;color:var(--muted)">@r.Reference</div>}</td>
+          <td>@r.Summary
+            @if (changes.Count > 0)
+            {<details style="margin-top:3px"><summary style="cursor:pointer;font-size:12px;color:var(--muted)">@changes.Count field(s)</summary>
+              @foreach (var c in changes)
+              {<div style="font-size:12px"><strong>@c.Field</strong>: @if (Present(c.Old)) {<s style="color:var(--muted)">@Py.Str(c.Old!.Value)</s><text> → </text>}@(c.New is { } nv ? Py.Str(nv) : "None")</div>}
+            </details>}
+          </td>
+        </tr>
+        }
+        @if (Model.Rows.Count == 0)
+        {
+        <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">No activity matches these filters.</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  @if (Model.Pages > 1)
+  {
+  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
+    @if (Model.Page > 1) {<a class="btn" href="@Link(Model.Page - 1)">← Newer</a>}
+    @if (Model.Page < Model.Pages) {<a class="btn" href="@Link(Model.Page + 1)">Older →</a>}
+  </div>
+  }
+</div>
+<style>.sa-audit-filter{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}.sa-audit-filter .fgroup{margin:0;min-width:150px}</style>

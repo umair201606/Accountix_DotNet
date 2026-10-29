@@ -1,0 +1,533 @@
+@model SettingsController.TemplateFormModel
+@{
+    var m = Model;
+    var t = m.Template;
+    bool isSales = m.DocType == "sales";
+    ViewData["Title"] = (t is not null ? "Edit" : "New") + " " + (isSales ? "Sales" : "Purchase") + " Invoice Design";
+    ViewData["Heading"] = ViewData["Title"];
+    ViewData["Module"] = "settings";
+}
+@section Head {
+<style>
+  .tf-grid{display:grid;grid-template-columns:380px 1fr;gap:18px;align-items:start}
+  .tf-panel{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+  .tf-panel-h{padding:11px 16px;background:var(--bg-top);border-bottom:1px solid var(--border);
+    font-size:11px;font-weight:700;color:var(--muted)}
+  .tf-panel-b{padding:16px}
+  .tf-step{display:flex;align-items:center;gap:8px}
+  .tf-step-n{width:19px;height:19px;border-radius:50%;background:var(--primary);color:var(--card);
+    font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex:none}
+  .tf-lead{font-size:12.5px;color:var(--muted);margin:0 0 14px;line-height:1.55}
+
+  /* Design gallery */
+  .tf-designs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .tf-design{border:2px solid var(--border-soft);border-radius:8px;padding:10px;cursor:pointer;
+    background:var(--card);transition:border-color .12s,box-shadow .12s;text-align:left}
+  .tf-design:hover{border-color:var(--border)}
+  .tf-design.on{border-color:var(--accent);box-shadow:0 0 0 3px var(--primary-light)}
+  .tf-design-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px}
+  .tf-design-desc{font-size:11px;color:var(--muted);line-height:1.45}
+  /* Tiny wireframe so the choice is visual, not just a name */
+  .tf-thumb{height:52px;border:1px solid var(--border);border-radius:4px;margin-bottom:8px;
+    padding:5px;background:var(--card);display:flex;flex-direction:column;gap:3px;overflow:hidden}
+  .tf-bar{height:3px;border-radius:2px;background:var(--border)}
+  .tf-bar.accent{background:var(--accent)}
+  .tf-row{display:flex;gap:3px;align-items:center}
+  .tf-block{height:13px;border-radius:2px;background:var(--accent)}
+
+  /* Colours */
+  .tf-swatches{display:flex;flex-wrap:wrap;gap:7px}
+  .tf-sw{width:28px;height:28px;border-radius:50%;border:2px solid var(--card);cursor:pointer;
+    box-shadow:0 0 0 1px var(--border);transition:box-shadow .12s}
+  .tf-sw.on{box-shadow:0 0 0 2px var(--text)}
+
+  /* Toggles */
+  .tf-group{border-top:1px solid var(--bg-top);padding:11px 0 3px}
+  .tf-group:first-of-type{border-top:none;padding-top:0}
+  .tf-group-n{font-size:10px;font-weight:700;
+    color:var(--light);margin-bottom:7px}
+  .tf-opt{display:flex;gap:9px;padding:5px 0;cursor:pointer;align-items:flex-start}
+  .tf-opt input{margin:2px 0 0;flex:none;width:15px;height:15px;cursor:pointer;accent-color:var(--accent)}
+  .tf-opt-l{font-size:13px;color:var(--text);line-height:1.35}
+  .tf-opt-h{font-size:11px;color:var(--light);line-height:1.4;margin-top:1px}
+
+  /* Preview */
+  .tf-preview-h{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .tf-preview-wrap{background:var(--bg-top);padding:18px;min-height:520px;max-height:78vh;overflow:auto}
+  .tf-paper{background:var(--card);box-shadow:0 2px 14px rgba(0,0,0,.09);border-radius:2px;margin:0 auto;max-width:860px}
+  .tf-paper iframe{width:100%;border:0;display:block;min-height:900px}
+  .tf-sample{font-size:10px;font-weight:700;
+    color:var(--light);background:var(--card);border:1px solid var(--border);border-radius:99px;padding:2px 9px}
+
+  /* Advanced */
+  .tf-adv{border-top:1px solid var(--border);margin-top:14px;padding-top:12px}
+  .tf-adv summary{cursor:pointer;font-size:12px;font-weight:600;color:var(--muted);user-select:none}
+  .tf-adv summary:hover{color:var(--text)}
+  .tf-adv textarea{width:100%;font-family:ui-monospace,Consolas,monospace;font-size:11.5px;
+    line-height:1.5;border:1px solid var(--border);border-radius:6px;padding:10px;margin-top:10px}
+  .tf-codes{margin-top:9px;font-size:11px;line-height:2;color:var(--muted)}
+  .tf-codes code{background:var(--accent-light);color:var(--accent);padding:1px 5px;border-radius:3px;font-size:10.5px}
+  .tf-warn{background:var(--warning-light);border:1px solid var(--warning);color:var(--warning);border-radius:6px;
+    padding:9px 11px;font-size:11.5px;line-height:1.5;margin-top:10px}
+
+  .tf-actions{display:flex;gap:9px;align-items:center;padding:13px 16px;
+    border-top:1px solid var(--border);background:var(--bg-top)}
+  /* ── Mobile preview FAB + sheet ───────────────────────────── */
+  .tf-fab{display:none;position:fixed;bottom:24px;right:24px;z-index:999;width:56px;height:56px;
+    border-radius:50%;background:var(--primary);color:var(--card);border:none;box-shadow:0 4px 14px rgba(0,0,0,.25);
+    cursor:pointer;align-items:center;justify-content:center;font-size:22px;transition:transform .2s,opacity .2s}
+  .tf-fab:active{transform:scale(.92)}
+  .tf-fab.has-new{animation:tf-pulse 1.5s ease-in-out 3}
+  @@keyframes tf-pulse{0%,100%{box-shadow:0 4px 14px rgba(0,0,0,.25)}50%{box-shadow:0 4px 20px rgba(0,0,0,.4)}}
+  .tf-sheet{display:none;position:fixed;inset:0;z-index:1000;flex-direction:column;
+    background:var(--card);transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1)}
+  .tf-sheet.open{display:flex;transform:translateY(0)}
+  .tf-sheet-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;
+    background:var(--bg-top);border-bottom:1px solid var(--border);font-size:13px;font-weight:700;color:var(--text);
+    cursor:pointer;user-select:none}
+  .tf-sheet-bar .tf-sheet-handle{width:36px;height:4px;border-radius:2px;background:var(--border);margin:0 auto;
+    flex:none}
+  .tf-sheet-close{width:32px;height:32px;border-radius:50%;border:none;background:transparent;
+    font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);
+    transition:background .15s}
+  .tf-sheet-close:hover{background:var(--bg-top)}
+  .tf-sheet-body{flex:1;overflow:auto;padding:16px;background:var(--bg-top)}
+  .tf-sheet-body .tf-paper{max-width:100%}
+  .tf-sheet-body .tf-paper iframe{min-height:60vh}
+  .tf-sheet-overlay{display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.35);
+    opacity:0;transition:opacity .25s}
+  .tf-sheet-overlay.show{display:block;opacity:1}
+  @@media(max-width:1100px){
+    .tf-grid{grid-template-columns:1fr}
+    .tf-preview-wrap{max-height:none}
+    .tf-panel:last-child .tf-preview-wrap{display:none}
+    .tf-fab{display:flex}
+  }
+</style>
+}
+<form method="POST" id="tfForm">
+  <input type="hidden" name="type" value="@m.DocType">
+  <input type="hidden" name="design" id="designField" value="@(t?.Design ?? "classic")">
+  <input type="hidden" name="accent_color" id="accentField" value="@(t?.AccentColor ?? "#0f766e")">
+
+  <div class="tf-grid">
+    <!-- ── LEFT: the choices ─────────────────────────────────── -->
+    <div>
+      <div class="tf-panel">
+        <div class="tf-panel-b">
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Template name</label>
+            <input type="text" name="name" class="form-control focus-ring" required
+                   placeholder="e.g. Standard @(isSales ? "Sales" : "Purchase") Invoice"
+                   value="@(t?.Name ?? "")">
+            <p class="tf-lead" style="margin:6px 0 0;">Only you see this name. It is how
+              you pick this design later.</p>
+          </div>
+          <label class="tf-opt" style="margin-top:10px;">
+            <input type="checkbox" name="is_default" @J.Chk(t is null || t.IsDefault == true)>
+            <span>
+              <span class="tf-opt-l">Use this for every @(isSales ? "sales" : "purchase") invoice</span>
+              <span class="tf-opt-h" style="display:block;">Printing uses this design unless another is chosen.</span>
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <div class="tf-panel" style="margin-top:14px;">
+        <div class="tf-panel-h"><span class="tf-step"><span class="tf-step-n">1</span> Pick a look</span></div>
+        <div class="tf-panel-b">
+          <div class="tf-designs">
+            @foreach (var (key, label, desc) in Accountix.Invoicing.Services.InvoiceDesigns.Designs) {
+            <div class="tf-design @((t?.Design ?? "classic") == key ? "on" : "")"
+                 data-design="@key" role="button" tabindex="0" title="@desc">
+              <div class="tf-thumb">
+                @if (key == "classic") {
+                  <div class="tf-bar" style="width:46%;margin:0 auto;"></div>
+                  <div class="tf-bar accent" style="width:100%;height:2px;"></div>
+                  <div class="tf-bar accent" style="width:30%;margin:0 auto;"></div>
+                  <div class="tf-row"><div class="tf-bar" style="width:40%"></div><div class="tf-bar" style="width:40%;margin-left:auto"></div></div>
+                  <div class="tf-bar" style="width:100%;height:8px;background:var(--border);"></div>
+                } else if (key == "modern") {
+                  <div class="tf-bar accent" style="width:100%;height:4px;"></div>
+                  <div class="tf-row"><div class="tf-bar" style="width:35%"></div><div class="tf-bar accent" style="width:28%;margin-left:auto"></div></div>
+                  <div class="tf-bar" style="width:55%;background:var(--bg-top);height:9px;border-left:2px solid var(--accent)"></div>
+                  <div class="tf-bar" style="width:100%;height:8px;background:var(--border);"></div>
+                } else if (key == "minimal") {
+                  <div class="tf-row"><div class="tf-bar" style="width:30%"></div><div class="tf-bar" style="width:22%;margin-left:auto"></div></div>
+                  <div style="height:7px"></div>
+                  <div class="tf-bar" style="width:34%"></div>
+                  <div class="tf-bar" style="width:100%;height:8px;background:var(--border);"></div>
+                } else {
+                  <div class="tf-block" style="width:100%;"></div>
+                  <div class="tf-bar" style="width:38%"></div>
+                  <div class="tf-bar" style="width:100%;height:8px;background:var(--border);"></div>
+                }
+              </div>
+              <div class="tf-design-name">@label</div>
+              <div class="tf-design-desc">@desc</div>
+            </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="tf-panel" style="margin-top:14px;">
+        <div class="tf-panel-h"><span class="tf-step"><span class="tf-step-n">2</span> Pick a colour</span></div>
+        <div class="tf-panel-b">
+          <p class="tf-lead">Used for headings, the total, and the accent line.</p>
+          <div class="tf-swatches">
+            @foreach (var (hex, cname) in Accountix.Invoicing.Services.InvoiceDesigns.AccentPresets) {
+            <div class="tf-sw @((t?.AccentColor ?? "#0f766e").ToLowerInvariant() == hex.ToLowerInvariant() ? "on" : "")"
+                 data-accent="@hex" style="background:@hex;" title="@cname"
+                 role="button" tabindex="0"></div>
+            }
+          </div>
+        </div>
+      </div>
+
+        <div class="tf-panel" style="margin-top:14px;">
+        <div class="tf-panel-h">
+          <span class="tf-step"><span class="tf-step-n">3</span>
+            Choose what @(isSales ? "the customer sees" : "appears")</span>
+        </div>
+        <div class="tf-panel-b">
+          <p class="tf-lead">The common sections apply to every print. Use the toggle below to switch between Combined and Item-wise settings for columns and amount lines.@if (isSales) {<text> This is your customer's copy.</text>}</p>
+
+          
+          @foreach (var (groupName, fields) in Accountix.Invoicing.Services.InvoiceDesigns.OptionGroups(m.DocType).Where(g => g.Group is "Header" or "Customer details" or "Supplier details" or "Footer")) {
+          <div class="tf-group">
+            <div class="tf-group-n">@groupName</div>
+            @foreach (var (key, label, help) in fields) {
+            <label class="tf-opt">
+              <input type="checkbox" name="@key" class="tf-toggle" @J.Chk(Accountix.Invoicing.Services.InvoiceTemplates.On(m.Options, key))>
+              <span>
+                <span class="tf-opt-l">@label</span>
+                @if (!string.IsNullOrEmpty(help)) {<span class="tf-opt-h" style="display:block;">@help</span>}
+              </span>
+            </label>
+            }
+          </div>
+          }
+
+          
+          <div style="display:flex;gap:0;margin:16px 0 14px;border:1px solid var(--border);border-radius:6px;overflow:hidden;">
+            <label style="flex:1;text-align:center;padding:8px 0;font-size:13px;font-weight:600;cursor:pointer;
+                         background:var(--primary);color:var(--card);border-right:1px solid var(--border);"
+                   id="modeCombinedLbl">
+              <input type="radio" name="_mode_view" value="combined" checked style="display:none;">
+              Combined
+            </label>
+            <label style="flex:1;text-align:center;padding:8px 0;font-size:13px;font-weight:600;cursor:pointer;
+                         background:var(--card);color:var(--muted);"
+                   id="modeItemwiseLbl">
+              <input type="radio" name="_mode_view" value="itemwise" style="display:none;">
+              Item wise
+            </label>
+          </div>
+
+          
+          @foreach (var (groupName, fields) in Accountix.Invoicing.Services.InvoiceDesigns.OptionGroups(m.DocType).Where(g => g.Group is "Amounts" or "Columns")) {
+          <div class="tf-group tf-mode-both">
+            <div class="tf-group-n">@groupName</div>
+            @foreach (var (key, label, help) in fields) {
+            if (Accountix.Invoicing.Services.InvoiceDesigns.StringOptions.Contains(key)) {
+            var cur = Accountix.Invoicing.Services.InvoiceTemplates.Str(m.Options, key) ?? "combined";
+            var choices = Accountix.Invoicing.Services.InvoiceDesigns.DisplayChoices.GetValueOrDefault(key) ?? [];
+            <div class="tf-opt" style="flex-wrap:wrap;">
+              <span style="flex:1;">
+                <span class="tf-opt-l">@label</span>
+                @if (!string.IsNullOrEmpty(help)) {<span class="tf-opt-h" style="display:block;">@help</span>}
+              </span>
+              <div style="display:flex;gap:14px;margin-top:4px;width:100%;padding-left:24px;">
+                @foreach (var (val, lbl) in choices) {
+                <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12.5px;">
+                  <input type="radio" name="@key" value="@val"
+                         class="tf-toggle" @J.Chk(cur == val)>
+                  @lbl
+                </label>
+                }
+              </div>
+            </div>
+            } else {
+            <label class="tf-opt">
+              <input type="checkbox" name="@key" class="tf-toggle" @J.Chk(Accountix.Invoicing.Services.InvoiceTemplates.On(m.Options, key))>
+              <span>
+                <span class="tf-opt-l">@label</span>
+                @if (!string.IsNullOrEmpty(help)) {<span class="tf-opt-h" style="display:block;">@help</span>}
+              </span>
+            </label>
+            }
+            }
+          </div>
+          }
+
+          <details class="tf-adv" open="@m.IsCustom">
+            <summary>Advanced &mdash; write the HTML myself</summary>
+            <div class="tf-warn">
+              Only for someone comfortable with HTML. Switching this on stops the design
+              and tick boxes above from having any effect &mdash; the HTML below becomes
+              the invoice, exactly as written.
+            </div>
+            <label class="tf-opt" style="margin-top:10px;">
+              <input type="checkbox" id="customToggle" @J.Chk(m.IsCustom)>
+              <span class="tf-opt-l">Use my own HTML instead of a design</span>
+            </label>
+            <textarea name="body_html" id="bodyHtml" rows="16" spellcheck="false">@(m.IsCustom ? t!.BodyHtml : m.DefaultBody)</textarea>
+            <div class="tf-codes">
+              Put any of these where you want the real value:<br>
+              @foreach (var (pk, _) in Accountix.Invoicing.Services.InvoiceDesigns.PlaceholderHelp) {<code>&#123;&#123;@pk&#125;&#125;</code> }
+            </div>
+          </details>
+        </div>
+        <div class="tf-actions">
+          <button type="submit" class="btn btn-primary">@(t is not null ? "Save changes" : "Create template")</button>
+          <a href="/settings/?tab=templates" class="btn btn-outline">Cancel</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RIGHT: live preview ───────────────────────────────── -->
+    <div class="tf-panel" style="position:sticky;top:14px;">
+      <div class="tf-panel-h tf-preview-h">
+        <span>Preview</span>
+        <span class="tf-sample">Example data &mdash; not a real invoice</span>
+      </div>
+      <div class="tf-preview-wrap">
+        <div class="tf-paper"><iframe id="tfPreview" title="Invoice preview"></iframe></div>
+      </div>
+    </div>
+  </div>
+  <button type="button" class="tf-fab" id="tfFab" title="Preview invoice">&#128065;</button>
+</form>
+
+<div class="tf-sheet-overlay" id="tfSheetOverlay"></div>
+<div class="tf-sheet" id="tfSheet">
+  <div class="tf-sheet-bar" id="tfSheetBar">
+    <span></span>
+    <span class="tf-sheet-handle"></span>
+    <button type="button" class="tf-sheet-close" id="tfSheetClose">&times;</button>
+  </div>
+  <div class="tf-sheet-body">
+    <div class="tf-paper"><iframe id="tfPreviewMobile" title="Invoice preview"></iframe></div>
+  </div>
+</div>
+@section Scripts {
+<script>
+(function () {
+  var form = document.getElementById('tfForm');
+  var designField = document.getElementById('designField');
+  var accentField = document.getElementById('accentField');
+  var customToggle = document.getElementById('customToggle');
+  var bodyHtml = document.getElementById('bodyHtml');
+  var frame = document.getElementById('tfPreview');
+  var lastDesign = designField.value === 'custom' ? 'classic' : designField.value;
+
+  function setAccentVar(hex) { document.documentElement.style.setProperty('--accent', hex); }
+  setAccentVar(accentField.value);
+
+  // The preview is rendered by the server: the design HTML is generated in
+  // Python, and a JS reimplementation would be a second source of truth that
+  // drifts from what actually prints.
+  var pending = false, inFlight = false;
+  function refresh() {
+    if (inFlight) { pending = true; return; }
+    inFlight = true;
+    fetch('/settings/templates/preview',
+          { method: 'POST', body: new FormData(form) })
+      .then(function (r) { return r.text(); })
+      .then(function (html) {
+        var d = frame.contentDocument;
+        d.open();
+        d.write('<!doctype html><html><head><meta charset="utf-8">' +
+                '<style>body{margin:0;background:#fff;}</style></head><body>' +
+                html + '</body></html>');
+        d.close();
+        // Grow the frame to its content so the panel scrolls, not the iframe.
+        setTimeout(function () {
+          var h = d.body ? d.body.scrollHeight : 0;
+          if (h) { frame.style.minHeight = (h + 24) + 'px'; }
+        }, 40);
+      })
+      .catch(function () { /* preview is a convenience; never block the form */ })
+      .then(function () {
+        inFlight = false;
+        if (pending) { pending = false; refresh(); }
+      });
+  }
+
+  var timer = null;
+  function refreshSoon() { clearTimeout(timer); timer = setTimeout(refresh, 160); }
+
+  document.querySelectorAll('.tf-design').forEach(function (el) {
+    function pick() {
+      if (customToggle && customToggle.checked) { customToggle.checked = false; syncCustom(); }
+      document.querySelectorAll('.tf-design').forEach(function (o) { o.classList.remove('on'); });
+      el.classList.add('on');
+      designField.value = el.dataset.design;
+      lastDesign = el.dataset.design;
+      refreshSoon();
+    }
+    el.addEventListener('click', pick);
+    el.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); }
+    });
+  });
+
+  document.querySelectorAll('.tf-sw').forEach(function (el) {
+    function pick() {
+      document.querySelectorAll('.tf-sw').forEach(function (o) { o.classList.remove('on'); });
+      el.classList.add('on');
+      accentField.value = el.dataset.accent;
+      setAccentVar(el.dataset.accent);
+      refreshSoon();
+    }
+    el.addEventListener('click', pick);
+    el.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); }
+    });
+  });
+
+  document.querySelectorAll('.tf-toggle').forEach(function (el) {
+    el.addEventListener('change', refreshSoon);
+  });
+
+  // Mode toggle (Combined / Item wise)
+  var modeCombinedLbl = document.getElementById('modeCombinedLbl');
+  var modeItemwiseLbl = document.getElementById('modeItemwiseLbl');
+  function switchMode(mode) {
+    var showCombined = mode === 'combined';
+    modeCombinedLbl.style.background = showCombined ? '#0f172a' : '#fff';
+    modeCombinedLbl.style.color = showCombined ? '#fff' : '#64748b';
+    modeItemwiseLbl.style.background = showCombined ? '#fff' : '#0f172a';
+    modeItemwiseLbl.style.color = showCombined ? '#64748b' : '#fff';
+    // Mode-specific groups are always visible — the toggle just indicates
+    // which mode's settings you are reviewing. Both sets are saved.
+  }
+  modeCombinedLbl.addEventListener('click', function () { switchMode('combined'); });
+  modeItemwiseLbl.addEventListener('click', function () { switchMode('itemwise'); });
+
+  function syncCustom() {
+    var on = customToggle.checked;
+    designField.value = on ? 'custom' : lastDesign;
+    document.querySelectorAll('.tf-design, .tf-sw').forEach(function (el) {
+      el.style.opacity = on ? '.45' : '';
+      el.style.pointerEvents = on ? 'none' : '';
+    });
+    document.querySelectorAll('.tf-toggle').forEach(function (el) { el.disabled = on; });
+    // A custom body is only submitted when custom is on; otherwise the server
+    // would store hand-written HTML that the design silently overwrites.
+    bodyHtml.disabled = !on;
+    refreshSoon();
+  }
+  if (customToggle) {
+    customToggle.addEventListener('change', syncCustom);
+    bodyHtml.addEventListener('input', refreshSoon);
+    syncCustom();
+  }
+
+  // Patch refresh to also update the mobile preview iframe
+  var mobFrame = document.getElementById('tfPreviewMobile');
+
+  // The rendered sheet scales itself to whatever width it is given (see
+  // _SHEET_FIT_JS), so the preview only has to give the frame the right height
+  // — duplicating the scaling here would compound it.
+  function fitSheet(f, d) {
+    if (!d || !d.body) { return; }
+    if (d.defaultView && d.defaultView.invoiceFitSheets) {
+      d.defaultView.invoiceFitSheets();
+    }
+    var sheet = d.querySelector('.inv-sheet');
+    var h = sheet ? sheet.getBoundingClientRect().height : d.body.scrollHeight;
+    if (h) { f.style.minHeight = Math.ceil(h + 24) + 'px'; }
+    d.body.style.overflowX = 'hidden';
+  }
+
+  refresh = function () {
+    if (inFlight) { pending = true; return; }
+    inFlight = true;
+    fetch('/settings/templates/preview',
+          { method: 'POST', body: new FormData(form) })
+      .then(function (r) { return r.text(); })
+      .then(function (html) {
+        [frame, mobFrame].forEach(function (f) {
+          if (!f) return;
+          var d = f.contentDocument;
+          if (!d) return;
+          d.open();
+          d.write('<!doctype html><html><head><meta charset="utf-8">' +
+                  '<style>html,body{margin:0;background:#fff;}</style></head><body>' +
+                  html + '</body></html>');
+          d.close();
+          // Let the sheet lay out in the frame before measuring it.
+          setTimeout(function () { fitSheet(f, d); }, 40);
+        });
+      })
+      .catch(function () {})
+      .then(function () {
+        inFlight = false;
+        if (pending) { pending = false; refresh(); }
+      });
+  };
+
+  // The pane width drives the scale, so re-fit when it changes.
+  var fitTimer = null;
+  window.addEventListener('resize', function () {
+    clearTimeout(fitTimer);
+    fitTimer = setTimeout(function () {
+      [frame, mobFrame].forEach(function (f) {
+        if (f && f.contentDocument) { fitSheet(f, f.contentDocument); }
+      });
+    }, 120);
+  });
+
+  // ── Mobile FAB / sheet ──────────────────────────────────────
+  var fab = document.getElementById('tfFab');
+  var sheet = document.getElementById('tfSheet');
+  var sheetOverlay = document.getElementById('tfSheetOverlay');
+  var sheetClose = document.getElementById('tfSheetClose');
+  var sheetBar = document.getElementById('tfSheetBar');
+
+  function openSheet() {
+    if (!sheet.classList.contains('open')) { refresh(); }
+    sheet.classList.add('open');
+    sheetOverlay.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeSheet() {
+    sheet.classList.remove('open');
+    sheetOverlay.classList.remove('show');
+    sheet.style.transform = '';
+    document.body.style.overflow = '';
+  }
+
+  fab.addEventListener('click', openSheet);
+  sheetClose.addEventListener('click', closeSheet);
+  sheetOverlay.addEventListener('click', closeSheet);
+
+  // Swipe down to dismiss
+  var startY = 0, moving = false;
+  sheetBar.addEventListener('touchstart', function (e) {
+    startY = e.touches[0].clientY;
+    moving = true;
+    sheet.style.transition = 'none';
+  }, { passive: true });
+
+  sheetBar.addEventListener('touchmove', function (e) {
+    if (!moving) return;
+    var dy = e.touches[0].clientY - startY;
+    if (dy > 0) { sheet.style.transform = 'translateY(' + Math.min(dy, 300) + 'px)'; }
+  }, { passive: true });
+
+  sheetBar.addEventListener('touchend', function () {
+    moving = false;
+    sheet.style.transition = '';
+    var m = sheet.style.transform.match(/translateY\(([\d.]+)px\)/);
+    if (m && parseFloat(m[1]) > 80) { closeSheet(); }
+    else { sheet.style.transform = ''; }
+  }, { passive: true });
+
+  refresh();
+})();
+</script>
+}

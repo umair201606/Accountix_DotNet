@@ -1,0 +1,418 @@
+@* The shared look of the four Tracking pages (tracking/_style.html), copied verbatim. *@
+<style>
+:root{
+  /* Palette bridge — see static/css/ui.css. Every name here resolves to a v2
+     token so this page follows the shell's theme instead of holding a private
+     light-only palette. Literals are fallbacks, not values. */
+  --bg:var(--v2-ground,#f7f6f3); --bg-top:var(--v2-hover,#f1efea);
+  --card:var(--v2-surface,#ffffff);
+  --border:var(--v2-line-2,#ddd9d1); --border-soft:var(--v2-line,#e8e5df);
+  --surface-low:var(--v2-hover,#f1efea); --surface-variant:var(--v2-sunk,#ebe8e2);
+  --text:var(--v2-ink,#1a1917); --muted:var(--v2-body,#57544e); --light:var(--v2-faint,#ada79d);
+  --primary:var(--v2-ink,#1a1917); --primary-hover:var(--v2-ink-2,#33312d);
+  --primary-light:var(--v2-sunk,#ebe8e2);
+  --accent:var(--v2-accent,#2563eb); --accent-light:var(--v2-accent-soft,#eff4fe);
+  --danger:var(--v2-neg,#c0392b); --danger-light:var(--v2-neg-bg,#fdecea);
+  --success:var(--v2-pos,#12794f); --success-light:var(--v2-pos-bg,#e7f6ee);
+  --success-dark:var(--v2-pos,#12794f);
+  --warning:var(--v2-warn,#8f6100); --warning-light:var(--v2-warn-bg,#fdf3e0);
+  --warning-dark:var(--v2-warn,#8f6100);
+  --radius:8px; --radius-card:8px;
+  --shadow-sm:none;
+  --shadow:var(--v2-shadow,0 1px 2px rgba(23,24,26,.04));
+  --shadow-lg:var(--v2-pop,0 4px 16px -4px rgba(23,24,26,.12));
+
+  /* The --trk-* half of the bridge. These name what a colour *means* on the
+     tracking pages — direction of money, lateness — and about sixteen rules
+     below still read them. They were a private teal/indigo palette; mapped
+     onto v2 tokens they follow the theme instead, while money-in stays
+     distinguishable from money-out. Do not drop them without also rewriting
+     those rules: an undefined var invalidates the whole declaration, so the
+     cards silently lose their border and shadow and the flow badges lose
+     their colour coding. */
+  --trk-accent:var(--v2-accent,#2563eb);
+  --trk-accent-dark:var(--v2-accent-ink,#1d4ed8);
+  --trk-accent-soft:var(--v2-accent-soft,#eff4fe);
+  --trk-in:var(--v2-pos,#12794f); --trk-in-soft:var(--v2-pos-bg,#e7f6ee);
+  --trk-out:var(--v2-accent,#2563eb); --trk-out-soft:var(--v2-accent-soft,#eff4fe);
+  --trk-late:var(--v2-neg,#c0392b); --trk-late-soft:var(--v2-neg-bg,#fdecea);
+  --trk-warn:var(--v2-warn,#8f6100); --trk-warn-soft:var(--v2-warn-bg,#fdf3e0);
+  --trk-line:var(--v2-line,#e8e5df);
+  --trk-shadow:var(--v2-shadow,0 1px 2px rgba(23,24,26,.04))}
+.trk{max-width:1320px;margin:0 auto}
+.trk *{box-sizing:border-box}
+
+/* ── Cards (detail pages only) ── */
+.trk-card{border:1px solid var(--trk-line);border-radius:14px;background:var(--card);
+  box-shadow:var(--trk-shadow);overflow:hidden;margin-bottom:18px}
+.trk-card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:13px 17px;border-bottom:1px solid var(--trk-line);
+  background:var(--surface-low)}
+.trk-card-title{display:flex;align-items:center;gap:9px;color:var(--ink);font-size:13px;font-weight:600}
+.trk-dot{width:8px;height:8px;border-radius:50%;background:var(--trk-accent);
+  box-shadow:0 0 0 4px var(--accent-light);flex:none}
+.trk-card-hint{color:var(--muted);font-size:11px}
+.trk-card-body{padding:15px 17px}
+.trk-field{min-width:0}
+.trk-lbl{display:block;margin:0 0 6px;color:var(--muted);font-size:11px;font-weight:600}
+.trk-input,.trk-select{width:100%;min-height:38px;padding:8px 11px;border:1px solid var(--line);
+  border-radius:8px;background:var(--card);color:var(--ink);font-family:inherit;font-size:13px;outline:none}
+.trk-input:focus,.trk-select:focus{border-color:var(--trk-accent);
+  box-shadow:0 0 0 3px var(--accent-light)}
+.trk-chips{display:flex;flex-wrap:wrap;gap:7px}
+.trk-chip{position:relative;display:inline-flex}
+.trk-chip input{position:absolute;opacity:0;width:0;height:0}
+.trk-chip span{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border:1px solid var(--line);
+  border-radius:999px;background:var(--card);color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;
+  user-select:none;transition:all .15s ease;white-space:nowrap}
+.trk-chip span:hover{border-color:var(--trk-accent);color:var(--trk-accent-dark)}
+.trk-chip input:checked+span{background:var(--trk-accent);border-color:var(--trk-accent);color:var(--card)}
+.trk-chip input:focus-visible+span{box-shadow:0 0 0 3px var(--accent-light)}
+/* Selected but empty: still legibly "on", without the full-strength fill that
+   would make an empty bucket the loudest thing in the row. */
+.trk-chip.is-empty input:checked+span{background:var(--trk-accent-soft);
+  border-color:var(--trk-accent-soft);color:var(--trk-accent-dark)}
+.trk-chip.is-empty span b{opacity:.55}
+.trk-chip span b{font-variant-numeric:tabular-nums}
+.trk-chip.is-late input:checked+span{background:var(--trk-late);border-color:var(--trk-late)}
+
+/* Detail pages only — the list pages have no head at all, since the top bar
+   already names them. */
+.trk-pagehead{margin:0 0 14px}
+.trk-pagehead-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.trk-idline{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px;margin:0;flex:1 1 auto;
+  color:var(--muted);font-size:13px}
+.trk-idline b{color:var(--ink);font-size:17px;font-weight:600;
+  font-variant-numeric:tabular-nums}
+.trk-idline strong{color:var(--ink);font-weight:600}
+.trk-idline .sep{opacity:.4}
+.trk-back{display:inline-block;margin-bottom:4px;color:var(--muted);font-size:11.5px;
+  font-weight:600;text-decoration:none}
+.trk-back:hover{color:var(--trk-accent-dark)}
+.trk-filterbar{display:flex;flex-direction:column;gap:10px;margin:0 0 12px}
+.trk-filterbar-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.trk-filterbar-row .trk-select,.trk-filterbar-row .trk-input{width:auto;min-width:132px;min-height:36px;
+  font-size:12.5px}
+.trk-filterbar-row .trk-filterbar-search{flex:1 1 200px;min-width:170px}
+.trk-filterbar-row .btn{min-height:36px}
+.trk-count{margin:0 0 12px;color:var(--muted);font-size:11.5px}
+/* Headline figures as a sentence, not a row of cards. */
+.trk-statline{display:flex;flex-wrap:wrap;align-items:baseline;gap:7px;margin:2px 0 10px;
+  color:var(--muted);font-size:12.5px}
+.trk-statline b{color:var(--ink);font-size:15px;font-weight:600;
+  font-variant-numeric:tabular-nums}
+.trk-statline .sep{opacity:.45}
+.trk-statline .late{color:var(--trk-late);text-decoration:none}
+.trk-statline .late b{color:var(--trk-late)}
+.trk-statline .late:hover{text-decoration:underline}
+.trk-agestrip{display:flex;height:5px;border-radius:999px;overflow:hidden;background:var(--bg-top);
+  margin:0 0 14px}
+.trk-agestrip span{display:block;height:100%}
+/* The register table carries the page on its own, so it needs a border to sit
+   in but not a titled card wrapped around it. */
+.trk-table-plain{border:1px solid var(--trk-line);border-radius:11px;background:var(--card);
+  box-shadow:var(--trk-shadow);overflow-x:auto}
+/* The count each status chip carries — this is what the tile row used to be. */
+.trk-chip span b{font-weight:600;font-variant-numeric:tabular-nums;opacity:.62}
+.trk-chip input:checked+span b{opacity:.85}
+
+/* ── Feed items ── */
+.trk-feed{display:grid;gap:11px}
+/* The live search hides rows with the `hidden` attribute, and a `display`
+   declaration outranks the browser's own [hidden] rule — without these two,
+   hiding a row would do nothing at all. */
+.trk-feed[hidden],.trk-feed .trk-item[hidden]{display:none}
+.trk-item{position:relative;display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(160px,auto) auto;
+  gap:22px;align-items:center;padding:15px 17px 15px 20px;border:1px solid var(--trk-line);
+  border-radius:13px;background:var(--card);box-shadow:var(--trk-shadow);transition:box-shadow .15s ease,
+  border-color .15s ease}
+.trk-item:hover{border-color:var(--border);box-shadow:0 10px 26px var(--border-soft)}
+.trk-item::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;
+  border-radius:13px 0 0 13px;background:var(--trk-in)}
+.trk-item.is-payment::before{background:var(--trk-out)}
+.trk-item-main{min-width:0}
+.trk-item-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px}
+.trk-flow{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:6px;
+  font-size:11px;font-weight:600}
+.trk-flow.in{background:var(--trk-in-soft);color:var(--trk-in)}
+.trk-flow.out{background:var(--trk-out-soft);color:var(--trk-out)}
+.trk-vtype{display:inline-flex;align-items:center;padding:3px 8px;border-radius:6px;
+  background:var(--bg-top);color:var(--accent);font-size:11px;font-weight:600}
+.trk-vno{color:var(--trk-accent-dark);font-size:12px;font-weight:600;text-decoration:none}
+.trk-vno:hover{text-decoration:underline}
+.trk-party{display:block;color:var(--ink);font-size:14.5px;font-weight:600;line-height:1.3;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.trk-meta{margin-top:3px;color:var(--muted);font-size:11.5px;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap}
+/* The amount is the one thing every row is scanned for, so it is the only
+   type on the row allowed to be this large — everything else steps down from
+   it rather than competing with it. */
+.trk-amount-col{text-align:right;min-width:0}
+.trk-amount{color:var(--ink);font-size:22px;font-weight:600;font-variant-numeric:tabular-nums;
+  letter-spacing:-.02em;line-height:1.1}
+.trk-amount-sub{margin-top:1px;color:var(--muted);font-size:11px;font-weight:600}
+.trk-bar{height:6px;margin-top:9px;border-radius:999px;background:var(--bg-top);overflow:hidden}
+.trk-bar i{display:block;height:100%;border-radius:999px;background:var(--trk-in);
+  transition:width .3s ease}
+.trk-item.is-payment .trk-bar i{background:var(--trk-out)}
+.trk-progress-legend{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:4px 12px;margin-top:6px;
+  color:var(--muted);font-size:11px;font-variant-numeric:tabular-nums}
+.trk-progress-legend b{color:var(--ink);font-weight:600}
+.trk-state{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:6px;
+  font-size:11px;font-weight:600;white-space:nowrap}
+.trk-state::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor}
+.trk-state-unassigned{background:var(--trk-warn-soft);color:var(--trk-warn)}
+.trk-state-partial{background:var(--card);color:var(--accent)}
+.trk-state-assigned{background:var(--trk-in-soft);color:var(--trk-in)}
+/* Force-closed: settled, but by a person's decision rather than an invoice
+   match — deliberately neutral so it never reads as a clean match. */
+.trk-state-forced{background:var(--bg-top);color:var(--accent);border:1px dashed var(--light)}
+/* The voucher was edited after it was assigned — a contradiction, not a
+   status, so it gets the loudest badge on the page. */
+.trk-state-review{background:var(--card);color:var(--danger)}
+
+/* Broken-assignment notice. Sits above the feed's own tiles because it is a
+   data-integrity warning, not another thing to work through. */
+.trk-attention{border:1px solid var(--danger-light);border-left:4px solid var(--trk-late);
+  border-radius:12px;background:var(--trk-late-soft);overflow:hidden;margin:0 0 18px}
+.trk-attention-head{display:flex;align-items:flex-start;gap:16px;padding:14px 16px}
+.trk-attention-head h2{margin:0;font-size:14.5px;color:var(--trk-late);letter-spacing:-.01em}
+.trk-attention-head p{margin:5px 0 0;font-size:12px;line-height:1.55;color:var(--danger);max-width:78ch}
+.trk-attention-head .btn{margin-left:auto;flex:none}
+.trk-attention .trk-table-wrap{background:var(--card);border-top:1px solid var(--danger-light)}
+.trk-attention .trk-table{min-width:760px}
+@@media(max-width:720px){
+  .trk-attention-head{flex-direction:column;gap:10px}
+  .trk-attention-head .btn{margin-left:0}
+}
+/* Side by side, not stacked: three full-width buttons made the actions the
+   tallest and heaviest thing in a row whose subject is a number. Only the
+   primary action carries fill. */
+.trk-item-actions{display:flex;flex-direction:row;align-items:center;gap:7px}
+.trk-item-actions .btn{justify-content:center;white-space:nowrap}
+.trk-item-actions .trk-rowbtn{white-space:nowrap}
+
+/* ── Tables ── */
+.trk-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.trk-table{width:100%;border-collapse:collapse;min-width:920px}
+.trk-table th{padding:11px 14px;background:var(--card);color:var(--muted);font-size:11px;font-weight:600;
+  text-align:left;white-space:nowrap;
+  border-bottom:1px solid var(--trk-line)}
+.trk-table td{padding:12px 14px;border-top:1px solid var(--border-soft);color:var(--ink);font-size:12.5px;
+  vertical-align:middle}
+.trk-table tbody tr{transition:background .12s ease}
+.trk-table tbody tr:hover{background:var(--card)}
+.trk-table .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.trk-table .strong{font-weight:600}
+.trk-doclink{color:var(--trk-accent-dark);font-weight:600;text-decoration:none;white-space:nowrap}
+.trk-doclink:hover{text-decoration:underline}
+.trk-pay{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:6px;
+  font-size:11px;font-weight:600;white-space:nowrap}
+.trk-pay::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor}
+.trk-pay-unpaid{background:var(--trk-late-soft);color:var(--trk-late)}
+.trk-pay-partial{background:var(--card);color:var(--accent)}
+.trk-pay-paid{background:var(--trk-in-soft);color:var(--trk-in)}
+.trk-age{display:inline-flex;align-items:center;padding:3px 8px;border-radius:6px;background:var(--bg-top);
+  color:var(--accent);font-size:11px;font-weight:600;white-space:nowrap}
+.trk-age.hot{background:var(--trk-late-soft);color:var(--trk-late)}
+.trk-age.warm{background:var(--trk-warn-soft);color:var(--trk-warn)}
+.trk-minibar{width:76px;height:6px;border-radius:999px;background:var(--bg-top);overflow:hidden}
+.trk-minibar i{display:block;height:100%;background:var(--trk-accent)}
+.trk-waiting{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:6px;
+  background:var(--trk-accent-soft);color:var(--trk-accent-dark);font-size:11px;font-weight:600;
+  text-decoration:none;white-space:nowrap}
+.trk-waiting:hover{text-decoration:underline}
+.trk-rowbtn{display:inline-flex;align-items:center;justify-content:center;min-height:29px;padding:5px 11px;
+  border:1px solid var(--line);border-radius:7px;color:var(--ink);font-size:11px;font-weight:600;
+  text-decoration:none;white-space:nowrap;background:var(--card);cursor:pointer;font-family:inherit}
+.trk-rowbtn:hover{border-color:var(--trk-accent);color:var(--trk-accent-dark);background:var(--card);
+  text-decoration:none}
+.trk-rowbtn.danger:hover{border-color:var(--trk-late);color:var(--trk-late);background:var(--trk-late-soft)}
+
+/* ── Empty state ── */
+.trk-empty{padding:52px 22px;text-align:center;color:var(--muted)}
+.trk-empty-icon{display:flex;align-items:center;justify-content:center;width:46px;height:46px;
+  margin:0 auto 12px;border-radius:13px;background:var(--trk-accent-soft);color:var(--trk-accent-dark);
+  font-size:21px}
+.trk-empty strong{display:block;color:var(--ink);font-size:15px;margin-bottom:5px}
+.trk-empty p{margin:0 auto;max-width:46ch;font-size:12.5px}
+.trk-empty .btn{margin-top:14px}
+td.trk-empty{border-top:1px solid var(--border-soft)}
+
+/* ── Assignment workspace / drawer ── */
+.trk-split{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:18px;align-items:start}
+.trk-side{display:grid;gap:14px;position:sticky;top:14px}
+.trk-sum{display:grid;gap:9px}
+.trk-sum-row{display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+  font-size:12.5px;color:var(--muted)}
+.trk-sum-row b{color:var(--ink);font-size:15px;font-weight:600;font-variant-numeric:tabular-nums}
+.trk-sum-row.total{padding-top:9px;border-top:1px dashed var(--trk-line)}
+.trk-sum-row.total b{font-size:20px}
+.trk-remaining{padding:13px 15px;border-radius:11px;background:var(--trk-in-soft);
+  border:1px solid var(--success)}
+.trk-remaining.over{background:var(--trk-late-soft);border-color:var(--danger)}
+.trk-remaining .lbl{color:var(--muted);font-size:11px;font-weight:600}
+.trk-remaining .val{margin-top:3px;color:var(--trk-in);font-size:24px;font-weight:600;
+  font-variant-numeric:tabular-nums}
+.trk-remaining.over .val{color:var(--trk-late)}
+.trk-alloc-table{width:100%;border-collapse:collapse;min-width:620px}
+.trk-alloc-table th{padding:10px 12px;background:var(--card);color:var(--muted);font-size:11px;
+  font-weight:600;text-align:left;white-space:nowrap;
+  border-bottom:1px solid var(--trk-line)}
+.trk-alloc-table td{padding:11px 12px;border-top:1px solid var(--border-soft);font-size:12.5px}
+.trk-alloc-table tr.picked{background:var(--card)}
+.trk-alloc-table input[type="number"]{width:118px;min-height:34px;padding:6px 9px;
+  border:1px solid var(--line);border-radius:7px;font-family:inherit;font-size:12.5px;text-align:right;
+  font-variant-numeric:tabular-nums}
+.trk-alloc-table input[type="number"]:focus{border-color:var(--trk-accent);outline:none;
+  box-shadow:0 0 0 3px var(--accent-light)}
+.trk-alloc-table input[type="checkbox"]{width:17px;height:17px;accent-color:var(--trk-accent);cursor:pointer}
+.trk-err{display:none;margin:0 17px 15px;padding:11px 13px;border-radius:9px;
+  background:var(--trk-late-soft);border:1px solid var(--danger-light);color:var(--trk-late);font-size:12.5px;
+  font-weight:600}
+.trk-err.show{display:block}
+.trk-savebar{display:flex;gap:9px;flex-wrap:wrap}
+.trk-savebar .btn{flex:1;justify-content:center;min-height:40px}
+
+/* ── Timeline (invoice payment history) ── */
+.trk-timeline{position:relative;padding:4px 0 4px 30px}
+.trk-timeline::before{content:"";position:absolute;left:9px;top:12px;bottom:12px;width:2px;
+  background:linear-gradient(180deg,var(--trk-accent-soft),var(--border-soft))}
+.trk-ev{position:relative;padding:13px 15px;margin-bottom:11px;border:1px solid var(--trk-line);
+  border-radius:12px;background:var(--card);box-shadow:0 3px 10px rgba(15,23,42,.04)}
+.trk-ev:last-child{margin-bottom:0}
+.trk-ev::before{content:"";position:absolute;left:-26px;top:19px;width:11px;height:11px;
+  border-radius:50%;background:var(--card);border:3px solid var(--trk-accent)}
+.trk-ev-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.trk-ev-amount{color:var(--trk-in);font-size:17px;font-weight:600;font-variant-numeric:tabular-nums}
+.trk-ev-meta{margin-top:6px;display:flex;flex-wrap:wrap;gap:6px 14px;color:var(--muted);font-size:11.5px}
+.trk-ev-meta b{color:var(--ink);font-weight:600}
+.trk-ev-actions{display:flex;gap:7px;align-items:center}
+
+/* ── Progress ring (invoice history header) ── */
+.trk-ring{display:flex;align-items:center;gap:15px}
+.trk-ring-svg{flex:none}
+.trk-ring-copy .lbl{color:var(--muted);font-size:11px;font-weight:600}
+.trk-ring-copy .val{color:var(--ink);font-size:25px;font-weight:600;font-variant-numeric:tabular-nums}
+.trk-ring-copy .sub{color:var(--muted);font-size:12px;margin-top:2px}
+
+/* ── Responsive ── */
+@@media(max-width:1080px){
+  .trk-split{grid-template-columns:1fr}
+  .trk-side{position:static}
+}
+@@media(max-width:900px){
+  .trk-item{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"main amount" "act act";
+    row-gap:13px;column-gap:14px}
+  .trk-item-main{grid-area:main}
+  .trk-amount-col{grid-area:amount}
+  .trk-item-actions{grid-area:act;flex-direction:row;flex-wrap:wrap}
+  .trk-item-actions .btn,.trk-item-actions .trk-rowbtn{flex:1}
+}
+@@media(max-width:720px){
+  .trk-card-head{flex-direction:column;align-items:flex-start;padding:13px 14px}
+  .trk-card-body{padding:14px}
+  /* Filter bar on a phone: the chips scroll sideways in one row instead of
+     stacking into a wall, and the rest goes two-up so it stays one thumb
+     reach rather than a screenful of controls. */
+  .trk-chips{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;
+    scrollbar-width:none;margin:0 -14px;padding:2px 14px}
+  .trk-chips::-webkit-scrollbar{display:none}
+  .trk-chip span{padding:8px 14px}
+  .trk-filterbar-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .trk-filterbar-row .trk-select,.trk-filterbar-row .trk-input{width:100%;min-width:0;min-height:40px}
+  .trk-filterbar-row .trk-filterbar-search{grid-column:1/-1}
+  .trk-filterbar-row .btn{min-height:40px;justify-content:center}
+  .trk-filterbar-row .trk-rowbtn{min-height:40px;justify-content:center}
+  /* Tables become cards: each cell shows its own label. */
+  .trk-table{min-width:0}
+  .trk-table thead{display:none}
+  .trk-table,.trk-table tbody,.trk-table tr,.trk-table td{display:block;width:100%}
+  .trk-table tbody tr{padding:13px 14px;border-top:1px solid var(--border-soft)}
+  .trk-table tbody tr:first-child{border-top:0}
+  .trk-table td{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:5px 0;
+    border:0;text-align:right}
+  .trk-table td::before{content:attr(data-label);color:var(--muted);font-size:11px;font-weight:600;
+    text-align:left;flex:none}
+  .trk-table td:first-child{padding-top:0}
+  .trk-table td:last-child{padding-bottom:0}
+  .trk-table td.trk-empty{display:block;text-align:center;padding:34px 12px}
+  .trk-table td.trk-empty::before{display:none}
+  .trk-minibar{width:70px}
+  .trk-alloc-table{min-width:0}
+  .trk-alloc-table thead{display:none}
+  .trk-alloc-table,.trk-alloc-table tbody,.trk-alloc-table tr,.trk-alloc-table td{display:block;width:100%}
+  .trk-alloc-table tr{padding:12px 14px;border-top:1px solid var(--border-soft)}
+  .trk-alloc-table td{display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:4px 0;border:0;text-align:right}
+  .trk-alloc-table td::before{content:attr(data-label);color:var(--muted);font-size:11px;font-weight:600}
+  .trk-alloc-table input[type="number"]{width:130px}
+  .trk-timeline{padding-left:24px}
+  .trk-ev::before{left:-21px}
+}
+@@media(max-width:560px){
+  /* One column, and the amount sits with the party rather than in its own
+     right-hand rail — at this width a rail is two words per line. */
+  .trk-item{grid-template-columns:minmax(0,1fr);grid-template-areas:"main" "amount" "act";
+    padding:14px 15px 14px 18px;row-gap:11px}
+  /* Amount and its label sit on one line here; the split, when there is one,
+     wraps to full width beneath them. */
+  .trk-amount-col{text-align:left;display:flex;flex-wrap:wrap;align-items:baseline;gap:7px}
+  .trk-amount-sub{margin:0}
+  .trk-amount-col .trk-bar,
+  .trk-amount-col .trk-progress-legend{width:100%;margin-top:2px}
+  .trk-progress-legend{justify-content:flex-start}
+  .trk-item-actions{gap:8px}
+  .trk-item-actions .btn,.trk-item-actions .trk-rowbtn{min-height:40px}
+  .trk-attention-head{padding:13px 14px}
+  .trk-attention-head .btn{width:100%;min-height:40px;justify-content:center}
+}
+@@media(max-width:420px){
+  .trk-amount{font-size:17px}
+  .trk-party{white-space:normal}
+  .trk-filterbar-row{grid-template-columns:1fr}
+}
+/* ── Paging, matching, phone ergonomics ── */
+.trk-nowrap{white-space:nowrap}
+.trk-subline{display:block;color:var(--muted);font-size:11px;font-weight:500;margin-top:2px}
+.trk-pager{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  flex-wrap:wrap;margin:16px 0 4px;color:var(--muted);font-size:12.5px}
+.trk-pager-links{display:flex;gap:8px}
+.trk-pager-links .is-off{opacity:.45;pointer-events:none}
+/* One quiet line, not a banner: the matching job and its one button. */
+.trk-matchbar{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  flex-wrap:wrap;border:1px solid var(--trk-line);border-radius:10px;background:var(--card);
+  padding:10px 14px;margin:0 0 14px;font-size:13px;color:var(--text)}
+.trk-matchbar p{margin:0}
+.trk-matchbar .trk-note{color:var(--muted);font-size:11.5px;margin-top:2px}
+.trk-matchbar.is-done{border-color:var(--trk-in)}
+/* A two-step button: the first press arms it, the second acts. */
+.btn.is-armed,.trk-rowbtn.is-armed{background:var(--danger);border-color:var(--danger);color:#fff}
+.trk-filterbar .trk-filter-toggle{display:none}
+.trk-ev.is-return .trk-vtype{background:var(--surface-variant)}
+.trk-ev.is-stale{opacity:.6}
+.trk-ev.is-stale .trk-ev-amount{text-decoration:line-through}
+.trk-mobile-save{display:none}
+@@media(max-width:900px){
+  /* The split's total and its Save button follow the thumb instead of
+     waiting below every invoice in the list. */
+  .trk-mobile-save{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:300;
+    align-items:center;justify-content:space-between;gap:12px;padding:10px 16px;
+    background:var(--card);border-top:1px solid var(--trk-line);box-shadow:var(--shadow-lg)}
+  .trk-mobile-save .lbl{color:var(--muted);font-size:11px}
+  .trk-mobile-save .val{font-weight:800;font-variant-numeric:tabular-nums}
+  .trk-mobile-save.over .val{color:var(--danger)}
+  .trk-has-mobile-save{padding-bottom:76px}
+}
+@@media(max-width:720px){
+  /* Filters fold behind one button so the first screen shows money, not
+     five empty inputs. Open while any of them is in use. */
+  .trk-filterbar .trk-filter-toggle{display:inline-flex}
+  .trk-filterbar:not(.open) .trk-filterbar-row{display:none}
+  .trk-hide-sm{display:none!important}
+}
+@@media print{
+  .trk-filterbar,.trk-item-actions,.trk-savebar,.trk-back{display:none!important}
+}
+</style>

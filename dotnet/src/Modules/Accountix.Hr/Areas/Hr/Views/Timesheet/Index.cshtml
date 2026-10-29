@@ -1,0 +1,108 @@
+@model Accountix.Hr.Controllers.TimesheetController.IndexModel
+@using System.Globalization
+@{
+    ViewData["Title"] = "Timesheets - Accountix ERP";
+    var week = Model.Week;
+    var inv = CultureInfo.InvariantCulture;
+    string Badge(string? s) => s == "approved" ? "success" : s == "submitted" ? "warning" : "info";
+    string Hours(double? h) => h is double v && v != 0 ? Py.Float(v) : "0";
+}
+<div class="page-header">
+    <div>
+        <h1>Time Sheets</h1>
+        <p class="subtitle">Week @Py.Date(week.WeekStart) to @Py.Date(week.WeekEnd)</p>
+    </div>
+    <div>
+        <span class="badge badge-@Badge(week.Status)">@week.Status</span>
+        @if (week.Status == "unapproved")
+        {
+        <form method="POST" action="/timesheets/submit/@week.Id" style="display:inline;">
+            <button class="btn btn-primary btn-sm">Submit for Approval</button>
+        </form>
+        }
+    </div>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card"><div class="stat-label">Total Hours</div><div class="stat-value">@Hours(week.TotalHours)</div></div>
+</div>
+
+<div class="card mb-20">
+    <div class="card-header">Weekly Grid</div>
+    <form id="entry-form" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;padding:12px;background:var(--paper);border-radius:3px;border:1px solid var(--line);">
+        <input type="hidden" name="week_id" value="@week.Id">
+        <input type="hidden" name="day" id="entry-day" value="@(Model.Days.Count > 0 ? Py.Date(Model.Days[0].Date) : "")">
+        <select id="entry-day-select" class="form-control" style="width:auto;">
+            @foreach (var d in Model.Days)
+            {
+            <option value="@Py.Date(d.Date)">@d.Date.ToString("ddd dd-MMM", inv)</option>
+            }
+        </select>
+        <input type="text" name="project" class="form-control" style="width:150px;" placeholder="Project">
+        <input type="text" name="task" class="form-control" style="width:180px;" placeholder="Task *" required id="entry-task">
+        <input type="number" name="hours" class="form-control" style="width:80px;" placeholder="Hours" required id="entry-hours" step="0.5">
+        <button type="submit" class="btn btn-primary btn-sm">Add</button>
+    </form>
+
+    <div class="ts-grid">
+        @foreach (var d in Model.Days)
+        {
+        <div class="ts-day">
+            <div class="ts-day-header">@d.Date.ToString("ddd dd/MM", inv)</div>
+            @foreach (var e in d.Entries)
+            {
+            <div class="ts-entry">
+                @e.Task (@(Py.Float(e.Hours))h)
+                <button class="btn-link del-entry" data-id="@e.Id" style="color:var(--red);font-size:10px;">&times;</button>
+            </div>
+            }
+            <div style="font-size:11px;font-weight:600;color:var(--ledger);margin-top:4px;">Total: @(d.Total is double t ? Py.Float(t) : "0")h</div>
+        </div>
+        }
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">Recent Weeks</div>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Week</th><th>Hours</th><th>Status</th><th>Submitted</th></tr></thead>
+            <tbody>
+                @foreach (var w in Model.Recent)
+                {
+                <tr>
+                    <td>@Py.Date(w.WeekStart) - @Py.Date(w.WeekEnd)</td>
+                    <td>@Hours(w.TotalHours)</td>
+                    <td><span class="badge badge-@Badge(w.Status)">@w.Status</span></td>
+                    <td>@(w.SubmittedAt is null ? "-" : Py.DMonY(w.SubmittedAt))</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+document.getElementById('entry-day-select')?.addEventListener('change', function() {
+    document.getElementById('entry-day').value = this.value;
+});
+
+document.getElementById('entry-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const r = await fetch('/timesheets/add-entry', { method: 'POST', body: fd });
+    const d = await r.json();
+    if (d.error) { alert(d.error); return; }
+    location.reload();
+});
+
+document.querySelectorAll('.del-entry').forEach(btn => {
+    btn.addEventListener('click', async function() {
+        if (!confirm('Delete entry?')) return;
+        await fetch('/timesheets/delete-entry/' + this.dataset.id, { method: 'POST' });
+        location.reload();
+    });
+});
+</script>
+}

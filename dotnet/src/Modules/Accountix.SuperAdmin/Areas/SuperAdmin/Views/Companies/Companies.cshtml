@@ -1,0 +1,102 @@
+@model List<ConsoleQueries.CompanyRow>
+@{
+    ViewData["Title"] = "Companies - Super Admin";
+}
+
+<h1 class="sa-page-title">Companies</h1>
+
+<div class="sa-card">
+  <div class="sa-card-header">
+    <div>
+      <h3 class="sa-card-title">Create Company</h3>
+      <p class="sa-card-subtitle">Creates the company and makes the given email its admin. If the user does not exist yet they are created; the password is shown once in the confirmation.</p>
+    </div>
+  </div>
+  <form method="POST" action="/superadmin/companies/" asp-antiforgery="true">
+    <div class="fgrid three">
+      <div class="fgroup">
+        <label class="lbl">Company Name</label>
+        <input type="text" name="name" class="inp" required placeholder="Acme Corp">
+      </div>
+      <div class="fgroup">
+        <label class="lbl">Slug</label>
+        <input type="text" name="slug" class="inp" required placeholder="acme-corp" pattern="[a-z0-9][a-z0-9-]{1,60}">
+        <p class="field-hint">Lowercase letters, numbers, hyphens. No spaces.</p>
+      </div>
+      <div class="fgroup">
+        <label class="lbl">Plan</label>
+        <input type="text" name="plan_name" class="inp" value="free" placeholder="free">
+      </div>
+      <div class="fgroup">
+        <label class="lbl">Admin Email</label>
+        <input type="email" name="admin_email" class="inp" required placeholder="admin@@example.com">
+      </div>
+      <div class="fgroup">
+        <label class="lbl">Admin Name</label>
+        <input type="text" name="admin_name" class="inp" placeholder="only when creating a new user">
+      </div>
+      <div class="fgroup">
+        <label class="lbl">Admin Password</label>
+        <input type="text" name="password" class="inp" placeholder="random if left blank">
+      </div>
+    </div>
+    <div class="sa-actions">
+      <button type="submit" class="btn btn-p">Create Company</button>
+    </div>
+  </form>
+</div>
+
+<div class="sa-card">
+  <div class="sa-card-header">
+    <div>
+      <h3 class="sa-card-title">All Companies</h3>
+      <p class="sa-card-subtitle">@Model.Count @("compan" + (Model.Count != 1 ? "ies" : "y")) on the platform</p>
+    </div>
+  </div>
+  <div class="tbl-wrap">
+    <table class="sa-tbl">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Slug</th>
+          <th>Plan</th>
+          <th>Members</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach (var (c, mc, mine) in Model)
+        {
+        <tr>
+          <td>
+            <a href="/superadmin/companies/@c.Id/">@c.Name</a>
+            @if (mine) {<span class="pill pill-mine" style="margin-left:6px;">mine</span>}
+          </td>
+          <td><code>@c.Slug</code></td>
+          <td>@(string.IsNullOrEmpty(c.PlanName) ? "free" : c.PlanName)</td>
+          <td>@mc</td>
+          <td>
+            @if (c.IsActive == true) {<span class="pill pill-on">active</span>}
+            else {<span class="pill pill-off">inactive</span>}
+          </td>
+          <td>
+            <a class="btn btn-sm" href="/superadmin/companies/@c.Id/">Edit</a>
+          </td>
+        </tr>
+        }
+        @if (Model.Count == 0)
+        {
+        <tr>
+          <td colspan="6">
+            <div class="empty-state">
+              <div class="empty-state-icon">&#127970;</div>
+              No companies yet.
+            </div>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <!--
+    Modules are found on disk at start-up (Program.cs), so the host needs a
+    module's project reference only to get it built and copied next to it.
+    AccountixModules picks which ones: "all" (the default) or names joined
+    with "+", such as "Accounting+Finance+Inventory". Used to run the host,
+    and the tests that boot it, while another module is mid-edit and does
+    not compile:
+      dotnet build src/Accountix.Web -p:AccountixModules=Accounting+Finance
+  -->
+  <PropertyGroup>
+    <AccountixModules Condition="'$(AccountixModules)' == ''">all</AccountixModules>
+    <_AxModules>;$(AccountixModules.Replace('+', ';').Replace(' ', ''));</_AxModules>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Accountix.Core\Accountix.Core.csproj" />
+    <ProjectReference Include="..\Accountix.Web.Shared\Accountix.Web.Shared.csproj" />
+    <!-- The schema: `dotnet Accountix.Web.dll migrate` and Accountix:MigrateOnStart (Hosting/MigrateCommand.cs). -->
+    <ProjectReference Include="..\Accountix.Migrations\Accountix.Migrations.csproj" />
+    <ProjectReference Include="..\Modules\Accountix.Accounting\Accountix.Accounting.csproj" Condition="'$(AccountixModules)' == 'all' or $(_AxModules.Contains(';Accounting;'))" />
+    <ProjectReference Include="..\Modules\Accountix.Finance\Accountix.Finance.csproj" Condition="'$(AccountixModules)' == 'all' or $(_AxModules.Contains(';Finance;'))" />
+    <ProjectReference Include="..\Modules\Accountix.FixedAssets\Accountix.FixedAssets.csproj" Condition="'$(AccountixModules)' == 'all' or $(_AxModules.Contains(';FixedAssets;'))" />
+    <ProjectReference Include="..\Modules\Accountix.Hr\Accountix.Hr.csproj" Condition="'$(AccountixModules)' == 'all' or $(_AxModules.Contains(';Hr;'))" />
+    <ProjectReference Include="..\Modules\Accountix.Inventory\Accountix.Inventory.csproj" Condition="'$(AccountixModules)' == 'all' or $(_AxModules.Contains(';Inventory;'))" />
+    <ProjectReference Include="..\Modules\Accountix.Invoicing\Accountix.Invoicing.csproj" Condition="'$(AccountixModules)' == 'all' or $(_AxModules.Contains(';Invoicing;'))" />
+    <ProjectReference Include="..\Modules\Accountix.Parties\Accountix.Parties.csproj" Condition="'$(AccountixModules)' == 'all' or $(_AxModules.Contains(';Parties;'))" />
+    <ProjectReference Include="..\Modules\Accountix.Payroll\Accountix.Payroll.csproj" Condition="'$(AccountixModules)' == 'all' or $(_AxModules.Contains(';Payroll;'))" />
+    <ProjectReference Include="..\Modules\Accountix.Platform\Accountix.Platform.csproj" Condition="'$(AccountixModules)' == 'all' or $(_AxModules.Contains(';Platform;'))" />
+    <ProjectReference Include="..\Modules\Accountix.Fbr\Accountix.Fbr.csproj" Condition="'$(AccountixModules)' == 'all' or $(_AxModules.Contains(';Fbr;'))" />
+    <ProjectReference Include="..\Modules\Accountix.SuperAdmin\Accountix.SuperAdmin.csproj" Condition="'$(AccountixModules)' == 'all' or $(_AxModules.Contains(';SuperAdmin;'))" />
+    <ProjectReference Include="..\Modules\Accountix.HrRecords\Accountix.HrRecords.csproj" Condition="'$(AccountixModules)' == 'all' or $(_AxModules.Contains(';HrRecords;'))" />
+    <ProjectReference Include="..\Modules\Accountix.Orders\Accountix.Orders.csproj" Condition="'$(AccountixModules)' == 'all' or $(_AxModules.Contains(';Orders;'))" />
+    <ProjectReference Include="..\Modules\Accountix.Returns\Accountix.Returns.csproj" Condition="'$(AccountixModules)' == 'all' or $(_AxModules.Contains(';Returns;'))" />
+    <ProjectReference Include="..\Modules\Accountix.Executive\Accountix.Executive.csproj" Condition="'$(AccountixModules)' == 'all' or $(_AxModules.Contains(';Executive;'))" />
+    <!-- The admin commands (Hosting/AdminHost); they need Accounting, Executive, Inventory and Platform. -->
+    <ProjectReference Include="..\Accountix.Admin\Accountix.Admin.csproj" Condition="'$(AccountixModules)' == 'all' or $(_AxModules.Contains(';Admin;'))" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Error reports when SENTRY_DSN is set (Program.cs); nothing is sent otherwise. -->
+    <PackageReference Include="Sentry.AspNetCore" Version="6.11.1" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,38 @@
+{
+ "before": "DAY 09:00:00 | DAY 17:00:00 | false | false | present | - | - | - | - | 0 | 0",
+ "steps": [
+  {"what": "late by five past grace", "field": "clock_in", "value": "09:20", "reason": "badge reader down", "status": 200, "answer": "{\"message\": \"Attendance corrected\", \"success\": true}", "state": "DAY 09:20:00 | DAY 17:00:00 | true | false | present | 7.67 | 0 | 0 | false | 1 | 1"},
+  {"what": "overtime", "field": "clock_out", "value": "19:47", "reason": "badge reader down", "status": 200, "answer": "{\"message\": \"Attendance corrected\", \"success\": true}", "state": "DAY 09:20:00 | DAY 19:47:00 | true | false | present | 8 | 2.45 | 0 | false | 1 | 2"},
+  {"what": "after one: a half day", "field": "clock_in", "value": "13:05", "reason": "badge reader down", "status": 200, "answer": "{\"message\": \"Attendance corrected\", \"success\": true}", "state": "DAY 13:05:00 | DAY 19:47:00 | true | true | half-day | 6.7 | 0 | 0 | false | 1 | 3"},
+  {"what": "on the grace minute: not late", "field": "clock_in", "value": "09:15", "reason": "badge reader down", "status": 200, "answer": "{\"message\": \"Attendance corrected\", \"success\": true}", "state": "DAY 09:15:00 | DAY 19:47:00 | false | false | present | 8 | 2.53 | 0 | false | 1 | 4"},
+  {"what": "past the overtime cap: double overtime", "field": "clock_out", "value": "23:59", "reason": "badge reader down", "status": 200, "answer": "{\"message\": \"Attendance corrected\", \"success\": true}", "state": "DAY 09:15:00 | DAY 23:59:00 | false | false | present | 8 | 4 | 2.73 | false | 1 | 5"},
+  {"what": "at one sharp: late, not half", "field": "clock_in", "value": "13:00", "reason": "badge reader down", "status": 200, "answer": "{\"message\": \"Attendance corrected\", \"success\": true}", "state": "DAY 13:00:00 | DAY 23:59:00 | true | false | present | 8 | 2.98 | 0 | false | 1 | 6"},
+  {"what": "status in any case and spacing", "field": "status", "value": " Absent ", "reason": "marked absent", "status": 200, "answer": "{\"message\": \"Attendance corrected\", \"success\": true}", "state": "DAY 13:00:00 | DAY 23:59:00 | true | false | absent | 8 | 2.98 | 0 | false | 1 | 7"},
+  {"what": "a half-day clock-in keeps absent", "field": "clock_in", "value": "14:00", "reason": "badge reader down", "status": 200, "answer": "{\"message\": \"Attendance corrected\", \"success\": true}", "state": "DAY 14:00:00 | DAY 23:59:00 | true | true | absent | 8 | 1.98 | 0 | false | 1 | 8"},
+  {"what": "back to present", "field": "status", "value": "present", "reason": "marked present", "status": 200, "answer": "{\"message\": \"Attendance corrected\", \"success\": true}", "state": "DAY 14:00:00 | DAY 23:59:00 | true | true | present | 8 | 1.98 | 0 | false | 1 | 9"},
+  {"what": "unreadable time", "field": "clock_in", "value": "9.30", "reason": "badge reader down", "status": 400, "answer": "{\"error\": \"Enter a time as HH:MM (or YYYY-MM-DD HH:MM)\"}", "state": "DAY 14:00:00 | DAY 23:59:00 | true | true | present | 8 | 1.98 | 0 | false | 1 | 9"},
+  {"what": "clock-out before clock-in", "field": "clock_out", "value": "13:30", "reason": "badge reader down", "status": 400, "answer": "{\"error\": \"Clock-out must be after clock-in\"}", "state": "DAY 14:00:00 | DAY 23:59:00 | true | true | present | 8 | 1.98 | 0 | false | 1 | 9"},
+  {"what": "unknown status", "field": "status", "value": "sick", "reason": "badge reader down", "status": 400, "answer": "{\"error\": \"Status must be one of: absent, half-day, holiday, late, leave, present\"}", "state": "DAY 14:00:00 | DAY 23:59:00 | true | true | present | 8 | 1.98 | 0 | false | 1 | 9"},
+  {"what": "not a correctable field", "field": "date", "value": "2020-01-01", "reason": "badge reader down", "status": 400, "answer": "{\"error\": \"That field cannot be corrected here\"}", "state": "DAY 14:00:00 | DAY 23:59:00 | true | true | present | 8 | 1.98 | 0 | false | 1 | 9"},
+  {"what": "no reason", "field": "clock_in", "value": "10:00", "reason": "", "status": 400, "answer": "{\"error\": \"All fields required\"}", "state": "DAY 14:00:00 | DAY 23:59:00 | true | true | present | 8 | 1.98 | 0 | false | 1 | 9"},
+  {"what": "policy: 08:30, no grace, 9 + 1 h", "field": "clock_in", "value": "08:31", "reason": "badge reader down", "status": 200, "answer": "{\"message\": \"Attendance corrected\", \"success\": true}", "state": "DAY 08:31:00 | DAY 23:59:00 | true | false | present | 9 | 1 | 5.47 | false | 1 | 10"},
+  {"what": "date and seconds", "field": "clock_out", "value": "{DAY} 18:00:30", "reason": "badge reader down", "status": 200, "answer": "{\"message\": \"Attendance corrected\", \"success\": true}", "state": "DAY 08:31:00 | DAY 18:00:30 | true | false | present | 9 | 0.49 | 0 | false | 1 | 11"},
+  {"what": "break: 37 minutes", "field": "clock_out", "value": "20:00", "reason": "badge reader down", "status": 200, "answer": "{\"message\": \"Attendance corrected\", \"success\": true}", "state": "DAY 08:31:00 | DAY 20:00:00 | true | false | present | 9 | 1 | 0.87 | false | 1 | 12"},
+  {"what": "T form, before the shift", "field": "clock_in", "value": "{DAY}T07:45", "reason": "badge reader down", "status": 200, "answer": "{\"message\": \"Attendance corrected\", \"success\": true}", "state": "DAY 07:45:00 | DAY 20:00:00 | false | false | present | 9 | 1 | 1.63 | false | 1 | 13"}
+ ],
+ "corrections": [
+  "clock_in | DAY 09:00:00 | DAY 09:20:00 | badge reader down | true",
+  "clock_out | DAY 17:00:00 | DAY 19:47:00 | badge reader down | true",
+  "clock_in | DAY 09:20:00 | DAY 13:05:00 | badge reader down | true",
+  "clock_in | DAY 13:05:00 | DAY 09:15:00 | badge reader down | true",
+  "clock_out | DAY 19:47:00 | DAY 23:59:00 | badge reader down | true",
+  "clock_in | DAY 09:15:00 | DAY 13:00:00 | badge reader down | true",
+  "status | present | absent | marked absent | true",
+  "clock_in | DAY 13:00:00 | DAY 14:00:00 | badge reader down | true",
+  "status | absent | present | marked present | true",
+  "clock_in | DAY 14:00:00 | DAY 08:31:00 | badge reader down | true",
+  "clock_out | DAY 23:59:00 | DAY 18:00:30 | badge reader down | true",
+  "clock_out | DAY 18:00:30 | DAY 20:00:00 | badge reader down | true",
+  "clock_in | DAY 08:31:00 | DAY 07:45:00 | badge reader down | true"
+ ]
+}

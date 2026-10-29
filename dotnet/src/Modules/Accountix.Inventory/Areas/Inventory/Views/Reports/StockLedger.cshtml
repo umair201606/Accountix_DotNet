@@ -1,0 +1,64 @@
+@using Accountix.Inventory.Services
+@model Accountix.Inventory.Controllers.ReportsController.LedgerModel
+@{
+    ViewData["Title"] = "Stock Ledger Report";
+    ViewData["Heading"] = "Stock Ledger Report";
+    var inv = System.Globalization.CultureInfo.InvariantCulture;
+}
+@section Actions {
+@if (Model.Product is not null) { <partial name="_ExportButtons" model='new ExportButtons("excel", "pdf", "csv")' /> }
+}
+<div class="card">
+  <div class="card-body">
+    <form method="GET" class="form-row" style="gap:12px;align-items:flex-end;">
+      <div class="form-group">
+        <label for="product_id">Product</label>
+        <select name="product_id" id="product_id" class="form-control">
+          <option value="">-- Select Product --</option>
+          @foreach (var p in Model.Products)
+          {
+          <option value="@p.Id" selected="@(Model.SelectedId == p.Id)">@p.Name (@p.Sku)</option>
+          }
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">View Ledger</button>
+      @if (Model.SelectedId is not null) { <a href="/inventory/reports/stock-ledger" class="btn btn-outline">Clear</a> }
+    </form>
+  </div>
+</div>
+
+@if (Model.Product is { } product)
+{
+<div class="card">
+  <div class="card-header"><strong>@product.Name</strong> (@product.Sku)</div>
+  <div class="card-body">
+    @if (Model.Entries.Count > 0)
+    {
+    <table class="table">
+      <thead><tr><th>#</th><th>Date</th><th>Voucher</th><th>Type</th><th>Qty</th><th>Unit Cost</th><th>Running Qty</th><th>Running Value</th><th>Avg Cost</th><th>Notes</th></tr></thead>
+      <tbody>
+        @foreach (var e in Model.Entries)
+        {
+        <tr>
+          <td>@e.Id</td>
+          <td>@(e.TxnDate?.ToString("dd-MMM-yyyy", inv) ?? e.CreatedAt?.ToString("dd-MMM-yyyy", inv) ?? "")</td>
+          <td><a href="/inventory/vouchers/preview/@Uri.EscapeDataString(e.VoucherType)/@e.VoucherId" target="_blank">@e.VoucherNumber</a></td>
+          <td><span class="badge @(e.TransactionType == "IN" ? "badge-success" : "badge-danger")">@e.TransactionType</span></td>
+          <td>@PyText.Dec(e.Quantity)</td>
+          <td>@Html.Amount(e.UnitCost, 0)</td>
+          <td>@Html.Amount(e.RunningQty, 0)</td>
+          <td>@Html.Amount(e.RunningCost, 0)</td>
+          <td>@Html.Amount(e.RunningAvg, 0)</td>
+          <td>@(e.Notes ?? "")</td>
+        </tr>
+        }
+      </tbody>
+    </table>
+    }
+    else
+    {
+    <p class="text-muted">No ledger entries for this product.</p>
+    }
+  </div>
+</div>
+}

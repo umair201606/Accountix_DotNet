@@ -1,0 +1,235 @@
+/* Document forms (sales + purchase invoice) — the layer on top of each form's
+   own stylesheet. Loaded after it, so equal-specificity rules here win.
+   Tokens come from ui.css, so every rule follows light/dark.
+
+   What this layer does:
+   - one header: back link, document number as the title, one status chip;
+   - one action bar: secondary actions on the left, a single primary on the
+     right, the rest in a "More" menu; pinned to the bottom on a phone;
+   - read-only (approved) documents read as a document, not a disabled form;
+   - line items become labelled cards on a phone instead of a sideways table;
+   - the totals panel drops the developer badges. */
+
+/* ---------- header ---------- */
+.pg-h{align-items:flex-end}
+.pg-id{min-width:0}
+.pg-back{display:inline-flex;align-items:center;gap:4px;font-size:12.5px;color:var(--muted);
+  text-decoration:none;margin-bottom:6px}
+.pg-back:hover{color:var(--text);text-decoration:underline}
+.pg-t{font-size:26px;line-height:1.2;font-weight:750;letter-spacing:-.02em;flex-wrap:wrap;gap:10px}
+.pg-t .bdg{font-size:10.5px;letter-spacing:.04em;text-transform:none;padding:3px 10px;font-weight:600;vertical-align:middle}
+.pg-t .bdg[hidden]{display:none}
+.pg-s{margin-top:6px;font-size:13px;color:var(--muted)}
+.bdg-unapproved{background:var(--warning-light);color:var(--warning-dark);border-color:transparent}
+.bdg-approved{background:var(--success-light);color:var(--success-dark);border-color:transparent}
+.bdg-paid{background:var(--success-light);color:var(--success-dark);border-color:transparent}
+.bdg-partial{background:var(--accent-light);color:var(--accent);border-color:transparent}
+.bdg-unpaid{background:var(--bg-top);color:var(--muted);border-color:var(--border-soft)}
+
+/* Lock notice: one quiet line that says why nothing can be edited. */
+.ap-b{padding:9px 14px;border-radius:8px;font-size:12.5px;justify-content:flex-start;gap:12px}
+.ap-b .ap-t{text-transform:none;letter-spacing:0;font-size:12.5px}
+
+/* ---------- action bar ---------- */
+.pg-a .ab{padding:0;background:transparent;border:0;position:static;backdrop-filter:none;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.ab .btn{min-height:36px}
+.ab .btn .kbd{display:none}
+.ab-more{position:relative}
+.ab-more-btn{gap:6px}
+.ab-menu{position:absolute;right:0;top:calc(100% + 6px);min-width:220px;background:var(--card);
+  border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-lg);padding:6px;
+  z-index:2700;display:none}
+.ab-more.open .ab-menu{display:block;animation:ddIn .13s ease}
+.ab-menu button,.ab-menu a{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;
+  padding:9px 10px;border:0;background:transparent;border-radius:7px;font:inherit;font-size:13px;
+  color:var(--text);text-decoration:none;cursor:pointer;text-align:left}
+.ab-menu button:hover,.ab-menu a:hover,.ab-menu button:focus-visible,.ab-menu a:focus-visible{background:var(--bg-top);outline:none}
+.ab-menu .danger{color:var(--danger)}
+.ab-menu .danger:hover{background:var(--danger-light)}
+.ab-menu .hint{font-size:11px;color:var(--light)}
+.ab-menu hr{border:0;border-top:1px solid var(--border-soft);margin:5px 4px}
+.ab-menu .only-sm{display:none}
+.ab .btn.is-clean{opacity:.55}
+
+/* ---------- fields ---------- */
+.frow .ffield .lbl,.lbl{font-size:11.5px;font-weight:500;text-transform:none;letter-spacing:0;color:var(--muted)}
+.req{color:var(--danger)}
+/* Purchase header row: supplier, date, time, label — four fields, party widest. */
+.frow-5.frow-4w{grid-template-columns:1.7fr 1fr .8fr 1.2fr}
+@media(max-width:900px){.frow-5.frow-4w{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.frow-5.frow-4w{grid-template-columns:1fr}}
+.ga-hint{font-size:11px;color:var(--light)}
+/* Read-only document: fields read as values, not greyed-out inputs. */
+.is-locked .req,.is-locked .ga-hint,.is-locked .ra,.is-locked .ga .bsm{display:none}
+.is-locked .inp:disabled,.is-locked .sel:disabled,.is-locked .sli:disabled{
+  background:transparent;border-color:transparent;color:var(--text);opacity:1;padding-left:0;cursor:default}
+.is-locked .inp:disabled::placeholder{color:var(--light)}
+.is-locked select.inp:disabled{appearance:none;-webkit-appearance:none;background-image:none}
+.is-locked textarea.inp:disabled{padding:0;resize:none}
+.is-locked .tb .ri:disabled{color:var(--text)}
+.is-locked .tb .ri:disabled::placeholder{color:transparent}
+
+/* ---------- line items ---------- */
+.tb .ac-desc-input{min-height:32px;line-height:1.35;white-space:pre-wrap;overflow:hidden}
+.tb td{vertical-align:top}
+.tb td.rn{padding-top:14px}
+/* SKUs are read, not just typed: wide enough for SOL-MONO-450, in mono. */
+.tb .ac-code{min-width:124px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px}
+.tb .ac-unit{display:block;padding-top:8px;font-weight:500;color:var(--muted)}
+.ra{padding-top:4px}
+.ra button.dup:hover{background:var(--bg-top);color:var(--text);border-color:var(--border)}
+.ra button.del:hover{background:var(--danger-light);color:var(--danger);border-color:var(--danger)}
+
+/* ---------- totals ---------- */
+.mbadge.mb-i,.mbadge.mb-c{display:none}
+.mbadge.mb-r{font-weight:600;text-transform:none}
+.sl-formula{font-family:inherit;font-size:11px;color:var(--light)}
+.sl-net .sll{font-size:16px}
+.sl-net .slv{font-size:22px}
+
+/* ---------- two-column body: items left, summary rail right ---------- */
+/* The totals sit beside the lines, where the eye is while typing them, and
+   stay in view while the list scrolls. Below 1340px (sidebar included) the
+   items column would be too narrow beside it, so the rail drops under the
+   items as a normal section. */
+.doc-body{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;align-items:start}
+@media (min-width:1340px){
+  .doc-body{grid-template-columns:minmax(0,1fr) 340px;gap:22px}
+  .doc-rail{position:sticky;top:16px}
+}
+.doc-main{min-width:0;display:flex;flex-direction:column;gap:16px}
+.doc-main > .card{border:1px solid var(--border);border-radius:12px;background:var(--card);padding:0;overflow:hidden}
+.doc-main > .card > .card-h{padding:14px 16px 10px}
+.doc-main > .card .ga{padding:12px 16px 14px}
+.doc-notes .btm-l{padding:14px 16px;border:0;display:flex;flex-direction:column;gap:6px}
+.doc-notes.btm{display:block}
+.doc-notes textarea{min-height:76px;width:100%;box-sizing:border-box}
+.doc-summary{display:block;background:var(--card);border:1px solid var(--border);border-radius:12px}
+.doc-summary .btm-r{background:transparent;padding:16px 18px 18px}
+.sum-h{margin:0 0 6px;font-size:15px;font-weight:650;color:var(--text)}
+.doc-summary .sl{padding:6px 0}
+.doc-summary .sll{font-weight:400;color:var(--text)}
+.sum-add{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:4px 0 6px;
+  border-bottom:1px solid var(--border-soft);margin-bottom:4px}
+.sum-link{border:0;background:transparent;padding:5px 0;font:inherit;font-size:13px;font-weight:500;
+  color:var(--accent);cursor:pointer;border-radius:4px}
+.sum-link:hover{text-decoration:underline}
+.sum-link:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.is-locked .sum-add{display:none}
+
+/* ---------- items toolbar ---------- */
+/* The per-mode chips said "DISCOUNT Combined · ADD. CHARGES None" on every
+   invoice. Only a mode that differs from the default is worth a word; it is
+   one quiet line that opens Invoice options. */
+#modeChips{display:none}
+.mode-note{border:0;background:var(--bg-top);color:var(--muted);font:inherit;font-size:12px;
+  padding:4px 10px;border-radius:999px;cursor:pointer}
+.mode-note:hover{color:var(--text)}
+.mode-note[hidden]{display:none}
+.card-h .grid-title{font-size:15px;font-weight:650}
+.bsm{min-height:32px}
+.bsm-settings{font-weight:500}
+
+/* ---------- options panel: a drawer at every width ---------- */
+/* At 1500px+ it used to pin itself open beside the form, taking 420px from
+   the items even when nobody was changing a setting. */
+@media (min-width:1500px){
+  .side-panel{right:-440px;box-shadow:var(--shadow-lg)}
+  .side-panel.open{right:0}
+  .wrap{max-width:1400px;margin:0 auto;padding-right:24px}
+  .sp-overlay.show{display:block!important}
+  .sp-h button{display:inline-flex!important;align-items:center;justify-content:center}
+}
+.sp-h{font-size:16px}
+.acc-h{font-size:14px;padding:14px 10px}
+.acc-help{margin:0 0 12px;font-size:12.5px;line-height:1.5;color:var(--muted)}
+.acc-sum{font-size:11.5px}
+
+/* ---------- charge editor ---------- */
+/* One column: what and how much, who pays (three plain choices), how to
+   spread it, which taxes apply. The side explainer is gone — the choice
+   cards explain themselves. */
+.chg-shell{grid-template-columns:minmax(0,1fr);width:min(760px,96vw)}
+.chg-aside{display:none}
+.chg-head{background:var(--card);color:var(--text);border-bottom:1px solid var(--border-soft);font-size:16px;font-weight:650}
+.chg-head .chg-x{background:var(--bg-top);color:var(--muted)}
+.chg-card{padding:16px;border-radius:12px}
+.chg-lbl{font-size:12px;font-weight:500;text-transform:none;letter-spacing:0;color:var(--muted);margin-bottom:6px}
+.chg-top{grid-template-columns:minmax(0,1fr) 140px 236px}
+.chg-seg button{white-space:nowrap;font-size:12px;padding:6px 12px}
+.chg-sub{font-weight:500;color:var(--muted);font-size:13px;margin-left:6px}
+.chg-intro{margin:0 0 6px;font-size:13px;color:var(--muted)}
+.chg-body > p + p{font-size:12px;color:var(--muted)!important;margin-bottom:14px}
+.chg-who{margin-top:14px}
+.chg-treat{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.chg-treat-opt{position:relative;display:flex;flex-direction:column;gap:4px;padding:11px 12px;
+  border:1px solid var(--border);border-radius:10px;cursor:pointer;background:var(--card);
+  transition:border-color .12s,background .12s}
+.chg-treat-opt:hover{border-color:var(--light)}
+.chg-treat-opt input{position:absolute;opacity:0;width:1px;height:1px}
+.chg-treat-opt .ct-t{font-size:13px;font-weight:600;color:var(--text)}
+.chg-treat-opt .ct-d{font-size:11.5px;line-height:1.45;color:var(--muted)}
+.chg-treat-opt:has(input:checked){border-color:var(--text);background:var(--bg-top);box-shadow:0 0 0 1px var(--text) inset}
+.chg-treat-opt:has(input:focus-visible){outline:2px solid var(--accent);outline-offset:2px}
+.chg-sec,.chg-bot{border-top:1px solid var(--border-soft)}
+.chg-bot{grid-template-columns:minmax(0,1fr)}
+.chg-checks label,.chg-radios label{font-size:12.5px}
+.chg-none{font-size:12px;font-style:normal}
+.chg-empty{display:flex;flex-direction:column;gap:4px;padding:28px 16px;text-align:center;
+  border:1px dashed var(--border);border-radius:12px;color:var(--muted);font-size:13px}
+.chg-empty b{color:var(--text);font-size:14px}
+.chg-foot{border-top:1px solid var(--border-soft)}
+
+/* ---------- phone ---------- */
+@media (max-width:768px){
+  .pg-h{align-items:flex-start}
+  .pg-t{font-size:21px}
+  /* The action bar pins to the bottom: the primary action is always one
+     thumb away, and the page no longer opens on a wall of buttons. */
+  .pg-a{width:100%}
+  .pg-a .ab{position:fixed;left:0;right:0;bottom:0;z-index:1500;margin:0;
+    padding:10px 12px calc(10px + env(safe-area-inset-bottom));
+    background:var(--card);border-top:1px solid var(--border);box-shadow:0 -6px 18px -12px rgba(0,0,0,.35);
+    flex-wrap:nowrap;justify-content:stretch}
+  .pg-a .ab > .btn,.pg-a .ab > .ab-more{flex:1 1 0;width:auto}
+  .pg-a .ab > .btn{padding:0 10px;font-size:13px;white-space:nowrap}
+  .pg-a .ab .hide-sm{display:none}
+  .ab-more-btn{width:100%}
+  .ab-menu{top:auto;bottom:calc(100% + 8px);right:0;left:auto}
+  .ab-menu .only-sm{display:flex}
+  .wrap{padding-bottom:84px}
+
+  /* Lines as cards: label above each value, description full width. */
+  #itemsTable thead{display:none}
+  #itemsTable,#itemsTable tbody,#itemsTable tfoot{display:block;width:100%}
+  #itemsTable tbody tr{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;
+    padding:12px 12px 10px;border-bottom:1px solid var(--border-soft);position:relative}
+  #itemsTable tbody td{display:block;border:0;padding:0;white-space:normal;min-width:0}
+  #itemsTable tbody td[data-label]::before{content:attr(data-label);display:block;
+    font-size:10.5px;color:var(--muted);margin-bottom:1px}
+  #itemsTable tbody td.rn{position:absolute;top:12px;right:12px;padding:0;width:auto}
+  #itemsTable tbody td.rn::before{content:none}
+  #itemsTable tbody td.c-desc,#itemsTable tbody td.c-code,#itemsTable tbody td.c-lab{grid-column:1 / -1}
+  #itemsTable tbody td.c-code{padding-right:28px}
+  #itemsTable tbody td.c-act{grid-column:1 / -1}
+  #itemsTable tbody td.c-act::before{content:none}
+  #itemsTable .ra{justify-content:flex-end}
+  #itemsTable .ra button{width:34px;height:34px}
+  #itemsTable tbody .ri{background:var(--bg-top);border-radius:6px;min-height:36px}
+  #itemsTable tbody .ri.rc{background:transparent;padding-left:0}
+  #itemsTable tbody .num{text-align:left}
+  #itemsTable tfoot tr{display:flex;justify-content:space-between;padding:10px 12px}
+  #itemsTable tfoot td{border:0;padding:0}
+  #itemsTable tfoot td:empty{display:none}
+  .tb-w::after,.tb-w.scrollable::after{content:none!important;display:none!important}
+  .ga{flex-wrap:wrap}
+  .ga-hint{display:none}
+  .is-locked #itemsTable tbody .ri{background:transparent;padding-left:0}
+  /* Charge editor stacks. */
+  .chg-top{grid-template-columns:1fr}
+  .chg-treat{grid-template-columns:1fr}
+  .doc-main > .card > .card-h{flex-wrap:wrap}
+}
+@media print{
+  .pg-back,.ap-b,.pg-a{display:none!important}
+}

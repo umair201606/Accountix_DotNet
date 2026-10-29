@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    <RootNamespace>Accountix.SuperAdmin</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Accountix.Core\Accountix.Core.csproj" />
+    <ProjectReference Include="..\..\Accountix.Web.Shared\Accountix.Web.Shared.csproj" />
+  </ItemGroup>
+
+  <!--
+    Platform's public services (sign-in, throttle, audit trail, provisioning).
+    Normally the project. While Platform is mid-edit and does not compile, a
+    build of it that did can stand in: -p:AxPlatformDll=<path to Accountix.Platform.dll>
+    (see docs/modules/superadmin.md). Never set in the solution build.
+  -->
+  <ItemGroup Condition="'$(AxPlatformDll)' == ''">
+    <ProjectReference Include="..\Accountix.Platform\Accountix.Platform.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(AxPlatformDll)' != ''">
+    <Reference Include="Accountix.Platform">
+      <HintPath>$(AxPlatformDll)</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Accountix.SuperAdmin.Tests" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,26 @@
+{
+ "/executive/receivables?format=csv": {
+  "file_name": "SolarKon_Energy_Solutions_Aged_Receivables_2026-10-29.csv",
+  "csv": "\ufeffCode,Party / account,Group,Debit,Credit,Receivables,Current,31\u201360 days,61\u201390 days,90+ days,Avg days,Oldest days\r\n1-01-02-01-9107,Exec Customer 7,1-01-02-01 \u00b7 Trade Debtors,9300.49,2199.99,7100.5,0.0,0.0,0.0,7100.5,379,389\r\n1-01-02-01-9102,Exec Customer 2,1-01-02-01 \u00b7 Trade Debtors,8000.0,3000.0,5000.0,0.0,0.0,0.0,5000.0,218,256\r\n1-01-02-01-9106,Exec Customer 6,1-01-02-01 \u00b7 Trade Debtors,1200.0,0.0,1200.0,0.0,0.0,0.0,1200.0,106,106\r\n2-01-01-01-9103,Exec Supplier 3,2-01-01-01 \u00b7 Trade Creditors,700.0,0.0,700.0,0.0,0.0,0.0,700.0,150,150\r\n1-01-02-01-9103,Exec Customer 3,1-01-02-01 \u00b7 Trade Debtors,1000.0,350.0,650.0,0.0,0.0,0.0,650.0,141,141\r\n1-01-02-01-9101,Exec Customer 1,1-01-02-01 \u00b7 Trade Debtors,1000.0,400.0,600.0,0.0,0.0,0.0,600.0,166,166\r\n,Total (6 parties),,21200.489999999998,5949.99,15250.5,0.0,0.0,0.0,15250.5,,\r\n"
+ },
+ "/executive/payables?format=csv&as_of=2026-06-30": {
+  "file_name": "SolarKon_Energy_Solutions_Aged_Payables_2026-06-30.csv",
+  "csv": "\ufeffCode,Party / account,Group,Debit,Credit,Payables,Current,31\u201360 days,61\u201390 days,90+ days,Avg days,Oldest days\r\n2-01-01-01-9102,Exec Supplier 2,2-01-01-01 \u00b7 Trade Creditors,4000.0,13000.0,9000.0,0.0,3000.0,0.0,6000.0,96,121\r\n2-01-01-01-9101,Exec Supplier 1,2-01-01-01 \u00b7 Trade Creditors,0.0,2000.0,2000.0,2000.0,0.0,0.0,0.0,5,5\r\n1-01-02-01-9104,Exec Customer 4,1-01-02-01 \u00b7 Trade Debtors,800.0,1300.0,500.0,500.0,0.0,0.0,0.0,2,2\r\n,Total (3 parties),,4800.0,16300.0,11500.0,2500.0,3000.0,0.0,6000.0,,\r\n"
+ },
+ "/executive/receivables?format=csv&q=customer&group={1-01-02-01}": {
+  "file_name": "SolarKon_Energy_Solutions_Aged_Receivables_2026-10-29.csv",
+  "csv": "\ufeffCode,Party / account,Group,Debit,Credit,Receivables,Current,31\u201360 days,61\u201390 days,90+ days,Avg days,Oldest days\r\n1-01-02-01-9107,Exec Customer 7,1-01-02-01 \u00b7 Trade Debtors,9300.49,2199.99,7100.5,0.0,0.0,0.0,7100.5,379,389\r\n1-01-02-01-9102,Exec Customer 2,1-01-02-01 \u00b7 Trade Debtors,8000.0,3000.0,5000.0,0.0,0.0,0.0,5000.0,218,256\r\n1-01-02-01-9106,Exec Customer 6,1-01-02-01 \u00b7 Trade Debtors,1200.0,0.0,1200.0,0.0,0.0,0.0,1200.0,106,106\r\n1-01-02-01-9103,Exec Customer 3,1-01-02-01 \u00b7 Trade Debtors,1000.0,350.0,650.0,0.0,0.0,0.0,650.0,141,141\r\n1-01-02-01-9101,Exec Customer 1,1-01-02-01 \u00b7 Trade Debtors,1000.0,400.0,600.0,0.0,0.0,0.0,600.0,166,166\r\n,Total (5 parties),,20500.489999999998,5949.99,14550.5,0.0,0.0,0.0,14550.5,,\r\n"
+ },
+ "/executive/party/{1-01-02-01-9107}?format=csv": {
+  "file_name": "SolarKon_Energy_Solutions_Party_Ledger_Exec_Customer_7_1-01-02-01-9107.csv",
+  "csv": "\ufeffDate,Voucher,Narration,Debit,Credit,Running balance (Dr+)\r\n2025-10-05T10:00:00,EXEC EXEC-SEED-014,Invoice 7300.5,7300.5,0.0,7300.5\r\n2025-11-11T10:00:00,EXEC EXEC-SEED-015,Invoice 1999.99,1999.99,0.0,9300.49\r\n2025-11-20T10:00:00,EXEC EXEC-SEED-016,Executive test posting,0.0,199.99,9100.5\r\n2026-01-15T10:00:00,EXEC EXEC-SEED-017,Receipt 2000,0.0,2000.0,7100.5\r\n,,Balance,9300.49,2199.99,7100.5\r\n"
+ },
+ "/executive/party/{1-01-02-01-9107}?format=csv&as_of=2025-12-31": {
+  "file_name": "SolarKon_Energy_Solutions_Party_Ledger_Exec_Customer_7_1-01-02-01-9107.csv",
+  "csv": "\ufeffDate,Voucher,Narration,Debit,Credit,Running balance (Dr+)\r\n2025-10-05T10:00:00,EXEC EXEC-SEED-014,Invoice 7300.5,7300.5,0.0,7300.5\r\n2025-11-11T10:00:00,EXEC EXEC-SEED-015,Invoice 1999.99,1999.99,0.0,9300.49\r\n2025-11-20T10:00:00,EXEC EXEC-SEED-016,Executive test posting,0.0,199.99,9100.5\r\n,,Balance,9300.49,2199.99,7100.5\r\n"
+ },
+ "/executive/integrity?format=csv": {
+  "file_name": "SolarKon_Energy_Solutions_Books_Integrity_2026-10-29.csv",
+  "csv": "\ufeffCheck,Status,Expected,Actual,Detail\r\nTrial balance (debits = credits),Pass,170905.98,170905.98,Total posted debits vs credits\r\nEvery journal balances,Pass,0,0,33 posted journals checked\r\nReporting table matches the ledger,Pass,0.0,0.0,Accounts whose report totals differ from their journal lines\r\nInventory account = stock valuation,Pass,103005.0,103005.0,General-ledger inventory balance vs the stock ledger's value\r\nCost layers back the stock ledger,Pass,0,0,2 products checked\r\nOn-hand quantity = stock ledger,Pass,0,0,2 products checked\r\nAsset register = fixed-asset accounts,Pass,0.0,0.0,Cost 0.00 vs GL 0.00; accumulated depreciation 0.00 vs GL 0.00\r\nApproved documents = posted journals,Pass,0,0,0 documents checked\r\nPayroll runs = salary journals,Pass,0.0,0.0,0 runs checked\r\nStaff loans = loan accounts,Pass,0.0,0.0,0 loans paid out through payroll checked\r\nPF members' ledger = PF Payable,Pass,0.0,0.0,Members' balances 0.00 vs PF Payable 0.00\r\n"
+ }
+}

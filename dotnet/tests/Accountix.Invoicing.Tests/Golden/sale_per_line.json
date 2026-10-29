@@ -1,0 +1,189 @@
+{
+  "captured": "2026-10-29, Python app (Flask), before it was removed",
+  "capture": "Golden/capture/invoices.py",
+  "inputs": {
+    "settings": {
+      "valuation_method": "weighted_average",
+      "allow_negative_stock": false,
+      "per_line_labeling_invoice": false,
+      "default_cogs_account_id": null,
+      "default_inventory_account_id": null,
+      "default_return_account_id": null,
+      "default_invoice_label_id": null
+    },
+    "steps": [
+      {
+        "role": "PI-A",
+        "type": "PI",
+        "url": "/inventory/purchase-invoice/save",
+        "payload": {
+          "supplier_id": -2,
+          "invoice_date": "2026-05-02",
+          "action": "approve",
+          "discount_mode": "general",
+          "expenses_mode": "general",
+          "tax_mode": "general",
+          "global_discount_pct": 0,
+          "global_discount_value": 0,
+          "global_sales_tax_pct": 0,
+          "global_withholding_tax_pct": 0,
+          "apply_withholding_tax": false,
+          "subtotal": 11000,
+          "total_discount": 0,
+          "notes": "Stock for parity",
+          "items": [
+            {
+              "product_id": -3,
+              "description": "Panel",
+              "quantity": 100,
+              "unit": "pcs",
+              "unit_price": 40,
+              "total_before_discount": 4000,
+              "total_after_discount": 4000
+            },
+            {
+              "product_id": -4,
+              "description": "Inverter",
+              "quantity": 100,
+              "unit": "pcs",
+              "unit_price": 70,
+              "total_before_discount": 7000,
+              "total_after_discount": 7000
+            }
+          ],
+          "charges": []
+        }
+      },
+      {
+        "role": "SI1",
+        "type": "SI",
+        "url": "/inventory/invoices/save",
+        "payload": {
+          "customer_id": -1,
+          "invoice_date": "2026-05-15",
+          "action": "approve",
+          "discount_mode": "individual",
+          "charges_mode": "individual",
+          "tax_mode": "individual",
+          "global_discount_pct": 0,
+          "global_discount_value": 0,
+          "global_sales_tax_pct": 0,
+          "further_tax_pct": 0,
+          "apply_further_tax": false,
+          "withholding_tax_pct": 0,
+          "apply_withholding_tax": false,
+          "subtotal": 5000,
+          "total_discount": 350,
+          "total_tax": 836.32,
+          "notes": "",
+          "items": [
+            {
+              "product_id": -3,
+              "description": "A",
+              "quantity": 2,
+              "unit_price": 1000,
+              "discount_amount": 200,
+              "sales_tax_pct": 18,
+              "total_before_discount": 2000,
+              "total_after_discount": 1800
+            },
+            {
+              "product_id": -4,
+              "description": "B",
+              "quantity": 1,
+              "unit_price": 3000,
+              "discount_amount": 150,
+              "sales_tax_pct": 17,
+              "total_before_discount": 3000,
+              "total_after_discount": 2850
+            }
+          ],
+          "charges": [
+            {
+              "charge_account_id": -5,
+              "description": "Freight",
+              "amount": 100,
+              "scope": "general",
+              "treatment": "bill",
+              "st_taxable": true
+            },
+            {
+              "charge_account_id": -5,
+              "description": "Labour",
+              "amount": 60,
+              "scope": "individual",
+              "distribution": "by_weight",
+              "treatment": "bill",
+              "st_taxable": true
+            },
+            {
+              "charge_account_id": -5,
+              "description": "Manual",
+              "amount": 30,
+              "scope": "individual",
+              "distribution": "manual",
+              "manual": [
+                10,
+                20
+              ],
+              "treatment": "bill",
+              "st_taxable": false
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "expected": {
+    "PI-A": [
+      "answer|200|Invoice approved and locked",
+      "pi PI-A|PI-A|PI-A|2026-05-02|Supp|||||||general|general|general|0|0|0|0|0|0|0|0|False|False|11000|0|0|0|0|0|11000|11000|0|unpaid||Stock for parity|approved|U|U|set|0",
+      "pi_item PI-A|P1|Panel|100|pcs|40|||||0|0|0|0|0|0|0|4000|4000|",
+      "pi_item PI-A|P2|Inverter|100|pcs|70|||||0|0|0|0|0|0|0|7000|7000|",
+      "ledger P1:PI-A:IN|100|40|4000|100|4000|40|weighted_average|2026-05-02|PI-A|Purchase PI-A|U",
+      "ledger P2:PI-A:IN|100|70|7000|100|7000|70|weighted_average|2026-05-02|PI-A|Purchase PI-A|U",
+      "layer P1:layer0|P1:PI-A:IN|40|100|100|4000|weighted_average|False|Purchase PI-A",
+      "layer P2:layer0|P2:PI-A:IN|70|100|100|7000|weighted_average|False|Purchase PI-A",
+      "product P1|100|40",
+      "product P2|100|70",
+      "journal je0 PI-A|True|2026-05-02|PI-A|Purchase Invoice PI-A - Supp TAG|U",
+      "  line 1-01-04-01-0001|11000|0||Inventory - PI-A",
+      "  line @Supp TAG|0|11000||AP - PI-A"
+    ],
+    "SI1": [
+      "answer|200|Invoice approved and locked",
+      "pi PI-A|PI-A|PI-A|2026-05-02|Supp|||||||general|general|general|0|0|0|0|0|0|0|0|False|False|11000|0|0|0|0|0|11000|11000|0|unpaid||Stock for parity|approved|U|U|set|0",
+      "pi_item PI-A|P1|Panel|100|pcs|40|||||0|0|0|0|0|0|0|4000|4000|",
+      "pi_item PI-A|P2|Inverter|100|pcs|70|||||0|0|0|0|0|0|0|7000|7000|",
+      "si SI1|SI1|SI1||Cust|||2026-05-15||approved|unpaid|individual|individual|individual|0|0|0|0|0|0|False|0|False|5000|350|190|836.32|0|0|5676.32|0||U|U|set|0",
+      "si_item SI1|P1|A|2|pcs|1000|||||0|200|0|0|18|2000|1800|",
+      "si_item SI1|P2|B|1|pcs|3000|||||0|150|0|0|17|3000|2850|",
+      "charge SI1|4-01-01-01-0001|Freight|100|general|pro_rata_value||bill|True|False|False|True|after_discount",
+      "charge SI1|4-01-01-01-0001|Labour|60|individual|by_weight||bill|True|False|False|True|after_discount",
+      "charge SI1|4-01-01-01-0001|Manual|30|individual|manual|[10.0, 20.0]|bill|False|False|False|False|after_discount",
+      "ledger P1:PI-A:IN|100|40|4000|100|4000|40|weighted_average|2026-05-02|PI-A|Purchase PI-A|U",
+      "ledger P1:SI1:OUT|2|40|80|98|3920|40|weighted_average|2026-05-15|SI1|Sale SI1|U",
+      "ledger P2:PI-A:IN|100|70|7000|100|7000|70|weighted_average|2026-05-02|PI-A|Purchase PI-A|U",
+      "ledger P2:SI1:OUT|1|70|70|99|6930|70|weighted_average|2026-05-15|SI1|Sale SI1|U",
+      "layer P1:layer0|P1:PI-A:IN|40|100|98|3920|weighted_average|False|Purchase PI-A",
+      "layer P2:layer0|P2:PI-A:IN|70|100|99|6930|weighted_average|False|Purchase PI-A",
+      "consume P1:layer0|P1:SI1:OUT|2|40|80",
+      "consume P2:layer0|P2:SI1:OUT|1|70|70",
+      "product P1|98|40",
+      "product P2|99|70",
+      "journal je0 PI-A|True|2026-05-02|PI-A|Purchase Invoice PI-A - Supp TAG|U",
+      "  line 1-01-04-01-0001|11000|0||Inventory - PI-A",
+      "  line @Supp TAG|0|11000||AP - PI-A",
+      "journal je1 SI1|True|2026-05-15|SI1|Sales Invoice SI1 - Cust TAG|U",
+      "  line @Cust TAG|5676.32|0||AR - SI1",
+      "  line 4-01-01-01-0001|0|5000||Revenue - SI1",
+      "  line 4-02-02-01-0001|350|0||Discount allowed - SI1",
+      "  line 4-01-01-01-0001|0|100||Freight - SI1",
+      "  line 4-01-01-01-0001|0|60||Labour - SI1",
+      "  line 4-01-01-01-0001|0|30||Manual - SI1",
+      "  line 2-01-03-01-0001|0|836.32||Output Tax - SI1",
+      "  line 5-01-01-01-0001|150|0||COGS - SI1",
+      "  line 1-01-04-01-0001|0|150||Inventory - SI1"
+    ]
+  }
+}

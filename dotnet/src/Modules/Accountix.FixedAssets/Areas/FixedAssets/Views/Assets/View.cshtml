@@ -1,0 +1,171 @@
+@model AssetViewModel
+@{
+    var asset = Model.Asset;
+    var calc = Model.Calc;
+    ViewData["Title"] = asset.Name;
+    ViewData["Heading"] = $"{asset.AssetCode} - {asset.Name}";
+    string Or(string? s) => string.IsNullOrEmpty(s) ? "N/A" : s;
+}
+@section Actions {
+<a href="/fixed-assets/assets/@asset.Id/edit" class="btn btn-primary">Edit</a>
+@if (asset.Status == "active")
+{
+<a href="/fixed-assets/transfers/create?asset_id=@asset.Id" class="btn btn-secondary">Transfer to Inventory</a>
+}
+else if (asset.Status == "disposed")
+{
+<form method="POST" action="/fixed-assets/assets/@asset.Id/undo-disposal" style="display:inline;"
+      onsubmit="return confirm('Reverse this disposal and put the asset back into service?');">
+  <button type="submit" class="btn btn-warning">Undo Disposal</button>
+</form>
+}
+}
+<partial name="_GlEntryButton" model="@(new GlEntryButton("FA-ACQ", asset.Id) { Also = Model.GlAlso })" />
+<div class="card" style="margin-bottom:16px;">
+  <div class="card-body">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;">
+      <div><strong>Category:</strong><br>@(asset.Category?.Name ?? "N/A")</div>
+      <div><strong>Purchase Date:</strong><br>@Py.Date(asset.PurchaseDate)</div>
+      <div><strong>Purchase Cost:</strong><br>@Py.Comma(asset.PurchaseCost)</div>
+      <div><strong>Useful Life:</strong><br>@asset.UsefulLife years</div>
+      <div><strong>Depreciation Method:</strong><br>@ViewHelpers.Title(asset.DepreciationMethod.Replace('_', ' '))</div>
+      <div><strong>Salvage Value:</strong><br>@Py.Comma(asset.SalvageValue)</div>
+      <div><strong>Accumulated Depreciation:</strong><br>@Py.Comma(calc.PostedDepreciation)</div>
+      <div><strong>Current Book Value:</strong><br>@Py.Comma(calc.NetBookValue)</div>
+      <div><strong>Status:</strong><br><span class="badge @(asset.Status == "active" ? "badge-success" : "badge-secondary")">@asset.Status</span></div>
+      <div><strong>Location:</strong><br>@Or(asset.Location)</div>
+      <div><strong>Assigned To:</strong><br>@Or(asset.AssignedTo)</div>
+      <div><strong>Vendor:</strong><br>@Or(asset.Vendor)</div>
+      <div><strong>Serial Number:</strong><br>@Or(asset.SerialNumber)</div>
+    </div>
+    @if (!string.IsNullOrEmpty(asset.Description))
+    {
+    <hr><p><strong>Description:</strong><br>@asset.Description</p>
+    }
+    @if (!string.IsNullOrEmpty(asset.Notes))
+    {
+    <hr><p><strong>Notes:</strong><br>@asset.Notes</p>
+    }
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header"><h3>Posted depreciation</h3></div>
+  <div class="card-body">
+    @if (Model.Entries.Count > 0)
+    {
+    <div class="table-responsive">
+    <table class="table">
+      <thead><tr><th>Date</th><th>Amount</th><th>Accumulated</th><th>Net Book Value</th><th>Notes</th><th></th></tr></thead>
+      <tbody>
+        @foreach (var (e, live) in Model.Entries)
+        {
+        <tr class="@(live ? null : "text-muted")">
+          <td>@Py.Date(e.EntryDate)</td>
+          <td>@Py.Comma(e.Amount)</td>
+          <td>@Py.Comma(e.AccumulatedAfter)</td>
+          <td>@Py.Comma(e.NetBookValueAfter)</td>
+          <td>@e.Notes</td>
+          <td>
+            @if (live)
+            {
+            <form method="post" action="/fixed-assets/depreciation/entry/@e.Id/reverse"
+                  onsubmit="return confirm('Reverse this depreciation charge? The period it covers becomes chargeable again.');">
+              <button type="submit" class="btn btn-sm btn-danger">Reverse</button>
+            </form>
+            }
+            else
+            {
+            <span class="badge">Reversed</span>
+            }
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+    </div>
+    }
+    else
+    {
+    <p class="text-muted">No depreciation entries recorded.</p>
+    }
+    @if (asset.Status == "active")
+    {
+    <hr>
+    <h4>Record a manual charge</h4>
+    <p class="text-muted" style="font-size:.85rem;">A one-off catch-up, or an impairment (posted to Impairment Loss on Fixed Assets, not depreciation). Regular charges come from Post Depreciation.</p>
+    <form method="POST" action="/fixed-assets/assets/@asset.Id/depreciate" style="display:flex;gap:8px;flex-wrap:wrap;align-items:end;">
+      <div><label class="form-label">Date</label><input type="date" name="entry_date" class="form-control" required></div>
+      <div><label class="form-label">Type</label>
+        <select name="kind" class="form-control">
+          <option value="depreciation">Depreciation catch-up</option>
+          <option value="impairment">Impairment loss (IAS 36)</option>
+        </select></div>
+      <div><label class="form-label">Amount</label><input type="number" step="0.01" min="0.01" name="amount" class="form-control" placeholder="0.00" required></div>
+      <div><label class="form-label">Notes</label><input type="text" name="notes" class="form-control" placeholder="Optional"></div>
+      <div><button type="submit" class="btn btn-primary">Record</button></div>
+    </form>
+    }
+  </div>
+</div>
+
+@if (Model.Schedule.Count > 0)
+{
+<div class="card" style="margin-top:16px;">
+  <div class="card-header"><h3>Planned depreciation</h3></div>
+  <div class="card-body">
+    <p class="text-muted" style="font-size:.85rem;">From the last posted charge to the end of the @asset.UsefulLife-year life,
+      @(asset.DepreciationMethod == "declining_balance" ? "reducing balance (double-declining, switching to straight line)" : "straight line"). Book value ends at the salvage value of @Py.Comma(asset.SalvageValue).</p>
+    <div class="table-responsive">
+    <table class="table">
+      <thead><tr><th>Year to</th><th>Months</th><th>Opening book value</th><th>Charge</th><th>Closing book value</th></tr></thead>
+      <tbody>
+        @foreach (var r in Model.Schedule)
+        {
+        <tr><td>@Py.DateLong(r.PeriodEnd)</td><td>@r.Months</td>
+            <td>@Py.Comma(r.Opening)</td><td>@Py.Comma(r.Charge)</td>
+            <td>@Py.Comma(r.Closing)</td></tr>
+        }
+      </tbody>
+    </table>
+    </div>
+  </div>
+</div>
+}
+
+@if (asset.Status == "active")
+{
+<div class="card" style="margin-top:16px;">
+  <div class="card-header"><h3>Dispose Asset</h3></div>
+  <div class="card-body">
+    <p class="text-muted">
+      Book value now is <strong>@Py.Comma(calc.NetBookValue)</strong>.
+      Enter what you sold it for — leave it at 0 to scrap it. The difference
+      between the proceeds and the book value is booked as a gain or a loss.
+    </p>
+    <form method="POST" action="/fixed-assets/assets/@asset.Id/dispose"
+          style="display:flex;gap:8px;flex-wrap:wrap;align-items:end;"
+          onsubmit="return confirm('Dispose this asset?');">
+      <div>
+        <label class="form-label">Disposal date</label>
+        <input type="date" name="disposal_date" class="form-control">
+      </div>
+      <div>
+        <label class="form-label">Proceeds</label>
+        <input type="number" step="0.01" min="0" name="proceeds" class="form-control" value="0">
+      </div>
+      <div>
+        <label class="form-label">Received Into</label>
+        <select name="proceeds_account_id" class="form-control">
+          <option value="">Default (Main Cash)</option>
+          @foreach (var a in Model.Choices.Proceeds)
+          {
+          <option value="@a.Id">@a.Code @a.Name</option>
+          }
+        </select>
+      </div>
+      <div><button type="submit" class="btn btn-danger">Dispose</button></div>
+    </form>
+  </div>
+</div>
+}

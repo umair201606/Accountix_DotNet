@@ -1,0 +1,115 @@
+@model Accountix.Platform.Controllers.HubController.HubModel
+@{ Layout = null; }
+<!doctype html>
+
+<html lang="en" data-ui="v2">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>@(Model.CompanyName ?? "Select Module")</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%232B7263'/><text x='16' y='22' font-size='18' font-family='Arial' font-weight='bold' text-anchor='middle' fill='white'>A</text></svg>">
+    <partial name="_V2Head" />
+<partial name="_Antiforgery" />
+    <style>
+      body { background: var(--v2-ground); margin: 0; min-height: 100vh;
+             font-family: Inter, "Segoe UI", system-ui, sans-serif; }
+      .hub-wrap { width: 100%; max-width: 1080px; margin: 0 auto; padding: 40px 20px 32px;
+                  min-height: 100vh; display: flex; flex-direction: column; }
+      /* One hairline and real whitespace, not a bordered box inside a bordered
+         box (§1). The header was a blurred translucent card over a gradient. */
+      .hub-header { display: flex; align-items: center; gap: 14px; margin-bottom: 26px;
+                    padding-bottom: 18px; border-bottom: 1px solid var(--v2-line); }
+      .hub-brand { width: 44px; height: 44px; flex: none; border-radius: 11px;
+                   background: var(--v2-ink); color: var(--v2-ground);
+                   display: flex; align-items: center; justify-content: center;
+                   font-size: 19px; font-weight: 600; }
+      .hub-heading { min-width: 0; }
+      .hub-title { margin: 0; font-size: 21px; font-weight: 600; color: var(--v2-ink);
+                   letter-spacing: -.02em; white-space: nowrap; overflow: hidden;
+                   text-overflow: ellipsis; }
+      .hub-subtitle { margin: 2px 0 0; color: var(--v2-muted); font-size: 12px; }
+      .hub-count { margin-left: auto; flex: none; padding: 4px 10px; border-radius: 6px;
+                   background: var(--v2-sunk); color: var(--v2-body); font-size: 11.5px;
+                   font-weight: 500; font-variant-numeric: tabular-nums; }
+      .hub-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+      /* (0,2,0) so these answer ui.css's own component rules at equal
+         specificity and win on source order — the documented tie-break (§2). */
+      .hub-grid .mod-card { position: relative; display: flex; flex-direction: column; gap: 12px;
+                  background: var(--v2-surface); border-radius: 11px; padding: 18px 16px 16px;
+                  text-decoration: none; color: var(--v2-ink);
+                  border: 1px solid var(--v2-line); overflow: hidden;
+                  transition: border-color .15s ease, background .15s ease; }
+      .hub-grid .mod-card:hover { border-color: var(--v2-line-2); background: var(--v2-hover);
+                                  text-decoration: none; }
+      .hub-grid .mod-card:focus-visible { outline: 2px solid var(--v2-ink); outline-offset: 2px; }
+      .mod-ico { width: 40px; height: 40px; border-radius: 10px;
+                 background: var(--v2-sunk); color: var(--v2-ink); display: flex;
+                 align-items: center; justify-content: center; }
+      .mod-ico svg { width: 22px; height: 22px; }
+      .mod-body { display: flex; flex-direction: column; gap: 4px; }
+      .mod-title { font-size: 13.5px; font-weight: 600; color: var(--v2-ink); letter-spacing: -.01em; }
+      .mod-desc { font-size: 11.5px; color: var(--v2-muted); line-height: 1.5; }
+      .mod-go { margin-top: 2px; font-size: 11.5px; font-weight: 500; color: var(--v2-accent); }
+      .hub-footer { display: flex; justify-content: center; margin-top: 26px; }
+      .hub-footer a { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px;
+                      color: var(--v2-muted); text-decoration: none; padding: 7px 14px;
+                      border: 1px solid var(--v2-line); border-radius: 8px;
+                      background: var(--v2-surface);
+                      transition: color .15s, border-color .15s; }
+      .hub-footer a:hover { color: var(--v2-ink); border-color: var(--v2-line-2); }
+      @@media (max-width: 900px) { .hub-grid { grid-template-columns: repeat(2, 1fr); } }
+      @@media (max-width: 560px) {
+        .hub-wrap { padding: 20px 14px 24px; }
+        .hub-header { padding-bottom: 14px; gap: 12px; }
+        .hub-brand { width: 40px; height: 40px; font-size: 17px; border-radius: 10px; }
+        .hub-title { font-size: 18px; }
+        .hub-count { display: none; }
+        .hub-grid { grid-template-columns: 1fr; gap: 10px; }
+        .hub-grid .mod-card { flex-direction: row; align-items: center; gap: 14px; padding: 14px; }
+        .mod-go { display: none; }
+        .mod-desc { -webkit-line-clamp: 2; } }
+      @@media (prefers-reduced-motion: reduce) {
+        .hub-grid .mod-card { transition: none; } }
+    </style>
+</head>
+<body>
+    <partial name="_Flash" />
+    <div class="hub-wrap">
+        
+        <header class="hub-header">
+            <div class="hub-brand">@((Model.CompanyName ?? "?")[..1].ToUpperInvariant())</div>
+            <div class="hub-heading">
+                <h1 class="hub-title">@(Model.CompanyName ?? "Select Module")</h1>
+                <p class="hub-subtitle">@Model.UserName &bull; @ViewHelpers.Title(Model.RoleName)</p>
+            </div>
+            @if (Model.Modules.Count > 0) {<span class="hub-count">@Model.Modules.Count modules</span>}
+            <partial name="_ThemeToggle" />
+        </header>
+        <div class="hub-grid">
+            @foreach (var m in Model.Modules) {
+<a href="@m.Url" class="mod-card" aria-label="@m.Title">
+  <span class="mod-ico" aria-hidden="true">@Html.Raw(HubController.IconSvg(m.Icon))</span>
+  <span class="mod-body">
+    <span class="mod-title">@m.Title</span>
+    <span class="mod-desc">@m.Desc</span>
+    <span class="mod-go">Open module &nbsp;&rarr;</span>
+  </span>
+</a>
+}
+<a href="/settings/" class="mod-card" aria-label="Settings">
+  <span class="mod-ico" aria-hidden="true">@Html.Raw(HubController.IconSvg("gear"))</span>
+  <span class="mod-body">
+    <span class="mod-title">Settings</span>
+    <span class="mod-desc">@if (Model.HasSettings) {<text>Account, company, reports, inventory, invoices &amp; rights</text>} else {<text>Your account &amp; preferences</text>}</span>
+    <span class="mod-go">Open settings &nbsp;&rarr;</span>
+  </span>
+</a>
+        </div>
+        <div class="hub-footer">
+            <a href="/auth/logout">&larr; Logout</a>
+        </div>
+    </div>
+<script src="/static/js/theme.js"></script>
+</body>
+</html>

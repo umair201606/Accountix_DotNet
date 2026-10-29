@@ -1,0 +1,53 @@
+{
+  "captured": "2026-10-29, Python app (Flask), before it was removed",
+  "capture": "Golden/capture/vouchers.py",
+  "inputs": {
+    "url": "/inventory/vouchers/adjustment",
+    "stock": {
+      "P": [
+        "10",
+        "20",
+        10
+      ]
+    },
+    "form": [
+      [
+        "reason",
+        "Count"
+      ],
+      [
+        "date",
+        "D-3"
+      ],
+      [
+        "label_id",
+        ""
+      ],
+      [
+        "status",
+        "approved"
+      ],
+      [
+        "product_id[]",
+        "P"
+      ],
+      [
+        "system_qty[]",
+        "99"
+      ],
+      [
+        "physical_qty[]",
+        "7"
+      ]
+    ]
+  },
+  "expected": [
+    "voucher ADJ|approved|D-3 00:00:00|Count||owner_b",
+    "item P|Voucher Part TAGP|10.0000|7.0000|-3.0000|20.0000|60.0000",
+    "row P|ADJ|OUT|3.0000|20.0000|60.0000|7.0000|140.0000|20.0000|weighted_average|D-3|N|Adjustment: Count",
+    "journal ADJ|N|Stock Adjustment N: Count|D-3 00:00:00|true",
+    "  line 5-01-02-01-0002|60.0000|0.0000||",
+    "  line 1-01-04-01-0001|0.0000|60.0000||"
+  ],
+  "redirect": "/inventory/vouchers/adjustment/list"
+}

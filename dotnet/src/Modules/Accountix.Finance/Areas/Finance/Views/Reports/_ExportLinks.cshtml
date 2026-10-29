@@ -1,0 +1,3 @@
+@model (Accountix.Finance.Services.ReportPeriod Period, bool Loaded, bool IncludeFrom)
+<a href="@Model.Period.ExportQuery(Model.Loaded, "excel", Model.IncludeFrom)" class="btn btn-outline btn-sm"><i class="fas fa-file-excel"></i> Excel</a>
+<a href="@Model.Period.ExportQuery(Model.Loaded, "pdf", Model.IncludeFrom)" class="btn btn-outline btn-sm"><i class="fas fa-file-pdf"></i> PDF</a>

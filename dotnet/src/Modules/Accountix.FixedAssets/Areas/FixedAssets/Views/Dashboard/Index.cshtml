@@ -1,0 +1,59 @@
+@model FaDashboardModel
+@{
+    ViewData["Title"] = "Fixed Assets Dashboard";
+    ViewData["Heading"] = "Fixed Assets Dashboard";
+}
+<div class="dashboard-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px;">
+  <div class="stat-card">
+    <div class="stat-value">@Model.TotalAssets</div>
+    <div class="stat-label">Assets in service</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value">@Py.Comma(Model.TotalCost)</div>
+    <div class="stat-label">Total Cost</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value">@Py.Comma(Model.TotalDepreciation)</div>
+    <div class="stat-label">Accumulated Depreciation</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value">@Py.Comma(Model.NetBookValue)</div>
+    <div class="stat-label">Net Book Value</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value">@Model.DisposedCount</div>
+    <div class="stat-label">Disposed</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value">@Model.Categories</div>
+    <div class="stat-label">Categories</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header"><h3>Recent Assets</h3></div>
+  <div class="card-body">
+    @if (Model.Recent.Count > 0)
+    {
+    <table class="table">
+      <thead><tr><th>Code</th><th>Name</th><th>Category</th><th>Cost</th><th>Status</th></tr></thead>
+      <tbody>
+        @foreach (var a in Model.Recent)
+        {
+        <tr>
+          <td>@a.AssetCode</td>
+          <td><a href="/fixed-assets/assets/@a.Id">@a.Name</a></td>
+          <td>@(a.Category?.Name ?? "")</td>
+          <td>@Py.Comma(a.PurchaseCost)</td>
+          <td><span class="badge @(a.Status == "active" ? "badge-success" : "badge-secondary")">@a.Status</span></td>
+        </tr>
+        }
+      </tbody>
+    </table>
+    }
+    else
+    {
+    <p class="text-muted">No assets yet. <a href="/fixed-assets/assets/create">Create your first asset</a>.</p>
+    }
+  </div>
+</div>

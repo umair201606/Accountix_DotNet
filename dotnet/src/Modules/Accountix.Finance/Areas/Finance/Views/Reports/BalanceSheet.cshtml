@@ -1,0 +1,110 @@
+@model Accountix.Finance.Controllers.BalanceSheetPage
+@using System.Globalization
+@using Accountix.Finance.Services
+@{
+    ViewData["Title"] = "Balance Sheet";
+    ViewData["Heading"] = "Balance Sheet";
+    var inv = CultureInfo.InvariantCulture;
+    var r = Model.Result;
+    var b = r?.Base ?? new BsData();
+    var comp = Model.Comp;
+    bool hasComp = comp.Count > 0;
+    int span = hasComp ? 2 + (1 + comp.Count) : 3;
+    string asOf = Model.AsOf.ToString("dd MMMM, yyyy", inv);
+    var compTotals = r?.Comp ?? [];
+    decimal lte = b.TotalLiabilities + b.TotalEquity;
+}
+@section Head { <partial name="_FinanceHead" /> }
+@section Actions {
+<partial name="_ExportLinks" model="(Model.Period, Model.Loaded, false)" />
+<button onclick="window.print()" class="btn btn-outline btn-sm"><i class="fas fa-print"></i> Print</button>
+}
+<partial name="_ViewForm" model="Model.Period.FilterModel(Model.Loaded)" />
+
+<div class="card report-sheet">
+  <div class="report-head">
+    <div>
+      <div class="report-company"><partial name="_CompanyName" /></div>
+      <div class="report-title-lg">Balance Sheet</div>
+      <div class="report-period">As at @asOf</div>
+    </div>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="report-table statement">
+      <thead>
+        <tr>
+          <th style="width:150px;">Code</th>
+          <th>Account</th>
+          @if (hasComp)
+          {
+          <th class="num" style="width:140px;">@asOf</th>
+          foreach (var cp in comp)
+          {
+          <th class="num" style="width:140px;">@cp.EndDate.ToString("dd MMMM, yyyy", inv)</th>
+          }
+          }
+          else
+          {
+          <th class="num" style="width:150px;">@asOf</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @foreach (var (icon, title, items, merged, total, compTotal, noun) in new (string, string, List<BsItem>, List<BsMerged>, decimal, Func<BsData, decimal>, string)[]
+        {
+            ("fa-building", "ASSETS", b.Assets, r?.MergedAssets ?? [], b.TotalAssets, c => c.TotalAssets, "asset"),
+            ("fa-credit-card", "LIABILITIES", b.Liabilities, r?.MergedLiabilities ?? [], b.TotalLiabilities, c => c.TotalLiabilities, "liability"),
+            ("fa-users", "EQUITY", b.Equity, r?.MergedEquity ?? [], b.TotalEquity, c => c.TotalEquity, "equity"),
+        })
+        {
+        <tr class="sec-head"><td colspan="@span"><i class="fas @icon"></i> @title</td></tr>
+            if (hasComp)
+            {
+                foreach (var m in merged)
+                {
+        <tr><td class="mono">@m.Code</td><td class="indent">@m.Name</td>@foreach (var amt in m.Amounts) {<td class="num">@Html.Amount(amt)</td>}</tr>
+                }
+                if (merged.Count == 0)
+                {
+        <tr><td colspan="@(2 + (1 + comp.Count))" class="t-muted text-center">No @noun accounts</td></tr>
+                }
+        <tr class="sec-total"><td></td><td>Total @ViewHelpers.Title(title)</td><td class="num">@Html.Amount(total)</td>@foreach (var ct in compTotals) {<td class="num">@Html.Amount(compTotal(ct))</td>}</tr>
+            }
+            else
+            {
+                foreach (var a in items)
+                {
+        <tr><td class="mono">@a.Code</td><td class="indent">@a.Name</td><td class="num">@Html.Amount(a.Amount)</td></tr>
+                }
+                if (items.Count == 0)
+                {
+        <tr><td colspan="3" class="t-muted text-center">No @noun accounts</td></tr>
+                }
+        <tr class="sec-total"><td></td><td>Total @ViewHelpers.Title(title)</td><td class="num">@Html.Amount(total)</td></tr>
+            }
+        }
+      </tbody>
+      <tfoot>
+        <tr class="grand-total">
+          <td colspan="2">LIABILITIES + EQUITY</td>
+          <td class="num">@Html.Amount(lte)</td>
+          @if (hasComp)
+          {
+              foreach (var ct in compTotals) {<td class="num">@Html.Amount(ct.TotalLiabilities + ct.TotalEquity)</td>}
+          }
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+  <p class="mt-2 text-sm @(b.TotalAssets == lte ? "num-pos" : "num-neg")">
+    <i class="fas @(b.TotalAssets == lte ? "fa-check-circle" : "fa-exclamation-triangle")"></i>
+    @if (b.TotalAssets == lte)
+    {
+    <text>Balance Sheet is <strong>IN BALANCE</strong> (@Html.Amount(b.TotalAssets) = @Html.Amount(lte))</text>
+    }
+    else
+    {
+    <text>Difference: @Html.Amount(b.TotalAssets - lte)</text>
+    }
+  </p>
+</div>

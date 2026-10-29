@@ -1,0 +1,182 @@
+@model CompaniesController.EditModel
+@{
+    var company = Model.Company;
+    ViewData["Title"] = $"{company.Name} - Super Admin";
+    string Or(string? v, string fallback = "") => string.IsNullOrEmpty(v) ? fallback : v;
+}
+
+<a href="/superadmin/companies/" class="sa-back">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+  All companies
+</a>
+
+<form method="POST" action="/superadmin/companies/@company.Id/" asp-antiforgery="true">
+  <div class="sa-card">
+    <div class="sa-card-header">
+      <div>
+        <h3 class="sa-card-title" style="display:flex;align-items:center;gap:10px;">
+          @company.Name
+          @if (company.IsActive == true) {<span class="pill pill-on">active</span>}
+          else {<span class="pill pill-off">inactive</span>}
+        </h3>
+        <p class="sa-card-subtitle">Slug: <code>@company.Slug</code> &middot; Plan: @Or(company.PlanName, "free")</p>
+      </div>
+    </div>
+
+    <div class="fgrid three">
+      <div class="fgroup">
+        <label class="lbl">Company Name</label>
+        <input type="text" name="name" class="inp" value="@company.Name" required>
+      </div>
+      <div class="fgroup">
+        <label class="lbl">Plan</label>
+        <input type="text" name="plan_name" class="inp" value="@Or(company.PlanName, "free")">
+      </div>
+      <div class="fgroup">
+        <label class="lbl">Max Members</label>
+        <input type="number" name="max_members" class="inp" min="1" value="@(company.MaxMembers is int mx && mx != 0 ? mx.ToString() : "")"
+               placeholder="blank = default (@Model.Limits.DefaultMaxMembers)">
+      </div>
+      <div class="fgroup">
+        <label class="lbl">City</label>
+        <input type="text" name="city" class="inp" value="@Or(company.City)">
+      </div>
+      <div class="fgroup">
+        <label class="lbl">Country</label>
+        <input type="text" name="country" class="inp" value="@Or(company.Country, "Pakistan")">
+      </div>
+      <div class="fgroup">
+        <label class="lbl">Currency Code</label>
+        <input type="text" name="currency" class="inp" value="@Or(company.Currency, "PKR")" style="text-transform:uppercase;">
+      </div>
+      <div class="fgroup">
+        <label class="lbl">Currency Symbol</label>
+        <input type="text" name="currency_symbol" class="inp" value="@Or(company.CurrencySymbol, "Rs.")">
+      </div>
+      <div class="fgroup">
+        <label class="lbl">Email</label>
+        <input type="email" name="email" class="inp" value="@Or(company.Email)">
+      </div>
+      <div class="fgroup">
+        <label class="lbl">Phone</label>
+        <input type="text" name="phone" class="inp" value="@Or(company.Phone)">
+      </div>
+      <div class="fgroup">
+        <label class="lbl">Tax ID / NTN</label>
+        <input type="text" name="tax_id" class="inp" value="@Or(company.TaxId)">
+      </div>
+      <div class="fgroup">
+        <label class="lbl">Registration No.</label>
+        <input type="text" name="registration_number" class="inp" value="@Or(company.RegistrationNumber)">
+      </div>
+      <div class="fgroup">
+        <label class="lbl">Website</label>
+        <input type="text" name="website" class="inp" value="@Or(company.Website)" placeholder="https://">
+      </div>
+      <div class="fgroup">
+        <label class="lbl">Logo URL</label>
+        <input type="text" name="logo_url" class="inp" value="@Or(company.LogoUrl)">
+      </div>
+      <div class="fgroup">
+        <label class="lbl">Status</label>
+        <div style="display:flex;align-items:center;gap:10px;height:38px;">
+          <label class="sa-stog" title="Active / inactive">
+            <input type="checkbox" name="is_active" checked="@(company.IsActive == true)">
+            <span class="sl"></span>
+          </label>
+          <span style="font-size:13px;color:var(--text-secondary);">@(company.IsActive == true ? "Active" : "Inactive")</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="fgroup full" style="margin-top:8px;">
+      <label class="lbl">Address</label>
+      <textarea name="address" class="inp" rows="2" placeholder="Full company address">@Or(company.Address)</textarea>
+    </div>
+
+    <div class="sa-section-gap" style="border-top:1px solid var(--surface-border);padding-top:20px;margin-top:20px;">
+      <h4 style="margin:0 0 4px;font-size:14px;font-weight:700;">Module Entitlements</h4>
+      <p style="margin:0 0 14px;font-size:12.5px;color:var(--text-secondary);">What this company has bought. A module switched off here disappears for everyone in the company, its admin included.</p>
+      <div class="mod-grid">
+        @foreach (var module in Modules.All)
+        {
+        <label class="mod-item">
+          <input type="checkbox" name="@("mod_" + module.Key)"
+                 checked="@company.ModuleEnabled(module.Key)">
+          <span>@module.Label</span>
+        </label>
+        }
+      </div>
+    </div>
+
+    <div class="sa-actions">
+      <button type="submit" class="btn btn-p">Save Company</button>
+    </div>
+  </div>
+</form>
+
+<div class="sa-card">
+  <div class="sa-card-header">
+    <div>
+      <h3 class="sa-card-title">Members</h3>
+      <p class="sa-card-subtitle">@Model.ActiveMembers active &middot; Blocking keeps the membership — role, employee code and history stay put — and only stops the person entering this company.</p>
+    </div>
+  </div>
+  <div class="tbl-wrap">
+    <table class="sa-tbl">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach (var (m, u, role) in Model.Members)
+        {
+        <tr>
+          <td>
+            @if (u is not null)
+            {
+              <a href="/superadmin/users/@u.Id/">@u.FullName</a>
+            }
+            else
+            {
+              <span style="color:var(--text-muted);">—</span>
+            }
+          </td>
+          <td>@(u is not null ? u.Email : "—")</td>
+          <td>@role</td>
+          <td>
+            @if (m.Status == CompanyMembership.StatusActive) {<span class="pill pill-on">active</span>}
+            else if (m.Status == CompanyMembership.Blocked) {<span class="pill pill-danger">blocked</span>}
+            else {<span class="pill pill-off">@m.Status</span>}
+          </td>
+          <td>
+            @if (m.Status is CompanyMembership.StatusActive or CompanyMembership.Blocked)
+            {
+            <form method="POST" action="/superadmin/companies/@company.Id/members/@m.Id/block" asp-antiforgery="true">
+              <button type="submit" class="btn btn-sm @(m.Status == CompanyMembership.StatusActive ? "btn-danger" : "")">
+                @(m.Status == CompanyMembership.Blocked ? "Unblock" : "Block")
+              </button>
+            </form>
+            }
+          </td>
+        </tr>
+        }
+        @if (Model.Members.Count == 0)
+        {
+        <tr>
+          <td colspan="5">
+            <div class="empty-state">
+              No memberships yet.
+            </div>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

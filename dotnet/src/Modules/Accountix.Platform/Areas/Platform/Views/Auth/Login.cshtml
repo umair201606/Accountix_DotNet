@@ -1,0 +1,158 @@
+@{ Layout = null; }
+<!doctype html>
+<html lang="en" data-ui="v2">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in — Accountix ERP</title>
+<partial name="_V2Head" />
+<partial name="_Antiforgery" />
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    font-family: Inter, "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+    background: var(--v2-ground); color: var(--v2-body);
+    font-size: 13px; line-height: 20px; min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { text-decoration: none; }
+
+  .split { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; }
+
+  /* Left: brand panel. The one large filled area in the product, and it carries
+     no data — so it frames rather than competes. It rides --v2-ink, which
+     inverts with the theme, so everything sitting on it rides --v2-ground
+     rather than a literal white (§7). */
+  .panel {
+    background: var(--v2-ink); color: var(--v2-ground);
+    padding: 48px; display: flex; flex-direction: column; gap: 32px;
+  }
+  .panel .brand { display: flex; align-items: center; gap: 10px; font-size: 15px;
+                  font-weight: 600; letter-spacing: -.01em; color: var(--v2-ground); }
+  .mark { width: 32px; height: 32px; border-radius: 8px; background: var(--v2-ground);
+          color: var(--v2-ink); display: grid; place-items: center;
+          font-size: 15px; font-weight: 700; flex: none; }
+  .panel-body { margin-top: auto; }
+  .panel-body h2 { font-size: 27px; line-height: 35px; font-weight: 600;
+                   letter-spacing: -.02em; max-width: 12em; }
+  /* Secondary copy on an inverted fill: the same ground token at reduced
+     opacity, which blends toward the fill in whichever direction the theme
+     went. A fixed pale blue was legible on navy and invisible on light. */
+  .panel-body p { margin-top: 14px; opacity: .74; font-size: 14px; line-height: 23px; max-width: 26em; }
+  .panel-list { margin-top: auto; padding-top: 32px; display: grid; gap: 12px; }
+  .panel-list div { display: flex; align-items: flex-start; gap: 10px;
+                    opacity: .74; font-size: 12.5px; line-height: 20px; }
+  .tick { width: 18px; height: 18px; border-radius: 9999px; background: var(--v2-pos-bg);
+          color: var(--v2-pos); display: grid; place-items: center; font-size: 11px;
+          font-weight: 700; flex: none; margin-top: 1px; opacity: 1; }
+
+  /* Right: the form. */
+  .form-side { display: grid; place-items: center; padding: 32px 24px; }
+  /* (0,2,0) on purpose: ui.css styles .card as a bordered surface at the
+     same specificity, and a plain .card here would lose to it. Matching it
+     and coming later in the document is the documented tie-break (§2). */
+  .form-side .card { width: 100%; max-width: 380px; background: none;
+                     border: 0; padding: 0; margin: 0; }
+  .card h1 { font-size: 21px; line-height: 29px; font-weight: 600;
+             letter-spacing: -.02em; color: var(--v2-ink); }
+  .card .sub { margin-top: 5px; color: var(--v2-muted); font-size: 12.5px; }
+
+  form { margin-top: 24px; }
+  .field { margin-bottom: 14px; }
+  label { display: block; margin-bottom: 5px; font-size: 12px; font-weight: 500;
+          color: var(--v2-muted); }
+  input {
+    width: 100%; padding: 10px 12px; font: inherit; font-size: 13px;
+    border: 1px solid var(--v2-line-2); border-radius: 8px;
+    background: var(--v2-surface); color: var(--v2-ink); outline: none;
+    transition: border-color .15s;
+  }
+  input::placeholder { color: var(--v2-faint); }
+  input:focus { border-color: var(--v2-accent); }
+
+  /* The one filled button on the screen (§5). */
+  .form-side button {
+    width: 100%; margin-top: 4px; padding: 11px 20px; border: 1px solid var(--v2-ink);
+    border-radius: 8px; background: var(--v2-ink); color: var(--v2-ground);
+    font: inherit; font-size: 13.5px; font-weight: 500; cursor: pointer;
+    transition: background .15s;
+  }
+  .form-side button:hover { background: var(--v2-ink-2); }
+
+  .flash { padding: 9px 12px; border-radius: 8px; margin-bottom: 14px; font-size: 12.5px; }
+  .flash-danger, .flash-error { background: var(--v2-neg-bg); color: var(--v2-neg); }
+  .flash-success { background: var(--v2-pos-bg); color: var(--v2-pos); }
+  .flash-info { background: var(--v2-accent-soft); color: var(--v2-accent-ink); }
+
+  .card-foot {
+    margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--v2-line);
+    display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    font-size: 12.5px; color: var(--v2-muted);
+  }
+  .card-foot a { font-weight: 500; color: var(--v2-accent); }
+  .card-foot a:hover { text-decoration: underline; }
+
+  /* Responsive: the brand panel collapses to a slim header strip. */
+  @@media (max-width: 860px) {
+    .split { grid-template-columns: 1fr; min-height: 0; }
+    .panel { padding: 20px 24px; flex-direction: row; align-items: center; gap: 16px; }
+    .panel-body, .panel-list { display: none; }
+    .form-side { padding: 40px 24px; }
+  }
+  @@media (max-width: 400px) {
+    .panel { padding: 16px; }
+    .form-side { padding: 28px 16px; }
+  }
+</style>
+</head>
+<body>
+<partial name="_ThemeToggle" view-data="@(new ViewDataDictionary(ViewData) { ["ThemeFloat"] = true })" />
+
+<div class="split">
+  <aside class="panel">
+    <a class="brand" href="/">
+      <span class="mark">A</span> Accountix ERP
+    </a>
+    <div class="panel-body">
+      <h2>One sign-in for every set of books you work in.</h2>
+      <p>Stock, invoicing, accounting, payroll, fixed assets and FBR filing —
+         posting to one ledger, company by company.</p>
+    </div>
+    <div class="panel-list">
+      <div><span class="tick">&#10003;</span> Pick your company after signing in</div>
+      <div><span class="tick">&#10003;</span> Rights follow your role in each company</div>
+      <div><span class="tick">&#10003;</span> New companies open with their books ready</div>
+    </div>
+  </aside>
+
+  <main class="form-side">
+    <div class="card">
+      <h1>Sign in</h1>
+      <p class="sub">Use the User ID your administrator issued you.</p>
+
+      <partial name="_Flash" />
+
+      <form method="POST">
+        <div class="field">
+          <label for="login">User ID</label>
+          <input type="text" id="login" name="login" required autofocus
+                 autocomplete="username" placeholder="Your user ID (or email)">
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required
+                 autocomplete="current-password" placeholder="Enter password">
+        </div>
+        <button type="submit">Sign In</button>
+      </form>
+
+      <div class="card-foot">
+        <a href="/">&larr; Back to home</a>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="/static/js/theme.js"></script>
+</body>
+</html>

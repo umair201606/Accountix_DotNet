@@ -1,0 +1,65 @@
+@model List<AssetTransfer>
+@{
+    ViewData["Title"] = "Asset Transfers";
+    ViewData["Heading"] = "Asset Transfers";
+}
+<div class="card">
+  <div class="card-body">
+    <div style="margin-bottom:12px;">
+      <a href="/fixed-assets/transfers/capitalise" class="btn btn-primary">Capitalise Stock as Fixed Asset</a>
+    </div>
+    @if (Model.Count > 0)
+    {
+    <div class="table-responsive">
+    <table class="table">
+      <thead><tr><th>Voucher #</th><th>Direction</th><th>Asset</th><th>Amount</th><th>Description</th><th>Status</th><th>Created</th><th></th></tr></thead>
+      <tbody>
+        @foreach (var t in Model)
+        {
+        bool toFa = t.Direction == "to_fixed_asset";
+        <tr>
+          <td>@t.VoucherNumber</td>
+          <td><span class="badge">@(toFa ? "Stock → Asset" : "Asset → Stock")</span></td>
+          <td>@(t.Asset?.Name ?? "N/A")</td>
+          <td>@Py.Comma(t.TransferAmount)</td>
+          <td>@t.Description</td>
+          <td><span class="badge @(t.Status == "approved" ? "badge-success" : "badge-warning")">@t.Status</span></td>
+          <td>@(t.CreatedAt?.ToString("yyyy-MM-dd") ?? "")</td>
+          <td style="white-space:nowrap;">
+            @if (t.Status == "approved")
+            {
+            <form method="POST" style="display:inline;" onsubmit="return confirm('Unapprove and reverse this transfer?')"
+                  action="@(toFa ? $"/fixed-assets/transfers/{t.Id}/unapprove-capitalisation" : $"/fixed-assets/transfers/{t.Id}/unapprove")">
+              <button type="submit" class="btn btn-sm btn-warning">Unapprove</button>
+            </form>
+            }
+            else
+            {
+            if (toFa)
+            {
+            <form method="POST" style="display:inline;" action="/fixed-assets/transfers/@t.Id/approve-capitalisation">
+              <button type="submit" class="btn btn-sm btn-success">Approve</button>
+            </form>
+            }
+            else
+            {
+            <a href="/fixed-assets/transfers/@t.Id/edit" class="btn btn-sm btn-outline">Edit</a>
+            }
+            <form method="POST" style="display:inline;" onsubmit="return confirm('Delete this transfer?')"
+                  action="/fixed-assets/transfers/@t.Id/delete">
+              <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+            </form>
+            }
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+    </div>
+    }
+    else
+    {
+    <p class="text-muted">No transfers yet. <a href="/fixed-assets/assets/">Go to Assets</a> to transfer one to stock, or capitalise stock above.</p>
+    }
+  </div>
+</div>

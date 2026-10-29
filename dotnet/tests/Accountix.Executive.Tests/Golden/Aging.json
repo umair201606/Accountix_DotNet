@@ -1,0 +1,493 @@
+{
+ "none": {
+  "receivable": {
+   "total": 15250.5,
+   "parties": 6,
+   "avg_days": 275.37096291924854,
+   "oldest_days": 389,
+   "oldest_name": "Exec Customer 7",
+   "oldest_code": "1-01-02-01-9107",
+   "oldest_account": "1-01-02-01-9107",
+   "peak": 15250.5,
+   "buckets": [
+    {
+     "key": "current",
+     "label": "Current",
+     "amount": 0.0,
+     "share": 0.0,
+     "width": 0.0
+    },
+    {
+     "key": "d31",
+     "label": "31\u201360 days",
+     "amount": 0.0,
+     "share": 0.0,
+     "width": 0.0
+    },
+    {
+     "key": "d61",
+     "label": "61\u201390 days",
+     "amount": 0.0,
+     "share": 0.0,
+     "width": 0.0
+    },
+    {
+     "key": "d91",
+     "label": "90+ days",
+     "amount": 15250.5,
+     "share": 100.0,
+     "width": 100.0
+    }
+   ],
+   "top": [
+    {
+     "account": "1-01-02-01-9107",
+     "name": "Exec Customer 7",
+     "code": "1-01-02-01-9107",
+     "amount": 7100.5,
+     "share": 46.56
+    },
+    {
+     "account": "1-01-02-01-9102",
+     "name": "Exec Customer 2",
+     "code": "1-01-02-01-9102",
+     "amount": 5000.0,
+     "share": 32.79
+    },
+    {
+     "account": "1-01-02-01-9106",
+     "name": "Exec Customer 6",
+     "code": "1-01-02-01-9106",
+     "amount": 1200.0,
+     "share": 7.87
+    },
+    {
+     "account": "2-01-01-01-9103",
+     "name": "Exec Supplier 3",
+     "code": "2-01-01-01-9103",
+     "amount": 700.0,
+     "share": 4.59
+    },
+    {
+     "account": "1-01-02-01-9103",
+     "name": "Exec Customer 3",
+     "code": "1-01-02-01-9103",
+     "amount": 650.0,
+     "share": 4.26
+    }
+   ]
+  },
+  "payable": {
+   "total": 11500.0,
+   "parties": 3,
+   "avg_days": 197.08695652173913,
+   "oldest_days": 242,
+   "oldest_name": "Exec Supplier 2",
+   "oldest_code": "2-01-01-01-9102",
+   "oldest_account": "2-01-01-01-9102",
+   "peak": 15250.5,
+   "buckets": [
+    {
+     "key": "current",
+     "label": "Current",
+     "amount": 0.0,
+     "share": 0.0,
+     "width": 0.0
+    },
+    {
+     "key": "d31",
+     "label": "31\u201360 days",
+     "amount": 0.0,
+     "share": 0.0,
+     "width": 0.0
+    },
+    {
+     "key": "d61",
+     "label": "61\u201390 days",
+     "amount": 0.0,
+     "share": 0.0,
+     "width": 0.0
+    },
+    {
+     "key": "d91",
+     "label": "90+ days",
+     "amount": 11500.0,
+     "share": 100.0,
+     "width": 75.41
+    }
+   ],
+   "top": [
+    {
+     "account": "2-01-01-01-9102",
+     "name": "Exec Supplier 2",
+     "code": "2-01-01-01-9102",
+     "amount": 9000.0,
+     "share": 78.26
+    },
+    {
+     "account": "2-01-01-01-9101",
+     "name": "Exec Supplier 1",
+     "code": "2-01-01-01-9101",
+     "amount": 2000.0,
+     "share": 17.39
+    },
+    {
+     "account": "1-01-02-01-9104",
+     "name": "Exec Customer 4",
+     "code": "1-01-02-01-9104",
+     "amount": 500.0,
+     "share": 4.35
+    }
+   ]
+  }
+ },
+ "2026-06-30": {
+  "receivable": {
+   "total": 14050.5,
+   "parties": 5,
+   "avg_days": 168.83629550549804,
+   "oldest_days": 268,
+   "oldest_name": "Exec Customer 7",
+   "oldest_code": "1-01-02-01-9107",
+   "oldest_account": "1-01-02-01-9107",
+   "peak": 9100.5,
+   "buckets": [
+    {
+     "key": "current",
+     "label": "Current",
+     "amount": 1350.0,
+     "share": 9.61,
+     "width": 14.83
+    },
+    {
+     "key": "d31",
+     "label": "31\u201360 days",
+     "amount": 600.0,
+     "share": 4.27,
+     "width": 6.59
+    },
+    {
+     "key": "d61",
+     "label": "61\u201390 days",
+     "amount": 3000.0,
+     "share": 21.35,
+     "width": 32.97
+    },
+    {
+     "key": "d91",
+     "label": "90+ days",
+     "amount": 9100.5,
+     "share": 64.77,
+     "width": 100.0
+    }
+   ],
+   "top": [
+    {
+     "account": "1-01-02-01-9107",
+     "name": "Exec Customer 7",
+     "code": "1-01-02-01-9107",
+     "amount": 7100.5,
+     "share": 50.54
+    },
+    {
+     "account": "1-01-02-01-9102",
+     "name": "Exec Customer 2",
+     "code": "1-01-02-01-9102",
+     "amount": 5000.0,
+     "share": 35.59
+    },
+    {
+     "account": "2-01-01-01-9103",
+     "name": "Exec Supplier 3",
+     "code": "2-01-01-01-9103",
+     "amount": 700.0,
+     "share": 4.98
+    },
+    {
+     "account": "1-01-02-01-9103",
+     "name": "Exec Customer 3",
+     "code": "1-01-02-01-9103",
+     "amount": 650.0,
+     "share": 4.63
+    },
+    {
+     "account": "1-01-02-01-9101",
+     "name": "Exec Customer 1",
+     "code": "1-01-02-01-9101",
+     "amount": 600.0,
+     "share": 4.27
+    }
+   ]
+  },
+  "payable": {
+   "total": 11500.0,
+   "parties": 3,
+   "avg_days": 76.08695652173913,
+   "oldest_days": 121,
+   "oldest_name": "Exec Supplier 2",
+   "oldest_code": "2-01-01-01-9102",
+   "oldest_account": "2-01-01-01-9102",
+   "peak": 9100.5,
+   "buckets": [
+    {
+     "key": "current",
+     "label": "Current",
+     "amount": 2500.0,
+     "share": 21.74,
+     "width": 27.47
+    },
+    {
+     "key": "d31",
+     "label": "31\u201360 days",
+     "amount": 3000.0,
+     "share": 26.09,
+     "width": 32.97
+    },
+    {
+     "key": "d61",
+     "label": "61\u201390 days",
+     "amount": 0.0,
+     "share": 0.0,
+     "width": 0.0
+    },
+    {
+     "key": "d91",
+     "label": "90+ days",
+     "amount": 6000.0,
+     "share": 52.17,
+     "width": 65.93
+    }
+   ],
+   "top": [
+    {
+     "account": "2-01-01-01-9102",
+     "name": "Exec Supplier 2",
+     "code": "2-01-01-01-9102",
+     "amount": 9000.0,
+     "share": 78.26
+    },
+    {
+     "account": "2-01-01-01-9101",
+     "name": "Exec Supplier 1",
+     "code": "2-01-01-01-9101",
+     "amount": 2000.0,
+     "share": 17.39
+    },
+    {
+     "account": "1-01-02-01-9104",
+     "name": "Exec Customer 4",
+     "code": "1-01-02-01-9104",
+     "amount": 500.0,
+     "share": 4.35
+    }
+   ]
+  }
+ },
+ "2026-05-01": {
+  "receivable": {
+   "total": 15100.5,
+   "parties": 2,
+   "avg_days": 119.9234707460018,
+   "oldest_days": 208,
+   "oldest_name": "Exec Customer 7",
+   "oldest_code": "1-01-02-01-9107",
+   "oldest_account": "1-01-02-01-9107",
+   "peak": 7100.5,
+   "buckets": [
+    {
+     "key": "current",
+     "label": "Current",
+     "amount": 3000.0,
+     "share": 19.87,
+     "width": 42.25
+    },
+    {
+     "key": "d31",
+     "label": "31\u201360 days",
+     "amount": 0.0,
+     "share": 0.0,
+     "width": 0.0
+    },
+    {
+     "key": "d61",
+     "label": "61\u201390 days",
+     "amount": 5000.0,
+     "share": 33.11,
+     "width": 70.42
+    },
+    {
+     "key": "d91",
+     "label": "90+ days",
+     "amount": 7100.5,
+     "share": 47.02,
+     "width": 100.0
+    }
+   ],
+   "top": [
+    {
+     "account": "1-01-02-01-9102",
+     "name": "Exec Customer 2",
+     "code": "1-01-02-01-9102",
+     "amount": 8000.0,
+     "share": 52.98
+    },
+    {
+     "account": "1-01-02-01-9107",
+     "name": "Exec Customer 7",
+     "code": "1-01-02-01-9107",
+     "amount": 7100.5,
+     "share": 47.02
+    }
+   ]
+  },
+  "payable": {
+   "total": 6000.0,
+   "parties": 1,
+   "avg_days": 61.0,
+   "oldest_days": 61,
+   "oldest_name": "Exec Supplier 2",
+   "oldest_code": "2-01-01-01-9102",
+   "oldest_account": "2-01-01-01-9102",
+   "peak": 7100.5,
+   "buckets": [
+    {
+     "key": "current",
+     "label": "Current",
+     "amount": 0.0,
+     "share": 0.0,
+     "width": 0.0
+    },
+    {
+     "key": "d31",
+     "label": "31\u201360 days",
+     "amount": 0.0,
+     "share": 0.0,
+     "width": 0.0
+    },
+    {
+     "key": "d61",
+     "label": "61\u201390 days",
+     "amount": 6000.0,
+     "share": 100.0,
+     "width": 84.5
+    },
+    {
+     "key": "d91",
+     "label": "90+ days",
+     "amount": 0.0,
+     "share": 0.0,
+     "width": 0.0
+    }
+   ],
+   "top": [
+    {
+     "account": "2-01-01-01-9102",
+     "name": "Exec Supplier 2",
+     "code": "2-01-01-01-9102",
+     "amount": 6000.0,
+     "share": 100.0
+    }
+   ]
+  }
+ },
+ "2025-12-31": {
+  "receivable": {
+   "total": 9100.5,
+   "parties": 1,
+   "avg_days": 78.8686193066315,
+   "oldest_days": 87,
+   "oldest_name": "Exec Customer 7",
+   "oldest_code": "1-01-02-01-9107",
+   "oldest_account": "1-01-02-01-9107",
+   "peak": 7100.51,
+   "buckets": [
+    {
+     "key": "current",
+     "label": "Current",
+     "amount": 0.0,
+     "share": 0.0,
+     "width": 0.0
+    },
+    {
+     "key": "d31",
+     "label": "31\u201360 days",
+     "amount": 1999.99,
+     "share": 21.98,
+     "width": 28.17
+    },
+    {
+     "key": "d61",
+     "label": "61\u201390 days",
+     "amount": 7100.51,
+     "share": 78.02,
+     "width": 100.0
+    },
+    {
+     "key": "d91",
+     "label": "90+ days",
+     "amount": 0.0,
+     "share": 0.0,
+     "width": 0.0
+    }
+   ],
+   "top": [
+    {
+     "account": "1-01-02-01-9107",
+     "name": "Exec Customer 7",
+     "code": "1-01-02-01-9107",
+     "amount": 9100.5,
+     "share": 100.0
+    }
+   ]
+  },
+  "payable": {
+   "total": 4500.25,
+   "parties": 1,
+   "avg_days": 30.0,
+   "oldest_days": 30,
+   "oldest_name": "Exec Supplier 4",
+   "oldest_code": "2-01-01-01-9104",
+   "oldest_account": "2-01-01-01-9104",
+   "peak": 7100.51,
+   "buckets": [
+    {
+     "key": "current",
+     "label": "Current",
+     "amount": 4500.25,
+     "share": 100.0,
+     "width": 63.38
+    },
+    {
+     "key": "d31",
+     "label": "31\u201360 days",
+     "amount": 0.0,
+     "share": 0.0,
+     "width": 0.0
+    },
+    {
+     "key": "d61",
+     "label": "61\u201390 days",
+     "amount": 0.0,
+     "share": 0.0,
+     "width": 0.0
+    },
+    {
+     "key": "d91",
+     "label": "90+ days",
+     "amount": 0.0,
+     "share": 0.0,
+     "width": 0.0
+    }
+   ],
+   "top": [
+    {
+     "account": "2-01-01-01-9104",
+     "name": "Exec Supplier 4",
+     "code": "2-01-01-01-9104",
+     "amount": 4500.25,
+     "share": 100.0
+    }
+   ]
+  }
+ }
+}

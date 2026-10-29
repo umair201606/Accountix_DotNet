@@ -1,0 +1,39 @@
+@model Accountix.Inventory.Controllers.CategoryFormModel
+@{
+    var category = Model.Category;
+    string mode = category is null ? "New" : "Edit";
+    ViewData["Title"] = $"{mode} Category";
+    ViewData["Heading"] = $"{mode} Category";
+}
+<div class="card" style="max-width:600px;">
+  <form method="POST" class="form">
+    <div class="form-group">
+      <label>Name *</label>
+      <input type="text" name="name" class="form-control focus-ring" required value="@(category?.Name ?? "")">
+    </div>
+    <div class="form-group">
+      <label>Description</label>
+      <textarea name="description" class="form-control focus-ring" rows="3">@(category is null ? "" : category.Description ?? "None")</textarea>
+    </div>
+    <div class="form-group">
+      <label>Parent Category</label>
+      <select name="parent_id" class="form-control focus-ring">
+        <option value="">None</option>
+        @foreach (var p in Model.Parents)
+        {
+        <option value="@p.Id" selected="@(category is not null && category.ParentId == p.Id)">@p.Name</option>
+        }
+      </select>
+    </div>
+    @if (category is not null)
+    {
+    <div class="form-group">
+      <label><input type="checkbox" name="is_active" checked="@(category.IsActive == true)"> Active</label>
+    </div>
+    }
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">@(category is null ? "Create" : "Update")</button>
+      <a href="/inventory/categories/" class="btn btn-outline">Cancel</a>
+    </div>
+  </form>
+</div>

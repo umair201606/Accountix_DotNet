@@ -1,0 +1,106 @@
+@model InventoryTransferFormModel
+@{
+    var transfer = Model.Transfer;
+    var asset = Model.Asset;
+    string verb = transfer is not null ? "Edit" : "New";
+    ViewData["Title"] = $"{verb} Transfer to FA";
+    ViewData["Heading"] = $"{verb} Transfer to Fixed Assets";
+    static string Cost(InvProduct p) =>
+        p.CostPrice is decimal c && c != 0 ? Py.Repr(Py.F(c)) : p.UnitPrice is decimal u && u != 0 ? Py.Repr(Py.F(u)) : "0";
+}
+<div class="card" style="max-width:720px;">
+  <div class="card-body">
+    <p class="text-muted">Select an inventory product to capitalise as a fixed asset. A per-asset level-5 subledger will be created under Fixed Assets.</p>
+    <form method="POST">
+      <select name="status" class="form-control" style="display:none;">
+        <option value="unapproved">Unapproved</option>
+        <option value="approved">Approved</option>
+      </select>
+      <div class="form-group">
+        <label class="form-label">Select Product</label>
+        <select name="product_id" class="form-control" id="product-select" disabled="@(transfer is not null)">
+          <option value="">— Select Product —</option>
+          @foreach (var p in Model.Products)
+          {
+          <option value="@p.Id" selected="@(transfer is not null && transfer.SourceProductId == p.Id)"
+            data-cost="@Cost(p)" data-name="@p.Name">
+            @p.Sku — @p.Name (Stock: @Py.Quantity(p.CurrentStock))
+          </option>
+          }
+        </select>
+      </div>
+      <hr>
+      <div class="form-group">
+        <label class="form-label">Asset Name *</label>
+        <input type="text" name="name" class="form-control" id="asset-name" value="@(asset?.Name ?? "")" readonly="@(transfer is not null)">
+      </div>
+      <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group">
+          <label class="form-label">Category *</label>
+          <select name="category_id" class="form-control" required>
+            <option value="">Select category</option>
+            @foreach (var c in Model.Categories)
+            {
+            <option value="@c.Id" selected="@(asset is not null && asset.CategoryId == c.Id)">@c.Name</option>
+            }
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Transfer Date *</label>
+          <input type="date" name="purchase_date" class="form-control" value="@(asset is not null ? Py.Date(asset.PurchaseDate) : "")" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Quantity *</label>
+          <input type="number" step="any" min="0.0001" name="quantity" class="form-control" value="@(transfer?.Quantity is decimal q && q != 0 ? Py.Repr(Py.F(q)) : "1")" required>
+          <small style="display:block;margin-top:4px;color:var(--muted);">Cost is taken from the stock's valuation (FIFO / weighted average) on approval — not typed — so the asset and the inventory ledger always agree.</small>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Useful Life (years) *</label>
+          <input type="number" name="useful_life" class="form-control" value="@(asset?.UsefulLife.ToString() ?? "5")" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Depreciation Method</label>
+          <select name="depreciation_method" class="form-control">
+            <option value="straight_line" selected="@(asset is not null && asset.DepreciationMethod == "straight_line")">Straight Line</option>
+            <option value="declining_balance" selected="@(asset is not null && asset.DepreciationMethod == "declining_balance")">Declining Balance</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Salvage Value</label>
+          <input type="number" step="0.01" name="salvage_value" class="form-control" value="@(asset is not null ? Py.Repr(Py.F(asset.SalvageValue)) : "0")">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Location</label>
+          <input type="text" name="location" class="form-control" value="@(asset?.Location ?? "")">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Serial Number</label>
+          <input type="text" name="serial_number" class="form-control" value="@(asset?.SerialNumber ?? "")">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea name="description" class="form-control" rows="2">@(transfer?.Description ?? "")</textarea>
+      </div>
+      <div class="form-actions">
+        @if (transfer is null || transfer.Status != "approved")
+        {
+        <button type="submit" class="btn btn-primary" onclick="this.form.status.value='unapproved'">@(transfer is not null ? "Update" : "Save as Unapproved")</button>
+        <button type="submit" class="btn btn-success" onclick="this.form.status.value='approved'">@(transfer is null ? "Save & Approve" : "Approve")</button>
+        }
+        <a href="/inventory/transfer-to-fa/" class="btn btn-outline">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+@if (transfer is null)
+{
+<script>
+  document.getElementById('product-select').addEventListener('change', function() {
+    var opt = this.options[this.selectedIndex];
+    if (opt && opt.value) {
+      document.getElementById('asset-name').value = opt.getAttribute('data-name');
+    }
+  });
+</script>
+}

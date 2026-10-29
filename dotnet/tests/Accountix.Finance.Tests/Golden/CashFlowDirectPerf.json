@@ -1,0 +1,57 @@
+{
+ "op_items": [
+  {
+   "name": "Cash paid \u2014 Accrued & Payroll Liabilities",
+   "value": -38123900.0
+  },
+  {
+   "name": "Cash paid \u2014 Bank & Interest Charges",
+   "value": -236500.0
+  },
+  {
+   "name": "Cash paid \u2014 Fees, Taxes & Licenses",
+   "value": -733620.0
+  },
+  {
+   "name": "Cash paid \u2014 Freight & Transportation",
+   "value": -8836090.0
+  },
+  {
+   "name": "Cash paid \u2014 Marketing & Advertising",
+   "value": -3826510.0
+  },
+  {
+   "name": "Cash paid \u2014 Office & Supplies",
+   "value": -650560.0
+  },
+  {
+   "name": "Cash paid \u2014 Other Operating Expenses",
+   "value": -1137420.0
+  },
+  {
+   "name": "Cash paid \u2014 Rent & Utilities",
+   "value": -14581342.500000002
+  },
+  {
+   "name": "Cash paid \u2014 Tax Liabilities",
+   "value": -132752702.22000001
+  },
+  {
+   "name": "Cash paid \u2014 Trade Payables",
+   "value": -3492698903.9999995
+  },
+  {
+   "name": "Cash received \u2014 Trade Receivables",
+   "value": 3645293276.0700026
+  }
+ ],
+ "inv_items": [],
+ "fin_items": [
+  {
+   "name": "Proceeds from Owner Capital",
+   "value": 150000000.0
+  }
+ ],
+ "opening_cash": 0.0,
+ "closing_cash": 101715727.35
+}

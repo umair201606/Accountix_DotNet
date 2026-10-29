@@ -1,0 +1,33 @@
+@model RevisionsModel
+@{
+    ViewData["Title"] = "Salary Revisions - Accountix ERP";
+}
+<div class="page-header">
+    <h1>Salary Revisions</h1>
+</div>
+<div class="card">
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Employee</th><th>Previous</th><th>New</th><th>Reason</th><th>Effective</th><th>Approved By</th><th>Date</th></tr></thead>
+            <tbody>
+                @foreach (var v in Model.Revisions)
+                {
+                var r = v.Revision;
+                <tr>
+                    <td>@v.FullName</td>
+                    <td>Rs. @(r.PreviousBasic is decimal pb && pb != 0 ? Html.Amount(pb, 0) : "-")</td>
+                    <td>Rs. @Html.Amount(r.NewBasic, 0)</td>
+                    <td>@(string.IsNullOrEmpty(r.Reason) ? "-" : r.Reason.Length > 40 ? r.Reason[..40] : r.Reason)</td>
+                    <td>@r.EffectiveFrom.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)</td>
+                    <td>@(v.ApproverName ?? "-")</td>
+                    <td>@r.CreatedAt?.ToString("dd-MMM-yyyy", CultureInfo.InvariantCulture)</td>
+                </tr>
+                }
+                @if (Model.Revisions.Count == 0)
+                {
+                <tr><td colspan="7" class="text-center" style="color:var(--muted);">No revisions</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

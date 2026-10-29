@@ -1,0 +1,152 @@
+@model Accountix.Accounting.Controllers.DashboardModel
+@{
+    ViewData["Title"] = "Accounting Dashboard";
+}
+<div class="stat-grid">
+  <div class="stat-card">
+    <div class="stat-label">Total vouchers</div>
+    <div class="stat-value">@Model.Total</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Unapproved</div>
+    <div class="stat-value">@Model.Unapproved</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Approved</div>
+    <div class="stat-value">@Model.Approved</div>
+  </div>
+</div>
+
+<div class="acct-types">
+  @foreach (var vt in new[] { "CPV", "CRV", "BPV", "BRV", "JV" }.Where(t => Model.Viewable.Contains(t) || Model.Creatable.Contains(t)))
+  {
+    string name = vt switch { "CPV" => "Cash payment", "CRV" => "Cash receipt", "BPV" => "Bank payment", "BRV" => "Bank receipt", _ => "Journal voucher" };
+    if (Model.Creatable.Contains(vt))
+    {
+    <a href="/accounting/vouchers?type=@vt" class="acct-type">
+      <span class="acct-type-code">@vt</span>
+      <span class="acct-type-name">@name</span>
+      @if (Model.Viewable.Contains(vt)) { <span class="acct-type-count">@Model.ByType.GetValueOrDefault(vt) entries</span> }
+    </a>
+    }
+    else
+    {
+    <div class="acct-type">
+      <span class="acct-type-code">@vt</span>
+      <span class="acct-type-name">@name</span>
+      @if (Model.Viewable.Contains(vt)) { <span class="acct-type-count">@Model.ByType.GetValueOrDefault(vt) entries</span> }
+    </div>
+    }
+  }
+</div>
+
+<div class="card">
+  <div class="card-header">Recent vouchers</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Voucher #</th><th>Type</th><th>Date</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        @foreach (var v in Model.Recent)
+        {
+        <tr>
+          <td><a href="/accounting/vouchers/@v.Id">@v.VoucherNumber</a></td>
+          <td><span class="badge badge-default">@v.VoucherType</span></td>
+          <td>@v.VoucherDate.ToString("yyyy-MM-dd")</td>
+          <td>
+            @if (v.Status == "unapproved") { <span class="badge badge-warning">Unapproved</span> }
+            else { <span class="badge badge-success">Approved</span> }
+          </td>
+          <td><a href="/accounting/vouchers/@v.Id" class="btn btn-outline btn-sm">View</a></td>
+        </tr>
+        }
+        @if (Model.Recent.Count == 0)
+        {
+        <tr><td colspan="5" class="acct-empty">No vouchers yet.</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<style> blocks — so the recent-vouchers table rendered unstyled and the
+   status pills rendered as bare text. Everything here now uses the shared
+   names ui.css actually paints. #}
+<div class="stat-grid">
+  <div class="stat-card">
+    <div class="stat-label">Total vouchers</div>
+    <div class="stat-value">{{ stats.total }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Unapproved</div>
+    <div class="stat-value">{{ stats.unapproved }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Approved</div>
+    <div class="stat-value">{{ stats.approved }}</div>
+  </div>
+</div>
+
+<div class="acct-types">
+  {% for vt in ['CPV','CRV','BPV','BRV','JV'] if vt in viewable or vt in creatable %}
+  {% if vt in creatable %}<a href="{{ url_for('accounting.voucher_form') }}?type={{ vt }}" class="acct-type">{% else %}<div class="acct-type">{% endif %}
+    <span class="acct-type-code">{{ vt }}</span>
+    <span class="acct-type-name">
+      {% if vt == 'CPV' %}Cash payment{% elif vt == 'CRV' %}Cash receipt{% elif vt == 'BPV' %}Bank payment{% elif vt == 'BRV' %}Bank receipt{% else %}Journal voucher{% endif %}
+    </span>
+    {% if vt in viewable %}<span class="acct-type-count">{{ stats.by_type.get(vt,0) }} entries</span>{% endif %}
+  {% if vt in creatable %}</a>{% else %}</div>{% endif %}
+  {% endfor %}
+</div>
+
+<div class="card">
+  <div class="card-header">Recent vouchers</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Voucher #</th><th>Type</th><th>Date</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        {% for v in recent %}
+        <tr>
+          <td><a href="{{ url_for('accounting.voucher_form', id=v.id) }}">{{ v.voucher_number }}</a></td>
+          <td><span class="badge badge-default">{{ v.voucher_type }}</span></td>
+          <td>{{ v.voucher_date.strftime('%Y-%m-%d') if v.voucher_date else '' }}</td>
+          <td>
+            {% if v.status == 'unapproved' %}
+              <span class="badge badge-warning">Unapproved</span>
+            {% else %}
+              <span class="badge badge-success">Approved</span>
+            {% endif %}
+          </td>
+          <td><a href="{{ url_for('accounting.voucher_form', id=v.id) }}" class="btn btn-outline btn-sm">View</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="acct-empty">No vouchers yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<style>
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+               gap: 12px; margin-bottom: 12px; }
+  /* The five voucher types are a keyboard-first launcher: the code is what an
+     operator actually types, so it is the loud element and the description
+     supports it. Neutral throughout — which type you want is not a status. */
+  .acct-types { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+                gap: 10px; margin-bottom: 12px; }
+  .acct-type { display: flex; flex-direction: column; gap: 2px; padding: 14px 16px;
+               background: var(--v2-surface); border: 1px solid var(--v2-line);
+               border-radius: 11px; text-decoration: none; }
+  /* app.css underlines every a:hover; on a card-shaped link that drags a line
+     through all three lines of text. */
+  .acct-type:hover { border-color: var(--v2-faint); background: var(--v2-hover); text-decoration: none; }
+  .acct-type:hover .acct-type-code, .acct-type:hover .acct-type-name { text-decoration: none; }
+  /* ui.css gives .table-wrap overflow:hidden so the border-radius clips the
+     table corners — which means a table wider than the phone is cut off rather
+     than scrollable. Five columns of real voucher data are wider than 375px. */
+  .card .table-wrap { overflow-x: auto; }
+  .acct-type-code { font-size: 18px; font-weight: 600; color: var(--v2-ink); letter-spacing: -.02em; }
+  .acct-type-name { font-size: 12.5px; color: var(--v2-body); }
+  .acct-type-count { font-size: 11.5px; color: var(--v2-muted); font-variant-numeric: tabular-nums; }
+  .acct-empty { text-align: center; padding: 30px; color: var(--v2-muted); }
+</style>

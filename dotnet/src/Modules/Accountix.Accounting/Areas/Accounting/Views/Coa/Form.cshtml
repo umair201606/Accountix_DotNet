@@ -1,0 +1,243 @@
+@model Accountix.Accounting.Controllers.CoaFormModel
+@{
+    var account = Model.Account;
+    ViewData["Title"] = (account is not null ? "Edit" : "Add") + " Account";
+    var levels = Accountix.Accounting.Controllers.CoaController.LevelLabels;
+    string Words(string s) => ViewHelpers.Title(s.Replace('_', ' '));
+}
+@section Head {
+<style>
+.lbl{display:block;font-size:11.5px;font-weight:500;color:var(--v2-muted);margin-bottom:4px}
+.inp,.sel{width:100%;padding:8px 10px;font-size:13px;border:1px solid var(--v2-line-2);border-radius:8px;background:var(--v2-surface);outline:none;font-family:inherit;color:var(--v2-ink)}
+.inp:focus,.sel:focus{outline:2px solid var(--v2-ink);outline-offset:2px}
+.inp[readonly]{background:var(--v2-sunk);color:var(--v2-body);cursor:not-allowed}
+/* The generated code is the one thing on this form the user is here to see, so
+   it is the only accent on the page. */
+.code-preview{background:var(--v2-accent-soft);border:1px dashed var(--v2-accent);border-radius:8px;padding:12px 16px;margin:14px 0;display:none}
+.code-preview .cp-code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:18px;font-weight:600;color:var(--v2-accent-ink);font-variant-numeric:tabular-nums}
+.code-preview .cp-level{font-size:12px;color:var(--v2-muted);margin-top:2px}
+.tag-help{font-size:11.5px;color:var(--v2-muted);margin-top:4px;line-height:1.5}
+.form-note{background:var(--v2-accent-soft);color:var(--v2-accent-ink);padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px}
+.level-label{padding:4px 0;font-weight:500;color:var(--v2-ink)}
+.path-label{padding:4px 0;font-size:12px;color:var(--v2-muted)}
+.fieldset-rule{border-top:1px solid var(--v2-line);margin:18px 0 14px;padding-top:14px}
+.fieldset-title{font-size:11.5px;font-weight:500;color:var(--v2-muted);margin-bottom:10px}
+.fgroup{margin-bottom:14px}
+@@media(max-width:560px){
+  .tags-grid{grid-template-columns:1fr!important}
+}
+</style>
+}
+<div class="wrap">
+  <div class="card" style="max-width:640px;">
+    <div class="card-h">@(account is not null ? "Edit" : "Add New") Account</div>
+    <div class="card-b">
+      <form method="POST">
+        @if (account is { IsFixed: true })
+        {
+        <div class="form-note">
+          <strong>Fixed structural account</strong> — name and position are locked; report tags remain editable.
+        </div>
+        }
+
+        @if (account is not null)
+        {
+        <div class="fgroup">
+          <label class="lbl">Level</label>
+          <div class="level-label">@levels.GetValueOrDefault(account.Level, "")</div>
+        </div>
+        <div class="fgroup">
+          <label class="lbl">Code</label>
+          <div style="padding:4px 0;font-family:monospace;font-size:15px;">@account.Code</div>
+        </div>
+        <div class="fgroup">
+          <label class="lbl">Full Path</label>
+          <div class="path-label">@Model.Path</div>
+        </div>
+        <div class="fgroup">
+          <label class="lbl">Account Name</label>
+          <input type="text" name="name" class="inp" value="@account.Name" readonly="@(account.IsFixed == true)"
+                 style="width:100%;@(account.IsFixed == true ? "background:var(--v2-sunk);cursor:not-allowed;" : "")">
+        </div>
+        <div class="fgroup">
+          <label class="lbl">Description</label>
+          <textarea name="description" class="inp" style="width:100%;min-height:60px;" readonly="@(account.IsFixed == true)">@(account.Description ?? "")</textarea>
+        </div>
+        @if (account.IsFixed != true)
+        {
+        <div class="fgroup">
+          <label class="lbl">
+            <input type="checkbox" name="is_active" value="1" checked="@(account.IsActive == true)">
+            Active
+          </label>
+        </div>
+        }
+        }
+        else
+        {
+        <div class="fgroup">
+          <label class="lbl">Level 1 — Account Class</label>
+          <select id="sel1" class="sel" style="width:100%;">
+            <option value="">-- Select class --</option>
+            @foreach (var a in Model.L1)
+            {
+            <option value="@a.Id">@a.Code — @a.Name</option>
+            }
+          </select>
+        </div>
+        <div class="fgroup" id="grp2" style="display:none;">
+          <label class="lbl">Level 2 — Sub-Group</label>
+          <select id="sel2" class="sel" style="width:100%;"></select>
+        </div>
+        <div class="fgroup" id="grp3" style="display:none;">
+          <label class="lbl">Level 3 — Parent Head</label>
+          <select id="sel3" class="sel" style="width:100%;"></select>
+        </div>
+        <div class="fgroup" id="grp4" style="display:none;">
+          <label class="lbl">Level 4 — Child Account</label>
+          <select id="sel4" class="sel" style="width:100%;"></select>
+        </div>
+
+        <div class="code-preview" id="codePreview">
+          <div class="cp-code" id="cpCode"></div>
+          <div class="cp-level" id="cpLevel"></div>
+        </div>
+
+        <div class="fgroup">
+          <label class="lbl">Account Name</label>
+          <input type="text" name="name" id="acctName" class="inp" placeholder="Enter account name" style="width:100%;">
+        </div>
+        <div class="fgroup">
+          <label class="lbl">Description</label>
+          <textarea name="description" class="inp" style="width:100%;min-height:60px;"></textarea>
+        </div>
+        <input type="hidden" name="parent_id" id="parentIdInput" value="@(Model.ParentId?.ToString() ?? "")">
+        }
+
+        <div class="fieldset-rule">
+          <div class="fieldset-title">Report tags</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;" class="tags-grid">
+            <div class="fgroup">
+              <label class="lbl">Cash-Flow Activity</label>
+              <select name="cash_flow_activity" class="sel" style="width:100%;">
+                <option value="">Inherit from parent</option>
+                @foreach (var cf in Accountix.Accounting.Controllers.CoaController.CfActivities)
+                {
+                <option value="@cf" selected="@(account?.CashFlowActivity == cf)">@ViewHelpers.Title(cf)</option>
+                }
+              </select>
+              <div class="tag-help">Where this account's movements appear in the cash-flow statement. "Cash" marks cash &amp; equivalent accounts themselves.</div>
+            </div>
+            <div class="fgroup">
+              <label class="lbl">P&amp;L Section</label>
+              <select name="pl_section" class="sel" style="width:100%;">
+                <option value="">Inherit from parent</option>
+                @foreach (var pl in Accountix.Accounting.Controllers.CoaController.PlSections)
+                {
+                <option value="@pl" selected="@(account?.PlSection == pl)">@Words(pl)</option>
+                }
+              </select>
+              <div class="tag-help">Which Profit &amp; Loss section this account reports under (revenue/expense accounts only).</div>
+            </div>
+          </div>
+          @if (account is not null)
+          {
+          <div class="tag-help">
+            Effective now: cash-flow = <strong>@(Model.EffectiveCf ?? "—")</strong>,
+            P&amp;L section = <strong>@((Model.EffectivePl ?? "—").Replace('_', ' '))</strong>.
+          </div>
+          }
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:20px;">
+          <button type="submit" class="btn btn-primary">@(account is not null ? "Update" : "Create")</button>
+          <a href="/accounting/coa/" class="btn btn-outline">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+@if (account is null)
+{
+<script>
+(function(){
+  var sels = [document.getElementById('sel1'), document.getElementById('sel2'),
+              document.getElementById('sel3'), document.getElementById('sel4')];
+  var grps = [null, document.getElementById('grp2'), document.getElementById('grp3'),
+              document.getElementById('grp4')];
+  var parentInput = document.getElementById('parentIdInput');
+  var preview = document.getElementById('codePreview');
+  var cpCode = document.getElementById('cpCode');
+  var cpLevel = document.getElementById('cpLevel');
+  var preselect = "@(Model.ParentId?.ToString() ?? "")";
+
+  function deepestParent(){
+    for (var i = sels.length - 1; i >= 0; i--)
+      if (sels[i].value) return sels[i].value;
+    return '';
+  }
+
+  function refreshPreview(){
+    var pid = deepestParent();
+    parentInput.value = pid;
+    if (!pid){ preview.style.display = 'none'; return; }
+    fetch('/accounting/coa/api/next-code?parent_id=' + pid)
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if (!d.code){ preview.style.display = 'none'; return; }
+        cpCode.textContent = d.code;
+        cpLevel.textContent = 'Will be created as ' + d.level_label;
+        preview.style.display = 'block';
+      });
+  }
+
+  function loadChildren(parentId, idx){
+    // idx = index of the select to fill (1..3)
+    for (var i = idx; i < sels.length; i++){
+      sels[i].innerHTML = '';
+      if (grps[i]) grps[i].style.display = 'none';
+    }
+    if (!parentId){ refreshPreview(); return; }
+    fetch('/accounting/coa/api/children?parent_id=' + parentId)
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        if (idx < sels.length && data.length){
+          var sel = sels[idx];
+          sel.innerHTML = '<option value="">-- Create the account here --</option>';
+          data.forEach(function(c){
+            if (c.level >= 5) return;   // level-5 accounts cannot be parents
+            var opt = document.createElement('option');
+            opt.value = c.id;
+            opt.textContent = c.code + ' — ' + c.name;
+            sel.appendChild(opt);
+          });
+          if (sel.options.length > 1 && grps[idx]) grps[idx].style.display = 'block';
+        }
+        refreshPreview();
+      });
+  }
+
+  sels.forEach(function(sel, i){
+    sel.addEventListener('change', function(){
+      loadChildren(this.value, i + 1);
+    });
+  });
+
+  if (preselect){
+    // Deep-linked "+ Child": resolve the chain server-side is overkill; just
+    // set the hidden parent and show the preview.
+    parentInput.value = preselect;
+    fetch('/accounting/coa/api/next-code?parent_id=' + preselect)
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if (d.code){
+          cpCode.textContent = d.code;
+          cpLevel.textContent = 'Will be created as ' + d.level_label;
+          preview.style.display = 'block';
+        }
+      });
+  }
+})();
+</script>
+
+}

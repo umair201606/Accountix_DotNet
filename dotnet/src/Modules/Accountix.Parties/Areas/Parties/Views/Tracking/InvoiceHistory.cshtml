@@ -1,0 +1,237 @@
+@model Accountix.Parties.Controllers.HistoryPageModel
+@{
+    var m = Model;
+    var row = m.Row;
+    var meta = m.DocMeta;
+    ViewData["Title"] = row.Number + " - Payment history";
+    ViewData["Heading"] = "Payment history · " + row.Number;
+    double pct = row.Progress < 100 ? row.Progress : 100;
+    var inv = System.Globalization.CultureInfo.InvariantCulture;
+    string moneyWord = m.DocType == "SI" ? "receipt" : "payment";
+    string Day(DateTime? d) => d?.ToString("dd MMM yyyy", inv) ?? "";
+    string P0(double v) => Math.Round(v, 0, MidpointRounding.ToEven).ToString("F0", inv);
+}
+@section Head {
+<partial name="_TrackingStyle" />
+}
+<div class="trk">
+
+  <header class="trk-pagehead">
+    <a href="@meta.Endpoint" class="trk-back">&larr; @meta.Title</a>
+    <div class="trk-pagehead-row">
+      <p class="trk-idline">
+        <strong>@row.PartyName</strong>
+        <span class="sep">·</span> issued @(row.DateStr.Length > 0 ? row.DateStr : "—")
+        <span class="sep">·</span> due @(row.DueStr.Length > 0 ? row.DueStr : "—")
+        @if (row.OverdueDays > 0) {<span class="trk-age hot">@row.OverdueDays days late</span>}
+      </p>
+      <a href="@m.EditUrl" class="trk-rowbtn">Open invoice</a>
+    </div>
+  </header>
+
+  <div class="trk-card">
+    <div class="trk-card-body">
+      <div style="display:flex;flex-wrap:wrap;gap:24px;align-items:center;justify-content:space-between;">
+        <div class="trk-ring">
+          <svg class="trk-ring-svg" width="104" height="104" viewBox="0 0 104 104" role="img"
+               aria-label="@P0(pct) percent settled">
+            <circle cx="52" cy="52" r="44" fill="none" style="stroke:var(--border-soft)" stroke-width="12"></circle>
+            <circle cx="52" cy="52" r="44" fill="none"
+                    style="stroke:@(row.PayState == "paid" ? "var(--success)" : row.PayState == "partial" ? "var(--accent)" : "var(--danger)")"
+                    stroke-width="12" stroke-linecap="round"
+                    stroke-dasharray="@((2 * 3.14159 * 44).ToString("F2", inv))"
+                    stroke-dashoffset="@((2 * 3.14159 * 44 * (1 - pct / 100)).ToString("F2", inv))"
+                    transform="rotate(-90 52 52)"></circle>
+            <text x="52" y="57" text-anchor="middle" font-size="19" font-weight="800"
+                  style="fill:var(--text)" font-family="Inter,sans-serif">@P0(pct)%</text>
+          </svg>
+          <div class="trk-ring-copy">
+            <div class="lbl">Outstanding</div>
+            <div class="val">@Html.Amount(row.Outstanding, 2)</div>
+            <div class="sub">
+              <span class="trk-pay trk-pay-@row.PayState">
+                @(row.PayState == "unpaid" ? "Unpaid" : row.PayState == "partial" ? "Partial" : "Paid")
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="trk-sum" style="min-width:230px;flex:1;max-width:340px;">
+          <div class="trk-sum-row"><span>Invoice total</span><b>@Html.Amount(row.Total, 2)</b></div>
+          <div class="trk-sum-row"><span>@meta.MoneyWord &amp; assigned</span><b>@Html.Amount(row.Settled, 2)</b></div>
+          @if (row.Credited != 0)
+          {
+          <div class="trk-sum-row"><span>@(m.DocType == "SI" ? "Credit notes" : "Debit notes") (returns)</span><b>@Html.Amount(row.Credited, 2)</b></div>
+          }
+          <div class="trk-sum-row total"><span>Still @meta.OpenWord.ToLowerInvariant()</span><b>@Html.Amount(row.Outstanding, 2)</b></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section class="trk-card">
+    <div class="trk-card-head">
+      <div class="trk-card-title"><span class="trk-dot"></span><span>What settled this invoice</span></div>
+      <span class="trk-card-hint">@m.History.Count @(m.History.Count == 1 ? "entry" : "entries") &middot; oldest first</span>
+    </div>
+    <div class="trk-card-body" style="background:var(--card);">
+      @if (m.History.Count > 0)
+      {
+      <div class="trk-timeline">
+        @foreach (var h in m.History)
+        {
+        if (h.Kind == "return")
+        {
+        <article class="trk-ev is-return">
+          <div class="trk-ev-head">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0;">
+              <span class="trk-vtype">@h.VoucherType</span>
+              <a href="@(m.ReturnPath)@h.Id" class="trk-vno">@h.VoucherNumber</a>
+              <span style="color:var(--muted);font-size:11.5px;">@Day(h.Date)</span>
+            </div>
+            <div class="trk-ev-actions"><span class="trk-ev-amount">@Html.Amount(h.Amount, 2)</span></div>
+          </div>
+          <div class="trk-ev-meta">
+            <span>Balance after: <b>@Html.Amount(h.BalanceAfter, 2)</b></span>
+            @if (h.Description.Length > 0) {<span>@h.Description</span>}
+          </div>
+        </article>
+        }
+        else
+        {
+        <article class="trk-ev @(h.Counts ? "" : "is-stale")">
+          <div class="trk-ev-head">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0;">
+              <span class="trk-vtype">@h.VoucherType</span>
+              <a href="/accounting/vouchers/@h.VoucherId" class="trk-vno">@h.VoucherNumber</a>
+              <span style="color:var(--muted);font-size:11.5px;">@Day(h.Date)</span>
+              @if (!h.Counts) {<span class="trk-state trk-state-review" title="The voucher behind it was edited, unapproved or deleted">no longer counts</span>}
+            </div>
+            <div class="trk-ev-actions">
+              <span class="trk-ev-amount">@Html.Amount(h.Amount, 2)</span>
+              @if (m.CanAssign)
+              {
+              <button type="button" class="trk-rowbtn danger trk-unassign" data-id="@h.Id"
+                      title="Detach this @moneyWord from the invoice — the money stays in the ledger">Detach</button>
+              }
+            </div>
+          </div>
+          <div class="trk-ev-meta">
+            <span>Balance after: <b>@Html.Amount(h.BalanceAfter, 2)</b></span>
+            @if (h.CashAccount.Length > 0) {<span>Through: <b>@h.CashAccount</b></span>}
+            @if (h.Description.Length > 0) {<span>@h.Description</span>}
+            @if (h.By.Length > 0) {<span>Assigned by <b>@h.By</b></span>}
+            <span><a href="/invoicing/tracking/assign/@h.LineId">Open the @moneyWord &rarr;</a></span>
+          </div>
+        </article>
+        }
+        }
+      </div>
+      }
+      else
+      {
+      <div class="trk-empty">
+        <span class="trk-empty-icon">&#8635;</span>
+        <strong>Nothing has settled it yet</strong>
+        <p>No @moneyWord has been matched to this
+          invoice. Record it as a voucher first if it has not been booked, then assign it here.</p>
+        <a href="/invoicing/tracking/?party=@(row.PartyType):@row.PartyId" class="btn btn-primary">
+          Open this @meta.PartyLabel.ToLowerInvariant()'s feed
+        </a>
+      </div>
+      }
+    </div>
+  </section>
+
+  @if (m.Available.Count > 0)
+  {
+  <section class="trk-card">
+    <div class="trk-card-head">
+      <div class="trk-card-title"><span class="trk-dot"></span><span>Unassigned money for @row.PartyName</span></div>
+      <span class="trk-card-hint">Already in the ledger, not yet matched to an invoice</span>
+    </div>
+    <div class="trk-table-wrap">
+      <table class="trk-table">
+        <thead>
+          <tr><th>Voucher</th><th>Date</th><th class="trk-hide-sm">Through</th><th class="num">Amount</th><th class="num">Left to assign</th><th>Action</th></tr>
+        </thead>
+        <tbody>
+          @foreach (var a in m.Available)
+          {
+          decimal take = Math.Min(a.Unassigned, row.Outstanding);
+          <tr>
+            <td data-label="Voucher">
+              <span class="trk-vtype">@a.VoucherType</span>
+              <a href="/accounting/vouchers/@a.VoucherId" class="trk-doclink" style="margin-left:6px;">@a.VoucherNumber</a>
+            </td>
+            <td data-label="Date" class="trk-nowrap">@a.DateStr</td>
+            <td data-label="Through" class="trk-hide-sm">@(a.CashAccount.Length > 0 ? a.CashAccount : "—")</td>
+            <td data-label="Amount" class="num">@Html.Amount(a.Amount, 2)</td>
+            <td data-label="Left to assign" class="num strong">@Html.Amount(a.Unassigned, 2)</td>
+            <td data-label="Action" class="trk-nowrap">
+              @if (m.CanAssign && take > 0)
+              {
+              <button type="button" class="btn btn-sm btn-primary trk-apply"
+                      data-url="/invoicing/tracking/api/apply/@a.LineId/@m.DocType/@row.Id"
+                      title="Put @Html.Amount(take, 2) of this on @row.Number">Apply @Html.Amount(take, 0)</button>
+              }
+              <a href="/invoicing/tracking/assign/@a.LineId" class="trk-rowbtn">Split…</a>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+  }
+</div>
+
+@section Scripts {
+@if (m.CanAssign)
+{
+<script>
+(function () {
+  var err = document.createElement('div');
+  err.className = 'trk-err';
+  err.setAttribute('role', 'alert');
+  var host = document.querySelector('.trk-pagehead');
+  if (host) host.after(err);
+  function showError(msg) { err.textContent = msg || ''; err.classList.toggle('show', !!msg); }
+  function post(url, onFail) {
+    return fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' } })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.ok) { window.location.reload(); return; }
+        onFail(data.error || 'That was refused.');
+      })
+      .catch(function () { onFail('Could not save. Check your connection and try again.'); });
+  }
+  document.querySelectorAll('.trk-unassign').forEach(function (btn) {
+    var armed = null;
+    btn.addEventListener('click', function () {
+      // First press arms it; the voucher and every ledger balance stay as
+      // they are — only the link to this invoice goes.
+      if (!btn.classList.contains('is-armed')) {
+        btn.classList.add('is-armed');
+        btn.textContent = 'Press again to detach';
+        armed = setTimeout(function () { btn.classList.remove('is-armed'); btn.textContent = 'Detach'; }, 4000);
+        return;
+      }
+      clearTimeout(armed);
+      btn.disabled = true;
+      btn.textContent = 'Detaching…';
+      post('/invoicing/tracking/api/unassign/0'.replace(/0$/, btn.dataset.id),
+           function (msg) { btn.disabled = false; btn.classList.remove('is-armed'); btn.textContent = 'Detach'; showError(msg); });
+    });
+  });
+  document.querySelectorAll('.trk-apply').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var label = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Applying…';
+      post(btn.dataset.url, function (msg) { btn.disabled = false; btn.textContent = label; showError(msg); });
+    });
+  });
+})();
+</script>
+}
+}

@@ -1,0 +1,2 @@
+@* company.company_name on the report letterhead: the profile's name, else the company's (Python printed it blank). *@
+@{ var access = Context.Access(); }@(access?.Profile?.CompanyName is { Length: > 0 } pn ? pn : access?.Company?.Name ?? "")

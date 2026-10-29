@@ -1,0 +1,35 @@
+@model Accountix.Inventory.Controllers.VoucherMeta
+@*
+  vouchers/_voucher_meta.html: document date + project label. The date drives
+  the posting period AND the costing order — a back-dated voucher is costed
+  where it sits in time.
+*@
+<div class="form-group">
+  <label for="docDate">Date</label>
+  <input type="date" id="docDate" name="date" class="form-control" required
+         value="@(Model.Date is DateTime d ? d.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture) : Model.TodayIso)">
+  <small class="vm-hint">Posts to this date's period; stock is costed as of this date.</small>
+</div>
+<div class="form-group">
+  <label for="docLabel">Project label</label>
+  <select id="docLabel" name="label_id" class="form-control">
+    <option value="">— None —</option>
+    @foreach (var l in Model.Labels)
+    {
+    <option value="@l.Id" selected="@(Model.LabelId == l.Id)">@l.Name</option>
+    }
+  </select>
+  <small class="vm-hint">Tags the cost on every journal line, for label-wise reports.</small>
+</div>
+<input type="hidden" name="status" value="@(string.IsNullOrEmpty(Model.Status) ? "unapproved" : Model.Status)">
+<style>
+  .vm-hint{display:block;margin-top:4px;color:var(--muted);font-size:12px}
+  .vf-locked{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--success);
+    padding:10px 12px;border-radius:8px;margin:0 0 12px;font-size:14px}
+  .vf-fieldset{border:0;margin:0;padding:0;min-width:0}
+  .vf-fieldset:disabled .btn-danger,.vf-fieldset:disabled button.btn-outline{display:none}
+  .vf-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .vf-table-wrap table{min-width:560px}
+  .form-actions{display:flex;flex-wrap:wrap;gap:8px}
+  @@media (max-width:600px){.form-row{display:block}.form-actions .btn{flex:1 1 auto}}
+</style>

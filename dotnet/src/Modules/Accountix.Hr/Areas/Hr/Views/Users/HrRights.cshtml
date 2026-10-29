@@ -1,0 +1,55 @@
+@model Accountix.Hr.Controllers.UsersController.RightsModel
+@{
+    ViewData["Title"] = $"HR Rights - {Model.User.FullName} - Accountix ERP";
+    bool Has(UserPermission? p, string a) => p is not null && p.Allows(a);
+}
+<div class="page-header">
+    <h1>HR Rights — @Model.User.FullName</h1>
+    <a href="/auth/users" class="btn btn-outline">&larr; All Users</a>
+</div>
+<div style="background:var(--accent-light);border:1px solid var(--accent-light);color:var(--accent);padding:10px 16px;border-radius:8px;font-size:13px;margin-bottom:16px;">
+    &#9432; HR can set rights for <strong>HR sections only</strong>. Access to other modules
+    (Inventory, Invoicing, Finance, Accounting) and their rights are assigned by the
+    <strong>admin</strong> in ERP hub Settings.
+</div>
+@if (!Model.IsConfigured)
+{
+<div style="background:var(--warning-light);border:1px solid var(--warning-light);color:var(--warning);padding:10px 16px;border-radius:8px;font-size:13px;margin-bottom:16px;">
+    No HR rights configured yet — this user currently has unrestricted access inside the HR module.
+</div>
+}
+<form method="post">
+  <div class="card">
+    @* Python's table sits bare in the card and pushes a 320px phone sideways: it scrolls in its own box here. *@
+    <div class="table-wrap" style="overflow-x:auto;">
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <thead>
+        <tr style="text-align:left;color:var(--muted);">
+          <th style="padding:8px 18px;">HR Section</th>
+          @foreach (var a in Rights.Actions) { <th style="padding:8px 10px;text-align:center;text-transform:capitalize;">@a</th> }
+        </tr>
+      </thead>
+      <tbody>
+        @foreach (var s in Model.Sections)
+        {
+            Model.Perms.TryGetValue(s.Key, out var p);
+        <tr style="border-top:1px solid var(--border-soft);">
+          <td style="padding:8px 18px;">@s.Label</td>
+          @foreach (var a in Rights.Actions)
+          {
+          <td style="padding:8px 10px;text-align:center;">
+            <input type="checkbox" name="perm_@(s.Key)_@a"
+                   checked="@(Has(p, a) || !Model.IsConfigured)">
+          </td>
+          }
+        </tr>
+        }
+      </tbody>
+    </table>
+    </div>
+  </div>
+  <div style="margin-top:16px;display:flex;gap:10px;align-items:center;">
+    <button type="submit" class="btn btn-primary">Save HR Rights</button>
+    <a href="/auth/users" class="btn btn-outline">Cancel</a>
+  </div>
+</form>

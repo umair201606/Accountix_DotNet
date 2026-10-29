@@ -1,0 +1,34 @@
+@model Accountix.Web.Infrastructure.ExportButtons
+@*
+  Export buttons for a report page (templates/partials/export.html): each
+  link is the current page with every filter it was opened with plus
+  ?format=<fmt> (or Model.Param), so the file matches what is on screen.
+*@
+@{
+    var icons = new Dictionary<string, string>
+    {
+        ["excel"] = "<rect x=\"4\" y=\"3\" width=\"16\" height=\"18\" rx=\"2\"/><path d=\"M8 8l8 8M16 8l-8 8\"/>",
+        ["pdf"] = "<path d=\"M6 3h8l5 5v12a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z\"/><path d=\"M14 3v5h5\"/><path d=\"M8 15h8M8 18h5\"/>",
+        ["csv"] = "<path d=\"M6 3h8l5 5v12a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z\"/><path d=\"M14 3v5h5\"/><path d=\"M8 13h8M8 16h8M8 19h8\"/>",
+        ["print"] = "<path d=\"M7 9V3h10v6\"/><rect x=\"3\" y=\"9\" width=\"18\" height=\"8\" rx=\"2\"/><path d=\"M7 14h10v7H7z\"/>",
+    };
+    var labels = new Dictionary<string, string> { ["excel"] = "Excel", ["xlsx"] = "Excel", ["pdf"] = "PDF", ["csv"] = "CSV" };
+    string Icon(string name) => $"<svg class=\"export-ico\" viewBox=\"0 0 24 24\" width=\"15\" height=\"15\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\">{icons[name]}</svg>";
+    string Href(string fmt)
+    {
+        var q = Context.Request.Query.Where(kv => kv.Key != Model.Param)
+            .SelectMany(kv => kv.Value.Select(v => $"{Uri.EscapeDataString(kv.Key)}={Uri.EscapeDataString(v ?? "")}"))
+            .Append($"{Uri.EscapeDataString(Model.Param)}={Uri.EscapeDataString(fmt)}");
+        return (Model.Path ?? Context.Request.Path.Value) + "?" + string.Join("&", q);
+    }
+}
+<span class="export-group no-print" role="group" aria-label="Export this report">
+  @foreach (var f in Model.Formats)
+  {
+  <a href="@Href(f)" class="btn btn-outline btn-sm export-btn" data-export="@f" title="Download as @labels[f] with the filters shown">@Html.Raw(Icon(f == "xlsx" ? "excel" : f)) @labels[f]</a>
+  }
+  @if (Model.Print)
+  {
+  <button type="button" onclick="window.print()" class="btn btn-outline btn-sm export-btn">@Html.Raw(Icon("print")) Print</button>
+  }
+</span>

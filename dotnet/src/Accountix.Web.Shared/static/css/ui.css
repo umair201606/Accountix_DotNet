@@ -1,0 +1,578 @@
+/* ============================================================
+   UI v2 — the refreshed shell.
+
+   WHY THIS IS A SEPARATE FILE, SCOPED TO [data-ui="v2"]
+   app.css is shared by eight module layouts through app_shell.html, so
+   editing it in place would re-skin HR, inventory, finance and the rest in
+   the same commit. Everything here is scoped to the v2 attribute that
+   app_shell sets for the invoicing module only. Rolling a module onto the
+   new look is then a one-line change in app_shell's UI_V2_MODULES set, and
+   rolling back is the same line.
+
+   Selector specificity: [data-ui="v2"] .thing (0,2,0) beats app.css's plain
+   .thing (0,1,0) regardless of source order, so nothing here needs
+   !important except where it is fighting a template's inline style
+   attribute — those cases are marked.
+
+   Tokens are declared on the same [data-ui="v2"] element rather than :root
+   so that a template carrying its own :root block cannot silently win on
+   equal specificity. See DESIGN.md for the palette rationale.
+   ============================================================ */
+
+[data-ui="v2"]{
+  color-scheme:light;
+  /* Sampled from the reference design system, not invented: neutral ground
+     #F5F5F5, white surfaces and rail, #161616 ink, #898989 muted labels, and
+     ONE accent — a deep teal-green — carrying links, focus and the positive
+     state. The palette is deliberately almost monochrome; colour is a signal
+     here, not decoration, which is why pos and accent are the same family. */
+  --v2-ink:#161616; --v2-ink-2:#2E2E2E; --v2-body:#4A4A48;
+  --v2-muted:#7C7C7A; --v2-faint:#848482;
+  --v2-ground:#F5F5F5; --v2-surface:#FFFFFF; --v2-rail:#FFFFFF;
+  --v2-hover:#F0F0EF; --v2-sunk:#E9E9E7;
+  --v2-line:#E8E8E6; --v2-line-2:#DCDCDA;
+  --v2-accent:#2B7263; --v2-accent-ink:#275650; --v2-accent-soft:#E8F4F2;
+  --v2-pos:#2B7263; --v2-pos-bg:#E8F4F2;
+  --v2-neg:#B4453B; --v2-neg-bg:#FBECEA;
+  --v2-warn:#86794F; --v2-warn-bg:#F7F2E4;
+  --v2-shadow:0 1px 2px rgba(23,24,26,.04);
+  --v2-pop:0 4px 16px -4px rgba(23,24,26,.12), 0 1px 2px rgba(23,24,26,.05);
+}
+/* DARK: THE OS SIGNAL DECIDES, THE TOGGLE OVERRIDES IT.
+   This was opt-in-only for the whole rollout, because prefers-color-scheme
+   would have darkened the shared shell around modules that had no dark palette
+   at all — a black page carrying white cards. Every module the shell serves is
+   now in UI_V2_MODULES and every one of their palettes is a bridge onto the
+   tokens below, so the OS signal is safe to honour and is honoured here.
+
+   Precedence, which is the whole point of the selectors:
+     data-theme="dark"   -> dark, whatever the OS says
+     data-theme="light"  -> light, whatever the OS says  (the :not() below)
+     no data-theme       -> follow the OS
+   The topbar toggle in app_shell.html writes data-theme and persists it under
+   localStorage "ax-theme"; an inline script in <head> re-applies it before
+   first paint, so an explicit choice never flashes the other theme.
+
+   THE TWO DARK BLOCKS BELOW MUST DECLARE THE SAME TOKENS. CSS has no way to
+   share one declaration list across a media-query boundary, so they are
+   duplicated on purpose — tests/unit/test_ui_css_palette.py fails if they ever
+   drift apart. Edit both, or edit neither. */
+[data-ui="v2"][data-theme="dark"]{
+  color-scheme:dark;
+  /* The reference ships no dark mode, so these are the same hues re-stepped
+     for a dark surface rather than a second palette: the teal lightens enough
+     to clear 3:1 on #171717, the neutrals invert, and the ground stays a true
+     near-black so the white cards of light mode become the lifted surfaces. */
+  --v2-ink:#F0F0EF; --v2-ink-2:#D4D4D2; --v2-body:#A5A5A2;
+  --v2-muted:#82827F; --v2-faint:#74746F;
+  --v2-ground:#0E0E0E; --v2-surface:#171717; --v2-rail:#121212;
+  --v2-hover:#1D1D1D; --v2-sunk:#242424;
+  --v2-line:#242424; --v2-line-2:#2E2E2E;
+  --v2-accent:#6FB3A2; --v2-accent-ink:#8CC7B8; --v2-accent-soft:#16302B;
+  --v2-pos:#6FB3A2; --v2-pos-bg:#16302B;
+  --v2-neg:#E08579; --v2-neg-bg:#2C1613;
+  --v2-warn:#C4B075; --v2-warn-bg:#282316;
+  --v2-shadow:0 1px 2px rgba(0,0,0,.5);
+  --v2-pop:0 8px 28px -8px rgba(0,0,0,.7), 0 1px 2px rgba(0,0,0,.5);
+}
+@media (prefers-color-scheme:dark){
+  /* Same specificity as the explicit toggle (0,2,0) and later in the file, so
+     an OS preference beats nothing but loses to data-theme="light". */
+  [data-ui="v2"]:not([data-theme="light"]){
+    color-scheme:dark;
+    --v2-ink:#F0F0EF; --v2-ink-2:#D4D4D2; --v2-body:#A5A5A2;
+    --v2-muted:#82827F; --v2-faint:#74746F;
+    --v2-ground:#0E0E0E; --v2-surface:#171717; --v2-rail:#121212;
+    --v2-hover:#1D1D1D; --v2-sunk:#242424;
+    --v2-line:#242424; --v2-line-2:#2E2E2E;
+    --v2-accent:#6FB3A2; --v2-accent-ink:#8CC7B8; --v2-accent-soft:#16302B;
+    --v2-pos:#6FB3A2; --v2-pos-bg:#16302B;
+    --v2-neg:#E08579; --v2-neg-bg:#2C1613;
+    --v2-warn:#C4B075; --v2-warn-bg:#282316;
+    --v2-shadow:0 1px 2px rgba(0,0,0,.5);
+    --v2-pop:0 8px 28px -8px rgba(0,0,0,.7), 0 1px 2px rgba(0,0,0,.5);
+  }
+}
+
+/* Bridge: the legacy names every existing rule and inline style already
+   reads. Re-pointing these is what carries the new palette into markup
+   this file never mentions. */
+[data-ui="v2"]{
+  --ink:var(--v2-ink); --paper:var(--v2-ground); --line:var(--v2-line);
+  --primary:var(--v2-accent); --ledger:var(--v2-ink); --ledger-dim:var(--v2-sunk);
+  --amber:var(--v2-muted); --amber-dim:var(--v2-sunk);
+  --red:var(--v2-neg); --red-dim:var(--v2-neg-bg);
+  --green:var(--v2-pos); --green-dim:var(--v2-pos-bg);
+  --muted:var(--v2-muted); --link:var(--v2-accent);
+  --sidebar-bg:var(--v2-rail);
+  /* The surface/fill names app.css now speaks (see its :root): white cards,
+     labels on filled controls, and the hover shades of those fills. */
+  --surface:var(--v2-surface); --on-fill:var(--v2-ground); --wash:var(--v2-hover);
+  --ledger-hover:var(--v2-ink-2); --amber-hover:var(--v2-hover); --red-hover:var(--v2-neg);
+}
+
+/* Bridge, second half: the palette the invoicing *pages* speak.
+   The form templates each declare these names in their own :root; the list,
+   dashboard and batch-editor pages never did — they used colour literals until
+   those were rewritten into var() references. With nothing defining the names
+   the declarations were dead (an undefined var makes the whole declaration
+   invalid, so a badge lost its background and inherited its text colour).
+   Defining them here once gives every invoicing page the same vocabulary and
+   makes it follow the theme. A page that declares its own :root still wins:
+   :root and [data-ui="v2"] have equal specificity, and the page's <style>
+   comes later in the document. */
+[data-ui="v2"]{
+  --bg:var(--v2-ground); --bg-top:var(--v2-hover);
+  --card:var(--v2-surface);
+  --border:var(--v2-line-2); --border-soft:var(--v2-line);
+  --text:var(--v2-ink); --light:var(--v2-faint);
+  --accent:var(--v2-accent); --accent-light:var(--v2-accent-soft);
+  --success:var(--v2-pos); --success-light:var(--v2-pos-bg);
+  --danger:var(--v2-neg); --danger-light:var(--v2-neg-bg);
+  --warning:var(--v2-warn); --warning-light:var(--v2-warn-bg);
+  /* The rest of the vocabulary the form templates declare in their own :root.
+     Pages that are NOT forms (dashboard, lists, batch editors) had no :root of
+     their own, so any rule of theirs reaching for one of these names was a
+     dead declaration — an undefined var invalidates the whole declaration, so
+     a progress bar lost its track and a popover lost its shadow rather than
+     falling back to something. Declaring the full set here means a page can
+     use the vocabulary without repeating it. */
+  --surface-low:var(--v2-hover); --surface-variant:var(--v2-sunk);
+  --primary:var(--v2-ink); --primary-hover:var(--v2-ink-2);
+  --primary-light:var(--v2-sunk);
+  --muted:var(--v2-body);
+  --radius:8px; --radius-card:8px;
+  --shadow-sm:none; --shadow:var(--v2-shadow); --shadow-lg:var(--v2-pop);
+}
+
+/* Bridge, third half: the vocabulary the pages OUTSIDE the shell speak.
+   The landing page, both sign-in screens, the company portal, the module hub
+   and the super admin console never render through app_shell.html, so they
+   never got `data-ui="v2"` and stayed on the navy DESIGN.md palette long after
+   every module had moved. They each declared that palette privately, as a
+   literal `:root` block — nine copies of one hardcoded light theme, which is
+   §7's trap at full size: a near-white card keeps its colour when the text on
+   it turns light.
+
+   Those blocks are now deleted and the names they declared resolve here, so
+   the pages follow the theme without repeating a palette that tests/unit/
+   test_ui_css_palette.py can only guard in this file. The names are Material's
+   role vocabulary (DESIGN.md §2), not app.css's, which is why they are a
+   separate block from the invoicing bridge above.
+
+   `--primary` is deliberately NOT re-pointed here: the block above already
+   maps it to --v2-ink, which is what these pages use it for — structure, the
+   one filled button, the brand mark. Its companions follow that reading. */
+[data-ui="v2"]{
+  --primary-container:var(--v2-ink-2);
+  /* The label on a --primary fill. Both are tokens that invert together, so
+     the pair stays legible in either theme; a literal #fff here would be
+     white-on-near-white the moment the ink token lightened (§5). */
+  --on-primary:var(--v2-ground);
+  --secondary:var(--v2-body);
+  --on-surface:var(--v2-ink); --on-surface-variant:var(--v2-body);
+  --outline:var(--v2-muted); --outline-variant:var(--v2-line);
+  --error:var(--v2-neg); --error-container:var(--v2-neg-bg);
+  --tertiary:var(--v2-pos); --tertiary-fixed:var(--v2-pos-bg);
+}
+
+[data-ui="v2"] body{background:var(--v2-ground);color:var(--v2-body);font-size:13px;}
+[data-ui="v2"] .content-area{font-size:13px;}
+[data-ui="v2"] a{color:var(--v2-accent);}
+
+/* ── The rail ─────────────────────────────────────────────────
+   Light, not a navy slab. This is the single biggest change: the
+   sidebar stops being the heaviest element on every screen. */
+[data-ui="v2"] .sidebar{
+  background:var(--v2-rail);border-right:1px solid var(--v2-line);
+  color:var(--v2-body);padding:0 8px 12px;
+}
+[data-ui="v2"] .sidebar-header{
+  padding:14px 8px 12px;border-bottom:0;gap:9px;
+}
+[data-ui="v2"] .sidebar-header .brand-icon{
+  width:27px;height:27px;border-radius:7px;background:var(--v2-ink);
+  color:var(--v2-ground);font-size:12px;font-weight:600;
+}
+[data-ui="v2"] .sidebar-header h2{color:var(--v2-ink);font-size:13px;font-weight:600;}
+[data-ui="v2"] .sidebar-header .brand-sub{color:var(--v2-faint);font-weight:500;}
+
+[data-ui="v2"] .sidebar-user{
+  border-bottom:1px solid var(--v2-line);padding:9px 8px 12px;margin-bottom:4px;gap:9px;
+}
+[data-ui="v2"] .sidebar-user-avatar{width:28px;height:28px;font-size:12px;}
+[data-ui="v2"] .sidebar-user-name{color:var(--v2-ink);font-size:12.5px;font-weight:600;}
+[data-ui="v2"] .sidebar-user-role{color:var(--v2-faint);font-size:11px;}
+
+[data-ui="v2"] .sidebar-nav{padding:4px 0;}
+[data-ui="v2"] .nav-item{
+  color:var(--v2-body);border-left:0;border-radius:7px;margin:1px 0;
+  padding:6px 9px;font-size:12.5px;font-weight:450;gap:9px;
+}
+[data-ui="v2"] .nav-item:hover{
+  background:var(--v2-hover);color:var(--v2-ink);border-left:0;text-decoration:none;
+}
+[data-ui="v2"] .nav-item.active{
+  background:var(--v2-sunk);color:var(--v2-ink);font-weight:600;border-left:0;
+}
+[data-ui="v2"] .nav-item .nav-icon{
+  width:17px;font-size:14px;color:var(--v2-muted);opacity:.9;
+}
+[data-ui="v2"] .nav-item.active .nav-icon{color:var(--v2-accent);opacity:1;}
+
+/* SVG nav glyphs. The icon slot becomes a flex box so the 15px square sits
+   optically centred against the 13px label instead of on the text baseline. */
+[data-ui="v2"] .nav-icon{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:17px;height:17px;flex:none;
+}
+[data-ui="v2"] .nav-svg{width:15px;height:15px;display:block;}
+[data-ui="v2"] .notif-btn .nav-svg{width:17px;height:17px;}
+
+/* The shell prints the module's brand gradient as an inline style attribute
+   on both of these, which is a saturated teal that fights a monochrome rail.
+   Inline attributes can only be reached with !important. */
+[data-ui="v2"] .sidebar-header .brand-icon{
+  background:var(--v2-ink)!important;color:var(--v2-ground);
+}
+[data-ui="v2"] .sidebar-user-avatar{
+  background:var(--v2-sunk)!important;color:var(--v2-body);font-weight:600;
+}
+[data-ui="v2"] .company-switch-dot{background:var(--v2-ink);color:var(--v2-ground);}
+[data-ui="v2"] .user-menu .avatar{
+  background:var(--v2-sunk);color:var(--v2-body);font-weight:600;
+}
+
+[data-ui="v2"] .nav-group-header{
+  color:var(--v2-faint);padding:12px 9px 5px;font-size:10px;letter-spacing:.09em;
+}
+[data-ui="v2"] .nav-group-header:hover{color:var(--v2-muted);}
+[data-ui="v2"] .nav-group-header .nav-icon{color:var(--v2-faint);width:17px;}
+[data-ui="v2"] .group-chevron{color:var(--v2-faint);}
+[data-ui="v2"] .nav-group-items .nav-item{padding-left:35px;font-size:12.5px;}
+[data-ui="v2"] .nav-group-items .nav-item.active{border-left:0;}
+
+[data-ui="v2"] .sidebar-footer{
+  border-top:1px solid var(--v2-line);padding:8px 0 4px;
+}
+/* The shell writes these two colours as inline style attributes, so the
+   stylesheet can only reach them with !important. */
+[data-ui="v2"] .sidebar-footer .nav-item{color:var(--v2-muted)!important;}
+[data-ui="v2"] .sidebar-footer .nav-item:hover{color:var(--v2-ink)!important;}
+
+/* ── Topbar ───────────────────────────────────────────────── */
+[data-ui="v2"] .topbar{
+  background:var(--v2-surface);border-bottom:1px solid var(--v2-line);padding:9px 20px;
+}
+[data-ui="v2"] .page-title{color:var(--v2-ink);font-size:15px!important;font-weight:600!important;}
+[data-ui="v2"] .sidebar-toggle{color:var(--v2-muted);border-radius:8px;}
+[data-ui="v2"] .sidebar-toggle:hover{background:var(--v2-hover);}
+[data-ui="v2"] .notif-btn{color:var(--v2-muted);border-radius:8px;}
+[data-ui="v2"] .notif-btn:hover{background:var(--v2-hover);}
+[data-ui="v2"] .notif-badge{background:var(--v2-neg);font-weight:600;}
+[data-ui="v2"] .notif-menu{
+  background:var(--v2-surface);border:1px solid var(--v2-line);border-radius:12px;
+  box-shadow:var(--v2-pop);
+}
+[data-ui="v2"] .notif-menu-header,[data-ui="v2"] .notif-item{border-bottom:1px solid var(--v2-line);}
+[data-ui="v2"] .notif-item:hover{background:var(--v2-hover);}
+[data-ui="v2"] .user-name{color:var(--v2-ink);}
+[data-ui="v2"] .user-role{color:var(--v2-faint);}
+
+[data-ui="v2"] .company-switch-btn{
+  background:var(--v2-surface);border:1px solid var(--v2-line-2);color:var(--v2-ink);
+  border-radius:8px;font-weight:500;
+}
+[data-ui="v2"] .company-switch-btn:hover{background:var(--v2-hover);}
+[data-ui="v2"] .company-switch-menu{
+  background:var(--v2-surface);border:1px solid var(--v2-line);border-radius:12px;
+  box-shadow:var(--v2-pop);
+}
+[data-ui="v2"] .company-switch-menu a{color:var(--v2-ink);}
+[data-ui="v2"] .company-switch-menu a:hover{background:var(--v2-hover);}
+[data-ui="v2"] .company-switch-menu a.active{background:var(--v2-accent-soft);color:var(--v2-accent-ink);}
+[data-ui="v2"] .company-switch-menu .check{color:var(--v2-accent);}
+[data-ui="v2"] .mod-badge{
+  background:var(--v2-sunk)!important;color:var(--v2-muted)!important;
+  border-radius:6px;font-weight:500!important;
+}
+
+/* Theme switch. One button, two glyphs — it shows the state you would move
+   TO, so a light page offers a moon. static/js/theme.js stamps
+   data-theme-effective with what is actually on screen (an explicit pick, or
+   the OS default when nothing is stored), so the glyph is right either way;
+   keying off data-theme alone showed a moon on an OS-dark page. */
+[data-ui="v2"] .theme-toggle{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:32px;height:32px;padding:0;border-radius:8px;cursor:pointer;
+  background:transparent;border:1px solid transparent;color:var(--v2-muted);
+  transition:background .13s,color .13s;
+}
+[data-ui="v2"] .theme-toggle:hover{background:var(--v2-hover);color:var(--v2-ink);}
+[data-ui="v2"] .theme-toggle .nav-svg{width:17px;height:17px;}
+[data-ui="v2"] .theme-toggle .t-dark{display:none;}
+[data-ui="v2"][data-theme="dark"] .theme-toggle .t-light,
+[data-ui="v2"][data-theme-effective="dark"] .theme-toggle .t-light{display:none;}
+[data-ui="v2"][data-theme="dark"] .theme-toggle .t-dark,
+[data-ui="v2"][data-theme-effective="dark"] .theme-toggle .t-dark{display:inline-flex;}
+[data-ui="v2"][data-theme="light"] .theme-toggle .t-light{display:inline-flex;}
+[data-ui="v2"][data-theme="light"] .theme-toggle .t-dark{display:none;}
+/* Pages with no header bar (sign-in): the switch floats in the corner. */
+[data-ui="v2"] .ax-theme-float{position:fixed;top:14px;right:14px;z-index:50;
+  background:var(--v2-surface);border-color:var(--v2-line);box-shadow:var(--v2-shadow);}
+
+[data-ui="v2"] .content-area{padding:22px 20px;background:var(--v2-ground);}
+
+/* ── Page header ──────────────────────────────────────────── */
+[data-ui="v2"] .page-header{margin-bottom:18px;align-items:flex-end;}
+/* Header toolbars (New / Template / Import) wrap on a phone; a file picker
+   keeps its intrinsic ~250px width otherwise and pushes the page sideways. */
+[data-ui="v2"] .page-header form{flex-wrap:wrap;max-width:100%;}
+[data-ui="v2"] .page-header input[type=file]{max-width:100%;min-width:0;}
+[data-ui="v2"] .page-header > *{min-width:0;max-width:100%;}
+@media (max-width:480px){
+  [data-ui="v2"] .page-header form{width:100%;}
+  [data-ui="v2"] .page-header input[type=file]{width:100%!important;flex:1 1 100%;}
+}
+[data-ui="v2"] .page-header h1{
+  font-size:19px;font-weight:600;letter-spacing:-.016em;color:var(--v2-ink);
+}
+[data-ui="v2"] .page-header .subtitle{font-size:12.5px;color:var(--v2-muted);margin-top:4px;}
+
+/* ── Surfaces ─────────────────────────────────────────────── */
+/* Sections, not cards. On a white page a bordered rounded box around every
+   group just adds edges — one hairline above a section and real whitespace
+   separate them better. This has to live here rather than in the template,
+   because [data-ui="v2"] .card outranks a template's own .card rule. */
+[data-ui="v2"] .card{
+  background:var(--v2-surface);border:1px solid var(--v2-line);
+  border-radius:8px;box-shadow:none;padding:16px;overflow:visible;
+  margin-bottom:12px;
+}
+[data-ui="v2"] .card:first-of-type{border-top:1px solid var(--v2-line);padding-top:16px;}
+[data-ui="v2"] .card:hover{box-shadow:none;}
+[data-ui="v2"] .card-header{
+  font-size:13px;font-weight:600;color:var(--v2-ink);border-bottom:0;
+  padding-bottom:12px;margin-bottom:0;letter-spacing:0;text-transform:none;
+}
+[data-ui="v2"] .stat-card{
+  background:var(--v2-surface);border:1px solid var(--v2-line);border-radius:12px;padding:15px 16px;
+}
+[data-ui="v2"] .stat-card:hover{box-shadow:none;}
+[data-ui="v2"] .stat-label{
+  font-size:11.5px;color:var(--v2-muted);text-transform:none;letter-spacing:0;font-weight:500;
+}
+[data-ui="v2"] .stat-value{
+  font-size:23px;font-weight:600;color:var(--v2-ink);letter-spacing:-.022em;margin-top:6px;
+}
+[data-ui="v2"] .stat-sub{font-size:11.5px;color:var(--v2-faint);}
+
+/* ── Tables: hairline rows, no vertical rules, quiet headers ── */
+[data-ui="v2"] .table-wrap{
+  border:1px solid var(--v2-line);border-radius:12px;background:var(--v2-surface);
+  /* Scroll, never clip: overflow:hidden here (it beat app.css's overflow-x:auto)
+     cut wide tables off at the card edge, with the columns past it unreachable. */
+  overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;
+}
+/* The wrapper most inventory/invoicing lists use had no rule at all. */
+[data-ui="v2"] .table-responsive{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%;}
+/* Phone: a list table that sits bare in a card scrolls inside its own box.
+   The shell sets body{overflow-x:hidden}, so anything wider than the screen
+   was simply cut off — on a 360px phone half a register's columns. */
+@media (max-width:768px){
+  [data-ui="v2"] .content-area table.table,
+  [data-ui="v2"] .content-area table.data-table{
+    display:block;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;
+  }
+}
+[data-ui="v2"] table{background:var(--v2-surface);font-size:13px;}
+[data-ui="v2"] th{
+  background:var(--v2-surface);color:var(--v2-muted);font-size:11.5px;font-weight:500;
+  letter-spacing:0;padding:10px 14px;border-bottom:1px solid var(--v2-line);
+}
+[data-ui="v2"] td{padding:9px 14px;border-top:1px solid var(--v2-line);color:var(--v2-body);font-size:12.5px;}
+[data-ui="v2"] tbody tr:hover{background:var(--v2-rail);}
+
+/* ── Controls ─────────────────────────────────────────────── */
+/* The invoicing forms speak their own button vocabulary (.btn-p/.btn-s/.btn-o/
+   .btn-d/.btn-info/.btn-accent), which is not app.css's .btn-primary/
+   .btn-secondary. That set used to be copy-pasted into all six form templates;
+   de-duplicating their CSS into this file removed the copies from the sales,
+   purchases, sales-return and purchase-return forms, and this file then
+   deliberately skipped those classes — so on those four the buttons fell
+   through to app.css's .btn: a 3px white outline. "Save & Approve" rendered
+   identically to "Save" and the primary action lost its fill, in light mode as
+   well as dark. Owning the vocabulary here is what puts it back.
+
+   Specificity is kept at (0,2,0) on purpose. invoices/ and purchase_invoice/
+   still carry their own copies written as `.btn.btn-p`, which is also (0,2,0)
+   and wins the tie by source order — a template's <style> is parsed after this
+   file's <link>. So those two forms are untouched and the four that now
+   delegate pick these up. */
+[data-ui="v2"] .btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:8px 15px;border:1px solid transparent;border-radius:8px;
+  font-size:13px;font-weight:500;font-family:inherit;letter-spacing:0;
+  text-decoration:none;cursor:pointer;
+  transition:background .14s,border-color .14s,color .14s;
+}
+[data-ui="v2"] .btn:disabled{opacity:.45;cursor:not-allowed;}
+[data-ui="v2"] .btn:active{transform:none;}
+
+/* Neutral actions: Save, Cancel, New, Done. */
+[data-ui="v2"] .btn-p,[data-ui="v2"] .btn-o{
+  background:var(--v2-surface);color:var(--v2-ink);border-color:var(--v2-line-2);
+}
+[data-ui="v2"] .btn-p:hover:not(:disabled),[data-ui="v2"] .btn-o:hover:not(:disabled){
+  background:var(--v2-hover);border-color:var(--v2-faint);
+}
+/* The committing action, and the only filled button on the form. In dark mode
+   --v2-ink is the light end and --v2-ground the dark one, so the fill inverts
+   with the theme instead of staying a light slab. */
+[data-ui="v2"] .btn-s{
+  background:var(--v2-ink);color:var(--v2-ground);border-color:var(--v2-ink);box-shadow:none;
+}
+[data-ui="v2"] .btn-s:hover:not(:disabled){
+  background:var(--v2-ink-2);border-color:var(--v2-ink-2);box-shadow:none;
+}
+[data-ui="v2"] .btn-d{
+  background:var(--v2-surface);color:var(--v2-neg);border-color:var(--v2-line-2);
+}
+[data-ui="v2"] .btn-d:hover:not(:disabled){
+  background:var(--v2-neg-bg);border-color:var(--v2-neg);
+}
+[data-ui="v2"] .btn-primary{background:var(--v2-ink);color:var(--v2-ground);border-color:var(--v2-ink);}
+[data-ui="v2"] .btn-primary:hover{background:var(--v2-ink-2);border-color:var(--v2-ink-2);box-shadow:none;}
+[data-ui="v2"] .btn-secondary{background:var(--v2-surface);color:var(--v2-ink);border-color:var(--v2-line-2);}
+[data-ui="v2"] .btn-secondary:hover{background:var(--v2-hover);}
+/* The label on a filled button is --v2-ground, not #fff. Both fills are
+   tokens that inverse with the theme: --v2-neg is a deep red on light but a
+   pale salmon on dark, so a hardcoded white label measured 2.54:1 there
+   (--v2-accent was the same story at 2.94:1). Riding the ground token instead
+   keeps the label at 4.7:1 or better in every combination. */
+[data-ui="v2"] .btn-accent{background:var(--v2-accent);color:var(--v2-ground);border-color:var(--v2-accent);}
+[data-ui="v2"] .btn-accent:hover{background:var(--v2-accent-ink);border-color:var(--v2-accent-ink);box-shadow:none;}
+[data-ui="v2"] .btn-danger{background:var(--v2-neg);color:var(--v2-ground);border-color:var(--v2-neg);}
+[data-ui="v2"] .btn-danger:hover{background:var(--v2-neg);box-shadow:none;filter:brightness(.93);}
+/* .btn-success is used in ten templates across five modules and was never
+   defined anywhere — those buttons fell through to the bare .btn rule and
+   rendered with a transparent border, which reads as a floating label. It is
+   an affirmative action, not the committing one (the export buttons on the
+   finance reports are the typical case), so it takes the outline treatment. */
+[data-ui="v2"] .btn-success,
+[data-ui="v2"] .btn-outline{background:var(--v2-surface);color:var(--v2-ink);border-color:var(--v2-line-2);}
+[data-ui="v2"] .btn-success:hover{background:var(--v2-hover);border-color:var(--v2-faint);}
+[data-ui="v2"] .btn-outline:hover{background:var(--v2-hover);color:var(--v2-ink);}
+[data-ui="v2"] .btn-info{background:var(--v2-accent-soft);color:var(--v2-accent-ink);border-color:transparent;}
+[data-ui="v2"] .btn-info:hover{background:var(--v2-hover);filter:none;}
+[data-ui="v2"] .btn-warning{background:var(--v2-warn-bg);color:var(--v2-warn);border-color:transparent;}
+[data-ui="v2"] .btn-sm{padding:6px 11px;font-size:12px;}
+[data-ui="v2"] .btn-link{color:var(--v2-accent);text-decoration:none;}
+[data-ui="v2"] .btn-link:hover{text-decoration:underline;}
+
+[data-ui="v2"] .form-group label{
+  font-size:11.5px;font-weight:500;color:var(--v2-muted);text-transform:none;letter-spacing:0;
+}
+[data-ui="v2"] .form-control{
+  background:var(--v2-surface);border:1px solid var(--v2-line-2);border-radius:8px;
+  color:var(--v2-ink);font-size:13.5px;padding:8px 11px;
+}
+[data-ui="v2"] .form-control::placeholder{color:var(--v2-faint);}
+[data-ui="v2"] .form-control:focus{
+  border-color:var(--v2-ink);background:var(--v2-surface);
+  box-shadow:0 0 0 3px var(--v2-sunk);
+}
+[data-ui="v2"] select.form-control{
+  appearance:none;padding-right:30px;cursor:pointer;
+  background-image:linear-gradient(45deg,transparent 50%,var(--v2-muted) 50%),
+                   linear-gradient(135deg,var(--v2-muted) 50%,transparent 50%);
+  background-position:calc(100% - 15px) calc(50% + 1px),calc(100% - 10px) calc(50% + 1px);
+  background-size:5px 5px,5px 5px;background-repeat:no-repeat;
+}
+
+/* ── Status: soft bed, no ring ─────────────────────────────── */
+[data-ui="v2"] .badge{
+  border-radius:6px;font-size:11.5px;font-weight:500;padding:3px 8px;
+  letter-spacing:0;border:0;
+}
+[data-ui="v2"] .badge-success{background:var(--v2-pos-bg);color:var(--v2-pos);}
+[data-ui="v2"] .badge-danger{background:var(--v2-neg-bg);color:var(--v2-neg);}
+[data-ui="v2"] .badge-warning{background:var(--v2-warn-bg);color:var(--v2-warn);}
+[data-ui="v2"] .badge-info{background:var(--v2-accent-soft);color:var(--v2-accent-ink);}
+[data-ui="v2"] .badge-default{background:var(--v2-sunk);color:var(--v2-muted);}
+
+[data-ui="v2"] .flash-success,[data-ui="v2"] .flash-danger,
+[data-ui="v2"] .flash-warning,[data-ui="v2"] .flash-info{
+  border-radius:10px;border-width:1px;font-size:13px;
+}
+
+[data-ui="v2"] a:focus-visible,[data-ui="v2"] button:focus-visible,
+[data-ui="v2"] input:focus-visible,[data-ui="v2"] select:focus-visible,
+[data-ui="v2"] textarea:focus-visible,[data-ui="v2"] [tabindex]:focus-visible{
+  outline:2px solid var(--v2-ink);outline-offset:2px;
+}
+
+/* Report export buttons (templates/partials/export.html): one quiet group,
+   icon + word, wraps under the title on a phone instead of overflowing. */
+.export-group{display:inline-flex;flex-wrap:wrap;gap:6px;align-items:center}
+.export-group .export-btn{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.export-group .export-ico{flex:none;opacity:.8}
+@media (max-width:480px){
+  .export-group{width:100%}
+  .export-group .export-btn{flex:1 1 0;justify-content:center;min-height:36px}
+}
+
+/* Inverted bands (statement grand total, employee card headers, settings card
+   headers) are ink-on-paper in light mode. Inverting them in dark mode made a
+   glaring near-white bar across a dark page; there they become a raised dark
+   surface with ink text instead. */
+[data-ui="v2"][data-theme="dark"] table.statement tr.grand-total td,
+[data-ui="v2"][data-theme="dark"] .emp-card-header,
+[data-ui="v2"][data-theme="dark"] .set-card-hd{
+  background:var(--v2-sunk);color:var(--v2-ink);
+}
+[data-ui="v2"][data-theme="dark"] table.statement tr.grand-total td{
+  border-top:1px solid var(--v2-ink);border-bottom:3px double var(--v2-ink);
+}
+@media (prefers-color-scheme: dark){
+  [data-ui="v2"]:not([data-theme="light"]) table.statement tr.grand-total td,
+  [data-ui="v2"]:not([data-theme="light"]) .emp-card-header,
+  [data-ui="v2"]:not([data-theme="light"]) .set-card-hd{
+    background:var(--v2-sunk);color:var(--v2-ink);
+  }
+  [data-ui="v2"]:not([data-theme="light"]) table.statement tr.grand-total td{
+    border-top:1px solid var(--v2-ink);border-bottom:3px double var(--v2-ink);
+  }
+}
+/* Profile avatar initial: a plain surface, not a grey-to-ink gradient that
+   left the letter nearly invisible in dark mode. */
+[data-ui="v2"] .profile-pic-initial{background:var(--v2-sunk);color:var(--v2-ink);}
+
+/* Printed documents stay on the light palette whatever the screen theme —
+   nobody wants an invoice that prints a black rectangle. */
+/* Print stays light — nobody wants an invoice that prints a black rectangle.
+
+   The selector list is load-bearing, not defensive noise. @media adds no
+   specificity, so the plain [data-ui="v2"] this block used to carry was (0,1,0)
+   and lost outright to the (0,2,0) dark palettes above: a user printing with
+   dark mode on got near-white body text on paper, which is to say a blank
+   statement. Each dark selector is answered here by one of at least equal
+   specificity, and this block is last in the file, so it wins on source order. */
+@media print{
+  [data-ui="v2"],
+  [data-ui="v2"][data-theme="dark"],
+  [data-ui="v2"]:not([data-theme="light"]){
+    color-scheme:light;
+    --v2-ink:#17181A; --v2-ink-2:#2C2F34; --v2-body:#2C2F34;
+    --v2-muted:#5B6068; --v2-faint:#8A8F98;
+    --v2-ground:#FFFFFF; --v2-surface:#FFFFFF; --v2-rail:#FFFFFF;
+    --v2-hover:#FFFFFF;
+    --v2-line:#D9DCE0; --v2-line-2:#C9CDD3; --v2-sunk:#F2F3F5;
+    --v2-accent:#275650; --v2-accent-ink:#275650; --v2-accent-soft:#E8F4F2;
+    --v2-pos:#275650; --v2-pos-bg:#E8F4F2;
+    --v2-neg:#B4453B; --v2-neg-bg:#FBECEA;
+    --v2-warn:#6E6340; --v2-warn-bg:#F7F2E4;
+    --v2-shadow:none; --v2-pop:none;
+  }
+  [data-ui="v2"] .sidebar,[data-ui="v2"] .topbar{display:none!important;}
+}

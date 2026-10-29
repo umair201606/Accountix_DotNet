@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    <RootNamespace>Accountix.Orders</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Accountix.Core\Accountix.Core.csproj" />
+    <ProjectReference Include="..\..\Accountix.Web.Shared\Accountix.Web.Shared.csproj" />
+    <!-- Shared document helpers (edit versions, order linkage, Python float/JSON semantics): docs/modules/orders.md. -->
+    <ProjectReference Include="..\Accountix.Invoicing\Accountix.Invoicing.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Accountix.Orders.Tests" />
+  </ItemGroup>
+
+</Project>

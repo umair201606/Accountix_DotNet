@@ -1,0 +1,254 @@
+{
+  "captured": "2026-10-29, Python app (Flask), before it was removed",
+  "capture": "Golden/capture/reports.py",
+  "inputs": [
+    [
+      "csv",
+      "valuation_feb_mar",
+      "/inventory/reports/valuation?from=2026-02-01&as_of=2026-03-31&format=csv"
+    ],
+    [
+      "csv",
+      "valuation_2026",
+      "/inventory/reports/valuation?from=2026-01-01&as_of=2026-12-31&format=csv"
+    ],
+    [
+      "csv",
+      "low_stock",
+      "/inventory/reports/low-stock?format=csv"
+    ],
+    [
+      "csv",
+      "sub_ledgers",
+      "/inventory/vouchers/product-ledger/list?format=csv"
+    ],
+    [
+      "csv",
+      "stock_ledger_p1",
+      "/inventory/reports/stock-ledger?product_id=${p1}&format=csv"
+    ],
+    [
+      "csv",
+      "stock_ledger_p2",
+      "/inventory/reports/stock-ledger?product_id=${p2}&format=csv"
+    ],
+    [
+      "csv",
+      "product_ledger_p1",
+      "/inventory/vouchers/product-ledger?product_id=${p1}&format=csv"
+    ],
+    [
+      "csv",
+      "product_ledger_p2",
+      "/inventory/vouchers/product-ledger?product_id=${p2}&format=csv"
+    ],
+    [
+      "json",
+      "stock_ledger_json_p1",
+      "/inventory/reports/api/stock-ledger-json?product_id=${p1}"
+    ],
+    [
+      "json",
+      "stock_ledger_json_p2",
+      "/inventory/reports/api/stock-ledger-json?product_id=${p2}"
+    ],
+    [
+      "rows",
+      "stock_list",
+      "/inventory/stock/?q=RPT-${tag}"
+    ],
+    [
+      "rows",
+      "stock_list_low",
+      "/inventory/stock/?q=rpt-${tag_lower}&low_only=1"
+    ],
+    [
+      "rows",
+      "movements_p1",
+      "/inventory/stock/movements?product_id=${p1}"
+    ],
+    [
+      "rows",
+      "stock_ledger_page_p1",
+      "/inventory/reports/stock-ledger?product_id=${p1}"
+    ],
+    [
+      "rows",
+      "product_ledger_page_p1",
+      "/inventory/vouchers/product-ledger?product_id=${p1}"
+    ],
+    [
+      "rows",
+      "product_ledger_page_p2",
+      "/inventory/vouchers/product-ledger?product_id=${p2}"
+    ],
+    [
+      "rows",
+      "sub_ledgers_page",
+      "/inventory/vouchers/product-ledger/list"
+    ],
+    [
+      "rows",
+      "low_stock_page",
+      "/inventory/reports/low-stock"
+    ],
+    [
+      "rows",
+      "valuation_page",
+      "/inventory/reports/valuation?from=2026-02-01&as_of=2026-03-31"
+    ],
+    [
+      "preview",
+      "preview_cons",
+      "/inventory/vouchers/preview/CONS/${cons}"
+    ],
+    [
+      "preview",
+      "preview_scrap",
+      "/inventory/vouchers/preview/SCRAP/${scrap}"
+    ],
+    [
+      "preview",
+      "preview_adj",
+      "/inventory/vouchers/preview/ADJ/${adj}"
+    ],
+    [
+      "preview",
+      "preview_pi",
+      "/inventory/vouchers/preview/PI/${pi}"
+    ],
+    [
+      "preview",
+      "preview_pr",
+      "/inventory/vouchers/preview/PR/${pr}"
+    ],
+    [
+      "dashboard",
+      "dashboard",
+      "/inventory/"
+    ]
+  ],
+  "expected": {
+    "valuation_feb_mar": [
+      "SKU|Product|Unit|Opening Qty|Opening Value|In Qty|In Value|Out Qty|Out Value|Closing Qty|Avg Cost|Closing Value",
+      "RPT-TAG-A|Rpt TAG A|pcs|10|1000|5|600|6.5|672.73|8.5|109.0905882353|927.27",
+      "|Total|||1000||600||672.73|||927.27",
+      "|Inventory accounts (general ledger)||||||||||0",
+      "|Difference (stock ledger − GL)||||||||||927.27"
+    ],
+    "valuation_2026": [
+      "SKU|Product|Unit|Opening Qty|Opening Value|In Qty|In Value|Out Qty|Out Value|Closing Qty|Avg Cost|Closing Value",
+      "RPT-TAG-A|Rpt TAG A|pcs|0|0|15|1600|6.5|672.73|8.5|109.0905882353|927.27",
+      "RPT-TAG-B|Rpt TAG B|pcs|0|0|3|150|3|150|0|0|0",
+      "|Total|||0||1750||822.73|||927.27",
+      "|Inventory accounts (general ledger)||||||||||0",
+      "|Difference (stock ledger − GL)||||||||||927.27"
+    ],
+    "low_stock": [
+      "SKU|Product|Current Stock|Reorder Level|Short By|Unit|Status",
+      "RPT-TAG-A|Rpt TAG A|8.5|10|1.5|pcs|Low"
+    ],
+    "sub_ledgers": [
+      "SKU|Product|Unit|Qty|Avg Cost|Value",
+      "RPT-TAG-A|Rpt TAG A|pcs|8.5|109.0906|927.27",
+      "RPT-TAG-B|Rpt TAG B|pcs|0|0|0",
+      "|Total||||927.27"
+    ],
+    "stock_ledger_p1": [
+      "Date|Voucher|Type|Qty In|Qty Out|Unit Cost|Value|Running Qty|Running Value|Avg Cost|Notes",
+      "2026-01-10|PI RPTPI-TAG|In|10|0|100|1000|10|1000|100|Purchase",
+      "2026-02-05|CONS RPTC-TAG|Out|0|4|100|400|6|600|100|Consumption: Repairs",
+      "2026-03-01|ADJ RPTA-TAG|In|5|0|120|600|11|1200|109.0909|Adjustment: Count",
+      "2026-03-15|SCRAP RPTS-TAG|Out|0|2.5|109.0909|272.73|8.5|927.27|109.0906|"
+    ],
+    "stock_ledger_p2": [
+      "Date|Voucher|Type|Qty In|Qty Out|Unit Cost|Value|Running Qty|Running Value|Avg Cost|Notes",
+      "2026-04-01|OPENING OPEN-RPT-TAG-B|In|3|0|50|150|3|150|50|Opening stock",
+      "2026-04-02|SI SI-RPT-TAG|Out|0|3|50|150|0|0|0|"
+    ],
+    "product_ledger_p1": [
+      "Date|Voucher|Type|Qty In|Qty Out|Unit Cost|Value|Running Qty|Running Value|Avg Cost|Notes",
+      "2026-01-10|PI RPTPI-TAG|In|10|0|100|1000|10|1000|100|Purchase",
+      "2026-02-05|CONS RPTC-TAG|Out|0|4|100|400|6|600|100|Consumption: Repairs",
+      "2026-03-01|ADJ RPTA-TAG|In|5|0|120|600|11|1200|109.0909|Adjustment: Count",
+      "2026-03-15|SCRAP RPTS-TAG|Out|0|2.5|109.0909|272.73|8.5|927.27|109.0906|"
+    ],
+    "product_ledger_p2": [
+      "Date|Voucher|Type|Qty In|Qty Out|Unit Cost|Value|Running Qty|Running Value|Avg Cost|Notes",
+      "2026-04-01|OPENING OPEN-RPT-TAG-B|In|3|0|50|150|3|150|50|Opening stock",
+      "2026-04-02|SI SI-RPT-TAG|Out|0|3|50|150|0|0|0|"
+    ],
+    "stock_ledger_json_p1": [
+      "date=2026-01-10|id=<row_pi>|notes=Purchase|quantity=10|running_avg_cost=100|running_qty=10|running_value=1000|transaction_type=IN|unit_cost=100|voucher_number=RPTPI-TAG|voucher_type=PI",
+      "date=2026-02-05|id=<row_cons>|notes=Consumption: Repairs|quantity=4|running_avg_cost=100|running_qty=6|running_value=600|transaction_type=OUT|unit_cost=100|voucher_number=RPTC-TAG|voucher_type=CONS",
+      "date=2026-03-01|id=<row_adj>|notes=Adjustment: Count|quantity=5|running_avg_cost=109.0909|running_qty=11|running_value=1200|transaction_type=IN|unit_cost=120|voucher_number=RPTA-TAG|voucher_type=ADJ",
+      "date=2026-03-15|id=<row_scrap>|notes=|quantity=2.5|running_avg_cost=109.0906|running_qty=8.5|running_value=927.27|transaction_type=OUT|unit_cost=109.0909|voucher_number=RPTS-TAG|voucher_type=SCRAP"
+    ],
+    "stock_ledger_json_p2": [
+      "date=2026-04-01|id=<row_open>|notes=Opening stock|quantity=3|running_avg_cost=50|running_qty=3|running_value=150|transaction_type=IN|unit_cost=50|voucher_number=OPEN-RPT-TAG-B|voucher_type=OPENING",
+      "date=2026-04-02|id=<row_si>|notes=|quantity=3|running_avg_cost=0|running_qty=0|running_value=0|transaction_type=OUT|unit_cost=50|voucher_number=SI-RPT-TAG|voucher_type=SI"
+    ],
+    "stock_list": [
+      "RPT-TAG-A Rpt TAG A RPT Cat TAG 8.5 10 850 Low Stock Adjust",
+      "RPT-TAG-B Rpt TAG B RPT Cat TAG 7 0 700 OK Adjust",
+      "RPT-TAG-C Rpt TAG C RPT Cat TAG 0 0 0 OK Adjust"
+    ],
+    "stock_list_low": [
+      "RPT-TAG-A Rpt TAG A RPT Cat TAG 8.5 10 850 Low Stock Adjust"
+    ],
+    "movements_p1": [
+      "2026-03-15 11:00 Rpt TAG A adjustment_out 2.5 - #- -",
+      "2026-03-01 09:05 Rpt TAG A adjustment_in 5 stock_adjustment #<adj> Count"
+    ],
+    "stock_ledger_page_p1": [
+      "<row_pi> 10-Jan-2026 RPTPI-TAG IN 10.0000 100 10 1,000 100 Purchase",
+      "<row_cons> 05-Feb-2026 RPTC-TAG OUT 4.0000 100 6 600 100 Consumption: Repairs",
+      "<row_adj> 01-Mar-2026 RPTA-TAG IN 5.0000 120 11 1,200 109 Adjustment: Count",
+      "<row_scrap> 15-Mar-2026 RPTS-TAG OUT 2.5000 109 8 927 109"
+    ],
+    "product_ledger_page_p1": [
+      "<row_pi> 10-Jan-2026 PI RPTPI-TAG IN 10.0000 100 10 1,000 100 Purchase",
+      "<row_cons> 05-Feb-2026 CONS RPTC-TAG OUT 4.0000 100 6 600 100 Consumption: Repairs",
+      "<row_adj> 01-Mar-2026 ADJ RPTA-TAG IN 5.0000 120 11 1,200 109 Adjustment: Count",
+      "<row_scrap> 15-Mar-2026 SCRAP RPTS-TAG OUT 2.5000 109 8 927 109"
+    ],
+    "product_ledger_page_p2": [
+      "<row_open> 01-Apr-2026 OPENING OPEN-RPT-TAG-B IN 3.0000 50 3 150 50 Opening stock",
+      "<row_si> 02-Apr-2026 SI SI-RPT-TAG OUT 3.0000 50 0 0 0"
+    ],
+    "sub_ledgers_page": [
+      "RPT-TAG-A Rpt TAG A 8.5 pcs 109 927 View Ledger",
+      "RPT-TAG-B Rpt TAG B 0.0 pcs 0 0 View Ledger"
+    ],
+    "low_stock_page": [
+      "RPT-TAG-A Rpt TAG A 8.5 10 pcs Low Stock"
+    ],
+    "valuation_page": [
+      "RPT-TAG-A Rpt TAG A 10.00 1,000.00 5.00 600.00 6.50 672.73 8.50 pcs 109.09 927.27"
+    ],
+    "preview_cons": [
+      "Consumption Voucher - RPTC-TAG",
+      "Consumption Voucher RPTC-TAG Date: 05-Feb-2026 Status: approved Department: Workshop Reason: Repairs # Product Qty Unit Cost Total 1 Rpt TAG A 4.0000 100 400 Total: 400.00 Approved by: <owner_b> on 05-Feb-2026 10:30"
+    ],
+    "preview_scrap": [
+      "Scrap Voucher - RPTS-TAG",
+      "Scrap Voucher RPTS-TAG Date: 15-Mar-2026 Status: unapproved Reason: None # Product Qty Unit Cost Total 1 Rpt TAG A 2.5000 109 273 Total: 272.73"
+    ],
+    "preview_adj": [
+      "Stock Adjustment Voucher - RPTA-TAG",
+      "Stock Adjustment Voucher RPTA-TAG Date: 01-Mar-2026 Status: approved Reason: Count # Product System Qty Physical Qty Diff Qty Unit Cost Total 1 Rpt TAG A 6.0000 11.0000 5.0000 5.0000 120 600 Total: 600.00 Approved by: <owner_b> on 01-Mar-2026 09:00"
+    ],
+    "preview_pi": [
+      "Purchase Invoice - RPTPI-TAG",
+      "Purchase Invoice RPTPI-TAG Date: 10-Jan-2026 Status: approved Supplier: Rpt Supplier TAG Net Payable: 1000.5 # Product Qty Unit Cost Total 1 Rpt TAG A 10.0 100 1,000 2 Freight line 1.0 0 0 Total: 1,000.50"
+    ],
+    "preview_pr": [
+      "Purchase Return - RPT-DN-TAG",
+      "Purchase Return RPT-DN-TAG Date: 20-Jan-2026 Status: new Supplier: Rpt Supplier TAG Net Return: 200.0 # Product Qty Unit Cost Total 1 Rpt TAG A 2.0 100 200 Total: 200.00"
+    ],
+    "dashboard": [
+      "P 3 Products C 1 Categories $ 927 Stock Value ! 1 Low Stock V 1 Pending Vouchers",
+      "C 1 Consumptions S 0 Scraps A 1 Adjustments T 0 Stock Takes"
+    ]
+  }
+}

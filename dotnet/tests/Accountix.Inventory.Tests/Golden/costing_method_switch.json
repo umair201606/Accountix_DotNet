@@ -1,0 +1,158 @@
+{
+  "captured": "2026-10-29, Python app (Flask), before it was removed",
+  "capture": "Golden/capture/costing.py",
+  "inputs": {
+    "method": "fifo",
+    "neg": false,
+    "ops": [
+      {
+        "op": "in",
+        "vt": "PI",
+        "vid": 1,
+        "vn": "PI-00001",
+        "qty": "10",
+        "cost": "10",
+        "days": 30,
+        "total": null
+      },
+      {
+        "op": "in",
+        "vt": "PI",
+        "vid": 2,
+        "vn": "PI-00002",
+        "qty": "10",
+        "cost": "20",
+        "days": 25,
+        "total": null
+      },
+      {
+        "op": "out",
+        "vt": "SI",
+        "vid": 1,
+        "vn": "SI-00001",
+        "qty": "5",
+        "days": 24,
+        "unit": null,
+        "prefer": null
+      },
+      {
+        "op": "revalue",
+        "method": "weighted_average"
+      },
+      {
+        "op": "in",
+        "vt": "PI",
+        "vid": 3,
+        "vn": "PI-00003",
+        "qty": "4",
+        "cost": "30",
+        "days": 20,
+        "total": null
+      },
+      {
+        "op": "out",
+        "vt": "SI",
+        "vid": 2,
+        "vn": "SI-00002",
+        "qty": "6",
+        "days": 18,
+        "unit": null,
+        "prefer": null
+      },
+      {
+        "op": "revalue",
+        "method": "fifo"
+      },
+      {
+        "op": "in",
+        "vt": "PI",
+        "vid": 5,
+        "vn": "PI-00005",
+        "qty": "2",
+        "cost": "7",
+        "days": 15,
+        "total": null
+      },
+      {
+        "op": "out",
+        "vt": "PRV",
+        "vid": 1,
+        "vn": "PRV-00001",
+        "qty": "2",
+        "days": 10,
+        "unit": "7.0000",
+        "prefer": 5
+      },
+      {
+        "op": "out",
+        "vt": "SI",
+        "vid": 3,
+        "vn": "SI-00003",
+        "qty": "3",
+        "days": 9,
+        "unit": null,
+        "prefer": null
+      },
+      {
+        "op": "in",
+        "vt": "PI",
+        "vid": 6,
+        "vn": "PI-00006",
+        "qty": "1",
+        "cost": "1",
+        "days": 26,
+        "total": null
+      },
+      {
+        "op": "in",
+        "vt": "PI",
+        "vid": 7,
+        "vn": "PI-00007",
+        "qty": "0",
+        "cost": "1",
+        "days": 5,
+        "total": null
+      }
+    ]
+  },
+  "expected": [
+    "result 0 ok",
+    "result 1 ok",
+    "result 2 ok",
+    "result 3 ok",
+    "result 4 ok",
+    "result 5 ok",
+    "result 6 ok",
+    "result 7 ok",
+    "result 8 ok",
+    "result 9 ok",
+    "result 10 ok",
+    "result 11 ValueError: Cannot receive 0 of product P: receipt quantity must be positive.",
+    "row PI|1|PI-00001|IN|10.0000|10.0000|100.0000|10.0000|100.0000|10.0000|fifo|D-30|",
+    "row PI|2|PI-00002|IN|10.0000|20.0000|200.0000|21.0000|301.0000|14.3333|fifo|D-25|",
+    "row SI|1|SI-00001|OUT|5.0000|10.0000|50.0000|16.0000|251.0000|15.6875|fifo|D-24|",
+    "row PI|3|PI-00003|IN|4.0000|30.0000|120.0000|20.0000|371.0000|18.5500|weighted_average|D-20|",
+    "row SI|2|SI-00002|OUT|6.0000|18.5500|111.3000|14.0000|259.7000|18.5500|weighted_average|D-18|",
+    "row PI|5|PI-00005|IN|2.0000|7.0000|14.0000|16.0000|273.7000|17.1062|fifo|D-15|",
+    "row PRV|1|PRV-00001|OUT|2.0000|7.0000|14.0000|14.0000|259.7000|18.5500|fifo|D-10|",
+    "row SI|3|SI-00003|OUT|3.0000|20.4750|61.4200|11.0000|198.2800|18.0255|fifo|D-9|",
+    "row PI|6|PI-00006|IN|1.0000|1.0000|1.0000|11.0000|101.0000|9.1818|fifo|D-26|",
+    "layer 0|18.5500|14.0000|9.0000|184.2800|fifo|False|",
+    "layer 8|1.0000|1.0000|0.0000|0.0000|fifo|False|",
+    "layer 1|20.0000|10.0000|0.0000|0.0000|fifo|False|",
+    "layer 5|7.0000|2.0000|2.0000|14.0000|fifo|False|",
+    "consume 0|2|5.0000|10.0000|50.0000",
+    "consume 0|4|6.0000|18.5500|111.3000",
+    "consume 0|6|2.0000|7.0000|14.0000",
+    "consume 0|7|3.0000|20.4750|61.4200",
+    "adjust 4|SI|2|SI-00002|116.8400|111.3000|-5.5400|PI-00006|D-18|0",
+    "adjust 7|SI|3|SI-00003|58.4200|61.4200|3.0000|PI-00006|D-9|1",
+    "journal CADJ-SI|2|CADJ-SI-00002|Inventory cost adjustment of SI-00002 — PI-00006|D-18|True",
+    "  line 1-01-04-01-0001|5.5400|0.0000|Cost adjustment SI-00002: 116.84 -> 111.30 (PI-00006)|None",
+    "  line 5-01-01-01-0001|0.0000|5.5400|Cost adjustment SI-00002: 116.84 -> 111.30 (PI-00006)|None",
+    "journal CADJ-SI|3|CADJ-SI-00003|Inventory cost adjustment of SI-00003 — PI-00006|D-9|True",
+    "  line 5-01-01-01-0001|3.0000|0.0000|Cost adjustment SI-00003: 58.42 -> 61.42 (PI-00006)|None",
+    "  line 1-01-04-01-0001|0.0000|3.0000|Cost adjustment SI-00003: 58.42 -> 61.42 (PI-00006)|None",
+    "product 11.0000|18.0255"
+  ]
+}

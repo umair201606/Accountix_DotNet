@@ -1,0 +1,113 @@
+@model CompensationIndexModel
+@{
+    ViewData["Title"] = "Compensation - Accountix ERP";
+}
+<div class="page-header">
+    <h1>Compensation & Benefits</h1>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <a href="/compensation/run-payroll" class="btn btn-accent">&#9889; Run Payroll</a>
+        <a href="/compensation/tax-settings" class="btn btn-outline">&#128202; Tax &amp; Payroll Settings</a>
+        <a href="/compensation/loans" class="btn btn-outline">Staff Loans</a>
+        <a href="/compensation/create-profile" class="btn btn-primary">+ New Profile</a>
+    </div>
+</div>
+
+<div class="tab-nav mb-20">
+    <button class="tab-btn active" data-tab="profiles">Payroll Profiles</button>
+    <button class="tab-btn" data-tab="history">Payroll History</button>
+    <button class="tab-btn" data-tab="tax">Income Tax Slabs</button>
+</div>
+
+<div class="tab-content" id="tab-profiles">
+    <div class="card">
+        <div class="card-header">Payroll Profiles</div>
+        <div class="table-wrap">
+            <table style="font-variant-numeric:tabular-nums;">
+                <thead><tr><th>Employee</th><th>Basic Salary</th><th>Effective</th><th>Components</th><th></th></tr></thead>
+                <tbody>
+                    @foreach (var p in Model.Profiles)
+                    {
+                    <tr>
+                        <td>@p.FullName</td>
+                        <td>Rs. @Html.Amount(p.Profile.BasicSalary, 0)</td>
+                        <td>@p.Profile.EffectiveFrom.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)</td>
+                        <td>@p.ComponentCount</td>
+                        <td><a href="/compensation/edit-profile/@p.Profile.UserId" class="btn btn-sm btn-outline">Edit</a></td>
+                    </tr>
+                    }
+                    @if (Model.Profiles.Count == 0)
+                    {
+                    <tr><td colspan="5" class="text-center" style="color:var(--muted);">No profiles</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="tab-content hidden" id="tab-history">
+    <div class="card">
+        <div class="card-header">Payroll History</div>
+        <div class="table-wrap">
+            <table style="font-variant-numeric:tabular-nums;">
+                <thead><tr><th>Period</th><th>Run Date</th><th>Employees</th><th>Gross</th><th>Net</th><th>Status</th><th></th></tr></thead>
+                <tbody>
+                    @foreach (var r in Model.Runs)
+                    {
+                    <tr>
+                        <td><a href="/compensation/run/@r.Id">@r.Month/@r.Year</a></td>
+                        <td>@r.RunDate?.ToString("dd-MMM-yyyy", CultureInfo.InvariantCulture)</td>
+                        <td>@r.EmployeeCount</td>
+                        <td>Rs. @Html.Amount(r.TotalGross, 0)</td>
+                        <td>Rs. @Html.Amount(r.TotalNet, 0)</td>
+                        <td><span class="badge badge-@(r.Status is "completed" or "paid" ? "success" : "warning")">@r.Status</span></td>
+                        <td style="white-space:nowrap;"><a href="/compensation/run/@r.Id" class="btn btn-sm btn-outline">View</a>
+                            <a href="/compensation/export-bank-ledger/@r.Id" class="btn btn-sm btn-outline">Bank sheet</a></td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="tab-content hidden" id="tab-tax">
+    <div class="card">
+        <div class="card-header flex-between">
+            <span>Income Tax Slabs</span>
+            <a href="/compensation/tax-settings" class="btn btn-sm btn-primary">Manage Slabs</a>
+        </div>
+        <div class="table-wrap">
+            <table style="font-variant-numeric:tabular-nums;">
+                <thead><tr><th>Min (Rs.)</th><th>Max (Rs.)</th><th>Rate</th><th>Fixed (Rs.)</th></tr></thead>
+                <tbody>
+                    @foreach (var s in Model.Slabs)
+                    {
+                    <tr>
+                        <td>Rs. @Html.Amount(s.MinIncome, 0)</td>
+                        <td>Rs. @Html.Amount(s.MaxIncome, 0)</td>
+                        <td>@Py.Repr(Py.F(s.RatePct))%</td>
+                        <td>Rs. @Html.Amount(s.FixedAmount, 0)</td>
+                    </tr>
+                    }
+                    @if (Model.Slabs.Count == 0)
+                    {
+                    <tr><td colspan="4" class="text-center" style="color:var(--muted);">No slabs configured</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+@section Scripts {
+<script>
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+        document.getElementById('tab-' + this.dataset.tab).classList.remove('hidden');
+    });
+});
+</script>
+}

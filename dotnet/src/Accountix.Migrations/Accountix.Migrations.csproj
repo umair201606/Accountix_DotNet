@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    The database schema, owned by .NET since the Python app was retired:
+    the baseline (the schema at Alembic head 0018, generated from a database
+    the Python app built), the work of Alembic 0016-0018 for databases already
+    in production, and the runner. Migrator.cs explains the rules.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Accountix.Core\Accountix.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Sql\*.sql" LogicalName="Accountix.Migrations.Sql.%(Filename)%(Extension)" />
+    <EmbeddedResource Include="Schema\*.sql;Schema\*.json" LogicalName="Accountix.Migrations.Schema.%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Accountix.Migrations.Tests" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,40 @@
+# .NET build output
+bin/
+obj/
+artifacts/
+publish/
+*.user
+*.suo
+.vs/
+TestResults/
+
+# Local test settings written by tools/Accountix.RefDb and tools/restore_perf_db.sh
+dotnet/tools/reference.json
+dotnet/tools/perf.json
+
+# Secrets and local settings, never commit
+.env
+.env.*
+appsettings.*.local.json
+user_password.txt
+
+# Database files and backups (live data, e.g. pg_dump of Neon)
+*.db
+*.db-journal
+*.db-wal
+*.dump
+*.bak
+
+# Logs and local captures
+*.log
+stdout.txt
+stderr.txt
+
+# Browser tooling and screenshots
+.playwright-mcp/
+shots/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/

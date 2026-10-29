@@ -1,0 +1,83 @@
+@model Accountix.Finance.Controllers.CashFlowPage
+@using System.Globalization
+@using Accountix.Finance.Services
+@{
+    ViewData["Title"] = "Cash Flow Statement";
+    ViewData["Heading"] = "Cash Flow Statement";
+    var inv = CultureInfo.InvariantCulture;
+    var r = Model.Result;
+    var comp = Model.Comp;
+    bool hasComp = comp.Count > 0;
+    bool hasMaps = hasComp && r.CompMaps.Count > 0;
+    int span = hasComp ? 2 + comp.Count : 2;
+    string nf = Context.Access()?.NumberFormat ?? "en";
+    string A(double v) => TwcfReports.Display(v, nf);
+    string Sign(double? v) => v is double d ? (d < 0 ? "num-neg" : d > 0 ? "num-pos" : "") : "";
+    double recon = r.OpeningCash + r.NetChange - r.ClosingCash;
+    bool bad = Math.Abs(recon) > 0.01;
+}
+@section Head { <partial name="_FinanceHead" /> }
+@section Actions {
+<partial name="_ExportLinks" model="(Model.Period, Model.Loaded, true)" />
+<a href="/settings/?tab=cash_flow" class="btn btn-outline btn-sm"><i class="fas fa-cog"></i> Settings</a>
+<button onclick="window.print()" class="btn btn-outline btn-sm"><i class="fas fa-print"></i> Print</button>
+}
+<partial name="_ViewForm" model="Model.Period.FilterModel(Model.Loaded)" />
+
+<div class="card report-sheet">
+  <div class="report-head">
+    <div>
+      <div class="report-company"><partial name="_CompanyName" /></div>
+      <div class="report-title-lg">Cash Flow Statement <span class="report-sub">(@ViewHelpers.Title(r.Method) Method)</span></div>
+      <div class="report-period">@if (Model.From is DateOnly f && Model.To is DateOnly t) {<text>For the period @f.ToString("dd MMMM, yyyy", inv) to @t.ToString("dd MMMM, yyyy", inv)</text>} else {<text>Select a period and click <strong>View</strong></text>}</div>
+    </div>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="report-table statement">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th class="num" style="width:160px;">@(Model.To is DateOnly to ? to.ToString("dd MMMM, yyyy", inv) : "Amount")</th>
+          @foreach (var cp in comp)
+          {
+          <th class="num" style="width:140px;">@cp.EndDate.ToString("dd MMMM, yyyy", inv)</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @foreach (var (icon, title, items, emptyText, totalLabel, total, key) in new (string, string, List<CashItem>, string?, string, double, string)[]
+        {
+            ("fa-cogs", "OPERATING ACTIVITIES", r.Operating, null, "Net Cash from Operating Activities", r.NetOperating, "__net_op__"),
+            ("fa-chart-bar", "INVESTING ACTIVITIES", r.Investing, "No investing activity", "Net Cash from Investing Activities", r.NetInvesting, "__net_inv__"),
+            ("fa-hand-holding-usd", "FINANCING ACTIVITIES", r.Financing, "No financing activity", "Net Cash from Financing Activities", r.NetFinancing, "__net_fin__"),
+        })
+        {
+        <tr class="sec-head"><td colspan="@span"><i class="fas @icon"></i> @title</td></tr>
+            foreach (var item in items)
+            {
+        <tr><td class="indent">@item.Name</td><td class="num @(item.Value < 0 ? "num-neg" : "")">@A(item.Value)</td>@foreach (var cv in item.Comps ?? []) {<td class="num @Sign(cv)">@(cv is double d ? A(d) : "—")</td>}</tr>
+            }
+            if (items.Count == 0 && emptyText is not null)
+            {
+        <tr><td class="indent t-muted">@emptyText</td><td class="num">0.00</td>@foreach (var cp in comp) {<td class="num">0.00</td>}</tr>
+            }
+        <tr class="sec-total"><td>@totalLabel</td><td class="num">@A(total)</td>@if (hasMaps) { foreach (var m in r.CompMaps) {<td class="num">@A(m[key])</td>} }</tr>
+        }
+      </tbody>
+      <tfoot>
+        <tr class="grand-total">
+          <td>NET CHANGE IN CASH &amp; EQUIVALENTS</td>
+          <td class="num @(r.NetChange >= 0 ? "num-pos" : "num-neg")">@A(r.NetChange)</td>
+          @if (hasMaps) { foreach (var m in r.CompMaps) {<td class="num">@A(m["__net_chg__"])</td>} }
+        </tr>
+        <tr class="recon-line"><td>Opening Cash &amp; Equivalents</td><td class="num">@A(r.OpeningCash)</td>@if (hasMaps) { foreach (var m in r.CompMaps) {<td class="num">@A(m["__open__"])</td>} }</tr>
+        <tr class="recon-line"><td>Closing Cash &amp; Equivalents</td><td class="num">@A(r.ClosingCash)</td>@if (hasMaps) { foreach (var m in r.CompMaps) {<td class="num">@A(m["__close__"])</td>} }</tr>
+        <tr class="recon-line @(bad ? "recon-bad" : "")">
+          <td>@if (bad) {<i class="fas fa-triangle-exclamation"></i><text> Unreconciled difference (check account activity tags)</text>} else {<i class="fas fa-check"></i><text> Reconciled with cash-account movement</text>}</td>
+          <td class="num">@A(recon)</td>
+          @foreach (var cp in comp) {<td class="num"></td>}
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>

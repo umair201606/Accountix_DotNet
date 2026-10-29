@@ -1,0 +1,27 @@
+{
+  "captured": "2026-10-29, Python app (Flask), before it was removed",
+  "capture": "Golden/capture/products.py",
+  "inputs": {
+    "sku": "OS-TAG",
+    "name": "Opening TAG",
+    "description": "From the test",
+    "category_id": "",
+    "unit_price": "100",
+    "cost_price": "70.12345",
+    "reorder_level": "5",
+    "current_stock": "12.5",
+    "unit": "pcs",
+    "hs_code": "8541.4000",
+    "weight": "1.5",
+    "opening_date": "2026-04-01"
+  },
+  "expected": [
+    "product OS-TAG|Opening TAG|From the test||100.000000|70.123200|5|12.5000|pcs|8541.4000|1.500000|true",
+    "account 1-01-04-01-<P>|Opening TAG (OS-TAG)|asset|5|1-01-04-01|true|false",
+    "row P|OPENING|IN|12.5000|70.1234|876.5400|12.5000|876.5400|70.1232|weighted_average|D+0|OPEN-OS-TAG|Opening stock",
+    "layer 70.1234|12.5000|12.5000|876.5400|weighted_average|false|Opening stock",
+    "journal OPENING|OPEN-OS-TAG|Opening stock — Opening TAG|D+0 00:00:00|true",
+    "  line 1-01-04-01-<P>|876.5400|0.0000|Opening stock 12.5 x Opening TAG|",
+    "  line 3-01-01-01-0002|0.0000|876.5400|Opening balance — Opening TAG|"
+  ]
+}

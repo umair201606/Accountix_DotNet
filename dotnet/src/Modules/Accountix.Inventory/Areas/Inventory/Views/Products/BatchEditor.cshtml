@@ -1,0 +1,398 @@
+@model Accountix.Inventory.Controllers.ProductBatchModel
+@using Accountix.Inventory.Services
+@{
+    ViewData["Title"] = "Batch Import Products";
+    ViewData["Heading"] = "Batch Import Products";
+    var abbrs = Model.Units.Select(u => u.Abbreviation).ToHashSet();
+}
+@section Head {
+<style>
+  .be-wrap{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch}
+  .be-note{font-size:13px;padding:8px 12px;border-radius:5px;margin-bottom:10px;border:1px solid var(--border);overflow-wrap:anywhere}
+  .be-note.err{border-color:var(--danger);color:var(--danger)}
+  .be-note.ok{border-color:var(--success);color:var(--success)}
+  .be-rowerr{font-size:11px;color:var(--danger);margin-top:3px;line-height:1.35;min-width:160px;white-space:normal}
+  .be-date{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px;font-size:13px}
+  .be-date input{padding:5px 8px;border:1px solid var(--border);border-radius:3px;font-family:inherit;max-width:100%}
+  .be-tbl{width:100%;border-collapse:collapse;font-size:13px}
+  .be-tbl th{background:var(--bg-top);padding:8px 10px;text-align:left;font-size:11px;font-weight:700;color:var(--muted);border-bottom:2px solid var(--border);white-space:nowrap}
+  .be-tbl td{padding:4px;border-bottom:1px solid var(--border-soft);vertical-align:top}
+  .be-tbl .be-inp{width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:3px;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box;transition:border-color .12s,background .12s;min-width:60px;font-variant-numeric:tabular-nums}
+  .be-tbl .be-inp:focus{border-color:var(--accent)}
+  .be-tbl .be-inp.err{border-color:var(--danger);background:var(--danger-light)}
+  .be-tbl .be-inp.ok{border-color:var(--success);background:var(--success-light)}
+  .be-tbl .be-sel{width:100%;padding:5px 6px;border:1px solid var(--border);border-radius:3px;font-size:12px;font-family:inherit;outline:none;box-sizing:border-box;background:var(--card);cursor:pointer;min-width:72px}
+  .be-tbl .be-sel:focus{border-color:var(--accent)}
+  .be-tbl .be-del{width:32px;height:32px;border-radius:50%;border:1px solid var(--danger-light);background:var(--card);color:var(--danger);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .12s}
+  .be-tbl .be-del:hover{background:var(--danger-light)}
+  .be-summary{font-size:13px;color:var(--muted);margin-bottom:10px}
+  .be-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+  .be-add{background:var(--card);border:1px dashed var(--accent);color:var(--accent);padding:6px 14px;border-radius:5px;cursor:pointer;font-size:13px;font-weight:600;transition:all .12s}
+  .be-add:hover{background:var(--accent-light)}
+  .be-msg{font-size:10.5px;margin-top:2px;line-height:1.3}
+  .be-msg.err{color:var(--danger)}
+  .be-msg.ok{color:var(--success)}
+</style>
+}
+<div class="card">
+  <div class="card-h">Review &amp; Edit Products</div>
+  <div class="card-b">
+    <p class="be-summary">Review the products below before saving. Editable — change values or delete rows as needed. A ledger account is auto-created for each product.</p>
+
+    @if (Model.Created > 0) {<div class="be-note ok">@Model.Created product(s) saved. The rows below were not — fix them and press Save All again.</div>}
+    @if (Model.Flagged > 0) {<div class="be-note err">@Model.Flagged row(s) need attention — the reason is under each one. Rows that still have a problem are kept here when you save; the rest are created.</div>}
+    @if (!string.IsNullOrEmpty(Model.DateError)) {<div class="be-note err">@Model.DateError</div>}
+
+    <form id="batchForm" method="POST" action="/inventory/products/batch">
+      <input type="hidden" name="data" id="dataInput" value="">
+      <label class="be-date">Opening stock dated
+        <input type="date" name="opening_date" value="@Model.OpeningDate">
+        <span style="color:var(--muted);font-size:12px;">Stock in the rows is valued at its cost price and posted Dr Inventory / Cr Opening Balance Equity on this date — date it before your first purchase or sale.</span>
+      </label>
+      <div class="be-wrap">
+        <table class="be-tbl" id="beTbl">
+          <thead>
+            <tr>
+              <th style="width:30px;">#</th>
+              <th style="width:120px;">SKU *</th>
+              <th style="width:180px;">Name *</th>
+              <th style="width:130px;">Description</th>
+              <th style="width:100px;">Category</th>
+              <th style="width:70px;">Unit Price</th>
+              <th style="width:70px;">Cost Price</th>
+              <th style="width:60px;">Reorder</th>
+              <th style="width:60px;">Stock</th>
+              <th style="width:80px;">Unit <button type="button" class="be-add" onclick="openUnitModal()" style="padding:1px 6px;font-size:10px;border-width:1px;margin-left:4px;">+</button></th>
+              <th style="width:90px;">HS Code</th>
+              <th style="width:44px;"></th>
+            </tr>
+          </thead>
+          <tbody id="beBody">
+            @for (int i = 0; i < Model.Rows.Count; i++)
+            {
+              var r = Model.Rows[i];
+              string unit = r.Cell("unit");
+              var errs = r.Errors;
+            <tr>
+              <td style="text-align:center;color:var(--light);font-size:11px;" class="be-idx">@(i + 1)</td>
+              <td><input type="text" class="be-inp be-sku" value="@r.Cell("sku")" style="text-transform:uppercase"><div class="be-msg"></div></td>
+              <td><input type="text" class="be-inp be-name" value="@r.Cell("name")"><div class="be-msg"></div>@if (errs.Count > 0) {<div class="be-rowerr">@(MasterData.Truthy(r.Get("row_line")) ? $"Row {r.Cell("row_line")}: " : "")@string.Join(" ", errs)</div>}</td>
+              <td><input type="text" class="be-inp be-desc" value="@r.Cell("description")"></td>
+              <td><input type="text" class="be-inp be-cat" value="@r.Cell("category_name")" placeholder="Cat. name"></td>
+              <td><input type="text" class="be-inp be-uprice" value="@r.Cell("unit_price")"></td>
+              <td><input type="text" class="be-inp be-cprice" value="@r.Cell("cost_price")"></td>
+              <td><input type="text" class="be-inp be-reorder" value="@r.Cell("reorder_level")"></td>
+              <td><input type="text" class="be-inp be-stock" value="@r.Cell("current_stock")"></td>
+              <td><select class="be-sel be-unit">@foreach (var u in Model.Units) {<option value="@u.Abbreviation" selected="@(unit == u.Abbreviation)">@u.Abbreviation</option>}@if (MasterData.Truthy(r.Get("unit")) && !abbrs.Contains(unit)) {<option value="@unit" selected>@unit (not set up)</option>}</select></td>
+              <td><input type="text" class="be-inp be-hscode" value="@r.Cell("hs_code")" placeholder="HS code"></td>
+              <td><button type="button" class="be-del" onclick="delRow(this)" title="Remove">&times;</button></td>
+            </tr>
+            }
+            @if (Model.Rows.Count == 0)
+            {
+            <tr>
+              <td style="text-align:center;color:var(--light);font-size:11px;" class="be-idx">1</td>
+              <td><input type="text" class="be-inp be-sku" placeholder="SKU" style="text-transform:uppercase"><div class="be-msg"></div></td>
+              <td><input type="text" class="be-inp be-name" placeholder="Product name"><div class="be-msg"></div></td>
+              <td><input type="text" class="be-inp be-desc" placeholder="Optional"></td>
+              <td><input type="text" class="be-inp be-cat" placeholder="Cat. name"></td>
+              <td><input type="text" class="be-inp be-uprice" placeholder="0"></td>
+              <td><input type="text" class="be-inp be-cprice" placeholder="0"></td>
+              <td><input type="text" class="be-inp be-reorder" placeholder="0"></td>
+              <td><input type="text" class="be-inp be-stock" placeholder="0"></td>
+              <td><select class="be-sel be-unit">@foreach (var u in Model.Units) {<option value="@u.Abbreviation">@u.Abbreviation</option>}</select></td>
+              <td><input type="text" class="be-inp be-hscode" placeholder="HS code"></td>
+              <td><button type="button" class="be-del" onclick="delRow(this)" title="Remove">&times;</button></td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="be-actions">
+        <button type="button" class="be-add" onclick="addRow()">+ Add Row</button>
+        <button type="button" class="be-add" onclick="openUnitModal()" style="border-color:var(--accent);color:var(--accent);">+ New Unit</button>
+        <button type="submit" class="btn btn-primary" onclick="return collectData()">Save All</button>
+        <a href="/inventory/products/" class="btn btn-outline">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="unitModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:var(--card);border-radius:8px;padding:24px;width:440px;max-width:94vw;box-shadow:var(--shadow-lg);">
+    <h3 style="margin:0 0 16px;font-size:17px;">New Unit</h3>
+    <div class="form-group">
+      <label>Name *</label>
+      <input type="text" id="unitName" class="form-control focus-ring" style="border:1px solid var(--border);">
+      <div id="unitNameMsg" style="font-size:11px;margin-top:2px;"></div>
+    </div>
+    <div class="form-group">
+      <label>Abbreviation *</label>
+      <input type="text" id="unitAbbr" class="form-control focus-ring" maxlength="20" style="border:1px solid var(--border);">
+      <div id="unitAbbrMsg" style="font-size:11px;margin-top:2px;"></div>
+    </div>
+    <div class="form-group">
+      <label>Explanation</label>
+      <textarea id="unitExpl" class="form-control focus-ring" rows="2" style="border:1px solid var(--border);"></textarea>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;">
+      <button type="button" class="btn btn-outline" onclick="closeUnitModal()">Cancel</button>
+      <button type="button" class="btn btn-primary" id="unitSaveBtn" onclick="saveUnit()">Create</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var CHECK_URL = '/inventory/products/check';
+var UNIT_CHECK_URL = '/inventory/units/check';
+var UNIT_CREATE_URL = '/inventory/units/quick-create';
+var timers = {};
+var unitTimers = {};
+
+function checkField(inp, msgEl) {
+  var val = inp.value.trim();
+  var field = inp.classList.contains('be-sku') ? 'sku' : 'name';
+  inp.classList.remove('err', 'ok');
+  msgEl.className = 'be-msg';
+  msgEl.textContent = '';
+  if (!val) return;
+
+  var url = CHECK_URL + '?field=' + encodeURIComponent(field) + '&value=' + encodeURIComponent(val);
+  fetch(url, { credentials: 'same-origin' })
+    .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(function(d){
+      if (d.exists) {
+        inp.classList.add('err');
+        msgEl.className = 'be-msg err';
+        msgEl.textContent = 'Already taken';
+      } else {
+        inp.classList.add('ok');
+        msgEl.className = 'be-msg ok';
+        msgEl.textContent = 'Available';
+      }
+    })
+    .catch(function(e){ console.warn('Check failed:', e); });
+}
+
+function debounceCheck(inp, msgEl) {
+  var key = inp === msgEl ? inp.name : (inp.className + '_' + Math.random());
+  clearTimeout(timers[key]);
+  timers[key] = setTimeout(function(){ checkField(inp, msgEl); }, 400);
+}
+
+function wireRow(tr) {
+  var names = tr.querySelectorAll('.be-sku, .be-name');
+  names.forEach(function(inp){
+    var msgEl = inp.parentElement.querySelector('.be-msg');
+    if (!msgEl) return;
+    inp.addEventListener('input', function(){ debounceCheck(inp, msgEl); });
+  });
+}
+
+function addRow() {
+  var tbody = document.getElementById('beBody');
+  var tr = document.createElement('tr');
+  var unitOpts = '';
+  var sel = document.querySelector('.be-unit');
+  if (sel) { for (var i = 0; i < sel.options.length; i++) { unitOpts += '<option value="' + sel.options[i].value + '">' + sel.options[i].text + '</option>'; } }
+  tr.innerHTML =
+    '<td style="text-align:center;color:var(--light);font-size:11px;" class="be-idx">' + (tbody.children.length + 1) + '</td>' +
+    '<td><input type="text" class="be-inp be-sku" placeholder="SKU" style="text-transform:uppercase"><div class="be-msg"></div></td>' +
+    '<td><input type="text" class="be-inp be-name" placeholder="Product name"><div class="be-msg"></div></td>' +
+    '<td><input type="text" class="be-inp be-desc" placeholder="Optional"></td>' +
+    '<td><input type="text" class="be-inp be-cat" placeholder="Cat. name"></td>' +
+    '<td><input type="text" class="be-inp be-uprice" placeholder="0"></td>' +
+    '<td><input type="text" class="be-inp be-cprice" placeholder="0"></td>' +
+    '<td><input type="text" class="be-inp be-reorder" placeholder="0"></td>' +
+    '<td><input type="text" class="be-inp be-stock" placeholder="0"></td>' +
+    '<td><select class="be-sel be-unit">' + unitOpts + '</select></td>' +
+    '<td><input type="text" class="be-inp be-hscode" placeholder="HS code"></td>' +
+    '<td><button type="button" class="be-del" onclick="delRow(this)" title="Remove">&times;</button></td>';
+  tbody.appendChild(tr);
+  wireRow(tr);
+  reindex();
+}
+
+function delRow(btn) {
+  var tr = btn.closest('tr');
+  tr.parentNode.removeChild(tr);
+  reindex();
+}
+
+function reindex() {
+  var idxs = document.querySelectorAll('.be-idx');
+  for (var i = 0; i < idxs.length; i++) idxs[i].textContent = i + 1;
+}
+
+function collectData() {
+  var rows = [];
+  var err = false;
+  var skus = {};
+  var names = {};
+  var msgs = [];
+
+  var tbody = document.getElementById('beBody');
+  for (var i = 0; i < tbody.children.length; i++) {
+    var tr = tbody.children[i];
+    var skuInp = tr.querySelector('.be-sku');
+    var nameInp = tr.querySelector('.be-name');
+    var descInp = tr.querySelector('.be-desc');
+    var catInp = tr.querySelector('.be-cat');
+    var upriceInp = tr.querySelector('.be-uprice');
+    var cpriceInp = tr.querySelector('.be-cprice');
+    var reorderInp = tr.querySelector('.be-reorder');
+    var stockInp = tr.querySelector('.be-stock');
+    var unitSel = tr.querySelector('.be-unit');
+    var hsInp = tr.querySelector('.be-hscode');
+
+    var sku = skuInp.value.trim().toUpperCase();
+    var name = nameInp.value.trim();
+    var desc = descInp.value.trim();
+    var cat = catInp.value.trim();
+    var uprice = upriceInp.value.trim();
+    var cprice = cpriceInp.value.trim();
+    var reorder = reorderInp.value.trim();
+    var stock = stockInp.value.trim();
+    var unit = unitSel ? unitSel.value : 'pcs';
+    var hs = hsInp ? hsInp.value.trim() : '';
+
+    skuInp.classList.remove('err');
+    nameInp.classList.remove('err');
+
+    if (!sku && !name) continue;
+    if (!sku) { skuInp.classList.add('err'); err = true; msgs.push('Row ' + (i+1) + ': SKU required'); }
+    if (!name) { nameInp.classList.add('err'); err = true; msgs.push('Row ' + (i+1) + ': Name required'); }
+
+    if (sku && skus[sku]) { skuInp.classList.add('err'); err = true; msgs.push('Row ' + (i+1) + ': Duplicate SKU "' + sku + '"'); }
+    if (name && names[name]) { nameInp.classList.add('err'); err = true; msgs.push('Row ' + (i+1) + ': Duplicate name "' + name + '"'); }
+
+    if (skuInp.classList.contains('err')) err = true;
+    if (nameInp.classList.contains('err')) err = true;
+
+    skus[sku] = true;
+    names[name] = true;
+
+    rows.push({
+      sku: sku,
+      name: name,
+      description: desc,
+      category_name: cat,
+      unit_price: uprice || '0',
+      cost_price: cprice || '0',
+      reorder_level: reorder || '0',
+      current_stock: stock || '0',
+      unit: unit,
+      hs_code: hs,
+    });
+  }
+
+  if (err) {
+    alert('Please fix the highlighted errors.\n' + msgs.join('\n'));
+    return false;
+  }
+
+  document.getElementById('dataInput').value = JSON.stringify(rows);
+  return true;
+}
+
+function refreshUnitSelects(newVal, newText) {
+  var sels = document.querySelectorAll('.be-unit');
+  for (var i = 0; i < sels.length; i++) {
+    var opt = document.createElement('option');
+    opt.value = newVal;
+    opt.textContent = newText;
+    sels[i].appendChild(opt);
+  }
+}
+
+// ---- Unit modal ----
+function openUnitModal() {
+  document.getElementById('unitModal').style.display = 'flex';
+  document.getElementById('unitName').value = '';
+  document.getElementById('unitAbbr').value = '';
+  document.getElementById('unitExpl').value = '';
+  clearUnitMsgs();
+}
+
+function closeUnitModal() {
+  document.getElementById('unitModal').style.display = 'none';
+  clearUnitMsgs();
+}
+
+function clearUnitMsgs() {
+  var els = document.querySelectorAll('#unitNameMsg, #unitAbbrMsg');
+  for (var i = 0; i < els.length; i++) { els[i].textContent = ''; els[i].className = ''; }
+  document.getElementById('unitName').style.borderColor = 'var(--border)';
+  document.getElementById('unitAbbr').style.borderColor = 'var(--border)';
+}
+
+function checkUnitField(field, value, msgEl, inp) {
+  if (!value) { msgEl.textContent = ''; msgEl.className = ''; inp.style.borderColor = 'var(--border)'; return; }
+  var url = UNIT_CHECK_URL + '?field=' + encodeURIComponent(field) + '&value=' + encodeURIComponent(value);
+  fetch(url, { credentials: 'same-origin' })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d.exists) {
+        inp.style.borderColor = 'var(--danger)';
+        msgEl.className = 'dup-check err';
+        msgEl.textContent = 'Already taken';
+      } else {
+        inp.style.borderColor = 'var(--success)';
+        msgEl.className = 'dup-check ok';
+        msgEl.textContent = 'Available';
+      }
+    });
+}
+
+function debounceUnit(field, msgId, inpId) {
+  var key = field;
+  clearTimeout(unitTimers[key]);
+  var inp = document.getElementById(inpId);
+  var msgEl = document.getElementById(msgId);
+  var val = inp.value.trim();
+  inp.style.borderColor = 'var(--border)';
+  msgEl.textContent = 'Checking...';
+  msgEl.className = '';
+  if (!val) { msgEl.textContent = ''; return; }
+  unitTimers[key] = setTimeout(function(){ checkUnitField(field, val, msgEl, inp); }, 400);
+}
+
+document.getElementById('unitName').addEventListener('input', function(){ debounceUnit('name', 'unitNameMsg', 'unitName'); });
+document.getElementById('unitAbbr').addEventListener('input', function(){ debounceUnit('abbreviation', 'unitAbbrMsg', 'unitAbbr'); });
+
+function saveUnit() {
+  var name = document.getElementById('unitName').value.trim();
+  var abbr = document.getElementById('unitAbbr').value.trim();
+  var expl = document.getElementById('unitExpl').value.trim();
+  var btn = document.getElementById('unitSaveBtn');
+  btn.disabled = true;
+  btn.textContent = 'Saving...';
+
+  var fd = new FormData();
+  fd.append('name', name);
+  fd.append('abbreviation', abbr);
+  fd.append('explanation', expl);
+
+  fetch(UNIT_CREATE_URL, { method: 'POST', body: fd, credentials: 'same-origin' })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      btn.disabled = false;
+      btn.textContent = 'Create';
+      if (d.ok) {
+        refreshUnitSelects(d.abbreviation, d.abbreviation);
+        closeUnitModal();
+      } else {
+        alert(d.error || 'Failed to create unit.');
+      }
+    })
+    .catch(function(e){
+      btn.disabled = false;
+      btn.textContent = 'Create';
+      alert('Error: ' + e.message);
+    });
+}
+
+// Wire existing rows
+document.querySelectorAll('#beBody tr').forEach(function(tr){ wireRow(tr); });
+</script>

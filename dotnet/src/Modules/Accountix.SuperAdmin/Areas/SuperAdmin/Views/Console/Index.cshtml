@@ -1,0 +1,52 @@
+@model ConsoleController.IndexModel
+@{
+    ViewData["Title"] = "Dashboard - Super Admin";
+}
+
+<div class="sa-stats">
+  <div class="sa-stat">
+    <div class="sa-stat-icon blue">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9v.01"/><path d="M9 12v.01"/><path d="M9 15v.01"/><path d="M9 18v.01"/></svg>
+    </div>
+    <div class="sa-stat-value">@Model.CompanyCount</div>
+    <div class="sa-stat-label">Companies</div>
+  </div>
+  <div class="sa-stat">
+    <div class="sa-stat-icon green">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    </div>
+    <div class="sa-stat-value">@Model.UserCount</div>
+    <div class="sa-stat-label">Users</div>
+  </div>
+  <div class="sa-stat">
+    <div class="sa-stat-icon amber">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+    </div>
+    <div class="sa-stat-value">@Model.MembershipCount</div>
+    <div class="sa-stat-label">Memberships</div>
+  </div>
+</div>
+
+<div class="sa-card">
+  <div class="sa-card-header">
+    <div>
+      <h3 class="sa-card-title">Global Limits</h3>
+      <p class="sa-card-subtitle">Defaults applied to every company. A company's own max-members override wins for that company.</p>
+    </div>
+  </div>
+  <form method="POST" action="/superadmin/" asp-antiforgery="true">
+    <div class="fgrid">
+      <div class="fgroup">
+        <label class="lbl">Max Companies Per User</label>
+        <input type="number" name="max_companies_per_user" class="inp" min="1" value="@Model.Limits.MaxCompaniesPerUser">
+      </div>
+      <div class="fgroup">
+        <label class="lbl">Default Max Members</label>
+        <input type="number" name="default_max_members" class="inp" min="1" value="@Model.Limits.DefaultMaxMembers">
+      </div>
+    </div>
+    <div class="sa-actions">
+      <button type="submit" class="btn btn-p">Save Limits</button>
+    </div>
+  </form>
+</div>

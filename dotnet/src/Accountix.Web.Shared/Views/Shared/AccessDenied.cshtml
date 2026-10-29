@@ -1,0 +1,45 @@
+@*
+  The refusal page (templates/access_denied.html): a module this person may not open here,
+  or an admin-only action. The layout is set here, not by a host's _ViewStart, so the page
+  has the app shell in every host (E2E finding F8).
+*@
+@{
+    Layout = "_AppShell";
+    ViewData["Title"] = "Access Denied";
+    ViewData["Heading"] = "Access Denied";
+    string message = ViewData["Message"] as string ?? "";
+    bool adminOnly = message == "Only a company administrator can do this.";
+}
+<div class="denied-card" role="alert">
+  <div class="denied-icon">&#128274;</div>
+  @if (adminOnly)
+  {
+  <h2>Access Denied</h2>
+  <p>@message</p>
+  }
+  else
+  {
+  <h2>Module Not Available</h2>
+  <p>This module is not available to you in this company.</p>
+  <p>It is either not part of the company's plan, or your account has not been
+     granted access to it. Please contact your administrator.</p>
+  @if (message.Length > 0)
+  {
+  <p class="denied-why">@message</p>
+  }
+  }
+  <a href="/dashboard/" class="btn btn-outline">Back to Modules</a>
+</div>
+<style>
+.denied-card { max-width:480px; margin:60px auto; text-align:center; padding:48px 32px;
+  background:var(--card); border:1px solid var(--border-soft); border-radius:12px; }
+.denied-icon { font-size:64px; margin-bottom:16px; }
+.denied-card h2 { margin:0 0 12px; color:var(--danger); }
+.denied-card p { color:var(--muted); font-size:14px; margin:0 0 6px; }
+.denied-card .denied-why { margin-top:12px; font-size:13px; }
+.denied-card .btn { margin-top:24px; }
+@@media (max-width: 640px) {
+  .denied-card { margin:24px 12px; padding:32px 20px; }
+  .denied-icon { font-size:48px; }
+}
+</style>

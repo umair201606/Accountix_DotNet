@@ -1,0 +1,87 @@
+{
+  "captured": "2026-10-29, Python app (Flask), before it was removed",
+  "capture": "Golden/capture/reopened_draft.py",
+  "inputs": {
+    "purchase": {
+      "supplier_id": "SUPPLIER",
+      "invoice_date": "2026-10-20",
+      "discount_mode": "general",
+      "expenses_mode": "general",
+      "tax_mode": "line",
+      "global_discount_pct": 0,
+      "global_discount_value": 0,
+      "global_commission": 0,
+      "global_freight": 0,
+      "global_loading": 0,
+      "global_sales_tax_pct": 0,
+      "global_withholding_tax_pct": 0,
+      "subtotal": 500,
+      "total_discount": 0,
+      "net_payable": 500,
+      "total_amount": 500,
+      "items": [
+        {
+          "product_id": "P0",
+          "description": "Part 0",
+          "unit": "pcs",
+          "quantity": 5,
+          "unit_price": 100,
+          "discount_pct": 0,
+          "freight": 0,
+          "sales_tax_pct": 0,
+          "withholding_tax_pct": 0,
+          "total_before_discount": 500,
+          "total_after_discount": 500
+        }
+      ],
+      "action": "approve"
+    },
+    "sale": null,
+    "draft": {
+      "id": null,
+      "original_invoice_id": "PI",
+      "supplier_id": "SUPPLIER",
+      "date": "2026-10-22",
+      "notes": "Wrong spec",
+      "reverse_expenses": true,
+      "gross_return_value": 500,
+      "total_discount": 0,
+      "total_expenses": 0,
+      "total_tax": 0,
+      "net_return_amount": 500,
+      "items": [
+        {
+          "product_id": "P0",
+          "description": "Part",
+          "original_quantity": 5,
+          "previously_returned": 0,
+          "max_returnable_qty": 5,
+          "current_return_qty": 5,
+          "unit": "pcs",
+          "unit_price": 100,
+          "discount_pct": 0,
+          "discount_amount": 0,
+          "commission": 0,
+          "freight": 0,
+          "loading_unloading": 0,
+          "sales_tax_pct": 0,
+          "withholding_tax_pct": 0,
+          "total_before_discount": 500,
+          "total_after_discount": 500,
+          "proportional_discount": 0,
+          "proportional_sales_tax": 0,
+          "proportional_withholding_tax": 0,
+          "proportional_commission": 0,
+          "proportional_freight": 0,
+          "proportional_loading": 0,
+          "net_return_value": 500
+        }
+      ],
+      "action": "save"
+    }
+  },
+  "expected": [
+    "new {\"invoice\":{\"date\":\"<created>\",\"discount_mode\":\"general\",\"driver_contact\":\"\",\"driver_name\":\"\",\"expenses_mode\":\"general\",\"gate_pass\":\"\",\"id\":\"PI\",\"invoice_number\":\"<PI>\",\"net_payable\":500.0,\"subtotal\":500.0,\"supplier_id\":\"SUPPLIER\",\"supplier_name\":\"Ret Supplier TAG\",\"tax_mode\":\"line\",\"total_discount\":0.0,\"total_expenses\":0.0,\"total_tax\":0.0,\"vehicle_number\":\"\",\"voucher_number\":\"<PI>\"},\"items\":[{\"commission\":0.0,\"description\":\"Part 0\",\"discount_amount\":0.0,\"discount_pct\":0.0,\"freight\":0.0,\"loading_unloading\":0.0,\"max_returnable_qty\":0.0,\"original_quantity\":5.0,\"previously_returned\":5.0,\"product_id\":\"P0\",\"proportional_ratio\":0,\"sales_tax_pct\":0.0,\"sku\":\"RET-TAG-0\",\"total_after_discount\":500.0,\"total_before_discount\":500.0,\"unit\":\"pcs\",\"unit_price\":100.0,\"withholding_tax_pct\":0.0}],\"ok\":true}",
+    "draft {\"invoice\":{\"date\":\"<created>\",\"discount_mode\":\"general\",\"driver_contact\":\"\",\"driver_name\":\"\",\"expenses_mode\":\"general\",\"gate_pass\":\"\",\"id\":\"PI\",\"invoice_number\":\"<PI>\",\"net_payable\":500.0,\"subtotal\":500.0,\"supplier_id\":\"SUPPLIER\",\"supplier_name\":\"Ret Supplier TAG\",\"tax_mode\":\"line\",\"total_discount\":0.0,\"total_expenses\":0.0,\"total_tax\":0.0,\"vehicle_number\":\"\",\"voucher_number\":\"<PI>\"},\"items\":[{\"commission\":0.0,\"description\":\"Part 0\",\"discount_amount\":0.0,\"discount_pct\":0.0,\"freight\":0.0,\"loading_unloading\":0.0,\"max_returnable_qty\":5.0,\"original_quantity\":5.0,\"previously_returned\":0.0,\"product_id\":\"P0\",\"proportional_ratio\":0,\"sales_tax_pct\":0.0,\"sku\":\"RET-TAG-0\",\"total_after_discount\":500.0,\"total_before_discount\":500.0,\"unit\":\"pcs\",\"unit_price\":100.0,\"withholding_tax_pct\":0.0}],\"ok\":true}"
+  ]
+}

@@ -1,0 +1,33 @@
+@model Accountix.Inventory.Controllers.VoucherListModel
+@{
+    ViewData["Title"] = "Stock Takes";
+}
+<a href="/inventory/vouchers/stock-take" class="btn btn-primary" style="margin-bottom:1rem;">+ New Stock Take</a>
+@if (Model.Rows.Count > 0)
+{
+<table class="table">
+  <thead><tr><th>#</th><th>Reference</th><th>Date</th><th>Location</th><th>Items</th><th>Status</th><th>Adjustment</th><th>Actions</th></tr></thead>
+  <tbody>
+    @foreach (var st in Model.Rows)
+    {
+    <tr>
+      <td>@st.Id</td>
+      <td><a href="/inventory/vouchers/stock-take/@st.Id">@st.Number</a></td>
+      <td>@(st.Date?.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture) ?? "")</td>
+      <td>@st.Text</td>
+      <td>@st.Items</td>
+      <td><span class="badge @(st.Status == "approved" ? "badge-success" : "badge-warning")">@st.Status</span></td>
+      <td>@if (st.AdjustmentVoucherId is int adj) {<a href="/inventory/vouchers/adjustment/@adj">View</a>} else {<text>-</text>}</td>
+      <td>
+        <a href="/inventory/vouchers/stock-take/@st.Id" class="btn btn-sm btn-outline">Edit</a>
+        <form method="POST" action="/inventory/vouchers/stock-take/@st.Id/delete" style="display:inline" onsubmit="return confirm('Delete this stock take?')"><button class="btn btn-sm btn-danger">Delete</button></form>
+      </td>
+    </tr>
+    }
+  </tbody>
+</table>
+}
+else
+{
+<p class="text-muted">No stock takes yet.</p>
+}

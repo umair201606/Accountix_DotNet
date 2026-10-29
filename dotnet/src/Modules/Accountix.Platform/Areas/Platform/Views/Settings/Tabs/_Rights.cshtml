@@ -1,0 +1,82 @@
+@model SettingsController.SettingsPage
+@{ var t = (SettingsController.RightsTab)Model.TabModel!; }
+<div class="set-card">
+  <h3>Rights &amp; Access</h3>
+  <p class="hint">HR creates users; here you decide which modules they reach and what they may do inside each section. A user with no rights row configured has unrestricted section access within the modules they can open.</p>
+
+  <div class="tbl-scroll">
+    <table class="stbl rights-tbl">
+      <thead>
+        <tr><th>User</th><th>Role</th><th>Module Access</th><th>Section Rights</th><th>Status</th><th></th></tr>
+      </thead>
+      <tbody>
+        @foreach (var r in t.Users) { var u = r.User;
+        <tr>
+          <td class="r-cell-user">
+            <div class="r-name">@u.FullName</div>
+            <div class="r-email">@J.Or(u.LoginId, u.Email)</div>
+          </td>
+          <td class="r-cell-role" data-label="Role"><span class="pill pill-off">@ViewHelpers.Title(r.Role)</span></td>
+          <td class="r-cell-mods" data-label="Module Access">
+            @if (r.IsAdmin) {
+            <span class="pill pill-on">All (admin)</span>
+            } else {
+              var mods = Modules.All.Where(m => u.AccountModuleFlag(m.Key)).Select(m => m.Label).ToList();
+              if (mods.Count > 0) {
+                foreach (var m in mods) {<span class="pill" style="background:var(--accent-light);color:var(--accent);margin-right:3px;">@m</span>}
+              } else {
+              <span style="font-size:12px;color:var(--muted);">None</span>
+              }
+            }
+          </td>
+          <td class="r-cell-sec" data-label="Section Rights">
+            @if (r.IsAdmin) {
+            <span style="font-size:12px;color:var(--muted);">Unrestricted</span>
+            } else if (t.Configured.Contains(u.Id)) {
+            <span class="pill pill-on">Configured</span>
+            } else {
+            <span class="pill pill-off">Unrestricted</span>
+            }
+          </td>
+          <td class="r-cell-status" data-label="Status">
+            @if (u.Active) {<span class="pill pill-on">Active</span>}
+            else {<span class="pill" style="background:var(--danger-light);color:var(--danger);">Inactive</span>}
+          </td>
+          <td class="r-cell-acts" data-label="">
+            <div class="r-acts">
+              <a href="/settings/users/@u.Id/rights" class="btn btn-sm btn-outline">Edit Rights</a>
+              @if (t.Configured.Contains(u.Id)) {
+              <form method="POST" asp-antiforgery="true" action="/settings/users/@u.Id/reset-rights" style="display:inline;"
+                    onsubmit="return confirm('Reset section rights for ' + @System.Text.Json.JsonSerializer.Serialize(u.FullName) + '?');">
+                <button type="submit" class="btn btn-sm btn-outline">Reset</button>
+              </form>
+              }
+              @if (u.Id != t.MeId) {
+              <form method="POST" asp-antiforgery="true" action="/settings/users/@u.Id/toggle-active" style="display:inline;">
+                <button type="submit" class="btn btn-sm @(u.Active ? "btn-danger" : "btn-outline")">@(u.Active ? "Deactivate" : "Activate")</button>
+              </form>
+              }
+            </div>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+<style>
+  .r-acts { display: flex; flex-wrap: nowrap; gap: 6px; justify-content: flex-end; }
+  .r-acts form { margin: 0; }
+  .r-acts .btn { white-space: nowrap; }
+  @@media (max-width: 768px) {
+    .rights-tbl, .rights-tbl thead, .rights-tbl tbody, .rights-tbl tr, .rights-tbl th, .rights-tbl td { display: block; }
+    .rights-tbl thead { display: none; }
+    .rights-tbl tr { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px; margin-bottom: 10px; }
+    .rights-tbl td { border: none !important; padding: 3px 0 !important; }
+    .rights-tbl td[data-label]:before { content: attr(data-label) ": "; font-weight: 700; font-size: 10.5px; color: var(--muted); display: inline; margin-right: 4px; }
+    .r-cell-user { margin-bottom: 6px; }
+    .r-cell-user:before { display: none !important; }
+    .r-acts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .r-acts .btn { font-size: 11px; padding: 5px 10px; }
+  }
+</style>

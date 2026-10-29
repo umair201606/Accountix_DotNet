@@ -1,0 +1,29 @@
+@model Accountix.Invoicing.Models.Pager
+@*
+  Page links as tracking/_pager.html: every filter in the query string is kept,
+  only ?page= changes. Nothing renders for a single page.
+*@
+@if (Model.Pages > 1)
+{
+    string Link(int page)
+    {
+        var q = Context.Request.Query.Where(kv => kv.Key != "page")
+            .SelectMany(kv => kv.Value.Select(v => Uri.EscapeDataString(kv.Key) + "=" + Uri.EscapeDataString(v ?? "")))
+            .Append("page=" + page);
+        return Context.Request.Path + "?" + string.Join("&", q);
+    }
+<nav class="trk-pager" aria-label="Pages">
+  <span>@Model.First–@Model.Last of @Model.Total</span>
+  <span class="trk-pager-links">
+    <a class="trk-rowbtn @(Model.Page <= 1 ? "is-off" : "")" rel="prev" href="@Link(Model.Page - 1)">&larr; Previous</a>
+    <span style="align-self:center;">Page @Model.Page of @Model.Pages</span>
+    <a class="trk-rowbtn @(Model.Page >= Model.Pages ? "is-off" : "")" rel="next" href="@Link(Model.Page + 1)">Next &rarr;</a>
+  </span>
+</nav>
+<style>
+.trk-pager{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px 14px;font-size:12.5px;color:var(--text-light,#64748b)}
+.trk-pager-links{display:flex;gap:8px;flex-wrap:wrap}
+.trk-rowbtn{display:inline-block;padding:5px 10px;border:1px solid var(--border,#e2e8f0);border-radius:6px;text-decoration:none;color:inherit}
+.trk-rowbtn.is-off{pointer-events:none;opacity:.45}
+</style>
+}

@@ -1,0 +1,93 @@
+@using Accountix.Inventory.Services
+@model Accountix.Inventory.Controllers.ReportsController.ValuationModel
+@{
+    ViewData["Title"] = "Stock Valuation";
+    ViewData["Heading"] = "Stock Valuation";
+    var d = Model.Data;
+}
+@section Actions {
+@if (Model.Loaded) { <partial name="_ExportButtons" model='new ExportButtons("excel", "pdf", "csv")' /> }
+}
+<style>
+  .sv-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:end;margin-bottom:14px}
+  .sv-bar label{display:block;font-size:12px;color:var(--muted);margin-bottom:3px}
+  .sv-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:14px}
+  .sv-kpi{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 12px}
+  .sv-kpi .l{font-size:12px;color:var(--muted)}
+  .sv-kpi .v{font-size:18px;font-weight:600;font-variant-numeric:tabular-nums}
+  .sv-kpi.bad{border-color:var(--danger)} .sv-kpi.bad .v{color:var(--danger)}
+  .sv-kpi.good .v{color:var(--success)}
+  .sv-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--border);border-radius:8px;background:var(--card)}
+  .sv-table{width:100%;border-collapse:collapse;min-width:820px}
+  .sv-table th,.sv-table td{padding:8px 10px;border-bottom:1px solid var(--border);font-size:13px}
+  .sv-table th{text-align:left;color:var(--muted);font-weight:600;font-size:12px}
+  .sv-table .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .sv-table tfoot td{font-weight:600}
+  .sv-note{font-size:12px;color:var(--muted);margin-top:8px}
+</style>
+
+<form method="GET" class="sv-bar">
+  <div><label for="svFrom">Movement from</label>
+    <input type="date" id="svFrom" name="from" value="@Model.Start" class="form-control"></div>
+  <div><label for="svAsOf">Valued as at</label>
+    <input type="date" id="svAsOf" name="as_of" value="@Model.AsOf" class="form-control"></div>
+  <button type="submit" class="btn btn-primary">Apply</button>
+</form>
+
+@if (Model.Loaded && d is not null)
+{
+<div class="sv-kpis">
+  <div class="sv-kpi"><div class="l">Stock value (stock ledger)</div><div class="v">@Html.Amount(d.CloseVal, 2)</div></div>
+  <div class="sv-kpi"><div class="l">Inventory accounts (general ledger)</div><div class="v">@Html.Amount(d.GlBalance, 2)</div></div>
+  <div class="sv-kpi @(Math.Abs(d.Difference) < 0.01m ? "good" : "bad")">
+    <div class="l">Difference</div>
+    <div class="v">@Html.Amount(d.Difference, 2)</div>
+  </div>
+</div>
+
+<div class="sv-wrap">
+  <table class="sv-table" id="valuation-table">
+    <thead>
+      <tr><th>SKU</th><th>Product</th>
+        <th class="num">Opening qty</th><th class="num">Opening value</th>
+        <th class="num">In qty</th><th class="num">In value</th>
+        <th class="num">Out qty</th><th class="num">Out value</th>
+        <th class="num">Closing qty</th><th class="num">Avg cost</th><th class="num">Closing value</th></tr>
+    </thead>
+    <tbody>
+      @foreach (var r in d.Rows)
+      {
+      <tr>
+        <td>@r.Sku</td>
+        <td><a href="/inventory/vouchers/product-ledger?product_id=@r.Id">@r.Name</a></td>
+        <td class="num">@Html.Amount(r.OpenQty, 2)</td>
+        <td class="num">@Html.Amount(r.OpenVal, 2)</td>
+        <td class="num">@Html.Amount(r.InQty, 2)</td>
+        <td class="num">@Html.Amount(r.InVal, 2)</td>
+        <td class="num">@Html.Amount(r.OutQty, 2)</td>
+        <td class="num">@Html.Amount(r.OutVal, 2)</td>
+        <td class="num">@Html.Amount(r.CloseQty, 2) @r.Unit</td>
+        <td class="num">@Html.Amount(r.Avg, 2)</td>
+        <td class="num">@Html.Amount(r.CloseVal, 2)</td>
+      </tr>
+      }
+      @if (d.Rows.Count == 0)
+      {
+      <tr><td colspan="11" style="text-align:center;color:var(--muted);padding:24px">No stock movement up to @Model.AsOf.</td></tr>
+      }
+    </tbody>
+    <tfoot>
+      <tr><td colspan="3">Total</td>
+        <td class="num">@Html.Amount(d.OpenVal, 2)</td><td></td>
+        <td class="num">@Html.Amount(d.InVal, 2)</td><td></td>
+        <td class="num">@Html.Amount(d.OutVal, 2)</td><td colspan="2"></td>
+        <td class="num">@Html.Amount(d.CloseVal, 2)</td></tr>
+    </tfoot>
+  </table>
+</div>
+<p class="sv-note">Movements are dated by their document date, so a back-dated purchase or sale appears in the period it belongs to, and any re-costed issue shows its corrected cost. Opening + in − out = closing.</p>
+}
+else
+{
+<div class="report-wait" role="status" style="border:1px dashed var(--border,#d9dce0);border-radius:12px;padding:36px 20px;text-align:center;color:var(--muted,#5b6068);font-size:14px;background:var(--card,#fff)"><b style="display:block;color:var(--text,#17181a);font-size:15px;margin-bottom:4px">Choose the dates, then press Apply</b>Stock is valued from the stock ledger, and reconciled to the general ledger, when you ask for it.</div>
+}

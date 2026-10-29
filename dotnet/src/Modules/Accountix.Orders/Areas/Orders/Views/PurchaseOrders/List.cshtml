@@ -1,0 +1,69 @@
+@model OrderListModel
+@* Port of invoicing_app/templates/purchases/list_inv.html (ids and classes unchanged). *@
+@{
+    ViewData["Title"] = "Purchase Orders";
+    ViewData["Heading"] = "Purchase Orders";
+}
+<div class="page-header">
+  <a href="/inventory/purchases/" class="btn btn-primary">+ New Purchase Order</a>
+</div>
+<div class="card">
+  <div class="card-body" style="padding-bottom:8px;">
+    <form method="GET" class="search-form">
+      <select name="status" class="form-control focus-ring" style="width:200px;display:inline-block;" onchange="this.form.submit()">
+        <option value="">All Status</option>
+        @foreach (var s in new[] { "unapproved", "approved", "received", "cancelled" })
+        {
+        <option value="@s" selected="@(Model.StatusFilter == s)">@Jinja.Title(s)</option>
+        }
+      </select>
+    </form>
+  </div>
+  <div class="table-responsive">
+    <table class="table">
+      <thead><tr><th>PO #</th><th>Supplier</th><th>Date</th><th>Expected</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>
+        @foreach (var o in Model.Orders)
+        {
+        <tr>
+          <td><strong>@o.Number</strong></td>
+          <td>@o.PartyName</td>
+          <td>@Jinja.Date(o.OrderDate)</td>
+          <td>@(o.ExpectedDate is { } ed ? Jinja.Date(ed) : "-")</td>
+          <td>@Py.Amount(o.TotalAmount, 0, Model.NumberFormat)</td>
+          <td><span class="badge badge-@Jinja.Str(o.Status)">@Jinja.Title(o.Status)</span></td>
+          <td class="actions" style="display:flex;gap:4px;">
+            <a href="/inventory/purchases/@o.Id" class="btn btn-sm btn-outline">View / Edit</a>
+            @if (o.Status == "approved")
+            {
+            <a href="/inventory/purchase-invoice/" class="btn btn-sm btn-success" title="New purchase invoice — use Import from order; stock comes in at landed cost on approval">Bill</a>
+            }
+            @if (o.Status is "unapproved" or "approved")
+            {
+            <form method="POST" action="/inventory/purchases/cancel/@o.Id" style="display:inline;" onsubmit="return confirm('Cancel this order? What is still unbilled can no longer be invoiced.')">
+              <button type="submit" class="btn btn-sm btn-warning">Cancel</button>
+            </form>
+            }
+            @if (o.Status != "received")
+            {
+            <form method="POST" action="/inventory/purchases/delete/@o.Id" style="display:inline;" onsubmit="return confirm('Delete?')">
+              <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+            </form>
+            }
+          </td>
+        </tr>
+        }
+        @if (Model.Orders.Count == 0)
+        {
+        <tr><td colspan="7" class="empty">No purchase orders</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+<style>
+.badge-unapproved { background:var(--bg-top); color:var(--accent); }
+.badge-approved { background:var(--bg-top); color:var(--success); }
+.badge-received { background:var(--bg-top); color:var(--accent); }
+.badge-cancelled { background:var(--bg-top); color:var(--danger); }
+</style>

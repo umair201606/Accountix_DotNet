@@ -1,0 +1,105 @@
+@model SettingsController.SettingsPage
+@{ var t = (SettingsController.InventoryTab)Model.TabModel!; var inv = t.Settings; }
+<div class="set-card">
+  <h3>Inventory</h3>
+  <p class="hint">Controls how stock is costed and which documents the invoicing flow requires.</p>
+
+  <form method="POST" asp-antiforgery="true" action="/settings/inventory">
+
+    <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px;">Stock Valuation</div>
+    <div class="fgroup">
+      <label class="lbl">Costing Method</label>
+      <div class="radio-row">
+        <label class="radio-card">
+          <input type="radio" name="valuation_method" value="weighted_average"
+                 @J.Chk(inv.ValuationMethod != "fifo")>
+          <span class="rc-h">Weighted Average</span>
+          <div class="rc-d">Every issue costs at the running average of stock on hand.</div>
+        </label>
+        <label class="radio-card">
+          <input type="radio" name="valuation_method" value="fifo"
+                 @J.Chk(inv.ValuationMethod == "fifo")>
+          <span class="rc-h">FIFO</span>
+          <div class="rc-d">Issues consume the oldest purchase layers first.</div>
+        </label>
+      </div>
+      <div class="help">Applies to every stock issue (sales, consumption, scrap, adjustments) from the moment it is saved. Existing postings keep the cost they were booked at.</div>
+    </div>
+
+    <div class="fgrid">
+      <div class="fgroup">
+        <label class="lbl">Decimal Places (unit cost)</label>
+        <input type="number" name="decimal_places" class="inp" style="width:110px;"
+               value="@J.Or(inv.DecimalPlaces, "4")" min="0" max="6">
+      </div>
+      <div class="fgroup">
+        <label class="lbl">Options</label>
+        <label style="display:block;font-size:13px;margin-bottom:6px;">
+          <input type="checkbox" name="allow_negative_stock" @J.Chk(inv.AllowNegativeStock == true)>
+          Allow negative stock
+        </label>
+        <label style="display:block;font-size:13px;">
+          <input type="checkbox" name="auto_generate_vouchers" @J.Chk(inv.AutoGenerateVouchers == true)>
+          Auto-generate voucher numbers
+        </label>
+      </div>
+    </div>
+
+    <div style="border-top:1px solid var(--line);margin:16px 0 14px;padding-top:14px;">
+      <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px;">Document Flow</div>
+      <div class="fgroup">
+        <label class="lbl">Purchasing</label>
+        <div class="radio-row">
+          <label class="radio-card">
+            <input type="radio" name="purchase_flow" value="with_po" @J.Chk(inv.PurchaseFlow != "direct_invoice")>
+            <span class="rc-h">Purchase Order first</span>
+            <div class="rc-d">Raise a PO, then invoice against it.</div>
+          </label>
+          <label class="radio-card">
+            <input type="radio" name="purchase_flow" value="direct_invoice" @J.Chk(inv.PurchaseFlow == "direct_invoice")>
+            <span class="rc-h">Direct Invoice</span>
+            <div class="rc-d">Skip POs; enter purchase invoices directly.</div>
+          </label>
+        </div>
+      </div>
+      <div class="fgroup">
+        <label class="lbl">Sales</label>
+        <div class="radio-row">
+          <label class="radio-card">
+            <input type="radio" name="sales_flow" value="with_so" @J.Chk(inv.SalesFlow != "direct_invoice")>
+            <span class="rc-h">Sales Order first</span>
+            <div class="rc-d">Raise an SO, then invoice against it.</div>
+          </label>
+          <label class="radio-card">
+            <input type="radio" name="sales_flow" value="direct_invoice" @J.Chk(inv.SalesFlow == "direct_invoice")>
+            <span class="rc-h">Direct Invoice</span>
+            <div class="rc-d">Skip SOs; enter sales invoices directly.</div>
+          </label>
+        </div>
+        <div class="help">Turning a flow off hides its menu entry and renames the invoice link.</div>
+      </div>
+    </div>
+
+    <div style="border-top:1px solid var(--line);margin:16px 0 14px;padding-top:14px;">
+      <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px;">Default Posting Accounts</div>
+      <p class="help" style="margin-top:0;margin-bottom:10px;">Optional overrides. Left blank, postings resolve to the canonical level-5 account for each role in the fixed chart.</p>
+      <div class="fgrid">
+        @foreach (var (field, label, current) in new[] { ("default_cogs_account_id", "Cost of Goods Sold", inv.DefaultCogsAccountId), ("default_inventory_account_id", "Inventory / Stock", inv.DefaultInventoryAccountId), ("default_return_account_id", "Purchase Returns", inv.DefaultReturnAccountId) }) {
+        <div class="fgroup">
+          <label class="lbl">@label</label>
+          <select name="@field" class="sel">
+            <option value="">Use chart default</option>
+            @foreach (var a in t.Accounts) {
+            <option value="@a.Id" selected="@(current == a.Id)">@a.Code — @a.Name</option>
+            }
+          </select>
+        </div>
+        }
+      </div>
+    </div>
+
+    <div class="set-actions">
+      <button type="submit" class="btn btn-p">Save Inventory Settings</button>
+    </div>
+  </form>
+</div>

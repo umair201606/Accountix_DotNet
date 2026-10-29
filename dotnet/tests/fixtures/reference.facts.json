@@ -1,0 +1,1261 @@
+{
+  "about": "Facts about tests/fixtures/reference.sql.gz (the reference database, captured 29 Oct 2026 at Alembic 0018 from the database the Python app built and seeded). tools/Accountix.RefDb copies them into tools/reference.json. 'access' is what the Python app said each person may open in each company; 'hashes' are Werkzeug-made password hashes of hashes.password.",
+  "alembic_version": "0018_report_indexes",
+  "secret_key": "reference-secret-key-0123456789abcdef",
+  "password": "Str0ng-pass-1",
+  "companies": {
+    "a": 2,
+    "b": 3
+  },
+  "users": {
+    "owner.a.db6e12@ref.test": 6,
+    "owner.b.6603bc@ref.test": 7,
+    "restricted.a194de@ref.test": 8,
+    "blocked.8a31c1@ref.test": 9,
+    "emp@solarkon.com": 4
+  },
+  "emails": {
+    "owner_a": "owner.a.db6e12@ref.test",
+    "owner_b": "owner.b.6603bc@ref.test",
+    "restricted": "restricted.a194de@ref.test",
+    "blocked": "blocked.8a31c1@ref.test"
+  },
+  "hashes": {
+    "password": "Parity-pass-9",
+    "scrypt": "scrypt:32768:8:1$0UBcDTFEnjfRydBD$41a002b3cb6aa0d07309511cc41ebe1a20becf6ba1f01c780ff63e80d8afd502951f4b7f97c0c1776d77f2291a91492b4cf8392e3e8ed476def22a38ff6fcdb7",
+    "pbkdf2": "pbkdf2:sha256:1000$J5aUyQIw70G0G0KP$82d4f3e3cffb7c9ba620f46ddae404ec8819d99c1822a69b76004b0030d5172c",
+    "pbkdf2_default": "pbkdf2:sha256:1000000$BpvZ0oCnNquA2mor$90c8ea86ffc6c36faa097b1db2f3ea87fc1a672346baebe17d08546de93670b4"
+  },
+  "access": [
+    {
+      "email": "owner.a.db6e12@ref.test",
+      "user_id": 6,
+      "company_id": 2,
+      "role": "admin",
+      "is_admin": true,
+      "modules": {
+        "hr": true,
+        "inventory": true,
+        "invoicing": true,
+        "finance": true,
+        "accounting": true,
+        "fbr": true,
+        "fixed_assets": true,
+        "executive": true
+      },
+      "rights": {
+        "employees": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "attendance": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "leaves": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "payroll": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "loans": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "pf": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "products": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "categories": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "stock": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "consumption_vouchers": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "scrap_vouchers": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "adjustment_vouchers": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "stock_take_vouchers": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "inventory_reports": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "suppliers": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "customers": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "purchase_orders": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "sales_orders": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "purchase_invoices": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "purchase_returns": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "sales_invoices": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "sales_returns": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "payment_tracking": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "financial_reports": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "cash_payment_vouchers": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "cash_receipt_vouchers": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "bank_payment_vouchers": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "bank_receipt_vouchers": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "journal_vouchers": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "chart_of_accounts": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "bank_reconciliation": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "fbr_dashboard": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "fbr_settings": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "fixed_assets_dashboard": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "fixed_assets_assets": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "fixed_assets_categories": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "fixed_assets_reports": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "executive_reports": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        }
+      }
+    },
+    {
+      "email": "owner.a.db6e12@ref.test",
+      "user_id": 6,
+      "company_id": 3,
+      "role": "employee",
+      "is_admin": false,
+      "modules": {
+        "hr": true,
+        "inventory": false,
+        "invoicing": false,
+        "finance": false,
+        "accounting": false,
+        "fbr": false,
+        "fixed_assets": false,
+        "executive": false
+      },
+      "rights": {
+        "employees": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "attendance": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "leaves": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "payroll": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "loans": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "pf": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "products": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "categories": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "stock": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "consumption_vouchers": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "scrap_vouchers": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "adjustment_vouchers": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "stock_take_vouchers": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "inventory_reports": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "suppliers": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "customers": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "purchase_orders": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "sales_orders": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "purchase_invoices": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "purchase_returns": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "sales_invoices": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "sales_returns": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "payment_tracking": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "financial_reports": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "cash_payment_vouchers": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "cash_receipt_vouchers": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "bank_payment_vouchers": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "bank_receipt_vouchers": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "journal_vouchers": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "chart_of_accounts": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "bank_reconciliation": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "fbr_dashboard": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "fbr_settings": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "fixed_assets_dashboard": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "fixed_assets_assets": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "fixed_assets_categories": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "fixed_assets_reports": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "executive_reports": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        }
+      }
+    },
+    {
+      "email": "owner.a.db6e12@ref.test",
+      "user_id": 6,
+      "company_id": null,
+      "role": null,
+      "is_admin": false,
+      "modules": {
+        "hr": true,
+        "inventory": true,
+        "invoicing": true,
+        "finance": true,
+        "accounting": true,
+        "fbr": true,
+        "fixed_assets": true,
+        "executive": true
+      },
+      "rights": {}
+    },
+    {
+      "email": "owner.b.6603bc@ref.test",
+      "user_id": 7,
+      "company_id": 3,
+      "role": "admin",
+      "is_admin": true,
+      "modules": {
+        "hr": true,
+        "inventory": true,
+        "invoicing": true,
+        "finance": true,
+        "accounting": true,
+        "fbr": true,
+        "fixed_assets": true,
+        "executive": true
+      },
+      "rights": {
+        "employees": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "attendance": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "leaves": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "payroll": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "loans": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "pf": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "products": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "categories": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "stock": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "consumption_vouchers": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "scrap_vouchers": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "adjustment_vouchers": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "stock_take_vouchers": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "inventory_reports": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "suppliers": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "customers": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "purchase_orders": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "sales_orders": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "purchase_invoices": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "purchase_returns": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "sales_invoices": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "sales_returns": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "payment_tracking": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "financial_reports": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "cash_payment_vouchers": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "cash_receipt_vouchers": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "bank_payment_vouchers": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "bank_receipt_vouchers": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "journal_vouchers": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "chart_of_accounts": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "bank_reconciliation": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "fbr_dashboard": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "fbr_settings": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "fixed_assets_dashboard": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "fixed_assets_assets": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "fixed_assets_categories": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "fixed_assets_reports": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        },
+        "executive_reports": {
+          "view": true,
+          "create": true,
+          "edit": true,
+          "approve": true,
+          "delete": true
+        }
+      }
+    },
+    {
+      "email": "owner.b.6603bc@ref.test",
+      "user_id": 7,
+      "company_id": null,
+      "role": null,
+      "is_admin": false,
+      "modules": {
+        "hr": true,
+        "inventory": true,
+        "invoicing": true,
+        "finance": true,
+        "accounting": true,
+        "fbr": true,
+        "fixed_assets": true,
+        "executive": true
+      },
+      "rights": {}
+    },
+    {
+      "email": "restricted.a194de@ref.test",
+      "user_id": 8,
+      "company_id": 3,
+      "role": "manager",
+      "is_admin": false,
+      "modules": {
+        "hr": true,
+        "inventory": false,
+        "invoicing": false,
+        "finance": false,
+        "accounting": true,
+        "fbr": false,
+        "fixed_assets": false,
+        "executive": false
+      },
+      "rights": {
+        "employees": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "attendance": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "leaves": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "payroll": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "loans": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "pf": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "products": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "categories": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "stock": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "consumption_vouchers": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "scrap_vouchers": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "adjustment_vouchers": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "stock_take_vouchers": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "inventory_reports": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "suppliers": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "customers": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "purchase_orders": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "sales_orders": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "purchase_invoices": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "purchase_returns": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "sales_invoices": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "sales_returns": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "payment_tracking": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "financial_reports": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "cash_payment_vouchers": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "cash_receipt_vouchers": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "bank_payment_vouchers": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "bank_receipt_vouchers": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "journal_vouchers": {
+          "view": true,
+          "create": true,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "chart_of_accounts": {
+          "view": true,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "bank_reconciliation": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "fbr_dashboard": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "fbr_settings": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "fixed_assets_dashboard": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "fixed_assets_assets": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "fixed_assets_categories": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "fixed_assets_reports": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        },
+        "executive_reports": {
+          "view": false,
+          "create": false,
+          "edit": false,
+          "approve": false,
+          "delete": false
+        }
+      }
+    },
+    {
+      "email": "restricted.a194de@ref.test",
+      "user_id": 8,
+      "company_id": null,
+      "role": null,
+      "is_admin": false,
+      "modules": {
+        "hr": true,
+        "inventory": false,
+        "invoicing": false,
+        "finance": false,
+        "accounting": false,
+        "fbr": false,
+        "fixed_assets": false,
+        "executive": false
+      },
+      "rights": {}
+    },
+    {
+      "email": "blocked.8a31c1@ref.test",
+      "user_id": 9,
+      "company_id": null,
+      "role": null,
+      "is_admin": false,
+      "modules": {
+        "hr": true,
+        "inventory": false,
+        "invoicing": false,
+        "finance": false,
+        "accounting": false,
+        "fbr": false,
+        "fixed_assets": false,
+        "executive": false
+      },
+      "rights": {}
+    },
+    {
+      "email": "emp@solarkon.com",
+      "user_id": 4,
+      "company_id": null,
+      "role": null,
+      "is_admin": false,
+      "modules": {
+        "hr": true,
+        "inventory": false,
+        "invoicing": false,
+        "finance": false,
+        "accounting": false,
+        "fbr": false,
+        "fixed_assets": false,
+        "executive": false
+      },
+      "rights": {}
+    }
+  ]
+}

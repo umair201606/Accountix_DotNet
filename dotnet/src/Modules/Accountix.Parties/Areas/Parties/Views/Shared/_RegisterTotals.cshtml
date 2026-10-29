@@ -1,0 +1,8 @@
+@model decimal[]
+@* Invoice register totals row — full-set totals, refreshed per chunk. *@
+<tr data-total="1">
+  <td colspan="4"><strong>TOTAL</strong></td>
+  @foreach (var v in Model) {<td class="num"><strong>@Html.Amount(v, 0)</strong></td>}
+  <td></td>
+  <td class="no-print"></td>
+</tr>

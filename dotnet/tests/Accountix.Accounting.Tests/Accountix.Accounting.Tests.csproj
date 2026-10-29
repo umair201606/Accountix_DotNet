@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Modules\Accountix.Accounting\Accountix.Accounting.csproj" />
+    <ProjectReference Include="..\Accountix.TestSupport\Accountix.TestSupport.csproj" />
+    <!-- CompanySetup: the golden tests' own companies are provisioned as the portal provisions one. -->
+    <ProjectReference Include="..\..\src\Modules\Accountix.Platform\Accountix.Platform.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Fixed expectations captured from the Python app (Golden/capture/*.py). -->
+    <None Include="Golden\*.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

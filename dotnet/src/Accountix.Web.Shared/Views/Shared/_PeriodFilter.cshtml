@@ -1,0 +1,474 @@
+@model Accountix.Web.Infrastructure.PeriodFilterModel
+@using System.Globalization
+@*
+  The report / list period filter (finance_app/templates/accounting/_period_filter.html):
+  Single Period / Custom Range / Comparative (only when CompMode is not null),
+  plus the optional project-label multi-select.
+*@
+@{
+    string mode = string.IsNullOrEmpty(Model.FilterMode) ? "period" : Model.FilterMode;
+    string Dot(string m) => mode == m ? "block" : "none";
+    string Act(string m) => mode == m ? "active" : "";
+}
+<style>
+.period-toggle{display:flex;gap:0;margin-bottom:12px}
+.period-toggle label{display:flex;align-items:center;gap:6px;padding:6px 16px;font-size:13px;font-weight:600;border:1px solid var(--v2-line-2);cursor:pointer;background:var(--v2-surface);color:var(--v2-body);transition:background .12s,border-color .12s,color .12s;user-select:none;margin:0}
+.period-toggle label:first-child{border-radius:6px 0 0 6px}
+.period-toggle label:last-child{border-radius:0 6px 6px 0}
+.period-toggle label:not(:last-child){border-right:none}
+.period-toggle label.active{background:var(--v2-accent-soft);border-color:var(--v2-accent);color:var(--v2-accent-ink);z-index:1}
+.period-toggle input[type=radio]{display:none}
+@@media (max-width: 500px){
+  /* The segmented row no longer fits at 320px: wrap it into pills. */
+  .period-toggle{flex-wrap:wrap;gap:6px}
+  .period-toggle label{border-radius:6px !important;border:1px solid var(--v2-line-2) !important}
+}
+.period-fields{display:none}
+.period-fields.active{display:block}
+.period-fields select,.period-fields input{padding:7px 10px;font-size:13px;border:1px solid var(--v2-line-2);border-radius:8px;font-family:inherit;background:var(--v2-surface);color:var(--v2-ink)}
+.period-fields select:focus,.period-fields input:focus{outline:2px solid var(--v2-ink);outline-offset:2px}
+.period-fields select:disabled,.period-fields input:disabled{background:var(--v2-sunk);color:var(--v2-faint)}
+.comp-dd-wrap{position:relative;max-width:360px}
+.comp-dd-trigger{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;font-size:13px;border:1px solid var(--v2-line-2);border-radius:8px;cursor:pointer;color:var(--v2-muted);background:var(--v2-surface);user-select:none;min-height:36px}
+.comp-dd-trigger:hover{border-color:var(--v2-faint)}
+.comp-dd-trigger.open{border-color:var(--v2-accent)}
+.comp-dd-trigger .label{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.comp-dd-trigger .arrow{border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid var(--v2-faint);margin-left:6px;flex-shrink:0;transition:transform .15s}
+.comp-dd-trigger.open .arrow{transform:rotate(180deg)}
+.comp-dd-panel{display:none;position:absolute;top:100%;left:0;right:0;z-index:50;border:1px solid var(--v2-line-2);border-radius:8px;margin-top:2px;max-height:220px;overflow-y:auto;background:var(--v2-surface);box-shadow:var(--v2-pop)}
+.comp-dd-panel.open{display:block}
+.comp-dd-src{display:block;width:calc(100% - 24px);margin:8px 12px 4px;padding:6px 9px;font-size:12.5px;font-family:inherit;border:1px solid var(--v2-line-2);border-radius:8px;outline:none;background:var(--v2-surface);color:var(--v2-ink)}
+.comp-dd-src:focus{outline:2px solid var(--v2-ink);outline-offset:-1px}
+.comp-dd-opt{display:flex;align-items:center;gap:8px;padding:7px 10px;cursor:pointer;font-size:13px;color:var(--v2-body);border-bottom:1px solid var(--v2-line)}
+.comp-dd-opt:hover{background:var(--v2-hover);color:var(--v2-ink)}
+.comp-dd-opt:last-child{border-bottom:none}
+.comp-dd-opt input[type=checkbox]{accent-color:var(--v2-accent);margin:0;flex-shrink:0}
+.comp-dd-opt .name{flex:1}
+.comp-dd-opt .dates{font-size:11px;color:var(--v2-muted)}
+</style>
+
+<div class="period-filter-component">
+  <input type="hidden" name="filter_mode" id="filterModeInput" value="@mode">
+  <input type="hidden" name="comp_mode" id="compModeInput" value="@(Model.CompMode ?? "")">
+  <input type="hidden" name="comp_period_ids" id="compPeriodIdsInput" value="@Model.CompPeriodIdsStr">
+
+  <div class="period-toggle">
+    <label class="period-opt @Act("period")" data-mode="period">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><circle cx="7" cy="7" r="3" fill="currentColor" style="display:@Dot("period")"/></svg>
+      Single Period
+    </label>
+    <label class="period-opt @Act("custom")" data-mode="custom">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><circle cx="7" cy="7" r="3" fill="currentColor" style="display:@Dot("custom")"/></svg>
+      Custom Range
+    </label>
+    @if (Model.CompMode is not null)
+    {
+    <label class="period-opt @Act("comparative")" data-mode="comparative">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><circle cx="7" cy="7" r="3" fill="currentColor" style="display:@Dot("comparative")"/></svg>
+      Comparative
+    </label>
+    }
+  </div>
+
+  <div class="period-fields @(mode is "period" or "comparative" ? "active" : "")" id="periodSelectFields">
+    <select name="period_id" id="periodSelect" class="" style="width:100%;max-width:360px;">
+      <option value="">-- Select Period --</option>
+      @foreach (var p in Model.Periods)
+      {
+      <option value="@p.Id" selected="@(Model.SelectedPeriodId == p.Id)">
+        @p.PeriodName (@p.StartDate.ToString("dd/MM/yy", CultureInfo.InvariantCulture) - @p.EndDate.ToString("dd/MM/yy", CultureInfo.InvariantCulture))
+      </option>
+      }
+    </select>
+  </div>
+
+  <div class="period-fields @Act("custom")" id="customDateFields">
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <div>
+        <label style="display:block;font-size:11.5px;font-weight:500;color:var(--v2-muted);margin-bottom:3px;">From</label>
+        <input type="date" name="from" value="@Model.FromStr" style="width:150px;">
+      </div>
+      <div>
+        <label style="display:block;font-size:11.5px;font-weight:500;color:var(--v2-muted);margin-bottom:3px;">End</label>
+        <input type="date" name="to" value="@Model.ToStr" style="width:150px;">
+      </div>
+    </div>
+  </div>
+
+@if (Model.ShowLabels)
+{
+<div class="period-fields" style="display:block;margin-top:10px;border-top:1px solid var(--v2-line);padding-top:10px;">
+  <label style="display:block;font-size:11.5px;font-weight:500;color:var(--v2-muted);margin-bottom:5px;">Project Labels</label>
+  <input type="hidden" name="label_ids" id="labelIdsInput" value="@string.Join(",", Model.LabelIds)">
+  <div class="comp-dd-wrap" style="max-width:360px;">
+    <div class="comp-dd-trigger" id="labelDDTrigger" role="button" tabindex="0" aria-expanded="false">
+      <span class="label" id="labelDDLabel">All reports (company-wide)</span>
+      <span class="arrow"></span>
+    </div>
+    <div class="comp-dd-panel" id="labelDDPanel">
+      <input type="text" id="labelSearch" class="comp-dd-src" autocomplete="off" placeholder="Type to filter labels...">
+      @if (Model.Labels.Count == 0)
+      {
+      <p style="padding:10px 12px;margin:0;font-size:12px;color:var(--v2-muted)">No labels yet — create them under <a href="/settings/?tab=labels">Settings &rsaquo; Project Labels</a>.</p>
+      }
+      @foreach (var l in Model.Labels)
+      {
+      <label class="comp-dd-opt label-dd-opt">
+        <input type="checkbox" value="@l.Id" checked="@Model.LabelIds.Contains(l.Id)">
+        <span class="name">@l.Name@if (l.IsActive != true) { <text> </text><span style="color:var(--v2-faint)">(inactive)</span> }</span>
+      </label>
+      }
+      <div style="padding:6px 8px;border-top:1px solid var(--v2-line)">
+        <button type="button" id="labelDdOkBtn" style="padding:5px 14px;font-size:12px;font-weight:500;border:none;border-radius:6px;cursor:pointer;background:var(--v2-ink);color:var(--v2-ground);width:100%">OK</button>
+      </div>
+    </div>
+  </div>
+  <p style="margin:6px 0 0;font-size:11px;color:var(--v2-muted)">Reports show only postings tagged with a selected label; bank/cash, AR/AP and tax lines are never tagged, so they drop out of a label-filtered report.</p>
+</div>
+}
+
+  @if (Model.CompMode is not null)
+  {
+  <div class="period-fields @Act("comparative")" id="comparativeFields">
+    <div style="margin-top:8px;border-top:1px solid var(--v2-line);padding-top:10px;">
+      <label style="display:block;font-size:11.5px;font-weight:500;color:var(--v2-muted);margin-bottom:5px;">Comparative Periods</label>
+      <div class="comp-dd-wrap">
+        <div class="comp-dd-trigger" id="compDDTrigger">
+          <span class="label" id="compDDLabel">Select periods</span>
+          <span class="arrow"></span>
+        </div>
+        <div class="comp-dd-panel" id="compDDPanel">
+          @foreach (var p in Model.Periods)
+          {
+          <label class="comp-dd-opt" data-period-id="@p.Id" data-start="@p.StartDate.ToString("yyyy-MM-dd")" style="display:none">
+            <input type="checkbox" value="@p.Id">
+            <span class="name">@p.PeriodName</span>
+            <span class="dates">@p.StartDate.ToString("dd/MM/yy", CultureInfo.InvariantCulture) - @p.EndDate.ToString("dd/MM/yy", CultureInfo.InvariantCulture)</span>
+          </label>
+          }
+          <div style="padding:6px 8px;border-top:1px solid var(--v2-line)">
+            <button type="button" id="compDdOkBtn" style="padding:5px 14px;font-size:12px;font-weight:500;border:none;border-radius:6px;cursor:pointer;background:var(--v2-ink);color:var(--v2-ground);width:100%">OK</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+</div>
+
+<script>
+(function() {
+  var container = document.currentScript ? document.currentScript.parentElement : document.querySelector('.period-filter-component:last-child');
+  if (!container) container = document.querySelector('.period-filter-component');
+  if (!container) return;
+
+  var modeInput = container.querySelector('#filterModeInput');
+  var compModeInput = container.querySelector('#compModeInput');
+  var compPeriodIdsInput = container.querySelector('#compPeriodIdsInput');
+  var opts = container.querySelectorAll('.period-opt');
+  var periodFields = container.querySelector('#periodSelectFields');
+  var customFields = container.querySelector('#customDateFields');
+  var compFields = container.querySelector('#comparativeFields');
+  var periodSelect = container.querySelector('#periodSelect');
+  var ddTrigger = container.querySelector('#compDDTrigger');
+  var ddPanel = container.querySelector('#compDDPanel');
+  var ddLabel = container.querySelector('#compDDLabel');
+  var ddOptions = container.querySelectorAll('.comp-dd-opt');
+  // Pages that cannot act on a comparative filter never render its panel.
+  var HAS_COMP = !!compFields;
+
+  function activeMode() { return modeInput.value; }
+
+  function updateHiddenInput() {
+    var ids = [];
+    ddOptions.forEach(function(opt) {
+      var cb = opt.querySelector('input[type=checkbox]');
+      if (cb.checked) ids.push(cb.value);
+    });
+    compPeriodIdsInput.value = ids.join(',');
+  }
+
+  function filterCompOptions() {
+    var baseId = parseInt(periodSelect.value);
+    ddOptions.forEach(function(opt) { opt.style.display = ''; });
+    if (!baseId) { ddOptions.forEach(function(opt) { opt.style.display = 'none'; }); return; }
+    var baseOpt = periodSelect.querySelector('option[value="' + baseId + '"]');
+    if (!baseOpt) return;
+    var baseStart = baseOpt.getAttribute('data-start');
+    ddOptions.forEach(function(opt) {
+      var start = opt.getAttribute('data-start');
+      if (!start || start >= baseStart) {
+        opt.style.display = 'none';
+      } else {
+        opt.style.display = '';
+      }
+    });
+  }
+
+  function autoSelectPrevious() {
+    var visible = [];
+    ddOptions.forEach(function(opt) {
+      if (opt.style.display !== 'none') visible.push(opt);
+    });
+    if (visible.length > 0) {
+      var last = visible[visible.length - 1];
+      var cb = last.querySelector('input[type=checkbox]');
+      cb.checked = true;
+    }
+    updateHiddenInput();
+  }
+
+  function initCompMode() {
+    if (!HAS_COMP) return;
+    periodFields.classList.add('active');
+    customFields.classList.remove('active');
+    compFields.classList.add('active');
+    periodSelect.disabled = false;
+    var inputs = customFields.querySelectorAll('input');
+    inputs.forEach(function(inp) { inp.disabled = true; });
+    compModeInput.value = '1';
+    filterCompOptions();
+    autoSelectPrevious();
+  }
+
+  // Toggle click handlers
+  opts.forEach(function(opt) {
+    opt.addEventListener('click', function() {
+      var mode = this.dataset.mode;
+      opts.forEach(function(o) {
+        o.classList.remove('active');
+        var dot = o.querySelector('circle:last-child');
+        if (dot) dot.style.display = 'none';
+      });
+      this.classList.add('active');
+      var dot = this.querySelector('circle:last-child');
+      if (dot) dot.style.display = 'block';
+      modeInput.value = mode;
+
+      periodFields.classList.remove('active');
+      customFields.classList.remove('active');
+      if (HAS_COMP) compFields.classList.remove('active');
+      periodSelect.disabled = true;
+      var inputs = customFields.querySelectorAll('input');
+      inputs.forEach(function(inp) { inp.disabled = true; });
+      compModeInput.value = '';
+
+      if (mode === 'period') {
+        periodFields.classList.add('active');
+        periodSelect.disabled = false;
+      } else if (mode === 'custom') {
+        customFields.classList.add('active');
+        inputs.forEach(function(inp) { inp.disabled = false; });
+        periodSelect.disabled = true;
+      } else if (mode === 'comparative') {
+        initCompMode();
+      }
+    });
+  });
+
+  // Base period change → re-filter comparative options
+  periodSelect.addEventListener('change', function() {
+    if (activeMode() === 'comparative') {
+      filterCompOptions();
+    }
+  });
+
+  if (HAS_COMP) {
+  // Dropdown trigger click
+  ddTrigger.addEventListener('click', function() {
+    if (activeMode() !== 'comparative') return;
+    var isOpen = ddPanel.classList.contains('open');
+    ddPanel.classList.toggle('open');
+    ddTrigger.classList.toggle('open');
+  });
+
+  // Checkbox change
+  ddOptions.forEach(function(opt) {
+    var cb = opt.querySelector('input[type=checkbox]');
+    cb.addEventListener('change', function() {
+      updateHiddenInput();
+    });
+    opt.addEventListener('click', function(e) {
+      if (e.target.tagName !== 'INPUT') {
+        cb.checked = !cb.checked;
+        updateHiddenInput();
+      }
+    });
+  });
+
+  // OK button
+  var ddOkBtn = container.querySelector('#compDdOkBtn');
+  if (ddOkBtn) {
+    ddOkBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      updateHiddenInput();
+      ddPanel.classList.remove('open');
+      ddTrigger.classList.remove('open');
+    });
+  }
+
+  // Close dropdown on outside click
+  document.addEventListener('click', function(e) {
+    if (!ddTrigger.contains(e.target) && !ddPanel.contains(e.target)) {
+      ddPanel.classList.remove('open');
+      ddTrigger.classList.remove('open');
+    }
+  });
+  }
+
+  // Init
+  if (HAS_COMP && activeMode() === 'comparative') {
+    initCompMode();
+  } else if (activeMode() === 'custom') {
+    var inputs = customFields.querySelectorAll('input');
+    inputs.forEach(function(inp) { inp.disabled = false; });
+    if (periodSelect) periodSelect.disabled = true;
+  } else {
+    var inputs = customFields.querySelectorAll('input');
+    inputs.forEach(function(inp) { inp.disabled = true; });
+    if (periodSelect) periodSelect.disabled = false;
+  }
+
+  // Store start dates on period select options
+  @foreach (var p in Model.Periods)
+  {
+  @:var opt = periodSelect.querySelector('option[value="@p.Id"]');
+  @:if (opt) opt.setAttribute('data-start', '@p.StartDate.ToString("yyyy-MM-dd")');
+  }
+
+  // On page load in comparative mode, restore selections
+  if (HAS_COMP && activeMode() === 'comparative') {
+    filterCompOptions();
+    if (compPeriodIdsInput.value) {
+      var savedIds = compPeriodIdsInput.value.split(',');
+      ddOptions.forEach(function(opt) {
+        var cb = opt.querySelector('input[type=checkbox]');
+        if (savedIds.indexOf(cb.value) !== -1) {
+          cb.checked = true;
+        }
+      });
+    }
+    updateHiddenInput();
+  }
+})();
+</script>
+
+@if (Model.ShowLabels)
+{
+<script>
+(function() {
+  var container = document.currentScript ? document.currentScript.parentElement : null;
+  if (!container) container = document.querySelector('.period-filter-component:last-child');
+  if (!container) return;
+  var trigger = container.querySelector('#labelDDTrigger');
+  var panel = container.querySelector('#labelDDPanel');
+  var okBtn = container.querySelector('#labelDdOkBtn');
+  var input = container.querySelector('#labelIdsInput');
+  var label = container.querySelector('#labelDDLabel');
+  var search = container.querySelector('#labelSearch');
+  var opts = panel.querySelectorAll('.label-dd-opt');
+  if (!trigger || !panel || !okBtn || !input) return;
+
+  function updateLabel() {
+    var checked = panel.querySelectorAll('.label-dd-opt input[type=checkbox]:checked');
+    if (checked.length === 0) {
+      label.textContent = 'All reports (company-wide)';
+    } else if (checked.length === 1) {
+      label.textContent = 'Label: ' + checked[0].closest('label').querySelector('.name').textContent.trim();
+    } else {
+      label.textContent = checked.length + ' labels selected';
+    }
+  }
+
+  function setOpen(open) {
+    panel.classList.toggle('open', open);
+    trigger.classList.toggle('open', open);
+    trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (open && search) {
+      search.value = '';
+      opts.forEach(function(o) { o.style.display = ''; });
+      search.focus();
+    }
+  }
+
+  // Type-to-filter: hide options whose name does not match the search box.
+  if (search) {
+    search.addEventListener('input', function() {
+      var q = search.value.trim().toLowerCase();
+      opts.forEach(function(o) {
+        var name = (o.querySelector('.name').textContent || '').toLowerCase();
+        o.style.display = (!q || name.indexOf(q) !== -1) ? '' : 'none';
+      });
+    });
+    search.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') { e.preventDefault(); okBtn.click(); }
+      else if (e.key === 'Escape') { e.preventDefault(); setOpen(false); }
+    });
+  }
+
+  trigger.addEventListener('click', function(e) {
+    e.stopPropagation();
+    setOpen(!panel.classList.contains('open'));
+  });
+
+  // Space opens the panel (same muscle memory as the account picker: press
+  // Space, type to filter, Enter applies the selection).
+  trigger.addEventListener('keydown', function(e) {
+    if (panel.classList.contains('open')) {
+      if (e.key === 'Escape') { e.preventDefault(); setOpen(false); }
+      else if (e.key === 'Enter') { e.preventDefault(); okBtn.click(); }
+      else if (search && e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
+        search.value += e.key;
+        search.dispatchEvent(new Event('input'));
+        search.focus();
+      }
+      return;
+    }
+    if (e.key === ' ' || e.key === 'Enter' ||
+        e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      setOpen(true);
+    }
+  });
+
+  okBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    var ids = [];
+    panel.querySelectorAll('.label-dd-opt input[type=checkbox]:checked').forEach(function(cb) {
+      ids.push(cb.value);
+    });
+    input.value = ids.join(',');
+    setOpen(false);
+    updateLabel();
+  });
+
+  // Click a row toggles its checkbox; the checkbox change keeps the hidden
+  // input and the trigger label in step.
+  opts.forEach(function(opt) {
+    var cb = opt.querySelector('input[type=checkbox]');
+    cb.addEventListener('change', function() {
+      var ids = [];
+      panel.querySelectorAll('.label-dd-opt input[type=checkbox]:checked').forEach(function(c) {
+        ids.push(c.value);
+      });
+      input.value = ids.join(',');
+      updateLabel();
+    });
+    opt.addEventListener('click', function(e) {
+      if (e.target.tagName !== 'INPUT') {
+        cb.checked = !cb.checked;
+        cb.dispatchEvent(new Event('change'));
+      }
+    });
+  });
+
+  document.addEventListener('click', function(e) {
+    if (!trigger.contains(e.target) && !panel.contains(e.target)) {
+      setOpen(false);
+    }
+  });
+
+  updateLabel();
+})();
+</script>
+}

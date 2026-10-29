@@ -1,0 +1,97 @@
+@model Accountix.Hr.Controllers.UsersController.FormModel
+@{
+    ViewData["Title"] = "Edit User - Accountix ERP";
+    var user = Model.User;
+    var m = Model.Membership;
+    int roleId = m?.RoleId ?? user.RoleId;
+    bool refused = Model.LoginRefusal is not null;
+}
+<div class="page-header">
+    <h1>Edit User</h1>
+    <a href="/auth/users" class="btn btn-sm btn-outline">&larr; Back to Users</a>
+</div>
+<div class="card" style="max-width:600px;">
+    <form method="POST">
+        <div class="form-row">
+            <div class="form-group">
+                <label>Employee Code *</label>
+                <input type="text" name="employee_code" class="form-control" required value="@(m is not null ? Py.Text(m.EmployeeCode) : user.EmployeeCode)" readonly>
+            </div>
+            <div class="form-group">
+                <label>Email *</label>
+                <input type="email" name="email" class="form-control" required value="@user.Email" readonly="@refused">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Full Name *</label>
+            <input type="text" name="full_name" class="form-control" required value="@user.FullName">
+            <small style="display:block;margin-top:4px;color:var(--accent);font-weight:500;">&#9432; This name will appear in ledgers — a 4th-level employee ledger account is created automatically.</small>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Role *</label>
+                <select name="role_id" class="form-control" required>
+                    <option value="">Select Role</option>
+                    @foreach (var r in Model.Roles)
+                    {
+                    <option value="@r.Id" selected="@(roleId == r.Id)">@Py.Title(r.Name)</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Manager</label>
+                <select name="manager_id" class="form-control">
+                    <option value="">None</option>
+                    @foreach (var mg in Model.Managers)
+                    {
+                    <option value="@mg.Id" selected="@(Model.ManagerId == mg.Id)">@mg.FullName</option>
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Designation</label>
+                <input type="text" name="designation" class="form-control" value="@Py.Text(Model.Designation)">
+            </div>
+            <div class="form-group">
+                <label>Department</label>
+                <input type="text" name="department" class="form-control" value="@Py.Text(Model.Department)">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Phone</label>
+            <input type="text" name="phone" class="form-control" value="@Py.Text(user.Phone)">
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Date of joining</label>
+                <input type="date" name="date_of_joining" class="form-control" value="@(user.DateOfJoining is null ? "" : Py.Date(user.DateOfJoining))">
+            </div>
+            <div class="form-group">
+                <label>Last working day (leaving)</label>
+                <input type="date" name="date_of_leaving" class="form-control" value="@(m?.DateOfLeaving is null ? "" : Py.Date(m.DateOfLeaving))">
+                <small class="text-muted">Payroll pays up to this day and stops after it. Leave blank while employed.</small>
+            </div>
+        </div>
+        @if (refused)
+        {
+        @* The login is shared with another company: sent back unchanged. *@
+        if (user.IsActive == true) { <input type="hidden" name="is_active" value="1"> }
+        <p class="form-group" style="font-size:13px;color:var(--muted);">@Model.LoginRefusal Their email, password and sign-in stay as they are.</p>
+        }
+        else
+        {
+        <div class="form-group" style="display:flex;align-items:center;gap:10px;">
+            <label style="margin:0;">Active</label>
+            <input type="checkbox" name="is_active" value="1" checked="@(user.IsActive == true)">
+        </div>
+        <div class="form-group">
+            <label>New Password <span style="font-weight:400;color:var(--muted);">(leave blank to keep current)</span></label>
+            <input type="password" name="password" class="form-control" minlength="8">
+        </div>
+        }
+        <button type="submit" class="btn btn-primary">Update User</button>
+        <a href="/auth/users" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>

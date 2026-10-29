@@ -1,0 +1,32 @@
+[
+  {
+    "answer": "{\"validationResponse\": {\"statusCode\": \"01\", \"status\": \"Invalid\", \"errorCode\": \"0052\", \"error\": \"Provide proper HS Code\", \"invoiceStatuses\": [{\"itemSNo\": \"1\", \"statusCode\": \"01\", \"status\": \"Invalid\", \"errorCode\": \"0052\", \"error\": \"HS Code “x” isn't valid\"}]}, \"dated\": \"2026-10-29 10:00:00\"}",
+    "indent2": "{\n  \"validationResponse\": {\n    \"statusCode\": \"01\",\n    \"status\": \"Invalid\",\n    \"errorCode\": \"0052\",\n    \"error\": \"Provide proper HS Code\",\n    \"invoiceStatuses\": [\n      {\n        \"itemSNo\": \"1\",\n        \"statusCode\": \"01\",\n        \"status\": \"Invalid\",\n        \"errorCode\": \"0052\",\n        \"error\": \"HS Code \\u201cx\\u201d isn't valid\"\n      }\n    ]\n  },\n  \"dated\": \"2026-10-29 10:00:00\"\n}",
+    "repr": "{'validationResponse': {'statusCode': '01', 'status': 'Invalid', 'errorCode': '0052', 'error': 'Provide proper HS Code', 'invoiceStatuses': [{'itemSNo': '1', 'statusCode': '01', 'status': 'Invalid', 'errorCode': '0052', 'error': \"HS Code “x” isn't valid\"}]}, 'dated': '2026-10-29 10:00:00'}",
+    "sorted": "{\"dated\":\"2026-10-29 10:00:00\",\"validationResponse\":{\"error\":\"Provide proper HS Code\",\"errorCode\":\"0052\",\"invoiceStatuses\":[{\"error\":\"HS Code \\u201cx\\u201d isn't valid\",\"errorCode\":\"0052\",\"itemSNo\":\"1\",\"status\":\"Invalid\",\"statusCode\":\"01\"}],\"status\":\"Invalid\",\"statusCode\":\"01\"}}"
+  },
+  {
+    "answer": "{\"fbrInvoiceNumber\": \"7000007DI1747119701593\", \"submissionId\": 12345678901234567890, \"amount\": 1.50, \"rate\": 1e2, \"neg\": -0.0, \"ok\": true, \"none\": null, \"s\": \"a'b\", \"t\": \"a'b\\\"c\", \"u\": \"tab\\tnl\\n€\\u0007\"}",
+    "indent2": "{\n  \"fbrInvoiceNumber\": \"7000007DI1747119701593\",\n  \"submissionId\": 12345678901234567890,\n  \"amount\": 1.5,\n  \"rate\": 100.0,\n  \"neg\": -0.0,\n  \"ok\": true,\n  \"none\": null,\n  \"s\": \"a'b\",\n  \"t\": \"a'b\\\"c\",\n  \"u\": \"tab\\tnl\\n\\u20ac\\u0007\"\n}",
+    "repr": "{'fbrInvoiceNumber': '7000007DI1747119701593', 'submissionId': 12345678901234567890, 'amount': 1.5, 'rate': 100.0, 'neg': -0.0, 'ok': True, 'none': None, 's': \"a'b\", 't': 'a\\'b\"c', 'u': 'tab\\tnl\\n€\\x07'}",
+    "sorted": "{\"amount\":1.5,\"fbrInvoiceNumber\":\"7000007DI1747119701593\",\"neg\":-0.0,\"none\":null,\"ok\":true,\"rate\":100.0,\"s\":\"a'b\",\"submissionId\":12345678901234567890,\"t\":\"a'b\\\"c\",\"u\":\"tab\\tnl\\n\\u20ac\\u0007\"}"
+  },
+  {
+    "answer": "[1, 2.5, \"x\", {\"k\": []}]",
+    "indent2": "[\n  1,\n  2.5,\n  \"x\",\n  {\n    \"k\": []\n  }\n]",
+    "repr": "[1, 2.5, 'x', {'k': []}]",
+    "sorted": "[1,2.5,\"x\",{\"k\":[]}]"
+  },
+  {
+    "answer": " \"just a string\" ",
+    "indent2": "\"just a string\"",
+    "repr": "'just a string'",
+    "sorted": "\"just a string\""
+  },
+  {
+    "answer": "{\"a\": 1, \"a\": 2, \"b\": 3}",
+    "indent2": "{\n  \"a\": 2,\n  \"b\": 3\n}",
+    "repr": "{'a': 2, 'b': 3}",
+    "sorted": "{\"a\":2,\"b\":3}"
+  }
+]

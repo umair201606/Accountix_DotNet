@@ -1,0 +1,63 @@
+@model Accountix.Accounting.Controllers.VoucherDoc
+@using System.Globalization
+@*
+  One full voucher document (_voucher_doc.html): the single-voucher print and
+  the bulk register print-all page share it.
+*@
+@{
+    var voucher = Model.Voucher;
+    var c = Context.Access()?.Company;
+    var labels = Accountix.Accounting.Controllers.VouchersController.Labels;
+    var inv = CultureInfo.InvariantCulture;
+}
+<div class="pa">
+  <div class="co">
+    <div class="co-name">@(Context.Access()?.Profile?.CompanyName is { Length: > 0 } pn ? pn : c?.Name ?? "My Company")</div>
+    <div class="co-addr">@if (c is not null) {@(c.Address ?? "")@if (!string.IsNullOrEmpty(c.City)) {<text>, @c.City</text>}
+      @if (!string.IsNullOrEmpty(c.Phone)) {<text> &bull; Tel: @c.Phone</text>}@if (!string.IsNullOrEmpty(c.Email)) {<text> &bull; @c.Email</text>}
+      @if (!string.IsNullOrEmpty(c.TaxId)) {<text> &bull; NTN: @c.TaxId</text>}}</div>
+  </div>
+  <div class="hdr">
+    <h1>@labels[voucher.VoucherType]</h1>
+    <div class="no">@voucher.VoucherNumber</div>
+  </div>
+  <div class="meta">
+    <div><span class="l">Date:</span> <span class="v">@voucher.VoucherDate.ToString("dd-MMM-yyyy", inv)</span></div>
+    <div><span class="l">Time:</span> <span class="v">@voucher.VoucherDate.ToString("HH:mm", inv)</span></div>
+    <div><span class="l">Status:</span> <span class="v"><span class="sb sb-@(voucher.Status == "approved" ? "a" : "u")">@ViewHelpers.Title(voucher.Status)</span></span></div>
+    @if (Accountix.Accounting.Controllers.VouchersController.CashBankTypes.Contains(voucher.VoucherType) && voucher.CashBankAccount is not null)
+    {
+    <div><span class="l">Cash/Bank A/c:</span> <span class="v">@voucher.CashBankAccount.Name [@voucher.CashBankAccount.Code]</span></div>
+    }
+    <div><span class="l">Created by:</span> <span class="v">@(voucher.CreatedByNavigation?.FullName ?? "")</span></div>
+  </div>
+  <div class="tw">
+  <table>
+    <thead><tr><th style="width:28px">#</th><th>A/c Code</th><th>Account Name</th><th>Description</th><th class="nu">Debit</th><th class="nu">Credit</th></tr></thead>
+    <tbody>
+      @{ int n = 0; }
+      @foreach (var line in Model.Lines)
+      {
+      n++;
+      <tr>
+        <td>@n</td>
+        <td style="font-family:monospace">@(line.Account?.Code ?? "")</td>
+        <td>@(line.Account?.Name ?? "")</td>
+        <td>@line.Description</td>
+        <td class="nu">@((line.Debit ?? 0) > 0 ? Html.Amount(line.Debit) : "")</td>
+        <td class="nu">@((line.Credit ?? 0) > 0 ? Html.Amount(line.Credit) : "")</td>
+      </tr>
+      }
+    </tbody>
+    <tfoot><tr><td colspan="4" style="text-align:right;">Total:</td><td class="nu">@Html.Amount(Model.TotalDebit)</td><td class="nu">@Html.Amount(Model.TotalCredit)</td></tr></tfoot>
+  </table>
+  </div>
+  @if (!string.IsNullOrEmpty(voucher.Notes))
+  {
+  <div class="notes"><strong>Notes:</strong> @voucher.Notes</div>
+  }
+  @if (voucher.ApprovedBy is not null)
+  {
+  <div class="app">Approved by: @(voucher.ApprovedByNavigation?.FullName ?? "") on @(voucher.ApprovedAt?.ToString("dd-MMM-yyyy HH:mm", inv))</div>
+  }
+</div>

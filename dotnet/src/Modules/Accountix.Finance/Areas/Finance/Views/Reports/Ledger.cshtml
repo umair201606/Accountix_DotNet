@@ -1,0 +1,400 @@
+@model Accountix.Finance.Controllers.LedgerPage
+@{
+    ViewData["Title"] = "General Ledger";
+    ViewData["Heading"] = "General Ledger";
+    // Strip any format= so re-clicking from an exported URL cannot stack a second one.
+    var args = Context.Request.Query.Where(kv => kv.Key != "format")
+        .SelectMany(kv => kv.Value.Select(v => $"{Uri.EscapeDataString(kv.Key)}={Uri.EscapeDataString(v ?? "")}"));
+    string baseUrl = Context.Request.Path + "?" + string.Join("&", args);
+    string mode = Model.Mode;
+    string sel = Model.SelectionMode;
+    var selAccounts = Model.SelectedAccountIds.Split(',');
+    var selHeads = Model.SelectedHeadIds.Split(',');
+    int headCount = Model.SelectedHeadIds.Length > 0 ? selHeads.Count(s => s != "") : 0;
+}
+@section Head { <partial name="_FinanceHead" /> }
+@section Actions {
+<a href="@(baseUrl + "&format=excel")" class="btn btn-outline btn-sm"><i class="fas fa-file-excel"></i> Excel</a>
+<a href="@(baseUrl + "&format=pdf")" class="btn btn-outline btn-sm"><i class="fas fa-file-pdf"></i> PDF</a>
+<button onclick="window.print()" class="btn btn-outline btn-sm"><i class="fas fa-print"></i> Print</button>
+}
+<style>
+.acc-opt{display:flex;align-items:center;gap:8px;padding:8px 14px;border:1px solid var(--v2-line-2);border-radius:8px;cursor:pointer;transition:background .12s,border-color .12s;background:var(--v2-surface);color:var(--v2-ink);margin:0}
+.acc-opt:hover{border-color:var(--v2-faint)}
+/* The selected mode is the one place in this picker where colour is a signal,
+   so it gets the accent; everything else is neutral. */
+.acc-opt.active{border-color:var(--v2-accent);background:var(--v2-accent-soft);color:var(--v2-accent-ink)}
+.acc-opt input[type=radio]{accent-color:var(--v2-accent);margin:0}
+.prog-section{margin-bottom:14px}
+.prog-label{font-size:13px;font-weight:500;color:var(--v2-muted);margin-bottom:8px;display:block}
+/* The scrim is deliberately a fixed black at 50% rather than a token: it sits
+   over the page in both themes and has to darken a white one. */
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
+.modal-content{background:var(--v2-surface);color:var(--v2-ink);border:1px solid var(--v2-line);border-radius:12px;max-width:520px;width:92%;max-height:82vh;display:flex;flex-direction:column;box-shadow:var(--v2-pop)}
+.modal-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--v2-line)}
+.modal-header h3{font-size:15px;font-weight:600;margin:0}
+.modal-close{background:none;border:none;font-size:22px;cursor:pointer;color:var(--v2-muted);padding:0 4px}
+.modal-close:hover{color:var(--v2-ink)}
+.modal-body{padding:16px 20px;overflow-y:auto;flex:1}
+.modal-footer{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;border-top:1px solid var(--v2-line)}
+.chk-item{display:flex;align-items:center;gap:8px;padding:6px 0;cursor:pointer;font-size:13px;color:var(--v2-body)}
+.chk-item:hover{color:var(--v2-ink)}
+.chk-item input{accent-color:var(--v2-accent)}
+.chk-item.hidden{display:none}
+summary{list-style:none}
+summary::-webkit-details-marker{display:none}
+summary{cursor:pointer}
+.ledger-section{border:1px solid var(--v2-line);border-radius:10px;margin-bottom:16px;overflow:hidden;background:var(--v2-surface)}
+.ledger-section summary{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--v2-surface);color:var(--v2-ink);font-size:13.5px;font-weight:500}
+.ledger-section summary:hover{background:var(--v2-hover)}
+.ledger-section[open] summary{border-bottom:1px solid var(--v2-line);background:var(--v2-hover)}
+.sel-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;font-size:13px;font-weight:500;border:1px solid var(--v2-line-2);border-radius:8px;cursor:pointer;background:var(--v2-surface);color:var(--v2-ink);transition:background .12s,border-color .12s}
+.sel-btn:hover{border-color:var(--v2-faint);background:var(--v2-hover)}
+.sel-btn:disabled{opacity:.4;cursor:not-allowed}
+.head-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;max-height:200px;overflow-y:auto;border:1px solid var(--v2-line);border-radius:8px;padding:10px 14px}
+</style>
+
+<form method="get" class="card mb-6 no-print" id="ledgerForm">
+  <!-- Period filter -->
+  <div class="mb-4">
+    <partial name="_PeriodFilter" model="Model.Period.FilterModel(Model.Loaded)" />
+  </div>
+
+  <hr class="my-4 rule">
+
+  <!-- LEVEL 1 -->
+  <div class="prog-section">
+    <span class="prog-label">Account Selection</span>
+    <div style="display:flex;gap:10px;">
+      <label class="acc-opt @(mode == "all" ? "active" : "")">
+        <input type="radio" name="mode" value="all" checked="@(mode == "all")">
+        <span>All Accounts</span>
+      </label>
+      <label class="acc-opt @(mode == "select" ? "active" : "")">
+        <input type="radio" name="mode" value="select" checked="@(mode == "select")">
+        <span>Select Accounts</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- LEVEL 2 -->
+  <div id="level2" class="prog-section" style="@(mode != "select" ? "display:none" : "")">
+    <div style="display:flex;gap:10px;margin-bottom:12px;">
+      <label class="acc-opt @(sel == "custom" ? "active" : "")">
+        <input type="radio" name="selection_mode" value="custom" checked="@(sel == "custom")">
+        <span>Custom</span>
+      </label>
+      <label class="acc-opt @(sel == "head" ? "active" : "")">
+        <input type="radio" name="selection_mode" value="head" checked="@(sel == "head")">
+        <span>Select Head</span>
+      </label>
+    </div>
+
+    <!-- Custom -->
+    <div id="customSection" style="@(sel != "custom" ? "display:none" : "")">
+      <button type="button" id="openAccountModal" class="sel-btn">
+        <i class="fas fa-list"></i> Select Accounts <span id="selectedCountBadge" class="ml-1" style="background:var(--v2-ink);color:var(--v2-ground);border-radius:999px;padding:1px 7px;font-size:11px;">0</span>
+      </button>
+      <input type="hidden" name="account_ids" id="accountIdsInput" value="@Model.SelectedAccountIds">
+      <span style="font-size:12px;color:var(--v2-faint);margin-left:10px;">Pick individual leaf accounts</span>
+    </div>
+
+    <!-- Head -->
+    <div id="headSection" style="@(sel != "head" ? "display:none" : "")">
+      @if (Model.Heads.Count > 0)
+      {
+      <div class="head-grid">
+        @foreach (var h in Model.Heads)
+        {
+        <label class="chk-item">
+          <input type="checkbox" value="@h.Id" class="head-cb" checked="@selHeads.Contains(h.Id.ToString())">
+          @h.Code - @h.Name
+        </label>
+        }
+      </div>
+      <input type="hidden" name="head_ids" id="headIdsInput" value="@Model.SelectedHeadIds">
+      <span id="headCount" style="font-size:12px;color:var(--v2-faint);margin-top:6px;display:block;">
+        @headCount head(s) selected
+      </span>
+      }
+      else
+      {
+      <p style="font-size:13px;color:var(--v2-faint);font-style:italic;">No head (grouping) accounts exist yet. Add a parent-child hierarchy in Chart of Accounts first.</p>
+      }
+    </div>
+  </div>
+
+  <!-- Load -->
+  <button type="submit" class="btn btn-primary mt-3" id="loadBtn"><i class="fas fa-search"></i> Load Ledger</button>
+</form>
+
+<!-- RESULTS -->
+@if (Model.Sections.Count > 0)
+{
+  bool first = true;
+  foreach (var sec in Model.Sections)
+  {
+  <details class="ledger-section" open="@first">
+    <summary>
+      <span><strong>@sec.Account.Code</strong> — @sec.Account.Name <span class="t-muted text-xs">(@sec.Account.Type)</span></span>
+      <span style="font-size:13px;font-weight:600;color:var(@(sec.Subtotal >= 0 ? "--v2-pos" : "--v2-neg"));">
+        @Html.Amount(sec.Closing) @sec.ClosingSide
+      </span>
+    </summary>
+    <div style="overflow-x:auto;">
+      <table class="report-table statement" style="font-size:12px;">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Voucher #</th>
+            <th>Description</th>
+            <th class="num">Debit</th>
+            <th class="num">Credit</th>
+            <th class="num">Running Balance</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="opening-row">
+            <td colspan="3">Opening Balance</td>
+            <td class="num">—</td>
+            <td class="num">—</td>
+            <td class="num">@Html.Amount(sec.Opening) @sec.OpeningSide</td>
+          </tr>
+          @foreach (var r in sec.Rows)
+          {
+          <tr>
+            <td>@r.Date</td>
+            <td><span class="font-mono text-xs">@r.Voucher</span></td>
+            <td>@r.Description</td>
+            <td class="num">@(r.Debit != 0 ? Html.Amount(r.Debit) : "—")</td>
+            <td class="num">@(r.Credit != 0 ? Html.Amount(r.Credit) : "—")</td>
+            <td class="num font-semibold">@Html.Amount(r.Balance)</td>
+          </tr>
+          }
+          @if (sec.Rows.Count == 0)
+          {
+          <tr><td colspan="6" class="t-muted text-center" style="padding:14px;">No transactions in this period.</td></tr>
+          }
+        </tbody>
+        <tfoot>
+          <tr class="subtotal-row">
+            <td colspan="3" style="text-align:right;">Movement during period</td>
+            <td class="num">@Html.Amount(sec.TotalDebit)</td>
+            <td class="num">@Html.Amount(sec.TotalCredit)</td>
+            <td></td>
+          </tr>
+          <tr class="closing-row" style="font-weight:600;background:var(--v2-hover);">
+            <td colspan="5" style="text-align:right;">Closing Balance</td>
+            <td class="num">@Html.Amount(sec.Closing) @sec.ClosingSide</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </details>
+      first = false;
+  }
+}
+else if (mode.Length > 0)
+{
+  <div class="card">
+    <p class="t-muted text-center py-8">
+      @if (mode == "all")
+      {
+        <text>No transactions found for any account in the selected period.</text>
+      }
+      else if (sel == "custom" && Model.SelectedAccountIds.Length > 0)
+      {
+        <text>No transactions found for the selected accounts.</text>
+      }
+      else if (sel == "head" && Model.SelectedHeadIds.Length > 0)
+      {
+        <text>No transactions found for the selected heads.</text>
+      }
+      else
+      {
+        <text>Select accounts and click <strong>Load Ledger</strong>.</text>
+      }
+    </p>
+  </div>
+}
+
+<!-- ACCOUNT SELECTION MODAL -->
+<div id="accountModal" class="modal-overlay" style="display:none;">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3><i class="fas fa-search mr-2"></i>Select Accounts</h3>
+      <button type="button" class="modal-close" id="closeModal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <input type="text" id="accountSearch" placeholder="Search by name or code..." style="width:100%;padding:9px 12px;border:1px solid var(--v2-line-2);border-radius:8px;font-size:14px;margin-bottom:12px;box-sizing:border-box;">
+      <div id="accountList">
+        @foreach (var a in Model.Leaves)
+        {
+        <label class="chk-item account-item" data-code="@a.Code" data-name="@a.Name">
+          <input type="checkbox" value="@a.Id" class="acct-cb" checked="@selAccounts.Contains(a.Id.ToString())">
+          <span class="font-mono text-xs t-muted">@a.Code</span>
+          <span>@a.Name</span>
+          <span class="text-xs t-muted italic">(@a.Type)</span>
+        </label>
+        }
+      </div>
+    </div>
+    <div class="modal-footer">
+      <span id="modalSelectedCount" style="font-size:13px;color:var(--v2-muted);">0 selected</span>
+      <button type="button" id="doneModal" class="btn btn-primary btn-sm">Done</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  // ── Level 1: All / Select ──
+  var modeRadios = document.querySelectorAll('input[name="mode"]');
+  var level2 = document.getElementById('level2');
+
+  function toggleLevel2() {
+    var val = document.querySelector('input[name="mode"]:checked');
+    if (val && val.value === 'select') {
+      level2.style.display = 'block';
+    } else {
+      level2.style.display = 'none';
+      // Clear Level 2 selections when switching back to All
+      document.getElementById('accountIdsInput').value = '';
+      document.getElementById('headIdsInput').value = '';
+      document.querySelectorAll('.head-cb').forEach(function(cb){ cb.checked = false; });
+      updateCounts();
+    }
+    // Update active label style
+    document.querySelectorAll('.acc-opt').forEach(function(el){ el.classList.remove('active'); });
+    document.querySelectorAll('.acc-opt input:checked').forEach(function(el){ el.closest('.acc-opt').classList.add('active'); });
+  }
+  modeRadios.forEach(function(r){ r.addEventListener('change', toggleLevel2); });
+
+  // ── Level 2 sub-choice: Custom / Head ──
+  var selModeRadios = document.querySelectorAll('input[name="selection_mode"]');
+  var customSection = document.getElementById('customSection');
+  var headSection = document.getElementById('headSection');
+
+  function toggleSelectionMode() {
+    var val = document.querySelector('input[name="selection_mode"]:checked');
+    if (val && val.value === 'custom') {
+      customSection.style.display = 'block';
+      headSection.style.display = 'none';
+      // Clear head selections
+      document.getElementById('headIdsInput').value = '';
+      document.querySelectorAll('.head-cb').forEach(function(cb){ cb.checked = false; });
+    } else {
+      customSection.style.display = 'none';
+      headSection.style.display = 'block';
+      // Clear custom selections
+      document.getElementById('accountIdsInput').value = '';
+      document.querySelectorAll('.acct-cb').forEach(function(cb){ cb.checked = false; });
+    }
+    document.querySelectorAll('.acc-opt').forEach(function(el){ el.classList.remove('active'); });
+    document.querySelectorAll('.acc-opt input:checked').forEach(function(el){ el.closest('.acc-opt').classList.add('active'); });
+    updateCounts();
+  }
+  selModeRadios.forEach(function(r){ r.addEventListener('change', toggleSelectionMode); });
+
+  // ── Modal ──
+  var modal = document.getElementById('accountModal');
+  var openBtn = document.getElementById('openAccountModal');
+  var closeBtn = document.getElementById('closeModal');
+  var doneBtn = document.getElementById('doneModal');
+  var searchInput = document.getElementById('accountSearch');
+  var accountItems = document.querySelectorAll('.account-item');
+
+  function openModal() {
+    modal.style.display = 'flex';
+    updateModalCount();
+    searchInput.value = '';
+    accountItems.forEach(function(item){ item.classList.remove('hidden'); });
+  }
+  function closeModal() {
+    modal.style.display = 'none';
+  }
+  openBtn && openBtn.addEventListener('click', openModal);
+  closeBtn && closeBtn.addEventListener('click', closeModal);
+  doneBtn && doneBtn.addEventListener('click', function(){
+    var checked = document.querySelectorAll('.acct-cb:checked');
+    var ids = [];
+    checked.forEach(function(cb){ ids.push(cb.value); });
+    document.getElementById('accountIdsInput').value = ids.join(',');
+    updateCounts();
+    closeModal();
+  });
+  // Close on overlay click
+  modal && modal.addEventListener('click', function(e){
+    if (e.target === modal) closeModal();
+  });
+
+  // Search in modal
+  searchInput && searchInput.addEventListener('input', function(){
+    var q = this.value.toLowerCase();
+    accountItems.forEach(function(item){
+      var code = item.dataset.code.toLowerCase();
+      var name = item.dataset.name.toLowerCase();
+      item.classList.toggle('hidden', q && code.indexOf(q) === -1 && name.indexOf(q) === -1);
+    });
+  });
+
+  // ── Head checkboxes ──
+  var headCbs = document.querySelectorAll('.head-cb');
+  headCbs.forEach(function(cb){
+    cb.addEventListener('change', updateHeadIds);
+  });
+  function updateHeadIds() {
+    var checked = document.querySelectorAll('.head-cb:checked');
+    var ids = [];
+    checked.forEach(function(cb){ ids.push(cb.value); });
+    document.getElementById('headIdsInput').value = ids.join(',');
+    updateCounts();
+  }
+
+  // ── Counts ──
+  function updateCounts() {
+    // Custom badge
+    var acctIds = document.getElementById('accountIdsInput').value;
+    var acctCount = acctIds ? acctIds.split(',').filter(function(s){ return s; }).length : 0;
+    var badge = document.getElementById('selectedCountBadge');
+    if (badge) badge.textContent = acctCount;
+    // Head count
+    var headIds = document.getElementById('headIdsInput').value;
+    var headCount = headIds ? headIds.split(',').filter(function(s){ return s; }).length : 0;
+    var hc = document.getElementById('headCount');
+    if (hc) hc.textContent = headCount + ' head(s) selected';
+  }
+
+  function updateModalCount() {
+    var checked = document.querySelectorAll('.acct-cb:checked');
+    var span = document.getElementById('modalSelectedCount');
+    if (span) span.textContent = checked.length + ' selected';
+  }
+  // Modal checkbox changes
+  document.querySelectorAll('.acct-cb').forEach(function(cb){
+    cb.addEventListener('change', updateModalCount);
+  });
+
+  // ── Init ──
+  toggleLevel2();
+  toggleSelectionMode();
+  updateCounts();
+
+  // ── Load button validation ──
+  document.getElementById('loadBtn').addEventListener('click', function(e){
+    var mode = document.querySelector('input[name="mode"]:checked');
+    if (!mode) { e.preventDefault(); return; }
+    if (mode.value === 'select') {
+      var selMode = document.querySelector('input[name="selection_mode"]:checked');
+      if (!selMode) { e.preventDefault(); return; }
+      if (selMode.value === 'custom') {
+        var ids = document.getElementById('accountIdsInput').value;
+        if (!ids) { e.preventDefault(); alert('Select at least one account.'); return; }
+      } else {
+        var hids = document.getElementById('headIdsInput').value;
+        if (!hids) { e.preventDefault(); alert('Select at least one head.'); return; }
+      }
+    }
+  });
+})();
+</script>

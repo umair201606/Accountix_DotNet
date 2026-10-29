@@ -1,0 +1,217 @@
+@model List<Accountix.Accounting.Controllers.CoaController.TreeRow>
+@{
+    ViewData["Title"] = "Chart of Accounts";
+}
+@section Head {
+<style>
+.coa-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px}
+.coa-search{position:relative;flex:1;max-width:420px}
+.coa-search input{width:100%;padding:9px 12px 9px 34px;border:1px solid var(--v2-line-2);border-radius:8px;font-size:13px;outline:none;background:var(--v2-surface);color:var(--v2-ink);font-family:inherit;transition:border-color .12s}
+.coa-search input:focus{outline:2px solid var(--v2-ink);outline-offset:2px}
+.coa-search::before{content:'\1F50D';position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:13px;opacity:.5}
+.coa-legend{display:flex;gap:10px;align-items:center;font-size:11.5px;color:var(--v2-muted);flex-wrap:wrap}
+.coa-legend .dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:4px}
+.dot-post{background:var(--v2-accent)}
+.dot-agg{background:var(--v2-faint)}
+.tree-header{display:flex;align-items:center;padding:10px 12px;background:var(--v2-surface);font-size:11.5px;font-weight:500;color:var(--v2-muted);border-bottom:1px solid var(--v2-line);position:sticky;top:0;z-index:5}
+.tree-row{display:flex;align-items:center;padding:5px 12px;border-bottom:1px solid var(--v2-line);font-size:13px;transition:background .1s}
+.tree-row:hover{background:var(--v2-hover)}
+.tree-row.inactive{opacity:.45}
+.tree-row.hidden{display:none}
+.tree-row .indent{display:inline-block;flex-shrink:0}
+.tw{width:22px;height:22px;border:none;background:transparent;cursor:pointer;color:var(--v2-muted);font-size:10px;flex-shrink:0;border-radius:4px;padding:0;line-height:22px;text-align:center}
+.tw:hover{background:var(--v2-sunk)}
+.tw.leafpad{cursor:default;visibility:hidden}
+/* The level badge used to be a five-colour ramp. Depth is already drawn by the
+   indent to its left, so the ramp was restating the indent in colour — and the
+   quiet end of it could not be built accessibly anyway: the ground token on
+   --v2-muted measures 3.8:1 and on --v2-faint 3.4:1, both under the 4.5 floor
+   for text this size, in every theme. Levels 1-4 are one neutral chip; level 5
+   keeps a fill because it is the only level you can post to, which is the one
+   thing about a row that changes what you can do with it. */
+.lvl-badge{display:inline-block;min-width:20px;height:20px;border-radius:4px;text-align:center;line-height:20px;font-size:10px;font-weight:600;background:var(--v2-sunk);color:var(--v2-body);margin-right:9px;flex-shrink:0;font-variant-numeric:tabular-nums}
+.lvl5{background:var(--v2-accent);color:var(--v2-ground)}
+.acct-code{color:var(--v2-body);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;min-width:150px;flex-shrink:0}
+.acct-name{font-weight:400;color:var(--v2-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tree-row[data-level="1"] .acct-name,.tree-row[data-level="2"] .acct-name{font-weight:600;font-size:12.5px}
+.tree-row[data-level="3"] .acct-name{font-weight:500}
+/* Tag chips are neutral by default: the word inside each one already says what
+   it is, so the seven-hue set they replaced was spending colour to restate a
+   label. The two that are a state rather than a classification keep theirs. */
+.chip{font-size:11px;font-weight:500;padding:2px 7px;border-radius:6px;margin-left:6px;flex-shrink:0;background:var(--v2-sunk);color:var(--v2-body)}
+.chip-post{background:var(--v2-accent-soft);color:var(--v2-accent-ink)}
+.chip-inactive{background:var(--v2-neg-bg);color:var(--v2-neg)}
+.actions{margin-left:auto;display:flex;gap:4px;flex-shrink:0;align-items:center}
+.bdg-bsm{display:inline-block;padding:3px 9px;font-size:11.5px;border-radius:6px;text-decoration:none;font-weight:500;font-family:inherit;background:var(--v2-surface);color:var(--v2-ink);border:1px solid var(--v2-line-2);cursor:pointer}
+.bdg-bsm:hover{background:var(--v2-hover)}
+.bsm-del{color:var(--v2-neg)}
+.bsm-del:hover{background:var(--v2-neg-bg)}
+.tree-empty{text-align:center;padding:40px;color:var(--v2-muted)}
+.coa-note{font-size:12px;color:var(--v2-muted);margin-top:10px}
+@@media(max-width:640px){
+  .tree-header{display:none}
+  .tree-row{flex-wrap:wrap;padding:7px 10px;gap:2px 8px}
+  .tree-row .indent{width:0!important}
+  .acct-code{min-width:0;font-size:11px}
+  .acct-name{min-width:0;flex:1}
+  .actions{width:100%;margin-left:0;justify-content:flex-end;padding-top:3px}
+  .coa-search{max-width:none}
+}
+</style>
+}
+<div class="wrap">
+  <div class="coa-toolbar">
+    <div class="coa-search">
+      <input type="text" id="coaSearch" placeholder="Search by code or name..." autocomplete="off" aria-label="Search accounts">
+    </div>
+    <div class="coa-legend">
+      <span><span class="dot dot-post"></span>Level 5 = posting level</span>
+      <span><span class="dot dot-agg"></span>Levels 1–4 aggregate only</span>
+      <button type="button" class="bdg-bsm" id="expandAll">Expand all</button>
+      <button type="button" class="bdg-bsm" id="collapseAll">Collapse all</button>
+    </div>
+    <a href="/accounting/coa/add" class="btn btn-primary">+ New Account</a>
+  </div>
+
+  <div class="card" style="padding:0;overflow:visible;">
+    <div class="tree-header">
+      <span style="flex:1;">Account</span>
+      <span style="width:270px;text-align:right;">Tags &amp; Actions</span>
+    </div>
+    <div id="coaTree">
+    @foreach (var row in Model)
+    {
+      var a = row.Acct;
+      int d = row.Depth;
+    <div class="tree-row @(a.IsActive == true ? "" : "inactive")" data-level="@a.Level" data-depth="@d"
+         data-code="@a.Code.ToLowerInvariant()" data-name="@a.Name.ToLowerInvariant()" data-haschildren="@(row.HasChildren ? 1 : 0)">
+      <span class="indent" style="width:@(d * 22)px;"></span>
+      @if (row.HasChildren)
+      {
+      <button type="button" class="tw" title="Collapse" aria-expanded="true">&#9660;</button>
+      }
+      else
+      {
+      <button type="button" class="tw leafpad" aria-hidden="true" tabindex="-1">&#9660;</button>
+      }
+      <span class="lvl-badge lvl@(a.Level)">@a.Level</span>
+      <span class="acct-code">@a.Code</span>
+      <span class="acct-name" title="@row.Path">@a.Name</span>
+      @if (a.Level >= 5) { <span class="chip chip-post">post</span> }
+      @if (a.IsFixed == true) { <span class="chip chip-fixed">fixed</span> }
+      @if (!string.IsNullOrEmpty(a.CashFlowActivity)) { <span class="chip chip-cf-@a.CashFlowActivity">@a.CashFlowActivity</span> }
+      @if (!string.IsNullOrEmpty(a.PlSection)) { <span class="chip chip-pl">@a.PlSection.Replace('_', ' ')</span> }
+      @if (a.IsActive != true) { <span class="chip chip-inactive">inactive</span> }
+      <span class="actions">
+        @if (a.Level < 5)
+        {
+          <a href="/accounting/coa/add?parent_id=@a.Id" class="bdg-bsm">+ Child</a>
+        }
+        <a href="/accounting/coa/@a.Id/edit" class="bdg-bsm">Edit</a>
+        @if (a.IsFixed != true && !row.HasChildren)
+        {
+        <form method="POST" action="/accounting/coa/@a.Id/delete" style="display:inline" onsubmit="return confirm('Delete ' + @System.Text.Json.JsonSerializer.Serialize(a.Name) + '?');">
+          <button type="submit" class="bdg-bsm bsm-del">Delete</button>
+        </form>
+        }
+      </span>
+    </div>
+    }
+    @if (Model.Count == 0)
+    {
+    <div class="tree-empty">No accounts. Seed the database first.</div>
+    }
+    </div>
+  </div>
+  <p class="coa-note">
+    Journal entries can only be posted to <strong>level-5 operational accounts</strong>; levels 1–4 aggregate their children's balances automatically.
+    Cash-flow and P&amp;L tags are inherited from the nearest tagged parent unless set on the account itself.
+  </p>
+</div>
+
+<script>
+(function(){
+  var rows = Array.prototype.slice.call(document.querySelectorAll('#coaTree .tree-row'));
+
+  function setCollapsed(row, collapsed){
+    row.dataset.collapsed = collapsed ? '1' : '';
+    var tw = row.querySelector('.tw');
+    if (tw && !tw.classList.contains('leafpad')){
+      tw.innerHTML = collapsed ? '&#9654;' : '&#9660;';
+      tw.setAttribute('title', collapsed ? 'Expand' : 'Collapse');
+      tw.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+    }
+    applyVisibility();
+  }
+
+  function applyVisibility(){
+    // A row is visible only if none of its ancestors are collapsed.
+    var hideBelow = [];   // stack of depths whose subtrees are hidden
+    rows.forEach(function(row){
+      var depth = +row.dataset.depth;
+      while (hideBelow.length && depth <= hideBelow[hideBelow.length-1]) hideBelow.pop();
+      var hidden = hideBelow.length > 0;
+      row.classList.toggle('hidden', hidden);
+      if (row.dataset.collapsed === '1') hideBelow.push(depth);
+    });
+  }
+
+  rows.forEach(function(row){
+    var tw = row.querySelector('.tw');
+    if (tw && !tw.classList.contains('leafpad')){
+      tw.addEventListener('click', function(){
+        setCollapsed(row, row.dataset.collapsed !== '1');
+      });
+    }
+  });
+
+  document.getElementById('expandAll').addEventListener('click', function(){
+    rows.forEach(function(r){
+      r.dataset.collapsed='';
+      var t=r.querySelector('.tw');
+      if(t&&!t.classList.contains('leafpad')){t.innerHTML='&#9660;';t.setAttribute('title','Collapse');t.setAttribute('aria-expanded','true');}
+    });
+    applyVisibility();
+  });
+  document.getElementById('collapseAll').addEventListener('click', function(){
+    rows.forEach(function(r){
+      if(+r.dataset.level<=2 && r.dataset.haschildren==='1'){
+        r.dataset.collapsed='1';
+        var t=r.querySelector('.tw');
+        if(t){t.innerHTML='&#9654;';t.setAttribute('title','Expand');t.setAttribute('aria-expanded','false');}
+      } else { r.dataset.collapsed=''; }
+    });
+    applyVisibility();
+  });
+
+  // Search: show matches plus all their ancestors; empty query restores tree state.
+  var search = document.getElementById('coaSearch');
+  search.addEventListener('input', function(){
+    var q = this.value.trim().toLowerCase();
+    if (!q){ applyVisibility(); return; }
+    var visible = new Array(rows.length).fill(false);
+    var ancestors = [];  // index stack by depth
+    rows.forEach(function(row, i){
+      var depth = +row.dataset.depth;
+      ancestors.length = depth;
+      ancestors[depth] = i;
+      if (row.dataset.code.indexOf(q) !== -1 || row.dataset.name.indexOf(q) !== -1){
+        visible[i] = true;
+        for (var d = 0; d < depth; d++) if (ancestors[d] !== undefined) visible[ancestors[d]] = true;
+      }
+    });
+    rows.forEach(function(row, i){ row.classList.toggle('hidden', !visible[i]); });
+  });
+
+  // Default view: start with level-5 detail collapsed under level 4 so the
+  // structural tree reads at a glance.
+  rows.forEach(function(r){
+    if(+r.dataset.level===4 && r.dataset.haschildren==='1'){
+      r.dataset.collapsed='1';
+      var t=r.querySelector('.tw');
+      if(t){t.innerHTML='&#9654;';t.setAttribute('title','Expand');t.setAttribute('aria-expanded','false');}
+    }
+  });
+  applyVisibility();
+})();
+</script>

@@ -1,0 +1,107 @@
+@model SettingsController.SettingsPage
+@{ var t = (SettingsController.AuditTab)Model.TabModel!; }
+<div class="set-card">
+  <h3>Audit Log</h3>
+  <p class="hint">Every change to a business record in this company — who did it, when, from where, and what changed. Entries are written automatically and cannot be edited or deleted.</p>
+
+  <form method="GET" action="/settings/" class="al-filter">
+    <input type="hidden" name="tab" value="audit">
+    <div class="fgroup"><label class="lbl" for="alFrom">From</label>
+      <input type="date" id="alFrom" name="from" class="inp" value="@t.Arg("from")"></div>
+    <div class="fgroup"><label class="lbl" for="alTo">To</label>
+      <input type="date" id="alTo" name="to" class="inp" value="@t.Arg("to")"></div>
+    <div class="fgroup"><label class="lbl" for="alUser">User</label>
+      <select id="alUser" name="user_id" class="sel">
+        <option value="">Everyone</option>
+        @foreach (var (uid, name) in t.Members.OrderBy(kv => kv.Value, StringComparer.OrdinalIgnoreCase).Select(kv => (kv.Key, kv.Value))) {
+        <option value="@uid" selected="@(t.Arg("user_id") == uid.ToString())">@name</option>
+        }
+      </select></div>
+    <div class="fgroup"><label class="lbl" for="alModule">Module</label>
+      <select id="alModule" name="module" class="sel">
+        <option value="">All</option>
+        @foreach (var m in Accountix.Platform.Services.AuditSearch.ModuleNames) {<option value="@m" selected="@(t.Arg("module") == m)">@ViewHelpers.Title(m.Replace('_', ' '))</option>}
+      </select></div>
+    <div class="fgroup"><label class="lbl" for="alAction">Action</label>
+      <select id="alAction" name="action" class="sel">
+        <option value="">All</option>
+        @foreach (var x in Accountix.Platform.Services.AuditSearch.ActionNames) {<option value="@x" selected="@(t.Arg("action") == x)">@ViewHelpers.Title(x.Replace('_', ' '))</option>}
+      </select></div>
+    <div class="fgroup al-grow"><label class="lbl" for="alQ">Search</label>
+      <input type="search" id="alQ" name="q" class="inp" value="@t.Arg("q")" placeholder="Invoice no., product, user…"></div>
+    <div class="al-btns">
+      <button type="submit" class="btn btn-p">Apply</button>
+      <a class="btn" href="@t.Url("/settings/audit-log.csv", ("format", "excel"))">Excel</a>
+      <a class="btn" href="@t.Url("/settings/audit-log.csv", ("format", "pdf"))">PDF</a>
+      <a class="btn" href="@t.Url("/settings/audit-log.csv")">CSV</a>
+    </div>
+  </form>
+
+  <p class="al-count">@t.Total entr@(t.Total == 1 ? "y" : "ies")@if (t.Pages > 1) {<text> · page @t.Page of @t.Pages</text>}</p>
+
+  <div class="tbl-scroll">
+    <table class="stbl al-tbl">
+      <thead><tr><th>When</th><th>User</th><th>Action</th><th>Record</th><th>What happened</th></tr></thead>
+      <tbody>
+      @foreach (var r in t.Rows) { var ch = Accountix.Platform.Services.AuditSearch.DecodeChanges(r);
+        <tr>
+          <td class="al-when" data-label="When">@r.CreatedAt.ToString("dd MMM yyyy HH:mm", System.Globalization.CultureInfo.InvariantCulture) <span class="al-utc">UTC</span></td>
+          <td data-label="User">@J.Or(r.UserName, "System")@if (!string.IsNullOrEmpty(r.IpAddress)) {<div class="al-sub">@r.IpAddress</div>}</td>
+          <td data-label="Action"><span class="al-act al-@r.Action">@r.Action.Replace('_', ' ')</span></td>
+          <td data-label="Record">@J.Or(r.EntityType, "—")@if (!string.IsNullOrEmpty(r.Reference)) {<div class="al-sub">@r.Reference</div>}</td>
+          <td data-label="What happened">
+            @J.Py(r.Summary)
+            @if (ch.Count > 0) {
+            <details class="al-det"><summary>@ch.Count field@(ch.Count == 1 ? "" : "s")</summary>
+              <table class="al-ch">
+                @foreach (var c in ch) {
+                <tr><th>@c.Field</th>
+                  @if (r.Action is "update" or "approve" or "unapprove" or "post" or "unpost" && c.HasOld) {
+                  <td><span class="al-old">@c.Old</span> → <span class="al-new">@c.New</span></td>
+                  } else {
+                  <td>@c.New</td>
+                  }
+                </tr>
+                }
+              </table>
+            </details>
+            }
+          </td>
+        </tr>
+      }
+      @if (t.Rows.Count == 0) {
+        <tr><td colspan="5" style="text-align:center;color:var(--muted);padding:22px">No activity matches these filters.</td></tr>
+      }
+      </tbody>
+    </table>
+  </div>
+
+  @if (t.Pages > 1) {
+  <div class="al-pager">
+    @if (t.Page > 1) {<a class="btn" href="@t.Url("/settings/", ("page", (t.Page - 1).ToString()))">← Newer</a>}
+    @if (t.Page < t.Pages) {<a class="btn" href="@t.Url("/settings/", ("page", (t.Page + 1).ToString()))">Older →</a>}
+  </div>
+  }
+</div>
+<style>
+  .al-filter{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin:6px 0 10px}
+  .al-filter .fgroup{margin:0;min-width:130px}
+  .al-filter .al-grow{flex:1 1 200px}
+  .al-btns{display:flex;flex-wrap:wrap;gap:8px}
+  .al-count{font-size:12px;color:var(--muted);margin:4px 0 8px}
+  .al-tbl td{vertical-align:top}
+  .al-when{white-space:nowrap}
+  .al-utc,.al-sub{font-size:11px;color:var(--muted)}
+  .al-act{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;
+    border:1px solid var(--line);text-transform:capitalize;white-space:nowrap}
+  .al-delete,.al-unapprove,.al-unpost,.al-refused,.al-login_failed{color:var(--neg,#c0392b);border-color:currentColor}
+  .al-approve,.al-post{color:var(--pos,#12794f);border-color:currentColor}
+  .al-det{margin-top:4px}
+  .al-det summary{cursor:pointer;font-size:12px;color:var(--muted)}
+  .al-ch{margin-top:4px;border-collapse:collapse;font-size:12px}
+  .al-ch th{text-align:left;font-weight:600;padding:2px 10px 2px 0;color:var(--muted);text-transform:capitalize;vertical-align:top}
+  .al-ch td{padding:2px 0;word-break:break-word}
+  .al-old{text-decoration:line-through;color:var(--muted)}
+  .al-pager{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
+  @@media (max-width:600px){.al-filter .fgroup{flex:1 1 45%}.al-btns{width:100%}.al-btns .btn{flex:1;text-align:center}}
+</style>

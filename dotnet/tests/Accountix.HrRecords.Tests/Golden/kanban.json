@@ -1,0 +1,9 @@
+{
+ "create_board": "{\"id\":\"board\",\"success\":true,\"title\":\"Launch \\u2713\"}\n",
+ "move": "{\"success\":true}\n",
+ "tasks": [
+  {"who": "emp1", "body": "[{\"assignee\":null,\"can_delete\":true,\"can_move\":true,\"due_date\":\"2030-02-03\",\"id\":\"b\",\"priority\":\"medium\",\"status\":\"todo\",\"title\":\"Design\"},{\"assignee\":\"Sana Employee\",\"can_delete\":true,\"can_move\":true,\"due_date\":null,\"id\":\"a\",\"priority\":\"medium\",\"status\":\"done\",\"title\":\"Write <copy>\"}]\n"},
+  {"who": "emp2", "body": "[{\"assignee\":null,\"can_delete\":false,\"can_move\":false,\"due_date\":\"2030-02-03\",\"id\":\"b\",\"priority\":\"medium\",\"status\":\"todo\",\"title\":\"Design\"},{\"assignee\":\"Sana Employee\",\"can_delete\":false,\"can_move\":true,\"due_date\":null,\"id\":\"a\",\"priority\":\"medium\",\"status\":\"done\",\"title\":\"Write <copy>\"}]\n"},
+  {"who": "mgr", "body": "[{\"assignee\":null,\"can_delete\":true,\"can_move\":true,\"due_date\":\"2030-02-03\",\"id\":\"b\",\"priority\":\"medium\",\"status\":\"todo\",\"title\":\"Design\"},{\"assignee\":\"Sana Employee\",\"can_delete\":true,\"can_move\":true,\"due_date\":null,\"id\":\"a\",\"priority\":\"medium\",\"status\":\"done\",\"title\":\"Write <copy>\"}]\n"}
+ ]
+}

@@ -1,0 +1,86 @@
+@model Accountix.Invoicing.Models.InvoiceListModel<Accountix.Invoicing.Models.SalesInvoiceRow>
+@{
+    ViewData["Title"] = "Sales Invoices";
+    ViewData["Heading"] = "Sales Invoices";
+    var Inv = System.Globalization.CultureInfo.InvariantCulture;
+    // `{{ x or 0|amount_format(0) }}`: the filter binds to the 0, so a non-zero figure prints as Python's float.
+    string Or0(decimal? d) => d is decimal v && v != 0 ? Py.Repr(Py.F(v)) : "0";
+}
+<div class="page-header">
+  <a href="/inventory/invoices/" class="btn btn-primary">+ New Invoice</a>
+</div>
+<div class="card">
+  <div class="card-body" style="padding-bottom:8px;">
+    <form method="GET" class="search-form" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+      <select name="status" class="form-control focus-ring" style="width:200px;max-width:100%;display:inline-block;" onchange="this.form.submit()">
+        <option value="">All Status</option>
+        @foreach (var s in new[] { "unapproved", "approved", "unpaid", "partial", "paid", "overdue" })
+        {
+        <!option value="@s" @(Model.Status == s ? "selected" : "")>@ViewHelpers.Title(s)</!option>
+        }
+      </select>
+      <input type="date" name="from" value="@Model.From" class="form-control focus-ring" style="width:160px;max-width:100%;display:inline-block;" aria-label="From date" onchange="this.form.submit()">
+      <input type="date" name="to" value="@Model.To" class="form-control focus-ring" style="width:160px;max-width:100%;display:inline-block;" aria-label="To date" onchange="this.form.submit()">
+    </form>
+  </div>
+  <div class="table-responsive">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Invoice #</th><th>Customer</th><th>Date</th><th>Due Date</th>
+          <th>Subtotal</th><th>Tax</th><th>Further Tax</th><th>WHT</th>
+          <th>Total</th><th>Paid</th><th>Status</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach (var inv in Model.Rows)
+        {
+        string vs = string.IsNullOrEmpty(inv.VoucherStatus) ? "unapproved" : inv.VoucherStatus;
+        string ps = string.IsNullOrEmpty(inv.PaymentStatus) ? "unpaid" : inv.PaymentStatus;
+        <tr>
+          <td><strong>@inv.InvoiceNumber</strong></td>
+          <td>@inv.CustomerName</td>
+          <td>@(inv.CreatedAt?.ToString("yyyy-MM-dd", Inv))</td>
+          <td>@(inv.DueDate is DateTime dd ? dd.ToString("yyyy-MM-dd", Inv) : "-")</td>
+          <td>@Or0(inv.Subtotal)</td>
+          <td>@Or0(inv.TotalTax)</td>
+          <td>@Or0(inv.TotalFurtherTax)</td>
+          <td>@Or0(inv.TotalWithholdingTax)</td>
+          <td><strong>@Or0(inv.TotalAmount)</strong></td>
+          <td>@Or0(inv.PaidAmount)</td>
+          <td>
+            @if (inv.ApprovedAt is not null)
+            {
+            <span class="badge badge-approved">Approved</span>
+            }
+            else
+            {
+            <span class="badge badge-@vs">@ViewHelpers.Title(vs)</span>
+            }
+            @if (inv.PaidAmount is decimal pa && pa > 0)
+            {
+            <br><span class="badge badge-@ps" style="margin-top:2px;">@ViewHelpers.Title(ps)</span>
+            }
+          </td>
+          <td class="actions">
+            <a href="/inventory/invoices/@inv.Id" class="btn btn-sm btn-outline">View / Edit</a>
+          </td>
+        </tr>
+        }
+        @if (Model.Rows.Count == 0)
+        {
+        <tr><td colspan="12" class="empty">No invoices found</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  <partial name="_ListPager" model="Model.Pager" />
+</div>
+<style>
+.badge-unapproved { background:var(--bg-top); color:var(--accent); }
+.badge-approved { background:var(--bg-top); color:var(--success); }
+.badge-unpaid { background:var(--bg-top); color:var(--danger); }
+.badge-partial { background:var(--danger-light); color:var(--danger); }
+.badge-paid { background:var(--bg-top); color:var(--success); }
+.badge-overdue { background:var(--bg-top); color:var(--danger); }
+</style>

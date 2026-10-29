@@ -1,0 +1,32 @@
+@model List<FaCategory>
+@{
+    ViewData["Title"] = "Asset Categories";
+    ViewData["Heading"] = "Asset Categories";
+}
+@section Actions {
+<a href="/fixed-assets/categories/create" class="btn btn-primary">+ New Category</a>
+}
+<div class="card">
+  <div class="card-body">
+    <table class="table">
+      <thead><tr><th>Name</th><th>Description</th><th>Default Life</th><th>Default Method</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        @foreach (var c in Model)
+        {
+        <tr>
+          <td>@c.Name</td>
+          <td>@(c.Description ?? "")</td>
+          <td>@(c.DefaultUsefulLife?.ToString() ?? "None") yrs</td>
+          <td>@ViewHelpers.Title((c.DefaultDepreciationMethod ?? "None").Replace('_', ' '))</td>
+          <td><span class="badge @(c.IsActive == true ? "badge-success" : "badge-secondary")">@(c.IsActive == true ? "Active" : "Inactive")</span></td>
+          <td><a href="/fixed-assets/categories/@c.Id/edit" class="btn btn-sm btn-secondary">Edit</a></td>
+        </tr>
+        }
+        @if (Model.Count == 0)
+        {
+        <tr><td colspan="6" class="text-muted">No categories defined.</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

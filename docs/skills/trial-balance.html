@@ -1,0 +1,514 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<style>
+  :root{
+    --ink:#1b2a2e; --paper:#fbfaf6; --line:#d8d3c4;
+    --ledger:#0f5257; --ledger-dim:#e7f0ef;
+    --amber:#b5790a; --amber-dim:#faf1de;
+    --red:#a13a2f; --green:#3c7a4d; --muted:#7c8a86; --link:#1a56c4;
+  }
+  *{box-sizing:border-box;}
+  .tbal{
+    font-family:'Iowan Old Style','Georgia',serif; background:var(--paper); color:var(--ink);
+    max-width:1180px; margin:0 auto; padding:20px 24px 40px; font-size:13px;
+  }
+  .tbal, .tbal input, .tbal select, .tbal button{font-family:'Iowan Old Style','Georgia',serif;}
+  .mono{font-family:'Courier New',monospace; font-variant-numeric:tabular-nums;}
+
+  .toolbar{
+    display:flex; justify-content:space-between; align-items:flex-end;
+    background:#fff; border:1px solid var(--line); border-radius:4px;
+    padding:10px 14px; margin-bottom:16px; flex-wrap:wrap; gap:14px;
+  }
+  .filters{display:flex; gap:14px; flex-wrap:wrap; align-items:flex-end;}
+  .mode-toggle{display:flex; flex-direction:column; gap:4px;}
+  .mode-toggle .tglabel{font-size:9.5px; letter-spacing:0.07em; text-transform:uppercase; color:var(--muted);}
+  .seg{display:flex; border:1px solid var(--ledger); border-radius:3px; overflow:hidden;}
+  .seg button{border:none; background:#fff; color:var(--ledger); padding:6px 11px; font-size:11.5px; cursor:pointer;}
+  .seg button.active{background:var(--ledger); color:#fff;}
+  .seg button:not(:last-child){border-right:1px solid var(--ledger);}
+  .f-field label{display:block; font-size:9.5px; letter-spacing:0.07em; text-transform:uppercase; color:var(--muted); margin-bottom:3px;}
+  .f-field select, .f-field input{border:1px solid var(--line); border-radius:2px; padding:5px 7px; font-size:12px; background:var(--paper);}
+  .actions{display:flex; gap:8px;}
+  .actions button{
+    display:flex; align-items:center; gap:6px; border:1px solid var(--ledger); background:#fff; color:var(--ledger);
+    padding:7px 13px; border-radius:3px; font-size:12px; cursor:pointer;
+  }
+  .actions button:hover{background:var(--ledger-dim);}
+  .actions button.primary{background:var(--ledger); color:#fff;}
+  .actions button.primary:hover{background:#0c4448;}
+
+  .rhead{text-align:center; border-bottom:3px double var(--ink); padding-bottom:14px; margin-bottom:16px;}
+  .rhead .logo-row{display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:6px;}
+  .rhead .logo{width:34px; height:34px; border-radius:6px; background:linear-gradient(135deg,var(--amber),var(--ledger)); flex:none;}
+  .rhead h1{font-size:22px; margin:0;}
+  .rhead .meta{display:flex; justify-content:center; gap:34px; margin-top:10px; font-size:12px; flex-wrap:wrap;}
+  .rhead .meta .k{font-size:9.5px; letter-spacing:0.07em; text-transform:uppercase; color:var(--muted); margin-bottom:2px;}
+  .rhead .title{font-size:15px; font-weight:700; text-decoration:underline; text-underline-offset:4px; margin-top:14px;}
+
+  table{width:100%; border-collapse:collapse; margin-top:8px;}
+  thead tr.grp-head th{background:var(--ink); color:#fff; font-size:10px; letter-spacing:0.04em; padding:6px 8px; text-align:center; border:1px solid var(--ink);}
+  thead tr.col-head th{background:var(--ledger-dim); border:1px solid var(--line); font-size:10.5px; padding:7px 8px; text-align:right;}
+  thead tr.col-head th.left{text-align:left;}
+  .cat-row td{background:var(--amber-dim); font-weight:700; border:1px solid var(--line); padding:6px 8px; font-size:12px; letter-spacing:0.03em;}
+  tbody td{border:1px solid var(--line); padding:6px 8px; vertical-align:top;}
+  tbody td.num{text-align:right;}
+  tbody tr.acct:hover{background:#fbf6ea;}
+  .acctlink{color:var(--link); text-decoration:underline; text-underline-offset:2px; cursor:pointer; background:none; border:none; padding:0; font-size:12.5px; text-align:left; font-family:inherit;}
+  .acctlink:hover{color:var(--ledger);}
+  .subtot-row td{background:#f1efe6; font-weight:700; padding:6px 8px; font-size:11.5px;}
+  tr.grand td{background:var(--ink); color:#fff; font-weight:700; padding:9px 8px; font-size:12.5px;}
+  .balance-strip{
+    margin-top:10px; padding:8px 14px; border-radius:3px; font-size:12px; display:flex; align-items:center; gap:8px;
+  }
+  .balance-strip.ok{background:#eaf4ec; color:var(--green); border:1px solid var(--green);}
+  .balance-strip.bad{background:#faeae7; color:var(--red); border:1px solid var(--red);}
+
+  .modal-backdrop{position:fixed; inset:0; background:rgba(20,30,30,0.55); display:none; align-items:center; justify-content:center; z-index:100; padding:20px;}
+  .modal-backdrop.open{display:flex;}
+  .modal{background:var(--paper); border:1px solid var(--line); border-radius:6px; max-width:640px; width:100%; max-height:86vh; overflow:auto; padding:22px 24px; box-shadow:0 20px 50px rgba(0,0,0,0.25);}
+  .modal-head{display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid var(--ink); padding-bottom:10px; margin-bottom:14px;}
+  .modal-head h2{font-size:16px; margin:0;}
+  .modal-head .vsub{font-size:11px; color:var(--muted); margin-top:3px;}
+  .modal-close{background:none; border:none; font-size:18px; cursor:pointer; color:var(--muted);}
+  .modal table{margin-top:4px;}
+  .modal th{background:var(--ledger-dim); font-size:10px; padding:6px 8px; text-align:right;}
+  .modal th.left{text-align:left;}
+  .modal td{padding:6px 8px; font-size:12px;}
+
+  @media print{
+    .toolbar, .modal-backdrop{display:none !important;}
+    .tbal{padding:0; max-width:100%;}
+  }
+</style>
+
+<div class="tbal" id="tbalRoot">
+
+  <div class="toolbar">
+    <div class="filters">
+      <div class="mode-toggle">
+        <div class="tglabel">Filter By</div>
+        <div class="seg" id="modeSeg"></div>
+      </div>
+      <div class="f-field" id="rangeFields">
+        <label>From</label><input type="date" id="fromDate" value="2025-07-01">
+      </div>
+      <div class="f-field" id="rangeFieldsTo">
+        <label>To</label><input type="date" id="toDate" value="2026-06-30">
+      </div>
+      <div class="f-field" id="periodField" style="display:none;">
+        <label>Fiscal Period</label>
+        <select id="periodSelect"></select>
+      </div>
+    </div>
+    <div class="actions">
+      <button id="btnPrint">🖨️ Print</button>
+      <button id="btnPdf">⬇ PDF</button>
+      <button id="btnXlsx" class="primary">⬇ Excel</button>
+    </div>
+  </div>
+
+  <div class="rhead">
+    <div class="logo-row"><div class="logo"></div><h1>Solarkon (Private) Limited</h1></div>
+    <div class="meta">
+      <div><div class="k">Period</div><div id="periodText">—</div></div>
+      <div><div class="k">Report Time</div><div id="reportTime">—</div></div>
+      <div><div class="k">Location</div><div>Cumulative (All locations)</div></div>
+    </div>
+    <div class="title">Trial Balance</div>
+  </div>
+
+  <table>
+    <thead>
+      <tr class="grp-head">
+        <th colspan="2"></th><th colspan="2">Opening Balance</th><th colspan="2">Period Movement</th><th colspan="2">Closing Balance</th>
+      </tr>
+      <tr class="col-head">
+        <th class="left" style="width:90px;">Code</th>
+        <th class="left">Account</th>
+        <th style="width:105px;">Dr</th><th style="width:105px;">Cr</th>
+        <th style="width:105px;">Dr</th><th style="width:105px;">Cr</th>
+        <th style="width:105px;">Dr</th><th style="width:105px;">Cr</th>
+      </tr>
+    </thead>
+    <tbody id="tbBody"></tbody>
+  </table>
+
+  <div class="balance-strip" id="balanceStrip"></div>
+  <div style="margin-top:8px;font-size:10.5px;color:var(--muted);font-style:italic;">
+    Click an account name to view its ledger for the selected period.
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal">
+    <div class="modal-head">
+      <div><h2 id="mTitle">Account Ledger</h2><div class="vsub" id="mSub"></div></div>
+      <button class="modal-close" id="mClose">✕</button>
+    </div>
+    <table>
+      <thead><tr><th class="left">Date</th><th class="left">Memo</th><th>Dr</th><th>Cr</th><th>Run-Bal</th></tr></thead>
+      <tbody id="mLines"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+(function(){
+  // ---------- chart of accounts + dated ledger lines (wire to your API) ----------
+  // every transaction below is posted as two lines sharing the same date, so any
+  // date cutoff always keeps debits == credits — a real trial balance stays "in balance"
+  // no matter what From/To or fiscal period is selected.
+  const accounts = [
+    // ASSETS
+    {code:'1001', name:'Cash in Hand', cat:'Assets', lines:[
+      {date:'2024-07-01', dr:150000, cr:0, memo:'Opening Balance'},
+      {date:'2025-03-10', dr:0, cr:45000, memo:'Utilities paid — cash'},
+      {date:'2026-03-15', dr:0, cr:52000, memo:'Utilities paid — cash'},
+    ]},
+    {code:'1002', name:'Askari Bank Main Account', cat:'Assets', lines:[
+      {date:'2024-07-01', dr:2850000, cr:0, memo:'Opening Balance'},
+      {date:'2024-10-01', dr:2000000, cr:0, memo:'Customer payment received'},
+      {date:'2024-11-15', dr:0, cr:1200000, memo:'Paid Jamal Powers (Vendor/Supplier)'},
+      {date:'2025-01-05', dr:0, cr:300000, memo:'Office rent paid'},
+      {date:'2025-02-20', dr:0, cr:900000, memo:'Salaries paid'},
+      {date:'2025-10-05', dr:2800000, cr:0, memo:'Customer payment received'},
+      {date:'2025-11-20', dr:0, cr:900000, memo:'Paid Jamal Powers (Vendor/Supplier)'},
+      {date:'2026-01-05', dr:0, cr:320000, memo:'Office rent paid'},
+      {date:'2026-02-20', dr:0, cr:980000, memo:'Salaries paid'},
+      {date:'2026-04-14', dr:25000, cr:300000, memo:'Loan installment paid / bank interest received'},
+    ]},
+    {code:'1003', name:'Accounts Receivable — Trade Debtors', cat:'Assets', lines:[
+      {date:'2024-07-01', dr:1200000, cr:0, memo:'Opening Balance'},
+      {date:'2024-08-10', dr:2500000, cr:0, memo:'EPC project invoice — JV-00081'},
+      {date:'2024-10-01', dr:0, cr:2000000, memo:'Customer payment received'},
+      {date:'2025-08-14', dr:3200000, cr:0, memo:'EPC project invoice — JV-00110'},
+      {date:'2025-10-05', dr:0, cr:2800000, memo:'Customer payment received'},
+    ]},
+    {code:'1004', name:'Inventory — Inverters & Panels', cat:'Assets', lines:[
+      {date:'2024-07-01', dr:900000, cr:0, memo:'Opening Balance'},
+      {date:'2024-09-05', dr:0, cr:1600000, memo:'COGS — JV-00081'},
+      {date:'2025-05-01', dr:700000, cr:0, memo:'Inventory purchased on credit'},
+      {date:'2025-09-01', dr:0, cr:2050000, memo:'COGS — JV-00110'},
+    ]},
+    {code:'1005', name:'Fixed Assets — Office Equipment', cat:'Assets', lines:[
+      {date:'2024-07-01', dr:1500000, cr:0, memo:'Opening Balance'},
+      {date:'2026-05-13', dr:260000, cr:0, memo:'20 KW Hopewind inverter — JV-00096'},
+    ]},
+    // LIABILITIES
+    {code:'2001', name:'Jamal Powers (Vendor/Supplier)', cat:'Liabilities', lines:[
+      {date:'2024-07-01', dr:0, cr:1800000, memo:'Opening Balance'},
+      {date:'2024-11-15', dr:1200000, cr:0, memo:'Payment via bank'},
+      {date:'2025-11-20', dr:900000, cr:0, memo:'Payment via bank'},
+    ]},
+    {code:'2002', name:'Accounts Payable — Other Vendors', cat:'Liabilities', lines:[
+      {date:'2024-07-01', dr:0, cr:400000, memo:'Opening Balance'},
+      {date:'2025-05-01', dr:0, cr:700000, memo:'Inventory purchased on credit'},
+      {date:'2026-05-13', dr:0, cr:260000, memo:'20 KW Hopewind inverter — JV-00096'},
+    ]},
+    {code:'2003', name:'Short Term Loan — Askari Bank', cat:'Liabilities', lines:[
+      {date:'2024-07-01', dr:0, cr:900000, memo:'Opening Balance'},
+      {date:'2026-04-14', dr:300000, cr:0, memo:'Installment paid'},
+    ]},
+    // EQUITY
+    {code:'3001', name:"Owner's Capital", cat:'Equity', lines:[
+      {date:'2024-07-01', dr:0, cr:3000000, memo:'Opening Balance'},
+    ]},
+    {code:'3002', name:'Retained Earnings', cat:'Equity', lines:[
+      {date:'2024-07-01', dr:0, cr:500000, memo:'Opening Balance'},
+    ]},
+    // INCOME
+    {code:'4001', name:'Sales Revenue — EPC Projects', cat:'Income', lines:[
+      {date:'2024-08-10', dr:0, cr:2500000, memo:'EPC project invoice — JV-00081'},
+      {date:'2025-08-14', dr:0, cr:3200000, memo:'EPC project invoice — JV-00110'},
+    ]},
+    {code:'4002', name:'Other Income', cat:'Income', lines:[
+      {date:'2026-04-14', dr:0, cr:25000, memo:'Bank interest received'},
+    ]},
+    // EXPENSES
+    {code:'5001', name:'Cost of Goods Sold', cat:'Expenses', lines:[
+      {date:'2024-09-05', dr:1600000, cr:0, memo:'COGS — JV-00081'},
+      {date:'2025-09-01', dr:2050000, cr:0, memo:'COGS — JV-00110'},
+    ]},
+    {code:'5002', name:'Office Rent Expense', cat:'Expenses', lines:[
+      {date:'2025-01-05', dr:300000, cr:0, memo:'Rent paid'},
+      {date:'2026-01-05', dr:320000, cr:0, memo:'Rent paid'},
+    ]},
+    {code:'5003', name:'Salaries & Wages', cat:'Expenses', lines:[
+      {date:'2025-02-20', dr:900000, cr:0, memo:'Salaries paid'},
+      {date:'2026-02-20', dr:980000, cr:0, memo:'Salaries paid'},
+    ]},
+    {code:'5004', name:'Utilities Expense', cat:'Expenses', lines:[
+      {date:'2025-03-10', dr:45000, cr:0, memo:'Utilities paid — cash'},
+      {date:'2026-03-15', dr:52000, cr:0, memo:'Utilities paid — cash'},
+    ]},
+  ];
+
+  const categoryOrder = ['Assets','Liabilities','Equity','Income','Expenses'];
+
+  const periods = [
+    {label:'2025-2026', from:'2025-07-01', to:'2026-06-30'},
+    {label:'2024-2025', from:'2024-07-01', to:'2025-06-30'},
+  ];
+
+  const money = n => n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const dmy = iso => { const [y,m,d]=iso.split('-'); return `${d}/${m}/${y}`; };
+
+  let mode = 'range'; // 'range' | 'period'
+
+  function seg(container, options, current, onPick){
+    container.innerHTML = '';
+    options.forEach(opt=>{
+      const b = document.createElement('button');
+      b.textContent = opt.label;
+      if (opt.value === current) b.classList.add('active');
+      b.onclick = () => onPick(opt.value);
+      container.appendChild(b);
+    });
+  }
+
+  function populatePeriods(){
+    const sel = document.getElementById('periodSelect');
+    sel.innerHTML = '';
+    periods.forEach(p=>{
+      const opt = document.createElement('option');
+      opt.value = p.label; opt.textContent = p.label;
+      sel.appendChild(opt);
+    });
+  }
+
+  function getRange(){
+    if (mode === 'period'){
+      const p = periods.find(p=>p.label === document.getElementById('periodSelect').value) || periods[0];
+      return {from:p.from, to:p.to};
+    }
+    return {from:document.getElementById('fromDate').value, to:document.getElementById('toDate').value};
+  }
+
+  function acctFigures(acct, from, to){
+    let openingNet = 0, movDr = 0, movCr = 0;
+    acct.lines.forEach(l=>{
+      if (l.date < from) openingNet += (l.dr - l.cr);
+      else if (l.date <= to) { movDr += l.dr; movCr += l.cr; }
+    });
+    const closingNet = openingNet + movDr - movCr;
+    return {
+      openingDr: openingNet >= 0 ? openingNet : 0,
+      openingCr: openingNet < 0 ? -openingNet : 0,
+      movDr, movCr,
+      closingDr: closingNet >= 0 ? closingNet : 0,
+      closingCr: closingNet < 0 ? -closingNet : 0,
+    };
+  }
+
+  function render(){
+    const {from, to} = getRange();
+    document.getElementById('periodText').textContent = mode === 'period'
+      ? `Fiscal Year ${document.getElementById('periodSelect').value}  (${dmy(from)} – ${dmy(to)})`
+      : `From: ${dmy(from)}   To: ${dmy(to)}`;
+    document.getElementById('reportTime').textContent = new Date().toLocaleString('en-US', {weekday:'long', month:'long', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit', second:'2-digit', hour12:true});
+
+    const body = document.getElementById('tbBody');
+    body.innerHTML = '';
+
+    const grand = {openingDr:0, openingCr:0, movDr:0, movCr:0, closingDr:0, closingCr:0};
+
+    categoryOrder.forEach(cat=>{
+      const inCat = accounts.filter(a=>a.cat===cat);
+      if (!inCat.length) return;
+      const catRow = document.createElement('tr');
+      catRow.className = 'cat-row';
+      catRow.innerHTML = `<td colspan="8">${cat}</td>`;
+      body.appendChild(catRow);
+
+      const sub = {openingDr:0, openingCr:0, movDr:0, movCr:0, closingDr:0, closingCr:0};
+
+      inCat.forEach(acct=>{
+        const f = acctFigures(acct, from, to);
+        Object.keys(sub).forEach(k=> sub[k]+=f[k]);
+        const tr = document.createElement('tr');
+        tr.className = 'acct';
+        tr.innerHTML = `
+          <td class="mono">${acct.code}</td>
+          <td><button class="acctlink" data-code="${acct.code}">${acct.name}</button></td>
+          <td class="num mono">${f.openingDr ? money(f.openingDr) : ''}</td>
+          <td class="num mono">${f.openingCr ? money(f.openingCr) : ''}</td>
+          <td class="num mono">${f.movDr ? money(f.movDr) : ''}</td>
+          <td class="num mono">${f.movCr ? money(f.movCr) : ''}</td>
+          <td class="num mono">${f.closingDr ? money(f.closingDr) : ''}</td>
+          <td class="num mono">${f.closingCr ? money(f.closingCr) : ''}</td>
+        `;
+        body.appendChild(tr);
+      });
+
+      const subRow = document.createElement('tr');
+      subRow.className = 'subtot-row';
+      subRow.innerHTML = `<td colspan="2" style="text-align:right;">${cat} Total</td>
+        <td class="num mono">${money(sub.openingDr)}</td><td class="num mono">${money(sub.openingCr)}</td>
+        <td class="num mono">${money(sub.movDr)}</td><td class="num mono">${money(sub.movCr)}</td>
+        <td class="num mono">${money(sub.closingDr)}</td><td class="num mono">${money(sub.closingCr)}</td>`;
+      body.appendChild(subRow);
+
+      Object.keys(grand).forEach(k=> grand[k]+=sub[k]);
+    });
+
+    const grandRow = document.createElement('tr');
+    grandRow.className = 'grand';
+    grandRow.innerHTML = `<td colspan="2">Grand Total</td>
+      <td class="num mono">${money(grand.openingDr)}</td><td class="num mono">${money(grand.openingCr)}</td>
+      <td class="num mono">${money(grand.movDr)}</td><td class="num mono">${money(grand.movCr)}</td>
+      <td class="num mono">${money(grand.closingDr)}</td><td class="num mono">${money(grand.closingCr)}</td>`;
+    body.appendChild(grandRow);
+
+    const balanced = Math.abs(grand.closingDr - grand.closingCr) < 0.01
+                   && Math.abs(grand.openingDr - grand.openingCr) < 0.01
+                   && Math.abs(grand.movDr - grand.movCr) < 0.01;
+    const strip = document.getElementById('balanceStrip');
+    strip.className = 'balance-strip ' + (balanced ? 'ok' : 'bad');
+    strip.textContent = balanced
+      ? `✓ Trial Balance is in balance — Total Debit ${money(grand.closingDr)} = Total Credit ${money(grand.closingCr)}`
+      : `⚠ Out of balance — Debit ${money(grand.closingDr)} vs Credit ${money(grand.closingCr)}`;
+
+    body.querySelectorAll('[data-code]').forEach(btn=>{
+      btn.addEventListener('click', ()=> openAccountLedger(btn.dataset.code, from, to));
+    });
+  }
+
+  function openAccountLedger(code, from, to){
+    const acct = accounts.find(a=>a.code===code);
+    document.getElementById('mTitle').textContent = acct.name;
+    document.getElementById('mSub').textContent = `${acct.code}  •  ${dmy(from)} – ${dmy(to)}`;
+    let bal = 0;
+    const before = acct.lines.filter(l=>l.date<from).reduce((s,l)=>s+l.dr-l.cr,0);
+    bal = before;
+    const rows = [`<tr><td colspan="2"><em>Opening (before ${dmy(from)})</em></td><td></td><td></td>
+                    <td class="num mono">${money(Math.abs(bal))} ${bal>=0?'Dr':'Cr'}</td></tr>`];
+    acct.lines.filter(l=>l.date>=from && l.date<=to).forEach(l=>{
+      bal += l.dr - l.cr;
+      rows.push(`<tr><td class="mono">${dmy(l.date)}</td><td>${l.memo}</td>
+        <td class="num mono">${l.dr?money(l.dr):''}</td><td class="num mono">${l.cr?money(l.cr):''}</td>
+        <td class="num mono">${money(Math.abs(bal))} ${bal>=0?'Dr':'Cr'}</td></tr>`);
+    });
+    document.getElementById('mLines').innerHTML = rows.join('');
+    document.getElementById('modalBackdrop').classList.add('open');
+  }
+  document.getElementById('mClose').onclick = () => document.getElementById('modalBackdrop').classList.remove('open');
+  document.getElementById('modalBackdrop').addEventListener('click', e=>{
+    if (e.target.id === 'modalBackdrop') e.currentTarget.classList.remove('open');
+  });
+
+  // ---------- filter mode toggle ----------
+  function renderModeToggle(){
+    seg(document.getElementById('modeSeg'), [
+      {label:'Date Range', value:'range'},
+      {label:'Fiscal Period', value:'period'},
+    ], mode, v=>{
+      mode = v;
+      document.getElementById('rangeFields').style.display = mode==='range' ? 'block' : 'none';
+      document.getElementById('rangeFieldsTo').style.display = mode==='range' ? 'block' : 'none';
+      document.getElementById('periodField').style.display = mode==='period' ? 'block' : 'none';
+      renderModeToggle();
+      render();
+    });
+  }
+  populatePeriods();
+  renderModeToggle();
+  document.getElementById('fromDate').addEventListener('change', render);
+  document.getElementById('toDate').addEventListener('change', render);
+  document.getElementById('periodSelect').addEventListener('change', render);
+
+  // ---------- print ----------
+  document.getElementById('btnPrint').addEventListener('click', ()=> window.print());
+
+  // ---------- export data gather ----------
+  function gatherRows(){
+    const {from, to} = getRange();
+    const out = [];
+    categoryOrder.forEach(cat=>{
+      const inCat = accounts.filter(a=>a.cat===cat);
+      if (!inCat.length) return;
+      out.push({type:'cat', label:cat});
+      const sub = {openingDr:0, openingCr:0, movDr:0, movCr:0, closingDr:0, closingCr:0};
+      inCat.forEach(acct=>{
+        const f = acctFigures(acct, from, to);
+        Object.keys(sub).forEach(k=> sub[k]+=f[k]);
+        out.push({type:'acct', code:acct.code, name:acct.name, ...f});
+      });
+      out.push({type:'subtotal', label:`${cat} Total`, ...sub});
+    });
+    return out;
+  }
+
+  // ---------- Export PDF ----------
+  document.getElementById('btnPdf').addEventListener('click', ()=>{
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit:'pt', format:'a4', orientation:'landscape' });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    doc.setFontSize(16); doc.setFont(undefined,'bold');
+    doc.text('Solarkon (Private) Limited', pageWidth/2, 36, {align:'center'});
+    doc.setFontSize(10); doc.setFont(undefined,'normal');
+    doc.text(document.getElementById('periodText').textContent, pageWidth/2, 52, {align:'center'});
+    doc.setFontSize(12); doc.setFont(undefined,'bold');
+    doc.text('Trial Balance', pageWidth/2, 70, {align:'center'});
+
+    const rows = gatherRows();
+    const body = rows.map(r=>{
+      if (r.type === 'cat') return [{content:r.label, colSpan:8, styles:{fontStyle:'bold', fillColor:[250,241,222]}}];
+      const bold = r.type === 'subtotal';
+      const label = r.type === 'subtotal' ? r.label : r.name;
+      const code = r.type === 'subtotal' ? '' : r.code;
+      return [
+        {content:code, styles:{fontStyle: bold?'bold':'normal'}},
+        {content:label, styles:{fontStyle: bold?'bold':'normal'}},
+        {content: r.openingDr? money(r.openingDr):'', styles:{halign:'right', fontStyle: bold?'bold':'normal'}},
+        {content: r.openingCr? money(r.openingCr):'', styles:{halign:'right', fontStyle: bold?'bold':'normal'}},
+        {content: r.movDr? money(r.movDr):'', styles:{halign:'right', fontStyle: bold?'bold':'normal'}},
+        {content: r.movCr? money(r.movCr):'', styles:{halign:'right', fontStyle: bold?'bold':'normal'}},
+        {content: r.closingDr? money(r.closingDr):'', styles:{halign:'right', fontStyle: bold?'bold':'normal'}},
+        {content: r.closingCr? money(r.closingCr):'', styles:{halign:'right', fontStyle: bold?'bold':'normal'}},
+      ];
+    });
+
+    doc.autoTable({
+      startY: 84,
+      head: [[
+        {content:'Code'},{content:'Account'},
+        {content:'Opening Dr', styles:{halign:'right'}}, {content:'Opening Cr', styles:{halign:'right'}},
+        {content:'Movement Dr', styles:{halign:'right'}}, {content:'Movement Cr', styles:{halign:'right'}},
+        {content:'Closing Dr', styles:{halign:'right'}}, {content:'Closing Cr', styles:{halign:'right'}},
+      ]],
+      body,
+      styles:{ fontSize:8, cellPadding:4 },
+      headStyles:{ fillColor:[15,82,87] },
+      margin:{left:30, right:30},
+    });
+
+    doc.save('trial-balance.pdf');
+  });
+
+  // ---------- Export Excel ----------
+  document.getElementById('btnXlsx').addEventListener('click', ()=>{
+    const rows = gatherRows();
+    const aoa = [];
+    aoa.push(['Solarkon (Private) Limited']);
+    aoa.push([document.getElementById('periodText').textContent]);
+    aoa.push(['Trial Balance']);
+    aoa.push([]);
+    aoa.push(['Code','Account','Opening Dr','Opening Cr','Movement Dr','Movement Cr','Closing Dr','Closing Cr']);
+    rows.forEach(r=>{
+      if (r.type === 'cat') aoa.push([r.label]);
+      else if (r.type === 'subtotal') aoa.push(['', r.label, r.openingDr||'', r.openingCr||'', r.movDr||'', r.movCr||'', r.closingDr||'', r.closingCr||'']);
+      else aoa.push([r.code, r.name, r.openingDr||'', r.openingCr||'', r.movDr||'', r.movCr||'', r.closingDr||'', r.closingCr||'']);
+    });
+    const ws = XLSX.utils.aoa_to_sheet(aoa);
+    ws['!cols'] = [{wch:10},{wch:38},{wch:14},{wch:14},{wch:14},{wch:14},{wch:14},{wch:14}];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Trial Balance');
+    XLSX.writeFile(wb, 'trial-balance.xlsx');
+  });
+
+  render();
+})();
+</script>

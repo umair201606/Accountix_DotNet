@@ -1,0 +1,84 @@
+{
+ "?": {
+  "from": null,
+  "to": null,
+  "selected": "FY 2026",
+  "filter_mode": "period",
+  "from_str": "",
+  "to_str": "",
+  "comp_mode": "",
+  "comp_periods": []
+ },
+ "?filter_mode=period&period_id={FY 2026}": {
+  "from": "2026-01-01",
+  "to": "2026-12-31",
+  "selected": "FY 2026",
+  "filter_mode": "period",
+  "from_str": "",
+  "to_str": "",
+  "comp_mode": "",
+  "comp_periods": []
+ },
+ "?filter_mode=custom&from=2026-02-03&to=05/06/2026": {
+  "from": "2026-02-03",
+  "to": "2026-06-05",
+  "selected": null,
+  "filter_mode": "custom",
+  "from_str": "2026-02-03",
+  "to_str": "05/06/2026",
+  "comp_mode": "",
+  "comp_periods": []
+ },
+ "?filter_mode=&period_id={FY 2026}&from=&to=": {
+  "from": "2026-01-01",
+  "to": "2026-12-31",
+  "selected": "FY 2026",
+  "filter_mode": "",
+  "from_str": "",
+  "to_str": "",
+  "comp_mode": "",
+  "comp_periods": []
+ },
+ "?filter_mode=custom&from=&to=": {
+  "from": null,
+  "to": null,
+  "selected": "FY 2026",
+  "filter_mode": "custom",
+  "from_str": "",
+  "to_str": "",
+  "comp_mode": "",
+  "comp_periods": []
+ },
+ "?filter_mode=custom&period_id={FY 2026}&from=2026-01-01": {
+  "from": "2026-01-01",
+  "to": null,
+  "selected": "FY 2026",
+  "filter_mode": "custom",
+  "from_str": "2026-01-01",
+  "to_str": "",
+  "comp_mode": "",
+  "comp_periods": []
+ },
+ "?filter_mode=period&period_id=abc&to=2026-03-31": {
+  "from": null,
+  "to": "2026-03-31",
+  "selected": "FY 2026",
+  "filter_mode": "period",
+  "from_str": "",
+  "to_str": "2026-03-31",
+  "comp_mode": "",
+  "comp_periods": []
+ },
+ "?filter_mode=comparative&period_id={FY 2026}&comp_mode=1&comp_period_ids=x,{FY 2026}, 3": {
+  "from": "2026-01-01",
+  "to": "2026-12-31",
+  "selected": "FY 2026",
+  "filter_mode": "comparative",
+  "from_str": "",
+  "to_str": "",
+  "comp_mode": "1",
+  "comp_periods": [
+   "FY 2026"
+  ]
+ }
+}

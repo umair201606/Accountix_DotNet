@@ -1,0 +1,234 @@
+@model Accountix.Parties.Controllers.RegisterPageModel
+@{
+    ViewData["Title"] = Model.Title;
+    var f = Model.Filter;
+    string sub = f.Label + (Model.Status.Length > 0 ? " · " + ViewHelpers.Title(Model.Status) : "");
+    string qs = Context.Request.QueryString.HasValue ? Context.Request.QueryString.Value![1..] : "";
+    string Fmt(string fmt)
+    {
+        var q = Context.Request.Query.Where(kv => kv.Key != "fmt").Select(kv => $"{System.Net.WebUtility.UrlEncode(kv.Key)}={System.Net.WebUtility.UrlEncode(kv.Value.ToString())}").ToList();
+        q.Add("fmt=" + fmt);
+        return string.Join("&", q);
+    }
+    var access = Context.Access();
+    string companyName = access?.Profile?.CompanyName is { Length: > 0 } pn ? pn : access?.Company?.Name ?? "";
+}
+<partial name="_PrintHeader" model="@(Model.Title + " — " + f.Label)" />
+<div class="page-header no-print">
+  <div>
+    <div class="reg-sub">@f.Label@if (Model.Status.Length > 0) {<text> &middot; @ViewHelpers.Title(Model.Status)</text>}</div>
+  </div>
+</div>
+
+<div class="card no-print">
+  <div class="card-body">
+    <form method="GET" class="reg-filter" id="regFilterForm">
+      <div class="rf-group">
+        <label>Register</label>
+        <select name="doc" class="form-control focus-ring">
+          <option value="sales" selected="@(Model.Doc == "sales")">Sales Invoices</option>
+          <option value="purchase" selected="@(Model.Doc == "purchase")">Purchase Invoices</option>
+        </select>
+      </div>
+      <div class="rf-group">
+        <label>Period</label>
+        <select name="mode" id="regMode" class="form-control focus-ring">
+          <option value="month" selected="@(f.Mode == "month")">Month</option>
+          <option value="year" selected="@(f.Mode == "year")">Financial Year</option>
+          <option value="custom" selected="@(f.Mode == "custom")">Custom Range</option>
+        </select>
+      </div>
+      <div class="rf-group" data-for="month">
+        <label>Month</label>
+        <input type="month" name="month" value="@f.Month" class="form-control focus-ring">
+      </div>
+      <div class="rf-group" data-for="year">
+        <label>Financial Year</label>
+        <select name="period_id" class="form-control focus-ring">
+          @foreach (var p in f.Periods)
+          {
+          <option value="@p.Id" selected="@(f.PeriodId == p.Id)">@(!string.IsNullOrEmpty(p.PeriodName) ? p.PeriodName : $"{p.StartDate:yyyy-MM-dd} to {p.EndDate:yyyy-MM-dd}")</option>
+          }
+          @if (f.Periods.Count == 0)
+          {
+          <option value="">No financial years defined</option>
+          }
+        </select>
+      </div>
+      <div class="rf-group" data-for="custom">
+        <label>From</label>
+        <input type="date" name="from" value="@f.FromStr" class="form-control focus-ring">
+      </div>
+      <div class="rf-group" data-for="custom">
+        <label>To</label>
+        <input type="date" name="to" value="@f.ToStr" class="form-control focus-ring">
+      </div>
+      <div class="rf-group">
+        <label>Status</label>
+        <select name="status" class="form-control focus-ring">
+          <option value="" selected="@(Model.Status.Length == 0)">All</option>
+          <option value="approved" selected="@(Model.Status == "approved")">Approved</option>
+          <option value="unapproved" selected="@(Model.Status == "unapproved")">Unapproved</option>
+        </select>
+      </div>
+      <div class="rf-group rf-go">
+        <input type="hidden" name="view" value="1">
+        <button type="submit" class="btn btn-primary" id="regLoadBtn">View</button>
+      </div>
+      <div class="rf-group rf-go">
+        <button type="submit" class="btn btn-outline" id="regDocsBtn" formaction="/invoicing/registers/documents" title="Open every filtered invoice as full pages">Load Invoices</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="regLoaded" style="@(Model.Loaded ? null : "display:none")">
+<div class="reg-cards">
+  <div class="reg-card"><span>Invoices</span><strong id="cardCount">@(Model.Loaded ? Model.Rows.Count : 0)</strong></div>
+  <div class="reg-card"><span>Total</span><strong id="cardGrand">@Html.Amount(Model.Totals[5], 0)</strong></div>
+  <div class="reg-card"><span>Paid</span><strong id="cardPaid">@Html.Amount(Model.Totals[6], 0)</strong></div>
+  <div class="reg-card"><span>Balance</span><strong id="cardBalance">@Html.Amount(Model.Totals[8], 0)</strong></div>
+</div>
+
+<div class="card">
+  <div class="card-body reg-title">
+    <strong>@Model.Title</strong><span>@f.Label@if (Model.Status.Length > 0) {<text> &middot; @ViewHelpers.Title(Model.Status)</text>}</span>
+    <span class="reg-actions no-print" id="regActions">
+      <a href="/invoicing/registers/documents?@qs" class="btn btn-primary btn-sm" id="actDocs">Print Invoices</a>
+      <a href="/invoicing/registers/export?@Fmt("excel")" class="btn btn-outline btn-sm" id="actExcel">Excel</a>
+      <a href="/invoicing/registers/export?@Fmt("pdf")" class="btn btn-outline btn-sm" id="actPdf">PDF</a>
+      <button onclick="window.print()" class="btn btn-outline btn-sm">Print</button>
+    </span>
+  </div>
+  <div class="table-responsive">
+    <table class="table reg-table">
+      <thead>
+        <tr>@foreach (var c in Model.Columns) {<th>@c</th>}<th class="no-print">View</th></tr>
+      </thead>
+      <tbody id="regBody">
+        @if (Model.Loaded) {<partial name="_RegisterBody" model="@(new Accountix.Parties.Controllers.RegisterBodyModel(Model.Rows, Model.Columns.Count, Model.ViewPath))" />}
+      </tbody>
+      <tfoot id="regFoot">
+        @if (Model.Loaded) {<partial name="_RegisterTotals" model="@Model.Totals" />}
+      </tfoot>
+    </table>
+  </div>
+  <div class="card-body reg-foot"><span>Generated @Model.Now.ToString("dd MMM yyyy HH:mm", System.Globalization.CultureInfo.InvariantCulture)</span><span>@companyName &middot; System generated</span></div>
+</div>
+</div>
+
+<div class="card no-print" id="regPrompt" style="@(Model.Loaded ? "display:none" : null)">
+  <div class="card-body" style="text-align:center;color:var(--v2-body,#64748b);padding:30px 16px;">
+    Choose a period above and press <strong>View</strong> to build the register here.
+  </div>
+</div>
+
+<style>
+.page-header{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.reg-sub{color:var(--v2-body,#64748b);font-size:13px;margin-top:2px}
+.reg-filter{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.rf-group{display:flex;flex-direction:column;gap:4px;min-width:150px}
+.rf-group label{font-size:12px;font-weight:600;color:var(--v2-body,#64748b)}
+.rf-go{justify-content:flex-end}
+.reg-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:12px 0}
+.reg-card{background:var(--v2-surface,#fff);border:1px solid var(--v2-line,#e2e8f0);border-radius:10px;padding:10px 14px;display:flex;flex-direction:column;gap:2px}
+.reg-card span{font-size:12px;color:var(--v2-body,#64748b)}
+.reg-card strong{font-size:17px;color:var(--v2-ink,#0f172a)}
+.reg-title{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.reg-title span{font-size:12.5px;color:var(--v2-body,#64748b)}
+.reg-actions{display:inline-flex;gap:8px;flex-wrap:wrap}
+.reg-table td.num{text-align:right}
+.reg-table tfoot td{background:var(--v2-sunk,#f8fafc);border-top:2px solid var(--v2-line-2,#cbd5e1)}
+.reg-foot{font-size:12px;color:var(--v2-body,#64748b);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+@@media print{
+  .no-print,.sidebar,.topbar,.app-flash-wrap{display:none!important}
+  .card{border:none;box-shadow:none}
+  .reg-cards{grid-template-columns:repeat(4,1fr)}
+  .table{font-size:11px}
+}
+</style>
+<script>
+(function(){
+  var mode=document.getElementById('regMode');
+  function syncMode(){
+    if(!mode)return;
+    var m=mode.value;
+    document.querySelectorAll('[data-for]').forEach(function(el){
+      el.style.display=(el.getAttribute('data-for')===m)?'':'none';
+    });
+  }
+  if(mode){mode.addEventListener('change',syncMode);syncMode();}
+
+  var form=document.getElementById('regFilterForm');
+  if(!form)return;
+  var loaded=document.getElementById('regLoaded'),
+      prompt=document.getElementById('regPrompt'),
+      tbody=document.getElementById('regBody'),
+      controller=null;
+
+  var btn=document.getElementById('regLoadBtn');
+  var btnLabel=btn.innerHTML;
+  var DATA_URL="/invoicing/registers/data";
+  var DOCS_URL="/invoicing/registers/documents";
+  var EXPORT_URL="/invoicing/registers/export";
+
+  form.addEventListener('submit',function(ev){
+    if(ev.submitter && ev.submitter.id==='regDocsBtn')return; // plain navigation
+    ev.preventDefault();
+    if(controller){try{controller.abort();}catch(e){}}
+    controller=new AbortController();
+    var params=new URLSearchParams(new FormData(form));
+    params.delete('view');
+    var base=form.action||window.location.pathname;
+    tbody.innerHTML='';
+    loaded.style.display='none';prompt.style.display='none';
+    btn.disabled=true;btn.innerHTML='Loading…';
+    var cardCount=document.getElementById('cardCount'),
+        cardGrand=document.getElementById('cardGrand'),
+        cardPaid=document.getElementById('cardPaid'),
+        cardBalance=document.getElementById('cardBalance');
+
+    (async function(){
+      try{
+        var offset=0, limit=200, got=0, total=0;
+        while(true){
+          var resp=await fetch(DATA_URL+'?'+params.toString()+'&limit='+limit+'&offset='+offset,
+            {signal:controller.signal,headers:{'Accept':'application/json'}});
+          if(!resp.ok)throw new Error('Server returned '+resp.status);
+          var data=await resp.json();
+          if(offset===0){
+            total=data.total||0;
+            cardCount.textContent=total;
+            cardGrand.textContent=data.labels.grand;
+            cardPaid.textContent=data.labels.paid;
+            cardBalance.textContent=data.labels.balance;
+            tbody.innerHTML='';
+          }
+          var wrap=document.createElement('table');
+          wrap.innerHTML='<tbody>'+data.html+'</tbody>';
+          Array.prototype.forEach.call(
+            wrap.querySelectorAll('tbody tr'),function(tr){
+              tbody.appendChild(tr);
+            });
+          document.getElementById('regFoot').innerHTML=data.tfoot||'';
+          got+=data.rows||0;
+          if((data.rows||0)<limit||got>=total)break;
+          offset+=limit;
+        }
+      }catch(e){
+        if(e && e.name!=='AbortError'){
+          tbody.innerHTML='<tr><td colspan="@(Model.Columns.Count + 1)" style="text-align:center;color:var(--danger,#b91c1c)">Could not load the register. Please try again.</td></tr>';
+        }
+      }
+      btn.disabled=false;btn.innerHTML=btnLabel;controller=null;
+      try{history.replaceState(null,'',base+'?'+params.toString()+'&view=1');}catch(e2){}
+      document.getElementById('actDocs').href=DOCS_URL+'?'+params.toString();
+      var qx=new URLSearchParams(params.toString());qx.set('fmt','excel');
+      var qp=new URLSearchParams(params.toString());qp.set('fmt','pdf');
+      document.getElementById('actExcel').href=EXPORT_URL+'?'+qx.toString();
+      document.getElementById('actPdf').href=EXPORT_URL+'?'+qp.toString();
+      loaded.style.display='';
+    })();
+  });
+})();
+</script>

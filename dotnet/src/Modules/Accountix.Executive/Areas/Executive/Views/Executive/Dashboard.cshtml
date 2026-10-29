@@ -1,0 +1,401 @@
+@model DashboardModel
+@{
+    ViewData["Title"] = "Executive Reports";
+    ViewData["Heading"] = "Executive Reports";
+    var p = Model.Profit;
+    var geo = Model.ProfitGeo;
+    var liq = Model.Liq;
+    var recvAge = Model.RecvAge;
+    var payAge = Model.PayAge;
+    string R(double v) => Py.Repr(v);
+    string Rd(decimal v) => Py.Repr(v);
+    long I(decimal v) => Py.RoundInt(v);
+    var tiles = new (string Label, decimal Value, decimal? Delta, string Sub)[]
+    {
+        ("Revenue", p.Latest.Revenue, p.Deltas["revenue"], "net of returns"),
+        ("Gross profit", p.Latest.Gross, p.Deltas["gross"], "revenue less cost of sales"),
+        ("Net profit", p.Latest.Net, p.Deltas["net"], "after every expense"),
+    };
+}
+@section Head {
+<partial name="_Style" />
+}
+@* Bands of three, read in the order an executive asks: are we making money, what is our position,
+   can we pay our bills, and who is holding the cash up. *@
+<div class="exr">
+
+  @* Profitability: ledger-derived, so these agree with the Profit & Loss statement line for line.
+     It renders whether or not the receivable/payable scope has been configured. *@
+  <div class="exr-band">
+    <h2 class="exr-band-title">Profitability · @(p.Months.Count > 0 ? p.Months[^1].FullLabel : "this month")</h2>
+    <div class="exr-kpis">
+      @foreach (var tile in tiles)
+      {
+      <div class="exr-kpi">
+        <span class="exr-kpi-lbl">@tile.Label</span>
+        <span class="exr-kpi-val">@Html.Amount(tile.Value, 0)</span>
+        @if (tile.Delta is decimal d)
+        {
+        @* Up is --v2-pos, down is --v2-warn, never --v2-neg; the arrow carries the direction too. *@
+        <span class="exr-kpi-sub">
+          <span class="exr-delta @(d >= 0 ? "is-up" : "is-down")">
+            @(d >= 0 ? "↗" : "↘") @I(Math.Abs(d))%
+          </span>
+          <span class="exr-delta-base">vs @(p.Months.Count > 0 ? (p.Months[^1].Start.Year - 1).ToString() : "")</span>
+        </span>
+        }
+        else
+        {
+        <span class="exr-kpi-sub">@tile.Sub</span>
+        }
+      </div>
+      }
+    </div>
+  </div>
+
+  @if (geo is not null)
+  {
+  <section class="exr-chart exr-chart-wide" aria-label="Revenue and net profit, last 12 months">
+    <div class="exr-chart-head">
+      <h3 class="exr-chart-title">Last 12 months</h3>
+      <div class="exr-chart-legend">
+        @foreach (var s in geo.SeriesList)
+        {
+        <span class="exr-legend-item">
+          <span class="exr-legend-line s-@s.Var"></span>@s.Label
+          <span class="exr-legend-val">@Html.Amount(p.Totals[s.Key], 0)</span>
+        </span>
+        }
+        @if (p.Margin is decimal margin)
+        {
+        <span class="exr-legend-item"><span class="exr-legend-val">@I(margin)%</span> margin</span>
+        }
+      </div>
+    </div>
+
+    <div class="exr-plot">
+      <svg viewBox="0 0 @R(ProfitChart.ViewW) @R(ProfitChart.ViewH)"
+           preserveAspectRatio="none" role="img"
+           aria-label="Revenue and net profit by month for the last 12 months">
+        @* Gridlines and the zero rule are the quietest things on the chart. *@
+        @foreach (var t in geo.Ticks)
+        {
+        <line x1="@R(ProfitChart.PadL)" x2="@R(geo.PlotR)"
+              y1="@R(t.Y)" y2="@R(t.Y)" class="exr-grid"/>
+        @:<text x="@R(ProfitChart.PadL - 8)" y="@R(t.Y + 3.5)" text-anchor="end" class="exr-axis">@Html.Amount(t.V, t.Dp)</text>
+        }
+        <line x1="@R(ProfitChart.PadL)" x2="@R(geo.PlotR)"
+              y1="@R(geo.ZeroY)" y2="@R(geo.ZeroY)" class="exr-zero"/>
+
+        @foreach (var s in geo.SeriesList)
+        {
+            if (s.Key == "net")
+            {
+        <polygon points="@s.Area" class="exr-area s-@s.Var"/>
+            }
+        <polyline points="@s.Points" class="exr-line s-@s.Var"
+                  stroke-dasharray="@(s.Dash.Length > 0 ? s.Dash : null)"/>
+        }
+
+        @* Direct-label the endpoint only — never a number on every point. *@
+        @foreach (var s in geo.SeriesList)
+        {
+        <circle cx="@R(s.Last.X)" cy="@R(s.Last.Y)" r="3.5" class="exr-dot s-@s.Var"/>
+        }
+
+        @foreach (var c in geo.Cols)
+        {
+        @:<text x="@R(c.X)" y="@R(ProfitChart.ViewH - 8)" text-anchor="middle" class="exr-axis">@c.Label</text>
+        }
+
+        @* One hover band per month: a target the width of a column. *@
+        @foreach (var c in geo.Cols)
+        {
+        <rect x="@R(c.X - geo.Band / 2)" y="@R(ProfitChart.PadT)"
+              width="@R(geo.Band)" height="@R(ProfitChart.PlotH)"
+              class="exr-hover-band"><title>@c.FullLabel</title></rect>
+        }
+      </svg>
+    </div>
+
+    <details class="exr-table-view">
+      <summary>Table view</summary>
+      <table class="exr-mini">
+        <thead>
+          <tr><th>Month</th><th class="num">Revenue</th><th class="num">Cost of sales</th>
+              <th class="num">Gross profit</th><th class="num">Net profit</th></tr>
+        </thead>
+        <tbody>
+          @foreach (var m in p.Months)
+          {
+          <tr>
+            <td>@m.FullLabel</td>
+            <td class="num">@Html.Amount(m.Revenue, 2)</td>
+            <td class="num">@Html.Amount(m.Cogs, 2)</td>
+            <td class="num">@Html.Amount(m.Gross, 2)</td>
+            <td class="num">@Html.Amount(m.Net, 2)</td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </details>
+  </section>
+  }
+  else
+  {
+  @* profit_chart() is null when every month is flat: say so instead of drawing a rule along zero. *@
+  <section class="exr-chart exr-chart-wide">
+    <div class="exr-chart-head"><h3 class="exr-chart-title">Last 12 months</h3></div>
+    <div class="exr-pick-empty">No posted revenue or expenses in the last 12 months.</div>
+  </section>
+  }
+
+  <div class="exr-band">
+    <h2 class="exr-band-title">Position</h2>
+    <div class="exr-head">
+      <a href="/executive/receivables" class="exr-total">
+        <span class="lbl">Total receivable</span>
+        <span class="val">@Html.Amount(Model.Receivable.Amount, 2)</span>
+        <span class="sub">@Model.Receivable.Parties part@(Model.Receivable.Parties == 1 ? "y" : "ies") owe us</span>
+      </a>
+      <a href="/executive/payables" class="exr-total">
+        <span class="lbl">Total payable</span>
+        <span class="val">@Html.Amount(Model.Payable.Amount, 2)</span>
+        <span class="sub">@Model.Payable.Parties part@(Model.Payable.Parties == 1 ? "y" : "ies") we owe</span>
+      </a>
+      <div class="exr-total">
+        <span class="lbl">Net position</span>
+        <span class="val">@Html.Amount(Model.Receivable.Amount - Model.Payable.Amount, 2)</span>
+        <span class="sub">receivable less payable</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="exr-band">
+    <h2 class="exr-band-title">Liquidity</h2>
+    <div class="exr-kpis">
+      <div class="exr-kpi">
+        <span class="exr-kpi-lbl">Net assets</span>
+        @if (liq.NetAssets is decimal na)
+        {
+        <span class="exr-kpi-val">@Html.Amount(na, 0)</span>
+        }
+        else
+        {<span class="exr-kpi-val is-empty">Not available</span>}
+        <span class="exr-kpi-sub">assets less liabilities</span>
+      </div>
+      @* A ratio at or above its threshold gets no colour; the two states that need a decision get one,
+         each with a word beside it so colour is never the only channel. *@
+      @{
+          decimal? cr = liq.CurrentRatio;
+          string crClass = cr is decimal c1 && c1 < 1 ? "is-short" : (cr is decimal c2 && c2 < 1.5m ? "is-thin" : "");
+          decimal? qr = liq.QuickRatio;
+          string qrClass = qr is decimal q1 && q1 < 1 ? "is-thin" : "";
+      }
+      <div class="exr-kpi @crClass">
+        <span class="exr-kpi-lbl">Current ratio</span>
+        @if (cr is decimal crv)
+        {<span class="exr-kpi-val">@crv.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)</span>}
+        else
+        {<span class="exr-kpi-val is-empty">Not available</span>}
+        @if (cr is decimal a1 && a1 < 1)
+        {
+        <span class="exr-kpi-flag">Below 1 — short-term cover</span>
+        }
+        else if (cr is decimal a2 && a2 < 1.5m)
+        {
+        <span class="exr-kpi-flag">Thin — under 1.5</span>
+        }
+        else
+        {
+        <span class="exr-kpi-sub">current assets vs current liabilities</span>
+        }
+      </div>
+      <div class="exr-kpi @qrClass">
+        <span class="exr-kpi-lbl">Quick ratio</span>
+        @if (qr is decimal qrv)
+        {<span class="exr-kpi-val">@qrv.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)</span>}
+        else
+        {<span class="exr-kpi-val is-empty">Not available</span>}
+        @if (qr is decimal b1 && b1 < 1)
+        {
+        <span class="exr-kpi-flag">Below 1 without inventory</span>
+        }
+        else
+        {
+        <span class="exr-kpi-sub">excludes inventory</span>
+        }
+      </div>
+    </div>
+  </div>
+
+  @if (!Model.Configured)
+  {
+  <div class="exr-wrap">
+    <div class="exr-empty">
+      <strong>Receivables and payables need accounts selected</strong>
+      <p>These reports read live ledger balances for the accounts you choose —
+        trade debtors and creditors, other receivables and payables, loans. A
+        party shows under Receivables while its balance is a debit and moves to
+        Payables the moment it turns credit, whatever the account's type.</p>
+      @if (Model.CanEdit)
+      {
+      <a href="/executive/settings" class="btn btn-primary">Select accounts</a>
+      }
+    </div>
+  </div>
+  }
+  else
+  {
+
+  <div class="exr-charts">
+    <section class="exr-chart" aria-label="Aging profile">
+      <div class="exr-chart-head">
+        <h3 class="exr-chart-title">Aging profile</h3>
+        <div class="exr-chart-legend">
+          <span class="exr-legend-item">
+            <span class="exr-legend-key exr-mark-recv"></span>Receivable
+            <span class="exr-legend-val">@Html.Amount(recvAge.Total, 0)</span>
+          </span>
+          <span class="exr-legend-item">
+            <span class="exr-legend-key exr-mark-pay"></span>Payable
+            <span class="exr-legend-val">@Html.Amount(payAge.Total, 0)</span>
+          </span>
+        </div>
+      </div>
+
+      @* Bar length comes from Width, scaled against the largest bucket on either side, so the two bars
+         in a row can honestly be compared; Share (the per-side percentage) is what the tooltip prints. *@
+      @for (int i = 0; i < recvAge.Buckets.Count; i++)
+      {
+          var b = recvAge.Buckets[i];
+          var pb = payAge.Buckets[i];
+      <div class="exr-bar-group">
+        <span class="exr-bar-label">@b.Label</span>
+        <div class="exr-bar-row" tabindex="0">
+          <span class="exr-bar-track"><span class="exr-bar-fill exr-mark-recv" style="width:@(Rd(b.Width))%"></span></span>
+          <span class="exr-bar-amt">@Html.Amount(b.Amount, 0)</span>
+          <span class="exr-tip" role="tooltip">
+            Receivable · @b.Label<br>
+            <b>@Html.Amount(b.Amount, 2)</b>
+            <span>— @I(b.Share)% of receivables</span>
+          </span>
+        </div>
+        <div class="exr-bar-row" tabindex="0">
+          <span class="exr-bar-track"><span class="exr-bar-fill exr-mark-pay" style="width:@(Rd(pb.Width))%"></span></span>
+          <span class="exr-bar-amt">@Html.Amount(pb.Amount, 0)</span>
+          <span class="exr-tip" role="tooltip">
+            Payable · @pb.Label<br>
+            <b>@Html.Amount(pb.Amount, 2)</b>
+            <span>— @I(pb.Share)% of payables</span>
+          </span>
+        </div>
+      </div>
+      }
+      @if (recvAge.Buckets.Count == 0)
+      {
+      <div class="exr-pick-empty">No open balances to age.</div>
+      }
+
+      <div class="exr-facts">
+        <span class="exr-fact">Collection
+          <b>@(recvAge.Parties > 0 ? Py.RoundInt(recvAge.AvgDays).ToString() : "—")</b> days avg</span>
+        <span class="exr-fact">Payment
+          <b>@(payAge.Parties > 0 ? Py.RoundInt(payAge.AvgDays).ToString() : "—")</b> days avg</span>
+        @if (recvAge.OldestName.Length > 0)
+        {
+        <span class="exr-fact">Oldest receivable <b>@recvAge.OldestDays</b> days · @recvAge.OldestName</span>
+        }
+        @if (payAge.OldestName.Length > 0)
+        {
+        <span class="exr-fact">Oldest payable <b>@payAge.OldestDays</b> days · @payAge.OldestName</span>
+        }
+      </div>
+
+      <details class="exr-table-view">
+        <summary>Table view</summary>
+        <table class="exr-mini">
+          <thead>
+            <tr><th>Bucket</th><th class="num">Receivable</th><th class="num">%</th>
+                <th class="num">Payable</th><th class="num">%</th></tr>
+          </thead>
+          <tbody>
+            @for (int i = 0; i < recvAge.Buckets.Count; i++)
+            {
+                var b = recvAge.Buckets[i];
+                var pb = payAge.Buckets[i];
+            <tr>
+              <td>@b.Label</td>
+              <td class="num">@Html.Amount(b.Amount, 2)</td>
+              <td class="num">@I(b.Share)%</td>
+              <td class="num">@Html.Amount(pb.Amount, 2)</td>
+              <td class="num">@I(pb.Share)%</td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </details>
+    </section>
+
+    <section class="exr-chart" aria-label="Largest exposures">
+      <div class="exr-chart-head">
+        <h3 class="exr-chart-title">Largest exposures</h3>
+      </div>
+      <div class="exr-top-cols">
+        @foreach (var (sideTitle, top, noun, mark, empty) in new[]
+                 {
+                     ("Receivables", recvAge.Top, "receivables", "exr-mark-recv", "No open receivables."),
+                     ("Payables", payAge.Top, "payables", "exr-mark-pay", "No open payables."),
+                 })
+        {
+        <div class="exr-top-col">
+          <h4>@sideTitle@(top.Count > 0 ? $" · top {top.Count}" : "")</h4>
+          @foreach (var t in top)
+          {
+          <a class="exr-top-row" href="/executive/party/@t.AccountId">
+            <span class="exr-top-name">@t.Name</span>
+            <span class="exr-top-track"><span class="exr-top-fill @mark" style="width:@(Rd(t.Share))%"></span></span>
+            <span class="exr-top-amt">@Html.Amount(t.Amount, 0)<em>@I(t.Share)%</em></span>
+            <span class="exr-tip" role="tooltip">
+              @t.Name<br><b>@Html.Amount(t.Amount, 2)</b>
+              <span>— @I(t.Share)% of @noun</span>
+            </span>
+          </a>
+          }
+          @if (top.Count == 0)
+          {
+          <div class="exr-pick-empty">@empty</div>
+          }
+        </div>
+        }
+      </div>
+
+      @if (recvAge.Top.Count > 0 || payAge.Top.Count > 0)
+      {
+      <details class="exr-table-view">
+        <summary>Table view</summary>
+        <table class="exr-mini">
+          <thead>
+            <tr><th>Party</th><th>Side</th><th class="num">Amount</th><th class="num">Share</th></tr>
+          </thead>
+          <tbody>
+            @foreach (var t in recvAge.Top)
+            {
+            <tr><td>@t.Name</td><td>Receivable</td>
+                <td class="num">@Html.Amount(t.Amount, 2)</td>
+                <td class="num">@I(t.Share)%</td></tr>
+            }
+            @foreach (var t in payAge.Top)
+            {
+            <tr><td>@t.Name</td><td>Payable</td>
+                <td class="num">@Html.Amount(t.Amount, 2)</td>
+                <td class="num">@I(t.Share)%</td></tr>
+            }
+          </tbody>
+        </table>
+      </details>
+      }
+    </section>
+  </div>
+  }
+</div>

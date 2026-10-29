@@ -1,0 +1,4 @@
+{
+ "status": 200,
+ "body": "{\"results\":[{\"department\":\"Operations\",\"employee\":\"Max Manager\",\"id\":\"mgr\",\"present_days\":0,\"total_hours\":0.0},{\"department\":\"Operations\",\"employee\":\"Eli Employee\",\"id\":\"emp\",\"present_days\":3,\"total_hours\":12.75},{\"department\":\"Sales & Marketing\",\"employee\":\"Ema Employee\",\"id\":\"emp2\",\"present_days\":1,\"total_hours\":0.33},{\"department\":\"  \",\"employee\":\"Ned Nodept\",\"id\":\"emp3\",\"present_days\":0,\"total_hours\":0.0}]}\n"
+}

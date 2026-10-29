@@ -1,0 +1,2 @@
+@model (decimal Debit, decimal Credit)
+<tr data-total="1"><td colspan="3">TOTAL</td><td class="num">@Html.Amount(Model.Debit, 0)</td><td class="num">@Html.Amount(Model.Credit, 0)</td><td class="row-view no-print"></td></tr>

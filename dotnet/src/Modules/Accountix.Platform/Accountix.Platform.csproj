@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    <RootNamespace>Accountix.Platform</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Accountix.Core\Accountix.Core.csproj" />
+    <ProjectReference Include="..\..\Accountix.Web.Shared\Accountix.Web.Shared.csproj" />
+    <!-- Finished modules whose public engines Settings reuses: the invoice-template builder, the depreciation engine. -->
+    <ProjectReference Include="..\Accountix.Invoicing\Accountix.Invoicing.csproj" />
+    <ProjectReference Include="..\Accountix.FixedAssets\Accountix.FixedAssets.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Accountix.Platform.Tests" />
+  </ItemGroup>
+
+</Project>

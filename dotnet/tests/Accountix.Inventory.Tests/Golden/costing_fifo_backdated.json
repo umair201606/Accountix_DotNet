@@ -1,0 +1,175 @@
+{
+  "captured": "2026-10-29, Python app (Flask), before it was removed",
+  "capture": "Golden/capture/costing.py",
+  "inputs": {
+    "method": "fifo",
+    "neg": false,
+    "ops": [
+      {
+        "op": "in",
+        "vt": "PI",
+        "vid": 1,
+        "vn": "PI-00001",
+        "qty": "10",
+        "cost": "10",
+        "days": 30,
+        "total": null
+      },
+      {
+        "op": "in",
+        "vt": "PI",
+        "vid": 2,
+        "vn": "PI-00002",
+        "qty": "10",
+        "cost": "20",
+        "days": 25,
+        "total": null
+      },
+      {
+        "op": "out",
+        "vt": "SI",
+        "vid": 1,
+        "vn": "SI-00001",
+        "qty": "10",
+        "days": 20,
+        "unit": null,
+        "prefer": null
+      },
+      {
+        "op": "out",
+        "vt": "SI",
+        "vid": 2,
+        "vn": "SI-00002",
+        "qty": "10",
+        "days": 10,
+        "unit": null,
+        "prefer": null
+      },
+      {
+        "op": "rev",
+        "vt": "SI",
+        "vid": 1,
+        "allow": false
+      },
+      {
+        "op": "in",
+        "vt": "PI",
+        "vid": 3,
+        "vn": "PI-00003",
+        "qty": "5",
+        "cost": "8",
+        "days": 40,
+        "total": null
+      },
+      {
+        "op": "out",
+        "vt": "CONS",
+        "vid": 1,
+        "vn": "CONS-00001",
+        "qty": "3",
+        "days": 5,
+        "unit": null,
+        "prefer": null
+      },
+      {
+        "op": "out",
+        "vt": "SCRAP",
+        "vid": 1,
+        "vn": "SCRAP-00001",
+        "qty": "1.5",
+        "days": 4,
+        "unit": null,
+        "prefer": null
+      },
+      {
+        "op": "rev",
+        "vt": "PI",
+        "vid": 2,
+        "allow": true
+      },
+      {
+        "op": "in",
+        "vt": "PI",
+        "vid": 2,
+        "vn": "PI-00002",
+        "qty": "10",
+        "cost": "22",
+        "days": 25,
+        "total": null
+      },
+      {
+        "op": "out",
+        "vt": "SI",
+        "vid": 3,
+        "vn": "SI-00003",
+        "qty": "50",
+        "days": 2,
+        "unit": null,
+        "prefer": null
+      },
+      {
+        "op": "out",
+        "vt": "SI",
+        "vid": 4,
+        "vn": "SI-00004",
+        "qty": "2",
+        "days": 35,
+        "unit": null,
+        "prefer": null
+      },
+      {
+        "op": "rev",
+        "vt": "PI",
+        "vid": 3,
+        "allow": false
+      }
+    ]
+  },
+  "expected": [
+    "result 0 ok",
+    "result 1 ok",
+    "result 2 ok",
+    "result 3 ok",
+    "result 4 ok",
+    "result 5 ok",
+    "result 6 ok",
+    "result 7 ok",
+    "result 8 ok",
+    "result 9 ok",
+    "result 10 NegativeStockError: Cannot issue 50 of product P: only 10.5000 on hand. The uncovered 39.5000 unit(s) have no acquisition cost, so any value posted for them would be invented. Receive the stock first, or enable 'allow negative stock' in Inventory Settings.",
+    "result 11 ok",
+    "result 12 ConsumedLayerError: Cannot reverse PI #V+3: its stock has already been issued by SI SI-00004 (2.0000), SI SI-00002 (3.0000). Those issues posted a cost drawn from this receipt, and that posted cost cannot change. Reverse them first, then reverse this receipt.",
+    "row PI|1|PI-00001|IN|10.0000|10.0000|100.0000|13.0000|124.0000|9.5385|fifo|D-30|",
+    "row SI|2|SI-00002|OUT|10.0000|9.4000|94.0000|13.0000|250.0000|19.2308|fifo|D-10|",
+    "row PI|3|PI-00003|IN|5.0000|8.0000|40.0000|5.0000|40.0000|8.0000|fifo|D-40|",
+    "row CONS|1|CONS-00001|OUT|3.0000|10.0000|30.0000|10.0000|220.0000|22.0000|fifo|D-5|",
+    "row SCRAP|1|SCRAP-00001|OUT|1.5000|22.0000|33.0000|8.5000|187.0000|22.0000|fifo|D-4|",
+    "row PI|2|PI-00002|IN|10.0000|22.0000|220.0000|23.0000|344.0000|14.9565|fifo|D-25|",
+    "row SI|4|SI-00004|OUT|2.0000|8.0000|16.0000|3.0000|24.0000|8.0000|fifo|D-35|",
+    "layer 2|8.0000|5.0000|0.0000|0.0000|fifo|False|",
+    "layer 0|10.0000|10.0000|0.0000|0.0000|fifo|False|",
+    "layer 5|22.0000|10.0000|8.5000|187.0000|fifo|False|",
+    "consume 0|6|2.0000|8.0000|16.0000",
+    "consume 0|1|3.0000|8.0000|24.0000",
+    "consume 1|1|7.0000|10.0000|70.0000",
+    "consume 1|3|3.0000|10.0000|30.0000",
+    "consume 2|4|1.5000|22.0000|33.0000",
+    "adjust 1|SI|2|SI-00002|200.0000|100.0000|-100.0000|reversal of SI-00001|D-10|0",
+    "adjust 1|SI|2|SI-00002|100.0000|90.0000|-10.0000|PI-00003|D-10|1",
+    "adjust 1|SI|2|SI-00002|90.0000|94.0000|4.0000|SI-00004|D-10|2",
+    "adjust 4|SCRAP|1|SCRAP-00001|15.0000|33.0000|18.0000|SI-00004|D-4|3",
+    "journal CADJ-SI|2|CADJ-SI-00002|Inventory cost adjustment of SI-00002 — reversal of SI-00001|D-10|True",
+    "  line 1-01-04-01-0001|100.0000|0.0000|Cost adjustment SI-00002: 200.00 -> 100.00 (reversal of SI-00001)|None",
+    "  line 5-01-01-01-0001|0.0000|100.0000|Cost adjustment SI-00002: 200.00 -> 100.00 (reversal of SI-00001)|None",
+    "journal CADJ-SI|2|CADJ-SI-00002|Inventory cost adjustment of SI-00002 — PI-00003|D-10|True",
+    "  line 1-01-04-01-0001|10.0000|0.0000|Cost adjustment SI-00002: 100.00 -> 90.00 (PI-00003)|None",
+    "  line 5-01-01-01-0001|0.0000|10.0000|Cost adjustment SI-00002: 100.00 -> 90.00 (PI-00003)|None",
+    "journal CADJ-SI|2|CADJ-SI-00002|Inventory cost adjustment of SI-00002 — SI-00004|D-10|True",
+    "  line 5-01-01-01-0001|4.0000|0.0000|Cost adjustment SI-00002: 90.00 -> 94.00 (SI-00004)|None",
+    "  line 1-01-04-01-0001|0.0000|4.0000|Cost adjustment SI-00002: 90.00 -> 94.00 (SI-00004)|None",
+    "journal CADJ-SCRAP|1|CADJ-SCRAP-00001|Inventory cost adjustment of SCRAP-00001 — SI-00004|D-4|True",
+    "  line 5-01-02-01-0001|18.0000|0.0000|Cost adjustment SCRAP-00001: 15.00 -> 33.00 (SI-00004)|None",
+    "  line 1-01-04-01-0001|0.0000|18.0000|Cost adjustment SCRAP-00001: 15.00 -> 33.00 (SI-00004)|None",
+    "product 8.5000|22.0000"
+  ]
+}

@@ -1,0 +1,2438 @@
+{
+ "captured": "2026-10-29",
+ "steps": {
+  "S01": {
+   "status": [
+    302,
+    302
+   ],
+   "settings": [
+    [
+     "0.000000",
+     "600000.000000",
+     "0.000000",
+     "0.000000",
+     "true"
+    ],
+    [
+     "600000.000000",
+     "1200000.000000",
+     "1.000000",
+     "0.000000",
+     "true"
+    ],
+    [
+     "1200000.000000",
+     "2200000.000000",
+     "11.000000",
+     "6000.000000",
+     "true"
+    ],
+    [
+     "2200000.000000",
+     "3200000.000000",
+     "23.000000",
+     "116000.000000",
+     "true"
+    ],
+    [
+     "3200000.000000",
+     "4100000.000000",
+     "30.000000",
+     "346000.000000",
+     "true"
+    ],
+    [
+     "4100000.000000",
+     "999999999.000000",
+     "35.000000",
+     "616000.000000",
+     "true"
+    ],
+    [
+     "1.500000",
+     "160.000000",
+     "true",
+     "37000.000000",
+     "1.000000",
+     "5.000000",
+     "10000000.000000",
+     "9.000000",
+     "true",
+     "gross",
+     "30.000000",
+     "true"
+    ]
+   ]
+  },
+  "S02": {
+   "status": [
+    302
+   ],
+   "slips": [
+    [
+     "2967",
+     "150000.000000",
+     "79218.750000",
+     "25140.310000",
+     "229218.750000",
+     "25140.310000",
+     "204078.440000",
+     "214218.750000",
+     "{\"allowances\": {\"House Rent\": 60000.0, \"Medical\": 15000.0, \"Overtime\": 4218.75}, \"deductions\": {\"Welfare fund\": 500.0, \"Income Tax\": 16770.31, \"PF Employee\": 7500.0, \"EOBI (employee)\": 370.0}}"
+    ],
+    [
+     "2969",
+     "260000.000000",
+     "117000.000000",
+     "77070.000000",
+     "377000.000000",
+     "77070.000000",
+     "299930.000000",
+     "377000.000000",
+     "{\"allowances\": {\"House Rent\": 117000.0}, \"deductions\": {\"Income Tax\": 63700.0, \"PF Employee\": 13000.0, \"EOBI (employee)\": 370.0}}"
+    ],
+    [
+     "2970",
+     "45000.000000",
+     "0.000000",
+     "45000.000000",
+     "45000.000000",
+     "45000.000000",
+     "0.000000",
+     "45000.000000",
+     "{\"allowances\": {}, \"deductions\": {\"Income Tax\": 0.0, \"PF Employee\": 2250.0, \"EOBI (employee)\": 370.0, \"Loan Repayment\": 42380.0}}"
+    ],
+    [
+     "2971",
+     "113225.810000",
+     "8491.940000",
+     "9633.650000",
+     "121717.750000",
+     "9633.650000",
+     "112084.100000",
+     "121717.750000",
+     "{\"allowances\": {\"Utilities\": 8491.94}, \"deductions\": {\"Income Tax\": 3623.25, \"PF Employee\": 5661.29, \"EOBI (employee)\": 349.11}, \"info\": {\"Days in month\": 31, \"Paid days\": 29.25, \"Unpaid leave days\": 1.75}}"
+    ]
+   ],
+   "run": [
+    [
+     "completed",
+     "4",
+     "772936.500000",
+     "156843.960000",
+     "616092.540000",
+     "false"
+    ]
+   ],
+   "journal": [
+    [
+     "PRL",
+     "PRL-202507",
+     "Payroll Run 7/2025",
+     "2025-07-31 00:00:00",
+     "Salary Expense",
+     "5-02-01-01-0001",
+     "772936.5000",
+     "0.0000",
+     "Gross salary 7/2025"
+    ],
+    [
+     "PRL",
+     "PRL-202507",
+     "Payroll Run 7/2025",
+     "2025-07-31 00:00:00",
+     "Income Tax Payable",
+     "2-01-03-02-0001",
+     "0.0000",
+     "84093.5600",
+     "Income tax deducted"
+    ],
+    [
+     "PRL",
+     "PRL-202507",
+     "Payroll Run 7/2025",
+     "2025-07-31 00:00:00",
+     "PF Payable",
+     "2-01-02-02-0002",
+     "0.0000",
+     "28411.2900",
+     "PF employee contribution"
+    ],
+    [
+     "PRL",
+     "PRL-202507",
+     "Payroll Run 7/2025",
+     "2025-07-31 00:00:00",
+     "Advance #353 - Laila Borrower",
+     "ENTITY",
+     "0.0000",
+     "42380.0000",
+     "Loan #353 instalment"
+    ],
+    [
+     "PRL",
+     "PRL-202507",
+     "Payroll Run 7/2025",
+     "2025-07-31 00:00:00",
+     "Other Payroll Deductions Payable",
+     "2-01-02-02-0004",
+     "0.0000",
+     "500.0000",
+     "Other payroll deductions"
+    ],
+    [
+     "PRL",
+     "PRL-202507",
+     "Payroll Run 7/2025",
+     "2025-07-31 00:00:00",
+     "EOBI Payable",
+     "2-01-02-03-0002",
+     "0.0000",
+     "1459.1100",
+     "EOBI employee contribution"
+    ],
+    [
+     "PRL",
+     "PRL-202507",
+     "Payroll Run 7/2025",
+     "2025-07-31 00:00:00",
+     "Salary Payable",
+     "2-01-02-02-0001",
+     "0.0000",
+     "616092.5400",
+     "Net salary payable"
+    ],
+    [
+     "PRL",
+     "PRL-202507-PF",
+     "PF Employer Contribution 7/2025",
+     "2025-07-31 00:00:00",
+     "PF Employer Expense",
+     "5-02-01-01-0002",
+     "28411.2900",
+     "0.0000",
+     "PF employer contribution 7/2025"
+    ],
+    [
+     "PRL",
+     "PRL-202507-PF",
+     "PF Employer Contribution 7/2025",
+     "2025-07-31 00:00:00",
+     "PF Payable",
+     "2-01-02-02-0002",
+     "0.0000",
+     "28411.2900",
+     "PF employer contribution"
+    ],
+    [
+     "PRL",
+     "PRL-202507-EOBI",
+     "EOBI Employer Contribution 7/2025",
+     "2025-07-31 00:00:00",
+     "EOBI Employer Expense",
+     "5-04-01-01-0003",
+     "7295.5600",
+     "0.0000",
+     "EOBI employer 7/2025"
+    ],
+    [
+     "PRL",
+     "PRL-202507-EOBI",
+     "EOBI Employer Contribution 7/2025",
+     "2025-07-31 00:00:00",
+     "EOBI Payable",
+     "2-01-02-03-0002",
+     "0.0000",
+     "7295.5600",
+     "EOBI employer contribution"
+    ]
+   ]
+  },
+  "S03": {
+   "status": [
+    200
+   ],
+   "preview": "{\"employees\":[{\"active_loans\":[],\"allowances_breakdown\":{\"House Rent\":60000.0,\"Medical\":15000.0},\"allowances_total\":75000.0,\"basic\":150000.0,\"bonus\":0.0,\"component_deductions\":500.0,\"components\":{\"allowances\":{\"House Rent\":60000.0,\"Medical\":15000.0},\"deductions\":{\"Additional Deduction\":333.33,\"EOBI (employee)\":370.0,\"Income Tax\":15800.0,\"PF Employee\":7500.0,\"Welfare fund\":500.0}},\"custom_ded\":333.33,\"deductions_breakdown\":{\"Additional Deduction\":333.33,\"EOBI (employee)\":370.0,\"Income Tax\":15800.0,\"PF Employee\":7500.0,\"Welfare fund\":500.0},\"deductions_total\":24503.33,\"designation\":\"\",\"eobi_employee\":370.0,\"eobi_employer\":1850.0,\"gross\":225000.0,\"loan_deduction\":0.0,\"loans\":[],\"monthly_tax\":15800.0,\"name\":\"Admin ba4ec99b\",\"net\":200496.67,\"ot_pay\":0.0,\"paid_days\":31.0,\"pf_employee\":7500.0,\"pf_employer\":7500.0,\"pf_loan_deduction\":0.0,\"pf_loans\":[],\"settlement\":{},\"taxable\":210000.0,\"unpaid_days\":0.0,\"user_id\":2967},{\"active_loans\":[],\"allowances_breakdown\":{\"Bonus\":12345.67,\"Conveyance\":2509.26,\"Overtime\":6140.62},\"allowances_total\":20995.55,\"basic\":50709.68,\"bonus\":12345.67,\"component_deductions\":0.0,\"components\":{\"allowances\":{\"Bonus\":12345.67,\"Conveyance\":2509.26,\"Overtime\":6140.62},\"deductions\":{\"EOBI (employee)\":214.84,\"Income Tax\":521.02,\"PF Employee\":2535.48},\"info\":{\"Days in month\":31,\"Paid days\":18.0,\"Unpaid leave days\":2.0}},\"custom_ded\":0.0,\"deductions_breakdown\":{\"EOBI (employee)\":214.84,\"Income Tax\":521.02,\"PF Employee\":2535.48},\"deductions_total\":3271.34,\"designation\":\"\",\"eobi_employee\":214.84,\"eobi_employer\":1074.19,\"gross\":71705.23,\"loan_deduction\":0.0,\"loans\":[],\"monthly_tax\":521.02,\"name\":\"Bina Joiner\",\"net\":68433.89,\"ot_pay\":6140.62,\"paid_days\":18.0,\"pf_employee\":2535.48,\"pf_employer\":2535.48,\"pf_loan_deduction\":0.0,\"pf_loans\":[],\"settlement\":{},\"taxable\":71705.23,\"unpaid_days\":2.0,\"user_id\":2968},{\"active_loans\":[],\"allowances_breakdown\":{\"Gratuity\":5655000.0,\"House Rent\":83032.26,\"Leave encashment\":65000.0},\"allowances_total\":5803032.26,\"basic\":184516.13,\"bonus\":0.0,\"component_deductions\":0.0,\"components\":{\"allowances\":{\"Gratuity\":5655000.0,\"House Rent\":83032.26,\"Leave encashment\":65000.0},\"deductions\":{\"EOBI (employee)\":262.58,\"Income Tax\":2307745.72,\"PF Employee\":9225.81},\"info\":{\"Days in month\":31,\"Paid days\":22.0,\"Unpaid leave days\":0.0}},\"custom_ded\":0.0,\"deductions_breakdown\":{\"EOBI (employee)\":262.58,\"Income Tax\":2307745.72,\"PF Employee\":9225.81},\"deductions_total\":2317234.11,\"designation\":\"\",\"eobi_employee\":262.58,\"eobi_employer\":1312.9,\"gross\":5987548.39,\"loan_deduction\":0.0,\"loans\":[],\"monthly_tax\":2307745.72,\"name\":\"Kamal Leaver\",\"net\":3670314.28,\"ot_pay\":0.0,\"paid_days\":22.0,\"pf_employee\":9225.81,\"pf_employer\":9225.81,\"pf_loan_deduction\":0.0,\"pf_loans\":[],\"settlement\":{\"Gratuity\":5655000.0,\"Leave encashment\":65000.0},\"taxable\":5987548.39,\"unpaid_days\":0.0,\"user_id\":2969},{\"active_loans\":[{\"id\":353,\"monthly_installment\":50000.0,\"remaining_amount\":57620.0}],\"allowances_breakdown\":{},\"allowances_total\":0.0,\"basic\":45000.0,\"bonus\":0.0,\"component_deductions\":0.0,\"components\":{\"allowances\":{},\"deductions\":{\"EOBI (employee)\":370.0,\"Income Tax\":0.0,\"Loan Repayment\":42380.0,\"PF Employee\":2250.0}},\"custom_ded\":0.0,\"deductions_breakdown\":{\"EOBI (employee)\":370.0,\"Income Tax\":0.0,\"Loan Repayment\":42380.0,\"PF Employee\":2250.0},\"deductions_total\":45000.0,\"designation\":\"\",\"eobi_employee\":370.0,\"eobi_employer\":1850.0,\"gross\":45000.0,\"loan_deduction\":42380.0,\"loans\":[{\"amount\":42380.0,\"id\":353}],\"monthly_tax\":0.0,\"name\":\"Laila Borrower\",\"net\":0.0,\"ot_pay\":0.0,\"paid_days\":31.0,\"pf_employee\":2250.0,\"pf_employer\":2250.0,\"pf_loan_deduction\":0.0,\"pf_loans\":[],\"settlement\":{},\"taxable\":45000.0,\"unpaid_days\":0.0,\"user_id\":2970},{\"active_loans\":[],\"allowances_breakdown\":{\"Utilities\":9039.81},\"allowances_total\":9039.81,\"basic\":120530.7,\"bonus\":0.0,\"component_deductions\":0.0,\"components\":{\"allowances\":{\"Utilities\":9039.81},\"deductions\":{\"EOBI (employee)\":349.11,\"Income Tax\":7777.78,\"PF Employee\":6026.53},\"info\":{\"Days in month\":31,\"Paid days\":29.25,\"Unpaid leave days\":1.75}},\"custom_ded\":0.0,\"deductions_breakdown\":{\"EOBI (employee)\":349.11,\"Income Tax\":7777.78,\"PF Employee\":6026.53},\"deductions_total\":14153.42,\"designation\":\"\",\"eobi_employee\":349.11,\"eobi_employer\":1745.56,\"gross\":129570.51,\"loan_deduction\":0.0,\"loans\":[],\"monthly_tax\":7777.78,\"name\":\"Raza Raised\",\"net\":115417.09,\"ot_pay\":0.0,\"paid_days\":29.25,\"pf_employee\":6026.53,\"pf_employer\":6026.53,\"pf_loan_deduction\":0.0,\"pf_loans\":[],\"settlement\":{},\"taxable\":129570.51,\"unpaid_days\":1.75,\"user_id\":2971}]}\n"
+  },
+  "S04": {
+   "status": [
+    302
+   ],
+   "slips": [
+    [
+     "2967",
+     "150000.000000",
+     "75000.000000",
+     "24503.330000",
+     "225000.000000",
+     "24503.330000",
+     "200496.670000",
+     "210000.000000",
+     "{\"allowances\": {\"House Rent\": 60000.0, \"Medical\": 15000.0}, \"deductions\": {\"Welfare fund\": 500.0, \"Income Tax\": 15800.0, \"PF Employee\": 7500.0, \"EOBI (employee)\": 370.0, \"Additional Deduction\": 333.33}}"
+    ],
+    [
+     "2968",
+     "50709.680000",
+     "20995.550000",
+     "3271.340000",
+     "71705.230000",
+     "3271.340000",
+     "68433.890000",
+     "71705.230000",
+     "{\"allowances\": {\"Conveyance\": 2509.26, \"Overtime\": 6140.62, \"Bonus\": 12345.67}, \"deductions\": {\"Income Tax\": 521.02, \"PF Employee\": 2535.48, \"EOBI (employee)\": 214.84}, \"info\": {\"Days in month\": 31, \"Paid days\": 18.0, \"Unpaid leave days\": 2.0}}"
+    ],
+    [
+     "2969",
+     "184516.130000",
+     "5803032.260000",
+     "2317234.110000",
+     "5987548.390000",
+     "2317234.110000",
+     "3670314.280000",
+     "5987548.390000",
+     "{\"allowances\": {\"House Rent\": 83032.26, \"Gratuity\": 5655000.0, \"Leave encashment\": 65000.0}, \"deductions\": {\"Income Tax\": 2307745.72, \"PF Employee\": 9225.81, \"EOBI (employee)\": 262.58}, \"info\": {\"Days in month\": 31, \"Paid days\": 22.0, \"Unpaid leave days\": 0.0}}"
+    ],
+    [
+     "2970",
+     "45000.000000",
+     "0.000000",
+     "45000.000000",
+     "45000.000000",
+     "45000.000000",
+     "0.000000",
+     "45000.000000",
+     "{\"allowances\": {}, \"deductions\": {\"Income Tax\": 0.0, \"PF Employee\": 2250.0, \"EOBI (employee)\": 370.0, \"Loan Repayment\": 42380.0}}"
+    ],
+    [
+     "2971",
+     "120530.700000",
+     "9039.810000",
+     "14153.420000",
+     "129570.510000",
+     "14153.420000",
+     "115417.090000",
+     "129570.510000",
+     "{\"allowances\": {\"Utilities\": 9039.81}, \"deductions\": {\"Income Tax\": 7777.78, \"PF Employee\": 6026.53, \"EOBI (employee)\": 349.11}, \"info\": {\"Days in month\": 31, \"Paid days\": 29.25, \"Unpaid leave days\": 1.75}}"
+    ]
+   ],
+   "run": [
+    [
+     "completed",
+     "5",
+     "6458824.130000",
+     "2404162.200000",
+     "4054661.930000",
+     "false"
+    ]
+   ],
+   "journal": [
+    [
+     "PRL",
+     "PRL-202507",
+     "Payroll Run 7/2025",
+     "2025-07-31 00:00:00",
+     "Salary Expense",
+     "5-02-01-01-0001",
+     "772936.5000",
+     "0.0000",
+     "Gross salary 7/2025"
+    ],
+    [
+     "PRL",
+     "PRL-202507",
+     "Payroll Run 7/2025",
+     "2025-07-31 00:00:00",
+     "Income Tax Payable",
+     "2-01-03-02-0001",
+     "0.0000",
+     "84093.5600",
+     "Income tax deducted"
+    ],
+    [
+     "PRL",
+     "PRL-202507",
+     "Payroll Run 7/2025",
+     "2025-07-31 00:00:00",
+     "PF Payable",
+     "2-01-02-02-0002",
+     "0.0000",
+     "28411.2900",
+     "PF employee contribution"
+    ],
+    [
+     "PRL",
+     "PRL-202507",
+     "Payroll Run 7/2025",
+     "2025-07-31 00:00:00",
+     "Advance #353 - Laila Borrower",
+     "ENTITY",
+     "0.0000",
+     "42380.0000",
+     "Loan #353 instalment"
+    ],
+    [
+     "PRL",
+     "PRL-202507",
+     "Payroll Run 7/2025",
+     "2025-07-31 00:00:00",
+     "Other Payroll Deductions Payable",
+     "2-01-02-02-0004",
+     "0.0000",
+     "500.0000",
+     "Other payroll deductions"
+    ],
+    [
+     "PRL",
+     "PRL-202507",
+     "Payroll Run 7/2025",
+     "2025-07-31 00:00:00",
+     "EOBI Payable",
+     "2-01-02-03-0002",
+     "0.0000",
+     "1459.1100",
+     "EOBI employee contribution"
+    ],
+    [
+     "PRL",
+     "PRL-202507",
+     "Payroll Run 7/2025",
+     "2025-07-31 00:00:00",
+     "Salary Payable",
+     "2-01-02-02-0001",
+     "0.0000",
+     "616092.5400",
+     "Net salary payable"
+    ],
+    [
+     "PRL",
+     "PRL-202507-PF",
+     "PF Employer Contribution 7/2025",
+     "2025-07-31 00:00:00",
+     "PF Employer Expense",
+     "5-02-01-01-0002",
+     "28411.2900",
+     "0.0000",
+     "PF employer contribution 7/2025"
+    ],
+    [
+     "PRL",
+     "PRL-202507-PF",
+     "PF Employer Contribution 7/2025",
+     "2025-07-31 00:00:00",
+     "PF Payable",
+     "2-01-02-02-0002",
+     "0.0000",
+     "28411.2900",
+     "PF employer contribution"
+    ],
+    [
+     "PRL",
+     "PRL-202507-EOBI",
+     "EOBI Employer Contribution 7/2025",
+     "2025-07-31 00:00:00",
+     "EOBI Employer Expense",
+     "5-04-01-01-0003",
+     "7295.5600",
+     "0.0000",
+     "EOBI employer 7/2025"
+    ],
+    [
+     "PRL",
+     "PRL-202507-EOBI",
+     "EOBI Employer Contribution 7/2025",
+     "2025-07-31 00:00:00",
+     "EOBI Payable",
+     "2-01-02-03-0002",
+     "0.0000",
+     "7295.5600",
+     "EOBI employer contribution"
+    ],
+    [
+     "PRL",
+     "PRL-202508",
+     "Payroll Run 8/2025",
+     "2025-08-31 00:00:00",
+     "Salary Expense",
+     "5-02-01-01-0001",
+     "738824.1300",
+     "0.0000",
+     "Gross salary 8/2025"
+    ],
+    [
+     "PRL",
+     "PRL-202508",
+     "Payroll Run 8/2025",
+     "2025-08-31 00:00:00",
+     "Gratuity Expense",
+     "5-04-01-01-0004",
+     "5655000.0000",
+     "0.0000",
+     "Gratuity on leaving 8/2025"
+    ],
+    [
+     "PRL",
+     "PRL-202508",
+     "Payroll Run 8/2025",
+     "2025-08-31 00:00:00",
+     "Leave Encashment Expense",
+     "5-04-01-01-0005",
+     "65000.0000",
+     "0.0000",
+     "Leave encashment on leaving 8/2025"
+    ],
+    [
+     "PRL",
+     "PRL-202508",
+     "Payroll Run 8/2025",
+     "2025-08-31 00:00:00",
+     "Income Tax Payable",
+     "2-01-03-02-0001",
+     "0.0000",
+     "2331844.5200",
+     "Income tax deducted"
+    ],
+    [
+     "PRL",
+     "PRL-202508",
+     "Payroll Run 8/2025",
+     "2025-08-31 00:00:00",
+     "PF Payable",
+     "2-01-02-02-0002",
+     "0.0000",
+     "27537.8200",
+     "PF employee contribution"
+    ],
+    [
+     "PRL",
+     "PRL-202508",
+     "Payroll Run 8/2025",
+     "2025-08-31 00:00:00",
+     "Advance #353 - Laila Borrower",
+     "ENTITY",
+     "0.0000",
+     "42380.0000",
+     "Loan #353 instalment"
+    ],
+    [
+     "PRL",
+     "PRL-202508",
+     "Payroll Run 8/2025",
+     "2025-08-31 00:00:00",
+     "Other Payroll Deductions Payable",
+     "2-01-02-02-0004",
+     "0.0000",
+     "833.3300",
+     "Other payroll deductions"
+    ],
+    [
+     "PRL",
+     "PRL-202508",
+     "Payroll Run 8/2025",
+     "2025-08-31 00:00:00",
+     "EOBI Payable",
+     "2-01-02-03-0002",
+     "0.0000",
+     "1566.5300",
+     "EOBI employee contribution"
+    ],
+    [
+     "PRL",
+     "PRL-202508",
+     "Payroll Run 8/2025",
+     "2025-08-31 00:00:00",
+     "Salary Payable",
+     "2-01-02-02-0001",
+     "0.0000",
+     "4054661.9300",
+     "Net salary payable"
+    ],
+    [
+     "PRL",
+     "PRL-202508-PF",
+     "PF Employer Contribution 8/2025",
+     "2025-08-31 00:00:00",
+     "PF Employer Expense",
+     "5-02-01-01-0002",
+     "27537.8200",
+     "0.0000",
+     "PF employer contribution 8/2025"
+    ],
+    [
+     "PRL",
+     "PRL-202508-PF",
+     "PF Employer Contribution 8/2025",
+     "2025-08-31 00:00:00",
+     "PF Payable",
+     "2-01-02-02-0002",
+     "0.0000",
+     "27537.8200",
+     "PF employer contribution"
+    ],
+    [
+     "PRL",
+     "PRL-202508-EOBI",
+     "EOBI Employer Contribution 8/2025",
+     "2025-08-31 00:00:00",
+     "EOBI Employer Expense",
+     "5-04-01-01-0003",
+     "7832.6500",
+     "0.0000",
+     "EOBI employer 8/2025"
+    ],
+    [
+     "PRL",
+     "PRL-202508-EOBI",
+     "EOBI Employer Contribution 8/2025",
+     "2025-08-31 00:00:00",
+     "EOBI Payable",
+     "2-01-02-03-0002",
+     "0.0000",
+     "7832.6500",
+     "EOBI employer contribution"
+    ]
+   ],
+   "side": {
+    "pf_ledger": [
+     [
+      "2967",
+      "2025-07-31",
+      "contribution",
+      "PF contribution 7/2025",
+      "15000.000000",
+      "0.000000",
+      "true",
+      "false"
+     ],
+     [
+      "2969",
+      "2025-07-31",
+      "contribution",
+      "PF contribution 7/2025",
+      "26000.000000",
+      "0.000000",
+      "true",
+      "false"
+     ],
+     [
+      "2970",
+      "2025-07-31",
+      "contribution",
+      "PF contribution 7/2025",
+      "4500.000000",
+      "0.000000",
+      "true",
+      "false"
+     ],
+     [
+      "2971",
+      "2025-07-31",
+      "contribution",
+      "PF contribution 7/2025",
+      "11322.580000",
+      "0.000000",
+      "true",
+      "false"
+     ],
+     [
+      "2967",
+      "2025-08-31",
+      "contribution",
+      "PF contribution 8/2025",
+      "15000.000000",
+      "0.000000",
+      "true",
+      "false"
+     ],
+     [
+      "2968",
+      "2025-08-31",
+      "contribution",
+      "PF contribution 8/2025",
+      "5070.960000",
+      "0.000000",
+      "true",
+      "false"
+     ],
+     [
+      "2969",
+      "2025-08-31",
+      "contribution",
+      "PF contribution 8/2025",
+      "18451.620000",
+      "0.000000",
+      "true",
+      "false"
+     ],
+     [
+      "2970",
+      "2025-08-31",
+      "contribution",
+      "PF contribution 8/2025",
+      "4500.000000",
+      "0.000000",
+      "true",
+      "false"
+     ],
+     [
+      "2971",
+      "2025-08-31",
+      "contribution",
+      "PF contribution 8/2025",
+      "12053.060000",
+      "0.000000",
+      "true",
+      "false"
+     ]
+    ],
+    "pf_contributions": [
+     [
+      "2967",
+      "7",
+      "2025",
+      "7500.000000",
+      "7500.000000",
+      "15000.000000"
+     ],
+     [
+      "2969",
+      "7",
+      "2025",
+      "13000.000000",
+      "13000.000000",
+      "26000.000000"
+     ],
+     [
+      "2970",
+      "7",
+      "2025",
+      "2250.000000",
+      "2250.000000",
+      "4500.000000"
+     ],
+     [
+      "2971",
+      "7",
+      "2025",
+      "5661.290000",
+      "5661.290000",
+      "11322.580000"
+     ],
+     [
+      "2967",
+      "8",
+      "2025",
+      "7500.000000",
+      "7500.000000",
+      "15000.000000"
+     ],
+     [
+      "2968",
+      "8",
+      "2025",
+      "2535.480000",
+      "2535.480000",
+      "5070.960000"
+     ],
+     [
+      "2969",
+      "8",
+      "2025",
+      "9225.810000",
+      "9225.810000",
+      "18451.620000"
+     ],
+     [
+      "2970",
+      "8",
+      "2025",
+      "2250.000000",
+      "2250.000000",
+      "4500.000000"
+     ],
+     [
+      "2971",
+      "8",
+      "2025",
+      "6026.530000",
+      "6026.530000",
+      "12053.060000"
+     ]
+    ],
+    "loan_repayments": [
+     [
+      "42380.000000",
+      "Deducted via payroll 7/2025",
+      "true"
+     ],
+     [
+      "42380.000000",
+      "Deducted via payroll 8/2025",
+      "true"
+     ]
+    ],
+    "loans": [
+     [
+      "2970",
+      "advance",
+      "approved",
+      "15240.000000",
+      "true",
+      null
+     ]
+    ],
+    "pf_loans": [
+     [
+      "2970",
+      "approved",
+      "9000.000000",
+      "3000.000000"
+     ]
+    ],
+    "notifications": [
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 7/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 7/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 7/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 7/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 8/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 8/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 8/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 8/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 8/2025 is available.",
+      "info",
+      "compensation"
+     ]
+    ]
+   }
+  },
+  "S05": {
+   "status": [
+    302,
+    302
+   ],
+   "journal_pay": [
+    [
+     "PRL-PAY",
+     "PRL-PAY-202508",
+     "Salaries paid 8/2025",
+     "2025-09-01 00:00:00",
+     "Salary Payable",
+     "2-01-02-02-0001",
+     "4054661.9300",
+     "0.0000",
+     "Net salaries 8/2025"
+    ],
+    [
+     "PRL-PAY",
+     "PRL-PAY-202508",
+     "Salaries paid 8/2025",
+     "2025-09-01 00:00:00",
+     "Main Cash",
+     "1-01-01-01-0001",
+     "0.0000",
+     "4054661.9300",
+     "Salaries paid 8/2025"
+    ]
+   ],
+   "run": [
+    [
+     "paid",
+     "5",
+     "6458824.130000",
+     "2404162.200000",
+     "4054661.930000",
+     "true"
+    ]
+   ],
+   "slips": [
+    [
+     "2967",
+     "150000.000000",
+     "79218.750000",
+     "25140.310000",
+     "229218.750000",
+     "25140.310000",
+     "204078.440000",
+     "214218.750000",
+     "{\"allowances\": {\"House Rent\": 60000.0, \"Medical\": 15000.0, \"Overtime\": 4218.75}, \"deductions\": {\"Welfare fund\": 500.0, \"Income Tax\": 16770.31, \"PF Employee\": 7500.0, \"EOBI (employee)\": 370.0}}"
+    ],
+    [
+     "2969",
+     "260000.000000",
+     "117000.000000",
+     "77070.000000",
+     "377000.000000",
+     "77070.000000",
+     "299930.000000",
+     "377000.000000",
+     "{\"allowances\": {\"House Rent\": 117000.0}, \"deductions\": {\"Income Tax\": 63700.0, \"PF Employee\": 13000.0, \"EOBI (employee)\": 370.0}}"
+    ],
+    [
+     "2970",
+     "45000.000000",
+     "0.000000",
+     "45000.000000",
+     "45000.000000",
+     "45000.000000",
+     "0.000000",
+     "45000.000000",
+     "{\"allowances\": {}, \"deductions\": {\"Income Tax\": 0.0, \"PF Employee\": 2250.0, \"EOBI (employee)\": 370.0, \"Loan Repayment\": 42380.0}}"
+    ],
+    [
+     "2971",
+     "113225.810000",
+     "8491.940000",
+     "9633.650000",
+     "121717.750000",
+     "9633.650000",
+     "112084.100000",
+     "121717.750000",
+     "{\"allowances\": {\"Utilities\": 8491.94}, \"deductions\": {\"Income Tax\": 3623.25, \"PF Employee\": 5661.29, \"EOBI (employee)\": 349.11}, \"info\": {\"Days in month\": 31, \"Paid days\": 29.25, \"Unpaid leave days\": 1.75}}"
+    ]
+   ],
+   "journal": [
+    [
+     "PRL",
+     "PRL-202508",
+     "Payroll Run 8/2025",
+     "2025-08-31 00:00:00",
+     "Salary Expense",
+     "5-02-01-01-0001",
+     "738824.1300",
+     "0.0000",
+     "Gross salary 8/2025"
+    ],
+    [
+     "PRL",
+     "PRL-202508",
+     "Payroll Run 8/2025",
+     "2025-08-31 00:00:00",
+     "Gratuity Expense",
+     "5-04-01-01-0004",
+     "5655000.0000",
+     "0.0000",
+     "Gratuity on leaving 8/2025"
+    ],
+    [
+     "PRL",
+     "PRL-202508",
+     "Payroll Run 8/2025",
+     "2025-08-31 00:00:00",
+     "Leave Encashment Expense",
+     "5-04-01-01-0005",
+     "65000.0000",
+     "0.0000",
+     "Leave encashment on leaving 8/2025"
+    ],
+    [
+     "PRL",
+     "PRL-202508",
+     "Payroll Run 8/2025",
+     "2025-08-31 00:00:00",
+     "Income Tax Payable",
+     "2-01-03-02-0001",
+     "0.0000",
+     "2331844.5200",
+     "Income tax deducted"
+    ],
+    [
+     "PRL",
+     "PRL-202508",
+     "Payroll Run 8/2025",
+     "2025-08-31 00:00:00",
+     "PF Payable",
+     "2-01-02-02-0002",
+     "0.0000",
+     "27537.8200",
+     "PF employee contribution"
+    ],
+    [
+     "PRL",
+     "PRL-202508",
+     "Payroll Run 8/2025",
+     "2025-08-31 00:00:00",
+     "Advance #353 - Laila Borrower",
+     "ENTITY",
+     "0.0000",
+     "42380.0000",
+     "Loan #353 instalment"
+    ],
+    [
+     "PRL",
+     "PRL-202508",
+     "Payroll Run 8/2025",
+     "2025-08-31 00:00:00",
+     "Other Payroll Deductions Payable",
+     "2-01-02-02-0004",
+     "0.0000",
+     "833.3300",
+     "Other payroll deductions"
+    ],
+    [
+     "PRL",
+     "PRL-202508",
+     "Payroll Run 8/2025",
+     "2025-08-31 00:00:00",
+     "EOBI Payable",
+     "2-01-02-03-0002",
+     "0.0000",
+     "1566.5300",
+     "EOBI employee contribution"
+    ],
+    [
+     "PRL",
+     "PRL-202508",
+     "Payroll Run 8/2025",
+     "2025-08-31 00:00:00",
+     "Salary Payable",
+     "2-01-02-02-0001",
+     "0.0000",
+     "4054661.9300",
+     "Net salary payable"
+    ],
+    [
+     "PRL",
+     "PRL-202508-PF",
+     "PF Employer Contribution 8/2025",
+     "2025-08-31 00:00:00",
+     "PF Employer Expense",
+     "5-02-01-01-0002",
+     "27537.8200",
+     "0.0000",
+     "PF employer contribution 8/2025"
+    ],
+    [
+     "PRL",
+     "PRL-202508-PF",
+     "PF Employer Contribution 8/2025",
+     "2025-08-31 00:00:00",
+     "PF Payable",
+     "2-01-02-02-0002",
+     "0.0000",
+     "27537.8200",
+     "PF employer contribution"
+    ],
+    [
+     "PRL",
+     "PRL-202508-EOBI",
+     "EOBI Employer Contribution 8/2025",
+     "2025-08-31 00:00:00",
+     "EOBI Employer Expense",
+     "5-04-01-01-0003",
+     "7832.6500",
+     "0.0000",
+     "EOBI employer 8/2025"
+    ],
+    [
+     "PRL",
+     "PRL-202508-EOBI",
+     "EOBI Employer Contribution 8/2025",
+     "2025-08-31 00:00:00",
+     "EOBI Payable",
+     "2-01-02-03-0002",
+     "0.0000",
+     "7832.6500",
+     "EOBI employer contribution"
+    ],
+    [
+     "PRL",
+     "PRL-202507",
+     "Payroll Run 7/2025",
+     "2025-07-31 00:00:00",
+     "Salary Expense",
+     "5-02-01-01-0001",
+     "772936.5000",
+     "0.0000",
+     "Gross salary 7/2025"
+    ],
+    [
+     "PRL",
+     "PRL-202507",
+     "Payroll Run 7/2025",
+     "2025-07-31 00:00:00",
+     "Income Tax Payable",
+     "2-01-03-02-0001",
+     "0.0000",
+     "84093.5600",
+     "Income tax deducted"
+    ],
+    [
+     "PRL",
+     "PRL-202507",
+     "Payroll Run 7/2025",
+     "2025-07-31 00:00:00",
+     "PF Payable",
+     "2-01-02-02-0002",
+     "0.0000",
+     "28411.2900",
+     "PF employee contribution"
+    ],
+    [
+     "PRL",
+     "PRL-202507",
+     "Payroll Run 7/2025",
+     "2025-07-31 00:00:00",
+     "Advance #353 - Laila Borrower",
+     "ENTITY",
+     "0.0000",
+     "42380.0000",
+     "Loan #353 instalment"
+    ],
+    [
+     "PRL",
+     "PRL-202507",
+     "Payroll Run 7/2025",
+     "2025-07-31 00:00:00",
+     "Other Payroll Deductions Payable",
+     "2-01-02-02-0004",
+     "0.0000",
+     "500.0000",
+     "Other payroll deductions"
+    ],
+    [
+     "PRL",
+     "PRL-202507",
+     "Payroll Run 7/2025",
+     "2025-07-31 00:00:00",
+     "EOBI Payable",
+     "2-01-02-03-0002",
+     "0.0000",
+     "1459.1100",
+     "EOBI employee contribution"
+    ],
+    [
+     "PRL",
+     "PRL-202507",
+     "Payroll Run 7/2025",
+     "2025-07-31 00:00:00",
+     "Salary Payable",
+     "2-01-02-02-0001",
+     "0.0000",
+     "616092.5400",
+     "Net salary payable"
+    ],
+    [
+     "PRL",
+     "PRL-202507-PF",
+     "PF Employer Contribution 7/2025",
+     "2025-07-31 00:00:00",
+     "PF Employer Expense",
+     "5-02-01-01-0002",
+     "28411.2900",
+     "0.0000",
+     "PF employer contribution 7/2025"
+    ],
+    [
+     "PRL",
+     "PRL-202507-PF",
+     "PF Employer Contribution 7/2025",
+     "2025-07-31 00:00:00",
+     "PF Payable",
+     "2-01-02-02-0002",
+     "0.0000",
+     "28411.2900",
+     "PF employer contribution"
+    ],
+    [
+     "PRL",
+     "PRL-202507-EOBI",
+     "EOBI Employer Contribution 7/2025",
+     "2025-07-31 00:00:00",
+     "EOBI Employer Expense",
+     "5-04-01-01-0003",
+     "7295.5600",
+     "0.0000",
+     "EOBI employer 7/2025"
+    ],
+    [
+     "PRL",
+     "PRL-202507-EOBI",
+     "EOBI Employer Contribution 7/2025",
+     "2025-07-31 00:00:00",
+     "EOBI Payable",
+     "2-01-02-03-0002",
+     "0.0000",
+     "7295.5600",
+     "EOBI employer contribution"
+    ]
+   ],
+   "side": {
+    "pf_ledger": [
+     [
+      "2967",
+      "2025-08-31",
+      "contribution",
+      "PF contribution 8/2025",
+      "15000.000000",
+      "0.000000",
+      "true",
+      "false"
+     ],
+     [
+      "2968",
+      "2025-08-31",
+      "contribution",
+      "PF contribution 8/2025",
+      "5070.960000",
+      "0.000000",
+      "true",
+      "false"
+     ],
+     [
+      "2969",
+      "2025-08-31",
+      "contribution",
+      "PF contribution 8/2025",
+      "18451.620000",
+      "0.000000",
+      "true",
+      "false"
+     ],
+     [
+      "2970",
+      "2025-08-31",
+      "contribution",
+      "PF contribution 8/2025",
+      "4500.000000",
+      "0.000000",
+      "true",
+      "false"
+     ],
+     [
+      "2971",
+      "2025-08-31",
+      "contribution",
+      "PF contribution 8/2025",
+      "12053.060000",
+      "0.000000",
+      "true",
+      "false"
+     ],
+     [
+      "2967",
+      "2025-07-31",
+      "contribution",
+      "PF contribution 7/2025",
+      "15000.000000",
+      "0.000000",
+      "true",
+      "false"
+     ],
+     [
+      "2969",
+      "2025-07-31",
+      "contribution",
+      "PF contribution 7/2025",
+      "26000.000000",
+      "0.000000",
+      "true",
+      "false"
+     ],
+     [
+      "2970",
+      "2025-07-31",
+      "contribution",
+      "PF contribution 7/2025",
+      "4500.000000",
+      "0.000000",
+      "true",
+      "false"
+     ],
+     [
+      "2971",
+      "2025-07-31",
+      "contribution",
+      "PF contribution 7/2025",
+      "11322.580000",
+      "0.000000",
+      "true",
+      "false"
+     ]
+    ],
+    "pf_contributions": [
+     [
+      "2967",
+      "7",
+      "2025",
+      "7500.000000",
+      "7500.000000",
+      "15000.000000"
+     ],
+     [
+      "2969",
+      "7",
+      "2025",
+      "13000.000000",
+      "13000.000000",
+      "26000.000000"
+     ],
+     [
+      "2970",
+      "7",
+      "2025",
+      "2250.000000",
+      "2250.000000",
+      "4500.000000"
+     ],
+     [
+      "2971",
+      "7",
+      "2025",
+      "5661.290000",
+      "5661.290000",
+      "11322.580000"
+     ],
+     [
+      "2967",
+      "8",
+      "2025",
+      "7500.000000",
+      "7500.000000",
+      "15000.000000"
+     ],
+     [
+      "2968",
+      "8",
+      "2025",
+      "2535.480000",
+      "2535.480000",
+      "5070.960000"
+     ],
+     [
+      "2969",
+      "8",
+      "2025",
+      "9225.810000",
+      "9225.810000",
+      "18451.620000"
+     ],
+     [
+      "2970",
+      "8",
+      "2025",
+      "2250.000000",
+      "2250.000000",
+      "4500.000000"
+     ],
+     [
+      "2971",
+      "8",
+      "2025",
+      "6026.530000",
+      "6026.530000",
+      "12053.060000"
+     ]
+    ],
+    "loan_repayments": [
+     [
+      "42380.000000",
+      "Deducted via payroll 8/2025",
+      "true"
+     ],
+     [
+      "42380.000000",
+      "Deducted via payroll 7/2025",
+      "true"
+     ]
+    ],
+    "loans": [
+     [
+      "2970",
+      "advance",
+      "approved",
+      "15240.000000",
+      "true",
+      null
+     ]
+    ],
+    "pf_loans": [
+     [
+      "2970",
+      "approved",
+      "9000.000000",
+      "3000.000000"
+     ]
+    ],
+    "notifications": [
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 7/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 7/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 7/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 7/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 8/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 8/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 8/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 8/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 8/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 7/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 7/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 7/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 7/2025 is available.",
+      "info",
+      "compensation"
+     ]
+    ]
+   }
+  },
+  "S06": {
+   "status": [
+    302,
+    302,
+    302,
+    302,
+    200
+   ],
+   "journal": [
+    [
+     "PF-WD",
+     "PF-WD-52",
+     "PF withdrawal - Laila Borrower",
+     "2025-09-05 00:00:00",
+     "PF Payable",
+     "2-01-02-02-0002",
+     "1234.5000",
+     "0.0000",
+     "PF withdrawal - Laila Borrower"
+    ],
+    [
+     "PF-WD",
+     "PF-WD-52",
+     "PF withdrawal - Laila Borrower",
+     "2025-09-05 00:00:00",
+     "Main Cash",
+     "1-01-01-01-0001",
+     "0.0000",
+     "1234.5000",
+     "PF withdrawal - Laila Borrower"
+    ],
+    [
+     "PF-PROFIT",
+     "PF-PROFIT-202509-28",
+     "PF profit credited 9/2025",
+     "2026-10-29 00:00:00",
+     "PF Profit Credited to Members",
+     "5-04-01-01-0006",
+     "1234.5600",
+     "0.0000",
+     "PF profit 9/2025"
+    ],
+    [
+     "PF-PROFIT",
+     "PF-PROFIT-202509-28",
+     "PF profit credited 9/2025",
+     "2026-10-29 00:00:00",
+     "PF Payable",
+     "2-01-02-02-0002",
+     "0.0000",
+     "1234.5600",
+     "Profit credited to members"
+    ],
+    [
+     "PF-SETTLE",
+     "PF-SETTLE-20",
+     "Final PF settlement - Admin ba4ec99b",
+     "2025-09-30 00:00:00",
+     "PF Payable",
+     "2-01-02-02-0002",
+     "30334.6800",
+     "0.0000",
+     "Final PF settlement - Admin ba4ec99b"
+    ],
+    [
+     "PF-SETTLE",
+     "PF-SETTLE-20",
+     "Final PF settlement - Admin ba4ec99b",
+     "2025-09-30 00:00:00",
+     "Main Cash",
+     "1-01-01-01-0001",
+     "0.0000",
+     "30334.6800",
+     "Final PF settlement - Admin ba4ec99b"
+    ],
+    [
+     "PF-ADJ",
+     "PF-ADJ-7729",
+     "Correction",
+     "2026-10-29 00:00:00",
+     "PF Payable",
+     "2-01-02-02-0002",
+     "77.7000",
+     "0.0000",
+     "Correction"
+    ],
+    [
+     "PF-ADJ",
+     "PF-ADJ-7729",
+     "Correction",
+     "2026-10-29 00:00:00",
+     "Main Cash",
+     "1-01-01-01-0001",
+     "0.0000",
+     "77.7000",
+     "Correction"
+    ]
+   ],
+   "side": {
+    "pf_ledger": [
+     [
+      "2967",
+      "2025-08-31",
+      "contribution",
+      "PF contribution 8/2025",
+      "15000.000000",
+      "0.000000",
+      "true",
+      "false"
+     ],
+     [
+      "2968",
+      "2025-08-31",
+      "contribution",
+      "PF contribution 8/2025",
+      "5070.960000",
+      "0.000000",
+      "true",
+      "false"
+     ],
+     [
+      "2969",
+      "2025-08-31",
+      "contribution",
+      "PF contribution 8/2025",
+      "18451.620000",
+      "0.000000",
+      "true",
+      "false"
+     ],
+     [
+      "2970",
+      "2025-08-31",
+      "contribution",
+      "PF contribution 8/2025",
+      "4500.000000",
+      "0.000000",
+      "true",
+      "false"
+     ],
+     [
+      "2971",
+      "2025-08-31",
+      "contribution",
+      "PF contribution 8/2025",
+      "12053.060000",
+      "0.000000",
+      "true",
+      "false"
+     ],
+     [
+      "2967",
+      "2025-07-31",
+      "contribution",
+      "PF contribution 7/2025",
+      "15000.000000",
+      "0.000000",
+      "true",
+      "false"
+     ],
+     [
+      "2969",
+      "2025-07-31",
+      "contribution",
+      "PF contribution 7/2025",
+      "26000.000000",
+      "0.000000",
+      "true",
+      "false"
+     ],
+     [
+      "2970",
+      "2025-07-31",
+      "contribution",
+      "PF contribution 7/2025",
+      "4500.000000",
+      "0.000000",
+      "true",
+      "false"
+     ],
+     [
+      "2971",
+      "2025-07-31",
+      "contribution",
+      "PF contribution 7/2025",
+      "11322.580000",
+      "0.000000",
+      "true",
+      "false"
+     ],
+     [
+      "2970",
+      "2025-09-05",
+      "withdrawal",
+      "PF withdrawal approved",
+      "0.000000",
+      "1234.500000",
+      "false",
+      "true"
+     ],
+     [
+      "2967",
+      "2026-10-29",
+      "profit",
+      "Profit share 9/2025",
+      "334.680000",
+      "0.000000",
+      "false",
+      "false"
+     ],
+     [
+      "2968",
+      "2026-10-29",
+      "profit",
+      "Profit share 9/2025",
+      "56.570000",
+      "0.000000",
+      "false",
+      "false"
+     ],
+     [
+      "2969",
+      "2026-10-29",
+      "profit",
+      "Profit share 9/2025",
+      "495.900000",
+      "0.000000",
+      "false",
+      "false"
+     ],
+     [
+      "2970",
+      "2026-10-29",
+      "profit",
+      "Profit share 9/2025",
+      "86.630000",
+      "0.000000",
+      "false",
+      "false"
+     ],
+     [
+      "2971",
+      "2026-10-29",
+      "profit",
+      "Profit share 9/2025",
+      "260.780000",
+      "0.000000",
+      "false",
+      "false"
+     ],
+     [
+      "2967",
+      "2025-09-30",
+      "settlement",
+      "Final PF settlement",
+      "0.000000",
+      "30334.680000",
+      "false",
+      "true"
+     ],
+     [
+      "2971",
+      "2026-10-29",
+      "debit",
+      "Correction",
+      "0.000000",
+      "77.700000",
+      "false",
+      "false"
+     ]
+    ],
+    "pf_contributions": [
+     [
+      "2967",
+      "7",
+      "2025",
+      "7500.000000",
+      "7500.000000",
+      "15000.000000"
+     ],
+     [
+      "2969",
+      "7",
+      "2025",
+      "13000.000000",
+      "13000.000000",
+      "26000.000000"
+     ],
+     [
+      "2970",
+      "7",
+      "2025",
+      "2250.000000",
+      "2250.000000",
+      "4500.000000"
+     ],
+     [
+      "2971",
+      "7",
+      "2025",
+      "5661.290000",
+      "5661.290000",
+      "11322.580000"
+     ],
+     [
+      "2967",
+      "8",
+      "2025",
+      "7500.000000",
+      "7500.000000",
+      "15000.000000"
+     ],
+     [
+      "2968",
+      "8",
+      "2025",
+      "2535.480000",
+      "2535.480000",
+      "5070.960000"
+     ],
+     [
+      "2969",
+      "8",
+      "2025",
+      "9225.810000",
+      "9225.810000",
+      "18451.620000"
+     ],
+     [
+      "2970",
+      "8",
+      "2025",
+      "2250.000000",
+      "2250.000000",
+      "4500.000000"
+     ],
+     [
+      "2971",
+      "8",
+      "2025",
+      "6026.530000",
+      "6026.530000",
+      "12053.060000"
+     ]
+    ],
+    "loan_repayments": [
+     [
+      "42380.000000",
+      "Deducted via payroll 8/2025",
+      "true"
+     ],
+     [
+      "42380.000000",
+      "Deducted via payroll 7/2025",
+      "true"
+     ]
+    ],
+    "loans": [
+     [
+      "2970",
+      "advance",
+      "approved",
+      "15240.000000",
+      "true",
+      null
+     ]
+    ],
+    "pf_loans": [
+     [
+      "2970",
+      "approved",
+      "9000.000000",
+      "3000.000000"
+     ]
+    ],
+    "notifications": [
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 7/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 7/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 7/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 7/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 8/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 8/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 8/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 8/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 8/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 7/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 7/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 7/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 7/2025 is available.",
+      "info",
+      "compensation"
+     ]
+    ]
+   },
+   "settlement": [
+    [
+     "2967",
+     "15000.000000",
+     "15000.000000",
+     "334.680000",
+     "0.000000",
+     "30334.680000",
+     "completed"
+    ]
+   ]
+  },
+  "S07": {
+   "status": [
+    302,
+    302
+   ],
+   "journal_dsb": [
+    [
+     "LOAN-DSB",
+     "LOAN-DSB-354",
+     "Salary_Advance paid to Raza Raised",
+     "2025-09-10 00:00:00",
+     "Salary_Advance #354 - Raza Raised",
+     "ENTITY",
+     "30000.5000",
+     "0.0000",
+     "Salary_Advance #354"
+    ],
+    [
+     "LOAN-DSB",
+     "LOAN-DSB-354",
+     "Salary_Advance paid to Raza Raised",
+     "2025-09-10 00:00:00",
+     "Main Cash",
+     "1-01-01-01-0001",
+     "0.0000",
+     "30000.5000",
+     "Paid to Raza Raised"
+    ]
+   ],
+   "journal": [
+    [
+     "PRL",
+     "PRL-202508",
+     "Payroll Run 8/2025",
+     "2025-08-31 00:00:00",
+     "Salary Expense",
+     "5-02-01-01-0001",
+     "738824.1300",
+     "0.0000",
+     "Gross salary 8/2025"
+    ],
+    [
+     "PRL",
+     "PRL-202508",
+     "Payroll Run 8/2025",
+     "2025-08-31 00:00:00",
+     "Gratuity Expense",
+     "5-04-01-01-0004",
+     "5655000.0000",
+     "0.0000",
+     "Gratuity on leaving 8/2025"
+    ],
+    [
+     "PRL",
+     "PRL-202508",
+     "Payroll Run 8/2025",
+     "2025-08-31 00:00:00",
+     "Leave Encashment Expense",
+     "5-04-01-01-0005",
+     "65000.0000",
+     "0.0000",
+     "Leave encashment on leaving 8/2025"
+    ],
+    [
+     "PRL",
+     "PRL-202508",
+     "Payroll Run 8/2025",
+     "2025-08-31 00:00:00",
+     "Income Tax Payable",
+     "2-01-03-02-0001",
+     "0.0000",
+     "2331844.5200",
+     "Income tax deducted"
+    ],
+    [
+     "PRL",
+     "PRL-202508",
+     "Payroll Run 8/2025",
+     "2025-08-31 00:00:00",
+     "PF Payable",
+     "2-01-02-02-0002",
+     "0.0000",
+     "27537.8200",
+     "PF employee contribution"
+    ],
+    [
+     "PRL",
+     "PRL-202508",
+     "Payroll Run 8/2025",
+     "2025-08-31 00:00:00",
+     "Advance #353 - Laila Borrower",
+     "ENTITY",
+     "0.0000",
+     "42380.0000",
+     "Loan #353 instalment"
+    ],
+    [
+     "PRL",
+     "PRL-202508",
+     "Payroll Run 8/2025",
+     "2025-08-31 00:00:00",
+     "Other Payroll Deductions Payable",
+     "2-01-02-02-0004",
+     "0.0000",
+     "833.3300",
+     "Other payroll deductions"
+    ],
+    [
+     "PRL",
+     "PRL-202508",
+     "Payroll Run 8/2025",
+     "2025-08-31 00:00:00",
+     "EOBI Payable",
+     "2-01-02-03-0002",
+     "0.0000",
+     "1566.5300",
+     "EOBI employee contribution"
+    ],
+    [
+     "PRL",
+     "PRL-202508",
+     "Payroll Run 8/2025",
+     "2025-08-31 00:00:00",
+     "Salary Payable",
+     "2-01-02-02-0001",
+     "0.0000",
+     "4054661.9300",
+     "Net salary payable"
+    ],
+    [
+     "PRL",
+     "PRL-202508-PF",
+     "PF Employer Contribution 8/2025",
+     "2025-08-31 00:00:00",
+     "PF Employer Expense",
+     "5-02-01-01-0002",
+     "27537.8200",
+     "0.0000",
+     "PF employer contribution 8/2025"
+    ],
+    [
+     "PRL",
+     "PRL-202508-PF",
+     "PF Employer Contribution 8/2025",
+     "2025-08-31 00:00:00",
+     "PF Payable",
+     "2-01-02-02-0002",
+     "0.0000",
+     "27537.8200",
+     "PF employer contribution"
+    ],
+    [
+     "PRL",
+     "PRL-202508-EOBI",
+     "EOBI Employer Contribution 8/2025",
+     "2025-08-31 00:00:00",
+     "EOBI Employer Expense",
+     "5-04-01-01-0003",
+     "7832.6500",
+     "0.0000",
+     "EOBI employer 8/2025"
+    ],
+    [
+     "PRL",
+     "PRL-202508-EOBI",
+     "EOBI Employer Contribution 8/2025",
+     "2025-08-31 00:00:00",
+     "EOBI Payable",
+     "2-01-02-03-0002",
+     "0.0000",
+     "7832.6500",
+     "EOBI employer contribution"
+    ]
+   ],
+   "side": {
+    "pf_ledger": [
+     [
+      "2967",
+      "2025-08-31",
+      "contribution",
+      "PF contribution 8/2025",
+      "15000.000000",
+      "0.000000",
+      "true",
+      "false"
+     ],
+     [
+      "2968",
+      "2025-08-31",
+      "contribution",
+      "PF contribution 8/2025",
+      "5070.960000",
+      "0.000000",
+      "true",
+      "false"
+     ],
+     [
+      "2969",
+      "2025-08-31",
+      "contribution",
+      "PF contribution 8/2025",
+      "18451.620000",
+      "0.000000",
+      "true",
+      "false"
+     ],
+     [
+      "2970",
+      "2025-08-31",
+      "contribution",
+      "PF contribution 8/2025",
+      "4500.000000",
+      "0.000000",
+      "true",
+      "false"
+     ],
+     [
+      "2971",
+      "2025-08-31",
+      "contribution",
+      "PF contribution 8/2025",
+      "12053.060000",
+      "0.000000",
+      "true",
+      "false"
+     ],
+     [
+      "2970",
+      "2025-09-05",
+      "withdrawal",
+      "PF withdrawal approved",
+      "0.000000",
+      "1234.500000",
+      "false",
+      "true"
+     ],
+     [
+      "2967",
+      "2026-10-29",
+      "profit",
+      "Profit share 9/2025",
+      "334.680000",
+      "0.000000",
+      "false",
+      "false"
+     ],
+     [
+      "2968",
+      "2026-10-29",
+      "profit",
+      "Profit share 9/2025",
+      "56.570000",
+      "0.000000",
+      "false",
+      "false"
+     ],
+     [
+      "2969",
+      "2026-10-29",
+      "profit",
+      "Profit share 9/2025",
+      "495.900000",
+      "0.000000",
+      "false",
+      "false"
+     ],
+     [
+      "2970",
+      "2026-10-29",
+      "profit",
+      "Profit share 9/2025",
+      "86.630000",
+      "0.000000",
+      "false",
+      "false"
+     ],
+     [
+      "2971",
+      "2026-10-29",
+      "profit",
+      "Profit share 9/2025",
+      "260.780000",
+      "0.000000",
+      "false",
+      "false"
+     ],
+     [
+      "2967",
+      "2025-09-30",
+      "settlement",
+      "Final PF settlement",
+      "0.000000",
+      "30334.680000",
+      "false",
+      "true"
+     ],
+     [
+      "2971",
+      "2026-10-29",
+      "debit",
+      "Correction",
+      "0.000000",
+      "77.700000",
+      "false",
+      "false"
+     ]
+    ],
+    "pf_contributions": [
+     [
+      "2967",
+      "8",
+      "2025",
+      "7500.000000",
+      "7500.000000",
+      "15000.000000"
+     ],
+     [
+      "2968",
+      "8",
+      "2025",
+      "2535.480000",
+      "2535.480000",
+      "5070.960000"
+     ],
+     [
+      "2969",
+      "8",
+      "2025",
+      "9225.810000",
+      "9225.810000",
+      "18451.620000"
+     ],
+     [
+      "2970",
+      "8",
+      "2025",
+      "2250.000000",
+      "2250.000000",
+      "4500.000000"
+     ],
+     [
+      "2971",
+      "8",
+      "2025",
+      "6026.530000",
+      "6026.530000",
+      "12053.060000"
+     ]
+    ],
+    "loan_repayments": [
+     [
+      "42380.000000",
+      "Deducted via payroll 8/2025",
+      "true"
+     ]
+    ],
+    "loans": [
+     [
+      "2970",
+      "advance",
+      "approved",
+      "57620.000000",
+      "true",
+      null
+     ],
+     [
+      "2971",
+      "salary_advance",
+      "approved",
+      "30000.500000",
+      "true",
+      null
+     ]
+    ],
+    "pf_loans": [
+     [
+      "2970",
+      "approved",
+      "9000.000000",
+      "3000.000000"
+     ]
+    ],
+    "notifications": [
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 7/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 7/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 7/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 7/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 8/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 8/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 8/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 8/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 8/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 7/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 7/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 7/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Salary Slip Generated",
+      "Your salary slip for 7/2025 is available.",
+      "info",
+      "compensation"
+     ],
+     [
+      "Loan Paid",
+      "Your salary_advance of Rs.30,000 has been paid. Instalments start with the next payroll.",
+      "success",
+      "compensation"
+     ]
+    ]
+   }
+  }
+ },
+ "python_books_failures": [],
+ "today": "2026-10-29",
+ "world": {
+  "users": [
+   2967,
+   2968,
+   2969,
+   2970,
+   2971
+  ],
+  "admin_name": "Admin ba4ec99b",
+  "loans": [
+   353,
+   354
+  ],
+  "pf_loans": [
+   235
+  ]
+ }
+}

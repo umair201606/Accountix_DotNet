@@ -1,0 +1,121 @@
+{
+  "inv": [
+    {
+      "number": "BK3-GOLD",
+      "settled": "200.00",
+      "credited": "0.00",
+      "outstanding": "3800.00",
+      "pay_state": "partial",
+      "overdue_days": 0,
+      "age_bucket": "not_due",
+      "due": "20 Jul 2026",
+      "date": "20 Jun 2026",
+      "progress": "5.000000"
+    },
+    {
+      "number": "BK2-GOLD",
+      "settled": "650.40",
+      "credited": "300.25",
+      "outstanding": "1549.90",
+      "pay_state": "partial",
+      "overdue_days": 20,
+      "age_bucket": "d1_30",
+      "due": "10 Jun 2026",
+      "date": "11 May 2026",
+      "progress": "38.017636"
+    },
+    {
+      "number": "BK1-GOLD",
+      "settled": "1000.00",
+      "credited": "0.00",
+      "outstanding": "0.00",
+      "pay_state": "paid",
+      "overdue_days": 0,
+      "age_bucket": "not_due",
+      "due": "06 Apr 2026",
+      "date": "22 Mar 2026",
+      "progress": "100.000000"
+    }
+  ],
+  "feed": [
+    {
+      "line": "R2",
+      "flow": "receipt",
+      "amount": "500.00",
+      "assigned": "200.00",
+      "forced": "0.00",
+      "unassigned": "300.00",
+      "state": "partial",
+      "ledger": "{customer}",
+      "date": "29 Jun 2026",
+      "reason": "",
+      "cash": "Main Cash"
+    },
+    {
+      "line": "R1",
+      "flow": "receipt",
+      "amount": "3000.10",
+      "assigned": "100.00",
+      "forced": "100.00",
+      "unassigned": "2900.10",
+      "state": "partial",
+      "ledger": "{customer}",
+      "date": "25 Jun 2026",
+      "reason": "bank charge",
+      "cash": "Main Cash"
+    },
+    {
+      "line": "R0",
+      "flow": "receipt",
+      "amount": "1800.00",
+      "assigned": "1650.40",
+      "forced": "0.00",
+      "unassigned": "149.60",
+      "state": "partial",
+      "ledger": "{customer}",
+      "date": "21 May 2026",
+      "reason": "",
+      "cash": "Main Cash"
+    }
+  ],
+  "hist": [
+    {
+      "kind": "money",
+      "voucher": "BKR1-GOLD",
+      "amount": "650.40",
+      "balance_after": "1850.15",
+      "counts": true
+    },
+    {
+      "kind": "return",
+      "voucher": "BKCN-GOLD",
+      "amount": "300.25",
+      "balance_after": "1549.90",
+      "counts": true
+    }
+  ],
+  "open": [
+    {
+      "invoice": "I0",
+      "assigned_here": "1000.00",
+      "assignable": "1000.00"
+    },
+    {
+      "invoice": "I1",
+      "assigned_here": "650.40",
+      "assignable": "2200.30"
+    },
+    {
+      "invoice": "I2",
+      "assigned_here": "0.00",
+      "assignable": "3800.00"
+    }
+  ],
+  "summary": {
+    "count": 3,
+    "open_count": 2,
+    "outstanding": "5349.90",
+    "overdue": "1549.90",
+    "overdue_count": 1
+  }
+}

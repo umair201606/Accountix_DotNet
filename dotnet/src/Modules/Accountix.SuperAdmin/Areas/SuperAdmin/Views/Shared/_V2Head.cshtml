@@ -1,0 +1,7 @@
+@* partials/_v2_head.html: the UI v2 opt-in for pages outside the app shell (fonts, app.css, ui.css; a persisted theme before first paint). *@
+<script>(function(){try{var t=localStorage.getItem("ax-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@@14..32,400..700&display=swap">
+<link rel="stylesheet" href="/static/css/app.css">
+<link rel="stylesheet" href="/static/css/ui.css">

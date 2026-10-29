@@ -1,0 +1,6 @@
+@model Accountix.Inventory.Controllers.VoucherFormModel
+@{
+    ViewData["Title"] = (Model.Exists ? "Edit" : "New") + " Scrap Voucher";
+    ViewData["Heading"] = Model.Exists ? "Edit: " + Model.Number : "New Scrap Voucher";
+}
+<partial name="_IssueForm" model="Model" />

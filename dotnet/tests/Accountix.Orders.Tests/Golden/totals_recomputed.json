@@ -1,0 +1,126 @@
+{
+  "captured": "2026-10-29, Python app (Flask), before it was removed",
+  "capture": "Golden/capture/totals_recomputed.py",
+  "inputs": {
+    "stale": {
+      "id": null,
+      "action": "save",
+      "so_number": "(auto)",
+      "customer_id": "C1",
+      "party_account_id": null,
+      "order_date": "2026-05-12",
+      "expected_date": "2026-05-30",
+      "discount_mode": "general",
+      "charges_mode": "general",
+      "tax_mode": "general",
+      "global_discount_pct": 0,
+      "global_discount_value": 0,
+      "global_delivery": 0,
+      "global_installation": 0,
+      "global_sales_tax_pct": "17",
+      "further_tax_pct": 0,
+      "apply_further_tax": false,
+      "withholding_tax_pct": 0,
+      "apply_withholding_tax": false,
+      "notes": "totals",
+      "subtotal": 0,
+      "total_discount": 0,
+      "total_charges": 0,
+      "total_tax": 0,
+      "total_further_tax": 0,
+      "total_withholding_tax": 0,
+      "total_amount": 0,
+      "items": [
+        {
+          "product_id": "P1",
+          "description": "First line",
+          "quantity": 2,
+          "unit": "pcs",
+          "unit_price": 1000.25,
+          "discount_pct": 0,
+          "discount_amount": 0,
+          "sales_tax_pct": 0,
+          "total_before_discount": 2000.5,
+          "total_after_discount": 0,
+          "total_price": 2000.5
+        },
+        {
+          "product_id": "P2",
+          "description": "Second line",
+          "quantity": 0.5,
+          "unit": "pcs",
+          "unit_price": 3,
+          "discount_pct": 0,
+          "discount_amount": 0,
+          "sales_tax_pct": 0,
+          "total_before_discount": 0,
+          "total_after_discount": 0,
+          "total_price": 0
+        }
+      ],
+      "charges": [],
+      "edit_version": null
+    },
+    "exact": {
+      "id": null,
+      "action": "save",
+      "so_number": "(auto)",
+      "customer_id": "C1",
+      "party_account_id": null,
+      "order_date": "2026-05-12",
+      "expected_date": "2026-05-30",
+      "discount_mode": "general",
+      "charges_mode": "general",
+      "tax_mode": "individual",
+      "global_discount_pct": 0,
+      "global_discount_value": 0,
+      "global_delivery": 0,
+      "global_installation": 0,
+      "global_sales_tax_pct": "17",
+      "further_tax_pct": 0,
+      "apply_further_tax": false,
+      "withholding_tax_pct": 0,
+      "apply_withholding_tax": false,
+      "notes": "exact",
+      "subtotal": 92250.5,
+      "total_discount": 0,
+      "total_charges": 0,
+      "total_tax": 15682.585,
+      "total_further_tax": 0,
+      "total_withholding_tax": 0,
+      "total_amount": 107933.085,
+      "items": [
+        {
+          "product_id": "P1",
+          "description": "First line",
+          "quantity": 3,
+          "unit": "pcs",
+          "unit_price": 30750.1666666,
+          "discount_pct": 0,
+          "discount_amount": 0,
+          "sales_tax_pct": 17,
+          "total_before_discount": 92250.5,
+          "total_after_discount": 0,
+          "total_price": 92250.5
+        }
+      ],
+      "charges": [],
+      "edit_version": null
+    }
+  },
+  "expected": {
+    "answers": [
+      "200 {\"edit_version\":0,\"id\":\"SO1\",\"message\":\"Order saved as unapproved\",\"number\":\"<SO1>\",\"ok\":true,\"status\":\"unapproved\"}",
+      "200 {\"edit_version\":0,\"id\":\"SO2\",\"message\":\"Order saved as unapproved\",\"number\":\"<SO2>\",\"ok\":true,\"status\":\"unapproved\"}"
+    ],
+    "SO1": [
+      "SO SO1|CO|C1|null|2026-05-12|2026-05-30|unapproved|open|general|17|2002|340.34|2342.34|totals|U|null|False|0|True|True",
+      "  item CO|P1|First line|pcs|2|0|1000.25|0|2000.5|0|2000.5",
+      "  item CO|P2|Second line|pcs|0.5|0|3|0|1.5|0|1.5"
+    ],
+    "SO2": [
+      "SO SO2|CO|C1|null|2026-05-12|2026-05-30|unapproved|open|individual|17|92250.5|15682.585|107933.085|exact|U|null|False|0|True|True",
+      "  item CO|P1|First line|pcs|3|0|30750.166667|17|92250.5|0|92250.5"
+    ]
+  }
+}

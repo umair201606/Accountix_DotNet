@@ -1,0 +1,43 @@
+@model List<CompanyHoliday>
+@{
+    ViewData["Title"] = "Company Holidays - Accountix ERP";
+}
+<div class="page-header">
+    <h1>Company Holidays</h1>
+    <button class="btn btn-primary" id="show-form">+ Add Holiday</button>
+</div>
+<div id="holiday-form" class="card hidden mb-20" style="max-width:400px;">
+    <form method="POST">
+        <div class="form-group"><label>Holiday Name *</label><input name="name" class="form-control" required></div>
+        <div class="form-group"><label>Date *</label><input type="date" name="holiday_date" class="form-control" required></div>
+        <div class="form-group"><label>Department (leave blank for all)</label><input name="department" class="form-control"></div>
+        <div class="form-group"><label><input type="checkbox" name="is_recurring"> Recurring yearly</label></div>
+        <button type="submit" class="btn btn-primary">Add</button>
+    </form>
+</div>
+<div class="card">
+    <div class="card-header">Holiday Calendar</div>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Date</th><th>Name</th><th>Department</th><th>Recurring</th></tr></thead>
+            <tbody>
+                @foreach (var h in Model)
+                {
+                <tr>
+                    <td>@Py.Date(h.HolidayDate)</td>
+                    <td>@h.Name</td>
+                    <td>@(string.IsNullOrEmpty(h.Department) ? "All" : h.Department)</td>
+                    <td>@if (h.IsRecurring == true) {<text>&#10004;</text>}</td>
+                </tr>
+                }
+                @if (Model.Count == 0)
+                {
+                <tr><td colspan="4" class="text-center" style="color:var(--muted);">No holidays</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+@section Scripts {
+<script>document.getElementById('show-form')?.addEventListener('click',()=>{document.getElementById('holiday-form').classList.toggle('hidden');});</script>
+}

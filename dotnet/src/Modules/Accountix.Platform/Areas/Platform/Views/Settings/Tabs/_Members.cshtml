@@ -1,0 +1,149 @@
+@model SettingsController.SettingsPage
+@{ var t = (SettingsController.MembersTab)Model.TabModel!; }
+<div class="set-card">
+  <h3>Members &amp; Roles</h3>
+  <p class="hint">Invite registered users by email and manage the role each one holds inside @t.Company?.Name. Roles are per company — the same user can be an admin here and an employee elsewhere.</p>
+
+  <div class="set-note" style="margin-top:0;">
+    <strong>Member quota:</strong> @t.ActiveCount of @t.MemberLimit active members in use.
+    @if (t.ActiveCount >= t.MemberLimit) {
+    <br><text>This company has reached its member limit. Remove a member or discard a removed membership before inviting anyone else.</text>
+    }
+  </div>
+
+  <div style="margin-top:18px;">
+    <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:10px;">Invite a member</div>
+    <form method="POST" asp-antiforgery="true" action="/settings/invite">
+      <div class="fgrid">
+        <div class="fgroup">
+          <label class="lbl">Email (registered user)</label>
+          <input type="email" name="email" class="inp" placeholder="user@@company.com" required>
+          <div class="help">The user must already have an account. The invitation appears in their Settings &rarr; Invitations.</div>
+        </div>
+        <div class="fgroup">
+          <label class="lbl">Role</label>
+          <select name="role" class="sel" required>
+            @foreach (var r in t.Roles) {
+            <option value="@r">@ViewHelpers.Title(r)</option>
+            }
+          </select>
+        </div>
+      </div>
+      <div class="set-actions" style="margin-top:0;">
+        <button type="submit" class="btn btn-p">Send Invitation</button>
+      </div>
+    </form>
+  </div>
+
+  <div style="margin-top:20px;border-top:1px solid var(--line);padding-top:16px;">
+    <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:10px;">Members</div>
+    <div class="tbl-scroll">
+      <table class="stbl m-tbl">
+        <thead>
+          <tr><th>Member</th><th>Role</th><th>Employee Code</th><th>Status</th><th>Joined</th><th></th></tr>
+        </thead>
+        <tbody>
+          @foreach (var (m, u, roleName) in t.Members) {
+          <tr>
+            <td class="m-cell-user">
+              <div class="r-name">@u?.FullName</div>
+              <div class="r-email">@u?.Email</div>
+            </td>
+            <td data-label="Role">
+              @if (m.Status == "active" && m.UserId != t.CreatedBy && m.UserId != t.MeId) {
+              <form method="POST" asp-antiforgery="true" action="/settings/members/@m.Id/role" style="display:flex;gap:4px;flex-wrap:wrap;">
+                <select name="role" class="sel" style="width:110px;padding:4px 6px;font-size:12px;">
+                  @foreach (var r in t.Roles) {
+                  <option value="@r" selected="@(r == roleName)">@ViewHelpers.Title(r)</option>
+                  }
+                </select>
+                <button type="submit" class="btn btn-sm btn-outline">Save</button>
+              </form>
+              } else {
+              <span class="pill pill-off">@ViewHelpers.Title(roleName)</span>
+              }
+            </td>
+            <td data-label="Employee Code">@if (!string.IsNullOrEmpty(m.EmployeeCode)) {@m.EmployeeCode} else if (!string.IsNullOrEmpty(u?.EmployeeCode)) {@u!.EmployeeCode} else {@Html.Raw("&mdash;")}</td>
+            <td data-label="Status">
+              @if (m.Status == "active") {<span class="pill pill-on">Active</span>}
+              else if (m.Status == "pending") {<span class="pill" style="background:var(--warning-light);color:var(--warning);">Pending</span>}
+              else {<span class="pill" style="background:var(--danger-light);color:var(--danger);">Removed</span>}
+            </td>
+            <td data-label="Joined">@if (m.JoinedAt is DateTime ja) {@ja.ToString("yyyy-MM-dd")} else {@Html.Raw("&mdash;")}</td>
+            <td data-label="Actions">
+              <div class="m-acts">
+                @if (m.Status == "removed") {
+                <form method="POST" asp-antiforgery="true" action="/settings/members/@m.Id/restore" style="display:inline;" onsubmit="return confirm('Discard the removed membership of ' + @System.Text.Json.JsonSerializer.Serialize(u?.FullName) + '? This cannot be undone.');">
+                  <button type="submit" class="btn btn-sm btn-danger">Discard</button>
+                </form>
+                } else if (m.UserId != t.CreatedBy && !(m.RoleId == t.AdminRoleId && t.ActiveAdmins <= 1)) {
+                <form method="POST" asp-antiforgery="true" action="/settings/members/@m.Id/remove" style="display:inline;" onsubmit="return confirm('Remove ' + @System.Text.Json.JsonSerializer.Serialize(u?.FullName) + ' from ' + @System.Text.Json.JsonSerializer.Serialize(t.Company?.Name) + '?');">
+                  <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+                </form>
+                }
+              </div>
+            </td>
+          </tr>
+          }
+          @if (t.Members.Count == 0) {
+          <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:18px;">No members yet.</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div style="margin-top:20px;border-top:1px solid var(--line);padding-top:16px;">
+    <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:10px;">Sent Invitations</div>
+    <div class="tbl-scroll">
+      <table class="stbl m-tbl">
+        <thead>
+          <tr><th>Email</th><th>Role</th><th>Status</th><th>Sent</th><th>Invited By</th><th></th></tr>
+        </thead>
+        <tbody>
+          @foreach (var (inv, irole, inviter) in t.Invitations) {
+          <tr>
+            <td class="m-cell-user">
+              <div class="r-email">@inv.Email</div>
+            </td>
+            <td data-label="Role"><span class="pill pill-off">@ViewHelpers.Title(irole)</span></td>
+            <td data-label="Status">
+              @if (inv.Status == "sent") {<span class="pill" style="background:var(--accent-light);color:var(--accent);">Sent</span>}
+              else if (inv.Status == "accepted") {<span class="pill pill-on">Accepted</span>}
+              else {<span class="pill pill-off">Revoked</span>}
+            </td>
+            <td data-label="Sent">@if (inv.CreatedAt is DateTime ica) {@ica.ToString("yyyy-MM-dd")} else {@Html.Raw("&mdash;")}</td>
+            <td data-label="Invited By">@if (!string.IsNullOrEmpty(inviter)) {@inviter} else {@Html.Raw("&mdash;")}</td>
+            <td data-label="Actions">
+              @if (inv.Status == "sent") {
+              <div class="m-acts">
+                <form method="POST" asp-antiforgery="true" action="/settings/invite/@inv.Id/revoke" style="display:inline;" onsubmit="return confirm('Revoke the invitation to ' + @System.Text.Json.JsonSerializer.Serialize(inv.Email) + '?');">
+                  <button type="submit" class="btn btn-sm btn-outline">Revoke</button>
+                </form>
+              </div>
+              }
+            </td>
+          </tr>
+          }
+          @if (t.Invitations.Count == 0) {
+          <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:18px;">No invitations sent yet.</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<style>
+  .m-acts { display: flex; flex-wrap: wrap; gap: 6px; }
+  .m-acts .btn { font-size: 11px; padding: 5px 10px; }
+  @@media (max-width: 768px) {
+    .m-tbl, .m-tbl thead, .m-tbl tbody, .m-tbl tr, .m-tbl th, .m-tbl td { display: block; }
+    .m-tbl thead { display: none; }
+    .m-tbl tr { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px; margin-bottom: 10px; }
+    .m-tbl td { border: none !important; padding: 3px 0 !important; }
+    .m-tbl td[data-label]:before { content: attr(data-label) ": "; font-weight: 700; font-size: 10.5px; color: var(--muted); display: inline; margin-right: 4px; }
+    .m-cell-user { margin-bottom: 6px; }
+    .m-cell-user:before { display: none !important; }
+    .m-acts { margin-top: 8px; }
+  }
+</style>

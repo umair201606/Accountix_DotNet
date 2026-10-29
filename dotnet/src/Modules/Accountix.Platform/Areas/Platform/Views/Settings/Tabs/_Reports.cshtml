@@ -1,0 +1,80 @@
+@model SettingsController.SettingsPage
+@{ var t = (SettingsController.ReportsTab)Model.TabModel!; }
+<div class="set-card">
+  <h3>Report structure</h3>
+  <p class="hint">The rows of your Profit &amp; Loss statement, top to bottom. Move rows and rename them as you like; which accounts feed each section comes from each account's P&amp;L tag in the <a href="/accounting/coa/" style="color:var(--link);">chart of accounts</a>.</p>
+
+  <form method="POST" asp-antiforgery="true" action="/settings/reports" id="rsForm">
+    <div class="tbl-scroll">
+      <table class="stbl" id="rsTable">
+        <thead>
+          <tr><th style="width:84px;">Move</th><th style="width:110px;">Type</th><th>Label on the statement</th><th style="width:130px;">Effect</th></tr>
+        </thead>
+        <tbody>
+          @for (int i = 0; i < t.Rows.Count; i++) { var row = t.Rows[i];
+          <tr class="rs-row @(string.IsNullOrEmpty(row.Section) ? "is-sub" : "")">
+            <td>
+              <input type="hidden" name="row_order_@i" value="@i" class="rs-order">
+              <span class="rs-move">
+                <button type="button" class="rs-up" aria-label="Move up" title="Move up">&uarr;</button>
+                <button type="button" class="rs-down" aria-label="Move down" title="Move down">&darr;</button>
+              </span>
+            </td>
+            <td>
+              @if (!string.IsNullOrEmpty(row.Section)) {
+              <input type="hidden" name="row_ident_@i" value="section:@row.Section">
+              if (row.Negate) {<input type="hidden" name="row_negate_@i" value="1">}
+              <span class="rs-kind sec" title="Section: @row.Section">Section</span>
+              } else {
+              <input type="hidden" name="row_ident_@i" value="subtotal:@row.Subtotal">
+              <span class="rs-kind sub" title="Profit line: @row.Subtotal">Profit line</span>
+              }
+            </td>
+            <td><input type="text" name="row_label_@i" value="@row.Label" class="inp" aria-label="Label for this row"></td>
+            <td class="rs-effect">
+              @(row.Negate ? "Subtracted" : !string.IsNullOrEmpty(row.Subtotal) ? "Running total" : "Added")
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="fgrid" style="margin-top:18px;">
+      <div class="fgroup">
+        <label class="lbl" for="plDetailRows">Accounts listed per section</label>
+        <input type="number" id="plDetailRows" name="pl_detail_rows" class="inp" style="width:120px;"
+               value="@J.Or(t.Settings.PlDetailRows, "10")" min="1" max="100">
+        <div class="help">Accounts beyond this number are grouped into one "Others" row.</div>
+      </div>
+    </div>
+
+    <div class="set-actions">
+      <button type="submit" class="btn btn-p">Save report structure</button>
+      <button type="submit" name="reset_pl" value="1" class="btn"
+              onclick="return confirm('Put the P&L rows back to the standard order and names?')">Reset to standard</button>
+    </div>
+  </form>
+</div>
+<script>
+(function () {
+  var body = document.querySelector('#rsTable tbody'); if (!body) return;
+  function sync() {
+    var rows = Array.prototype.slice.call(body.querySelectorAll('tr.rs-row'));
+    rows.forEach(function (tr, i) {
+      tr.querySelector('.rs-order').value = i;
+      tr.querySelector('.rs-up').disabled = i === 0;
+      tr.querySelector('.rs-down').disabled = i === rows.length - 1;
+    });
+  }
+  body.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    var tr = b.closest('tr');
+    if (b.classList.contains('rs-up') && tr.previousElementSibling) body.insertBefore(tr, tr.previousElementSibling);
+    if (b.classList.contains('rs-down') && tr.nextElementSibling) body.insertBefore(tr.nextElementSibling, tr);
+    sync(); b.focus();
+  });
+  document.getElementById('rsForm').addEventListener('submit', sync);
+  sync();
+})();
+</script>

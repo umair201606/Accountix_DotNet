@@ -1,0 +1,38 @@
+@model SettingsController.SettingsPage
+@{ var rs = (ReportSetting)Model.TabModel!; }
+<form method="post" asp-antiforgery="true" action="/settings/cash-flow">
+  <div class="set-card set-boxed">
+    <div class="set-card-hd"><span>Cash Flow Statement Method</span></div>
+    <div class="set-card-bd">
+      <p class="hint">Choose which approach the Cash Flow Statement report in the Finance module should use.</p>
+      <div class="radio-row">
+        <label class="radio-card @(rs.CashFlowMethod == "indirect" ? "sel-on" : "")">
+          <input type="radio" name="cash_flow_method" value="indirect" @J.Chk(rs.CashFlowMethod == "indirect")>
+          <span class="rc-h">Indirect Method</span>
+          <div class="rc-d">Starts with net profit and adjusts for non-cash items (depreciation, working capital changes). This is the most commonly used method.</div>
+        </label>
+        <label class="radio-card @(rs.CashFlowMethod == "direct" ? "sel-on" : "")">
+          <input type="radio" name="cash_flow_method" value="direct" @J.Chk(rs.CashFlowMethod == "direct")>
+          <span class="rc-h">Direct Method</span>
+          <div class="rc-d">Lists actual cash receipts and payments (cash from customers, cash paid to suppliers, etc.). Provides more detailed operational visibility.</div>
+        </label>
+      </div>
+      <div class="set-actions">
+        <button type="submit" class="btn btn-primary">Save</button>
+      </div>
+    </div>
+  </div>
+</form>
+<form method="post" asp-antiforgery="true" action="/settings/cash-flow">
+  <div class="set-card set-boxed">
+    <div class="set-card-hd"><span>13-Week Cash Flow (TWCF)</span></div>
+    <div class="set-card-bd">
+      <label class="hint" for="twcf_cash_floor">Minimum cash floor — the level the company wants to keep on hand (covenant / safety buffer). The TWCF report adds a headroom line above this floor once set.</label>
+      <input type="number" name="twcf_cash_floor" id="twcf_cash_floor" step="0.01" min="0" placeholder="Leave blank to hide the headroom line"
+             value="@(rs.TwcfCashFloor is decimal fl && fl != 0 ? fl.ToString("F2", System.Globalization.CultureInfo.InvariantCulture) : "")" style="width:100%; max-width:320px; padding:8px 12px; border:1px solid var(--border); border-radius:8px;">
+      <div class="set-actions">
+        <button type="submit" class="btn btn-primary">Save</button>
+      </div>
+    </div>
+  </div>
+</form>

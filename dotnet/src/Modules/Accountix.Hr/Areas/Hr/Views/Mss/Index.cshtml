@@ -1,0 +1,38 @@
+@model Accountix.Hr.Controllers.MssController.IndexModel
+@{
+    ViewData["Title"] = "Team - Accountix ERP";
+}
+<div class="page-header">
+    <h1>Manager Self-Service</h1>
+</div>
+<div class="stats-grid">
+    <div class="stat-card"><div class="stat-label">Team Members</div><div class="stat-value">@Model.Reports.Count</div></div>
+    <div class="stat-card"><div class="stat-label">Pending Leaves</div><div class="stat-value">@Model.PendingLeaves</div></div>
+    <div class="stat-card"><div class="stat-label">Pending Timesheets</div><div class="stat-value">@Model.PendingTimesheets</div></div>
+    <div class="stat-card"><div class="stat-label">Pending Loans</div><div class="stat-value">@Model.PendingLoans</div></div>
+</div>
+<div class="flex gap-10 mb-20" style="flex-wrap:wrap;">
+    <a href="/mss/approvals" class="btn btn-outline">&#9989; Approvals Inbox</a>
+    <a href="/mss/team" class="btn btn-outline">&#128101; Team Members</a>
+
+</div>
+@if (Model.Reports.Count > 0)
+{
+<div class="card">
+    <div class="card-header">My Direct Reports</div>
+    <div class="grid-4">
+        @foreach (var emp in Model.Reports)
+        {
+        <div class="emp-card">
+            <div class="emp-card-header">@emp.FullName</div>
+            <div class="emp-card-body">
+                <div class="emp-field"><label>Designation</label><div class="val">@(Py.Text(emp.Designation) is { Length: > 0 } des ? des : "-")</div></div>
+                <div class="emp-field"><label>Department</label><div class="val">@(Py.Text(emp.Department) is { Length: > 0 } dep ? dep : "-")</div></div>
+                <div class="emp-field"><label>Email</label><div class="val">@emp.User.Email</div></div>
+                <a href="/mss/evaluate/@emp.Id" class="btn btn-sm btn-outline" style="margin-top:8px;">Evaluate</a>
+            </div>
+        </div>
+        }
+    </div>
+</div>
+}

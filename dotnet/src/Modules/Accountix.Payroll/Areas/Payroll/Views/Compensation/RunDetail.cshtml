@@ -1,0 +1,148 @@
+@model RunDetailModel
+@{
+    var run = Model.Run;
+    ViewData["Title"] = $"Payroll {Model.Period} - Accountix ERP";
+    string fmt = Context.Access()?.NumberFormat ?? "en";
+    string M(double v) => Py.Amount(v, 0, fmt);
+    var inv = CultureInfo.InvariantCulture;
+}
+<div class="page-header">
+    <div>
+        <a href="/compensation/" class="prd-back">&larr; Compensation</a>
+        <h1>Payroll &middot; @Model.Period</h1>
+        <p class="prd-sub">
+            Posted @run.RunDate?.ToString("dd-MMM-yyyy", inv)@if (Model.ProcessorName is { } who) {<text> by @who</text>}
+            &middot; <span class="badge badge-@(run.Status is "completed" or "paid" ? "success" : "warning")">@(run.PaidAt is DateTime paid ? "paid " + paid.ToString("dd-MMM-yyyy", inv) : run.Status)</span>
+        </p>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <a href="/compensation/export-bank-ledger/@run.Id" class="btn btn-outline">Bank sheet</a>
+    </div>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card"><div class="stat-label">Employees</div><div class="stat-value">@run.EmployeeCount</div></div>
+    <div class="stat-card"><div class="stat-label">Gross</div><div class="stat-value">@Html.Amount(run.TotalGross, 0)</div></div>
+    <div class="stat-card"><div class="stat-label">Deductions</div><div class="stat-value">@Html.Amount(run.TotalDeductions, 0)</div></div>
+    <div class="stat-card"><div class="stat-label">Net payable</div><div class="stat-value">@Html.Amount(run.TotalNet, 0)</div></div>
+</div>
+
+<div class="prd-split">
+    <div class="card">
+        <div class="card-header">Earnings</div>
+        <div class="table-wrap">
+            <table class="prd-num">
+                <tbody>
+                    @foreach (var (name, val) in Model.Earnings)
+                    {
+                    <tr><td>@name</td><td class="r">@M(val)</td></tr>
+                    }
+                </tbody>
+                <tfoot><tr><td>Gross</td><td class="r">@Html.Amount(run.TotalGross, 0)</td></tr></tfoot>
+            </table>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header">Deductions</div>
+        <div class="table-wrap">
+            <table class="prd-num">
+                <tbody>
+                    @foreach (var (name, val) in Model.Deductions)
+                    {
+                    <tr><td>@name</td><td class="r">@M(val)</td></tr>
+                    }
+                    @if (Model.Deductions.Count == 0)
+                    {
+                    <tr><td colspan="2" style="color:var(--muted);">No deductions</td></tr>
+                    }
+                </tbody>
+                <tfoot><tr><td>Total</td><td class="r">@Html.Amount(run.TotalDeductions, 0)</td></tr></tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">Salary payment</div>
+    <div style="padding:12px;">
+    @if (run.PaidAt is DateTime paidAt)
+    {
+        <p style="margin:0 0 8px;">Net salaries of Rs. @Html.Amount(run.TotalNet, 0) recorded as paid on @paidAt.ToString("dd-MMM-yyyy", inv) (Dr Salary Payable, Cr the bank or cash account).</p>
+        <form method="POST" action="/compensation/run/@run.Id/unpay" onsubmit="return confirm('Reverse the salary payment journal?');">
+            <button type="submit" class="btn btn-sm btn-outline">Undo payment</button>
+        </form>
+    }
+    else
+    {
+        <form method="POST" action="/compensation/run/@run.Id/pay" class="prd-pay">
+            <select name="account_id" class="form-control" required aria-label="Paid from">
+                <option value="">Paid from…</option>
+                @foreach (var a in Model.Accounts) { <option value="@a.Id">@a.Code @a.Name</option> }
+            </select>
+            <input type="date" name="paid_on" class="form-control" value="@Model.Today.ToString("yyyy-MM-dd", inv)" aria-label="Paid on">
+            <button type="submit" class="btn btn-primary btn-sm">Record payment</button>
+        </form>
+        <p class="prd-sub" style="margin-top:8px;">Posts Dr Salary Payable / Cr the account, for the net on the bank sheet. Until then the salaries show as owed.</p>
+        <form method="POST" action="/compensation/run/@run.Id/delete" style="margin-top:10px;"
+              onsubmit="return confirm('Delete this payroll? Its journals, loan recoveries and PF entries are reversed.');">
+            <button type="submit" class="btn btn-sm btn-danger">Delete payroll</button>
+        </form>
+    }
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">Salary slips</div>
+    <div class="table-wrap">
+        <table class="prd-num">
+            <thead><tr><th>Employee</th><th>Code</th><th class="r">Basic</th><th class="r">Gross</th><th class="r">Deductions</th><th class="r">Net</th><th></th></tr></thead>
+            <tbody>
+                @foreach (var row in Model.Slips)
+                {
+                var s = row.Slip;
+                string? code = Model.Codes.GetValueOrDefault(s.UserId);
+                <tr>
+                    <td>@row.FullName@if (!string.IsNullOrEmpty(row.Designation)) {<div class="prd-sub">@row.Designation</div>}</td>
+                    <td>@(string.IsNullOrEmpty(code) ? "—" : code)</td>
+                    <td class="r">@Html.Amount(s.BasicSalary, 0)</td>
+                    <td class="r">@Html.Amount(s.GrossPay, 0)</td>
+                    <td class="r">@Html.Amount(s.TotalDeductions, 0)</td>
+                    <td class="r"><strong>@Html.Amount(s.NetPay, 0)</strong></td>
+                    <td class="r"><a href="/compensation/slip/@s.Id" class="btn btn-sm btn-outline">Slip</a></td>
+                </tr>
+                }
+                @if (Model.Slips.Count == 0)
+                {
+                <tr><td colspan="7" class="text-center" style="color:var(--muted);">No slips in this run</td></tr>
+                }
+            </tbody>
+            @if (Model.Slips.Count > 0)
+            {
+            <tfoot><tr><td colspan="2">Total</td>
+                <td class="r">@M(Py.Sum(Model.Slips.Select(r => Py.F(r.Slip.BasicSalary))))</td>
+                <td class="r">@Html.Amount(run.TotalGross, 0)</td>
+                <td class="r">@Html.Amount(run.TotalDeductions, 0)</td>
+                <td class="r">@Html.Amount(run.TotalNet, 0)</td><td></td></tr></tfoot>
+            }
+        </table>
+    </div>
+</div>
+
+@* The panel reads /accounting/gl-entry, which the module guard refuses without Accounting. *@
+@if (Model.ShowGlEntry)
+{
+    @await Html.PartialAsync("_GlEntryButton", new GlEntryButton("PRL", run.Id))
+}
+
+<style>
+.prd-back { font-size:13px; color:var(--muted); text-decoration:none; }
+.prd-back:hover { color:var(--ink); }
+.prd-sub { font-size:13px; color:var(--muted); margin:2px 0 0; }
+.prd-split { display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:16px; margin-bottom:16px; }
+.prd-split .card { margin-bottom:0; }
+.prd-num { font-variant-numeric:tabular-nums; width:100%; }
+.prd-num .r { text-align:right; white-space:nowrap; }
+.prd-num tfoot td { font-weight:600; border-top:1px solid var(--line, rgba(127,127,127,.3)); }
+.prd-pay { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+.prd-pay .form-control { width:auto; min-width:0; max-width:100%; }
+</style>

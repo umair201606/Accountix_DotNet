@@ -1,0 +1,205 @@
+{
+  "captured": "2026-10-29, Python app (Flask), before it was removed",
+  "capture": "Golden/capture/invoices.py",
+  "inputs": {
+    "settings": {
+      "valuation_method": "weighted_average",
+      "allow_negative_stock": false,
+      "per_line_labeling_invoice": false,
+      "default_cogs_account_id": null,
+      "default_inventory_account_id": null,
+      "default_return_account_id": null,
+      "default_invoice_label_id": null
+    },
+    "steps": [
+      {
+        "role": "PI-A",
+        "type": "PI",
+        "url": "/inventory/purchase-invoice/save",
+        "payload": {
+          "supplier_id": -2,
+          "invoice_date": "2026-05-02",
+          "action": "approve",
+          "discount_mode": "general",
+          "expenses_mode": "general",
+          "tax_mode": "general",
+          "global_discount_pct": 0,
+          "global_discount_value": 0,
+          "global_sales_tax_pct": 0,
+          "global_withholding_tax_pct": 0,
+          "apply_withholding_tax": false,
+          "subtotal": 11000,
+          "total_discount": 0,
+          "notes": "Stock for parity",
+          "items": [
+            {
+              "product_id": -3,
+              "description": "Panel",
+              "quantity": 100,
+              "unit": "pcs",
+              "unit_price": 40,
+              "total_before_discount": 4000,
+              "total_after_discount": 4000
+            },
+            {
+              "product_id": -4,
+              "description": "Inverter",
+              "quantity": 100,
+              "unit": "pcs",
+              "unit_price": 70,
+              "total_before_discount": 7000,
+              "total_after_discount": 7000
+            }
+          ],
+          "charges": []
+        }
+      },
+      {
+        "role": "SI1",
+        "type": "SI",
+        "url": "/inventory/invoices/save",
+        "payload": {
+          "customer_id": -1,
+          "invoice_date": "2026-05-14",
+          "due_date": "2026-06-13",
+          "label_id": "",
+          "party_account_id": "",
+          "sales_order_id": "",
+          "action": "approve",
+          "discount_mode": "general",
+          "charges_mode": "general",
+          "tax_mode": "general",
+          "global_discount_pct": 5,
+          "global_discount_value": 0,
+          "global_delivery": 0,
+          "global_installation": 0,
+          "global_sales_tax_pct": 18,
+          "further_tax_pct": 3,
+          "apply_further_tax": true,
+          "withholding_tax_pct": 4.5,
+          "apply_withholding_tax": true,
+          "notes": "Parity sale",
+          "subtotal": 25501.5,
+          "total_discount": 1275.08,
+          "total_charges": 0,
+          "total_tax": 0,
+          "total_further_tax": 0,
+          "total_withholding_tax": 0,
+          "total_amount": 0,
+          "items": [
+            {
+              "product_id": -3,
+              "description": "Panel 550W",
+              "quantity": 3,
+              "unit": "pcs",
+              "unit_price": 2500.5,
+              "discount_pct": 0,
+              "discount_amount": 0,
+              "delivery": 0,
+              "installation": 0,
+              "sales_tax_pct": 0,
+              "total_before_discount": 7501.5,
+              "total_after_discount": 7501.5,
+              "label_id": ""
+            },
+            {
+              "product_id": -4,
+              "description": "Inverter 6kW",
+              "quantity": 2,
+              "unit": "pcs",
+              "unit_price": 9000,
+              "discount_pct": 0,
+              "discount_amount": 0,
+              "delivery": 0,
+              "installation": 0,
+              "sales_tax_pct": 0,
+              "total_before_discount": 18000,
+              "total_after_discount": 18000,
+              "label_id": ""
+            }
+          ],
+          "charges": [
+            {
+              "charge_account_id": -5,
+              "description": "Freight",
+              "amount": 350.25,
+              "scope": "general",
+              "treatment": "bill",
+              "st_taxable": true,
+              "wht_taxable": true,
+              "distribution": "pro_rata_value"
+            },
+            {
+              "charge_account_id": -6,
+              "description": "Packing",
+              "amount": 120,
+              "scope": "general",
+              "treatment": "absorb"
+            },
+            {
+              "charge_account_id": -6,
+              "description": "Unloading",
+              "amount": 80.4,
+              "scope": "general",
+              "treatment": "expense"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "expected": {
+    "PI-A": [
+      "answer|200|Invoice approved and locked",
+      "pi PI-A|PI-A|PI-A|2026-05-02|Supp|||||||general|general|general|0|0|0|0|0|0|0|0|False|False|11000|0|0|0|0|0|11000|11000|0|unpaid||Stock for parity|approved|U|U|set|0",
+      "pi_item PI-A|P1|Panel|100|pcs|40|||||0|0|0|0|0|0|0|4000|4000|",
+      "pi_item PI-A|P2|Inverter|100|pcs|70|||||0|0|0|0|0|0|0|7000|7000|",
+      "ledger P1:PI-A:IN|100|40|4000|100|4000|40|weighted_average|2026-05-02|PI-A|Purchase PI-A|U",
+      "ledger P2:PI-A:IN|100|70|7000|100|7000|70|weighted_average|2026-05-02|PI-A|Purchase PI-A|U",
+      "layer P1:layer0|P1:PI-A:IN|40|100|100|4000|weighted_average|False|Purchase PI-A",
+      "layer P2:layer0|P2:PI-A:IN|70|100|100|7000|weighted_average|False|Purchase PI-A",
+      "product P1|100|40",
+      "product P2|100|70",
+      "journal je0 PI-A|True|2026-05-02|PI-A|Purchase Invoice PI-A - Supp TAG|U",
+      "  line 1-01-04-01-0001|11000|0||Inventory - PI-A",
+      "  line @Supp TAG|0|11000||AP - PI-A"
+    ],
+    "SI1": [
+      "answer|200|Invoice approved and locked",
+      "pi PI-A|PI-A|PI-A|2026-05-02|Supp|||||||general|general|general|0|0|0|0|0|0|0|0|False|False|11000|0|0|0|0|0|11000|11000|0|unpaid||Stock for parity|approved|U|U|set|0",
+      "pi_item PI-A|P1|Panel|100|pcs|40|||||0|0|0|0|0|0|0|4000|4000|",
+      "pi_item PI-A|P2|Inverter|100|pcs|70|||||0|0|0|0|0|0|0|7000|7000|",
+      "si SI1|SI1|SI1||Cust|||2026-05-14|2026-06-13|approved|unpaid|general|general|general|5|0|0|0|18|3|True|4.5|True|25501.5|1275.08|350.25|4445.4|740.9|1111.35|28771.62|0|Parity sale|U|U|set|0",
+      "si_item SI1|P1|Panel 550W|3|pcs|2500.5|||||0|0|0|0|0|7501.5|7501.5|",
+      "si_item SI1|P2|Inverter 6kW|2|pcs|9000|||||0|0|0|0|0|18000|18000|",
+      "charge SI1|4-01-01-01-0001|Freight|350.25|general|pro_rata_value||bill|True|True|False|True|after_discount",
+      "charge SI1|5-04-01-01-0001|Packing|120|general|pro_rata_value||absorb|False|False|False|False|after_discount",
+      "charge SI1|5-04-01-01-0001|Unloading|80.4|general|pro_rata_value||expense|False|False|False|False|after_discount",
+      "ledger P1:PI-A:IN|100|40|4000|100|4000|40|weighted_average|2026-05-02|PI-A|Purchase PI-A|U",
+      "ledger P1:SI1:OUT|3|40|120|97|3880|40|weighted_average|2026-05-14|SI1|Sale SI1|U",
+      "ledger P2:PI-A:IN|100|70|7000|100|7000|70|weighted_average|2026-05-02|PI-A|Purchase PI-A|U",
+      "ledger P2:SI1:OUT|2|70|140|98|6860|70|weighted_average|2026-05-14|SI1|Sale SI1|U",
+      "layer P1:layer0|P1:PI-A:IN|40|100|97|3880|weighted_average|False|Purchase PI-A",
+      "layer P2:layer0|P2:PI-A:IN|70|100|98|6860|weighted_average|False|Purchase PI-A",
+      "consume P1:layer0|P1:SI1:OUT|3|40|120",
+      "consume P2:layer0|P2:SI1:OUT|2|70|140",
+      "product P1|97|40",
+      "product P2|98|70",
+      "journal je0 PI-A|True|2026-05-02|PI-A|Purchase Invoice PI-A - Supp TAG|U",
+      "  line 1-01-04-01-0001|11000|0||Inventory - PI-A",
+      "  line @Supp TAG|0|11000||AP - PI-A",
+      "journal je1 SI1|True|2026-05-14|SI1|Sales Invoice SI1 - Cust TAG|U",
+      "  line @Cust TAG|28771.62|0||AR - SI1",
+      "  line 4-01-01-01-0001|0|25621.5||Revenue - SI1",
+      "  line 4-02-02-01-0001|1275.08|0||Discount allowed - SI1",
+      "  line 4-01-01-01-0001|0|350.25||Freight - SI1",
+      "  line 2-01-03-01-0001|0|4445.4||Output Tax - SI1",
+      "  line 2-01-03-04-0001|0|740.9||Further Tax - SI1",
+      "  line 1-01-05-02-0001|1111.35|0||WHT Receivable - SI1",
+      "  line 5-04-01-01-0001|80.4|0||Unloading (absorbed cost) - SI1",
+      "  line 2-01-02-03-0001|0|80.4||Unloading accrued - SI1",
+      "  line 5-01-01-01-0001|260|0||COGS - SI1",
+      "  line 1-01-04-01-0001|0|260||Inventory - SI1"
+    ]
+  }
+}

@@ -1,0 +1,54 @@
+@model SettingsController.SettingsPage
+@{ var t = (SettingsController.AccountTab)Model.TabModel!; }
+<div class="set-card">
+  <h3>My Account</h3>
+  <p class="hint">Your own sign-in details. Everyone can change these; they affect only your account.</p>
+  <form method="POST" asp-antiforgery="true" action="/settings/account">
+    <div class="fgrid">
+      <div class="fgroup">
+        <label class="lbl">Full Name</label>
+        <input type="text" name="full_name" class="inp" value="@t.User.FullName">
+      </div>
+      <div class="fgroup">
+        <label class="lbl">User ID (sign in with this)</label>
+        <input type="text" name="login_id" class="inp" value="@J.Or(t.User.LoginId)">
+      </div>
+      <div class="fgroup">
+        <label class="lbl">Email</label>
+        <input type="email" name="email" class="inp" value="@t.User.Email">
+      </div>
+      <div class="fgroup">
+        <label class="lbl">Role</label>
+        <input type="text" class="inp" value="@ViewHelpers.Title(t.Role)" disabled
+               style="background:var(--bg-top);color:var(--muted);">
+        <div class="help">Roles and module access are set by an administrator.</div>
+      </div>
+    </div>
+
+    <div style="border-top:1px solid var(--line);margin:16px 0 14px;padding-top:14px;">
+      <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:10px;">Change Password</div>
+      <div class="fgrid">
+        <div class="fgroup">
+          <label class="lbl">New Password</label>
+          <input type="password" name="new_password" class="inp" autocomplete="new-password" minlength="8">
+        </div>
+        <div class="fgroup">
+          <label class="lbl">Confirm New Password</label>
+          <input type="password" name="confirm_password" class="inp" autocomplete="new-password">
+        </div>
+      </div>
+      <div class="help">Leave both blank to keep your current password.</div>
+      <div class="fgrid" style="margin-top:12px;">
+        <div class="fgroup">
+          <label class="lbl">Current Password</label>
+          <input type="password" name="current_password" class="inp" autocomplete="current-password">
+          <div class="help">Needed to change your User ID, email or password.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="set-actions">
+      <button type="submit" class="btn btn-p">Save Account</button>
+    </div>
+  </form>
+</div>

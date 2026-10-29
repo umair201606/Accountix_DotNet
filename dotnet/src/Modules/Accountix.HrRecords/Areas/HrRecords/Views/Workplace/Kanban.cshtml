@@ -1,0 +1,132 @@
+@model WorkplaceController.KanbanModel
+@{
+    ViewData["Title"] = "Task Board - Accountix ERP";
+    int selectedBoard = Model.SelectedBoard;
+    (string Key, string Label)[] statuses = [("todo", "To Do"), ("in_progress", "In Progress"), ("done", "Done")];
+}
+<div class="page-header">
+    <h1>Kanban Task Board</h1>
+    <button class="btn btn-primary" id="show-board-form">+ New Board</button>
+</div>
+<div id="board-form" class="hidden mb-20" style="max-width:400px;">
+    <form id="create-board-form" style="display:flex;gap:8px;">
+        <input type="text" id="board-title" class="form-control" placeholder="Board title" required>
+        <button type="submit" class="btn btn-primary btn-sm">Create</button>
+    </form>
+</div>
+
+<div class="flex gap-10 mb-20" style="flex-wrap:wrap;">
+    @foreach (var b in Model.Boards)
+    {
+    <a href="?board=@b.Id" class="btn @(b.Id == selectedBoard ? "btn-primary" : "btn-outline") btn-sm">@b.Title</a>
+    }
+</div>
+
+@if (selectedBoard != 0)
+{
+<div class="kanban-board" id="kanban-board" data-board="@selectedBoard">
+    @foreach (var s in statuses)
+    {
+    <div class="kanban-column" data-status="@s.Key">
+        <div class="kanban-col-header">@s.Label</div>
+        <div class="kanban-cards" id="col-@s.Key" ondragover="event.preventDefault()" ondrop="dropTask(event, '@s.Key')"></div>
+    </div>
+    }
+</div>
+    if (Model.Manageable.Contains(selectedBoard))
+    {
+<div style="margin-top:10px;">
+    <button class="btn btn-sm btn-outline" id="add-task-btn">+ Add Task</button>
+</div>
+    }
+}
+
+@section Scripts {
+<script>
+const boardId = document.getElementById('kanban-board')?.dataset.board;
+
+document.getElementById('show-board-form')?.addEventListener('click', () => {
+    document.getElementById('board-form').classList.toggle('hidden');
+});
+
+document.getElementById('create-board-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const title = document.getElementById('board-title').value;
+    const fd = new FormData(); fd.append('title', title);
+    const r = await fetch('/workplace/kanban/create-board', { method: 'POST', body: fd });
+    const d = await r.json();
+    if (d.success) location.reload();
+});
+
+async function updateTaskStatus(taskId, status) {
+    await fetch(`/workplace/kanban/update-task/${taskId}`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({status})
+    });
+}
+
+async function deleteTask(taskId) {
+    if (!confirm('Delete this task?')) return;
+    await fetch(`/workplace/kanban/delete-task/${taskId}`, { method: 'POST' });
+    loadTasks();
+}
+
+// Task titles and names are typed by people: text, never markup (a title
+// like <img onerror=...> used to run in every viewer's browser).
+function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
+}
+
+function createCard(t) {
+    const card = document.createElement('div');
+    card.className = 'kanban-card';
+    card.draggable = !!t.can_move;
+    card.dataset.taskId = t.id;
+    card.innerHTML = `<div class="task-title">${esc(t.title)}</div>
+        <div class="task-meta">${esc(t.assignee || 'Unassigned')}${t.due_date ? ' &middot; Due: ' + esc(t.due_date) : ''}</div>
+        ${t.can_delete ? `<div style="margin-top:6px;display:flex;gap:4px;">
+            <button class="btn-link" onclick="event.stopPropagation(); deleteTask(${Number(t.id)})" title="Delete">&#10005;</button>
+        </div>` : ''}`;
+    if (!t.can_move) return card;
+    card.addEventListener('dragstart', (e) => e.dataTransfer.setData('text/plain', t.id));
+    card.addEventListener('click', async () => {
+        const next = {todo:'in_progress', in_progress:'done', done:'todo'};
+        const newStatus = next[card.parentElement.closest('[data-status]').dataset.status];
+        await updateTaskStatus(t.id, newStatus);
+        loadTasks();
+    });
+    return card;
+}
+
+async function dropTask(e, status) {
+    e.preventDefault();
+    const taskId = e.dataTransfer.getData('text/plain');
+    await updateTaskStatus(taskId, status);
+    loadTasks();
+}
+
+async function loadTasks() {
+    if (!boardId) return;
+    const r = await fetch(`/workplace/kanban/${boardId}/tasks`);
+    const tasks = await r.json();
+    ['todo', 'in_progress', 'done'].forEach(status => {
+        const col = document.getElementById(`col-${status}`);
+        col.innerHTML = '';
+        tasks.filter(t => t.status === status).forEach(t => col.appendChild(createCard(t)));
+    });
+}
+
+document.getElementById('add-task-btn')?.addEventListener('click', async () => {
+    const title = prompt('Task title:');
+    if (!title) return;
+    const fd = new FormData(); fd.append('title', title);
+    const r = await fetch(`/workplace/kanban/${boardId}/add-task`, { method: 'POST', body: fd });
+    const d = await r.json();
+    if (d.success) loadTasks();
+});
+
+if (boardId) loadTasks();
+</script>
+}

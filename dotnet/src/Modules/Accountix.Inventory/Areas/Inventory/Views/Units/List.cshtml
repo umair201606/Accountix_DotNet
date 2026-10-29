@@ -1,0 +1,43 @@
+@model List<InvUnit>
+@{
+    ViewData["Title"] = "Units";
+    ViewData["Heading"] = "Units";
+}
+<div class="page-header">
+  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+    <a href="/inventory/units/create" class="btn btn-primary">+ New Unit</a>
+    <a href="/inventory/units/template" class="btn btn-outline btn-sm">Download Template</a>
+    <form method="POST" action="/inventory/units/upload-excel" enctype="multipart/form-data" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;max-width:100%;">
+      <input type="file" name="file" accept=".xlsx" required class="form-control" style="width:auto;padding:4px 8px;font-size:12px;">
+      <button type="submit" class="btn btn-outline btn-sm">Import Excel</button>
+    </form>
+  </div>
+</div>
+<div class="card">
+  <div class="table-responsive">
+    <table class="table">
+      <thead><tr><th>Name</th><th>Abbreviation</th><th>Explanation</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>
+        @foreach (var u in Model)
+        {
+        <tr class="@(u.IsActive == true ? "" : "inactive-row")">
+          <td>@u.Name</td>
+          <td><strong>@u.Abbreviation</strong></td>
+          <td>@(string.IsNullOrEmpty(u.Explanation) ? "-" : u.Explanation)</td>
+          <td><span class="badge @(u.IsActive == true ? "badge-success" : "badge-secondary")">@(u.IsActive == true ? "Active" : "Inactive")</span></td>
+          <td class="actions">
+            <a href="/inventory/units/edit/@u.Id" class="btn btn-sm btn-outline">Edit</a>
+            <form method="POST" action="/inventory/units/delete/@u.Id" style="display:inline" onsubmit="return confirm('Delete unit ' + @Accountix.Inventory.Services.MasterData.Json(u.Name) + '?')">
+              <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+            </form>
+          </td>
+        </tr>
+        }
+        @if (Model.Count == 0)
+        {
+        <tr><td colspan="5" class="empty">No units. Click <strong>+ New Unit</strong> to add one or <strong>Import Excel</strong> to batch upload.</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

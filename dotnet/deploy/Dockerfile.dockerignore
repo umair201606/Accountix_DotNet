@@ -1,0 +1,15 @@
+# Used by BuildKit for dotnet/deploy/Dockerfile (context: the repository root).
+**/bin/
+**/obj/
+**/.vs/
+**/*.user
+.git/
+instance/
+uploads/
+**/__pycache__/
+**/*.db
+**/*.dump
+dotnet/tests/
+dotnet/tools/*.json
+venv/
+node_modules/

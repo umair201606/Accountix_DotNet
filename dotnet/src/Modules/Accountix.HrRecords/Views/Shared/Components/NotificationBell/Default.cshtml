@@ -1,0 +1,24 @@
+@model Accountix.HrRecords.Components.NotificationBellViewComponent.Model
+@using Accountix.Web.Infrastructure
+<div class="notif-dropdown" id="notif-dropdown">
+  <button class="notif-btn" id="notif-btn">@Icons.Svg("bell")@if (Model.UnreadCount > 0) {<span class="notif-badge">@Model.UnreadCount</span>}</button>
+  <div class="notif-menu hidden" id="notif-menu">
+    <div class="notif-menu-header">
+      <strong>Notifications</strong>
+      <button class="btn-link" id="mark-all-read">Mark all read</button>
+    </div>
+    <div id="notif-list">
+      @foreach (var r in Model.Recent)
+      {
+      <div class="notif-item" data-id="@r.Id">
+        <div class="notif-title">@r.Title</div>
+        <div class="notif-msg">@r.Message</div>
+      </div>
+      }
+      @if (Model.Recent.Count == 0)
+      {
+      <div class="notif-empty">No new notifications</div>
+      }
+    </div>
+  </div>
+</div>

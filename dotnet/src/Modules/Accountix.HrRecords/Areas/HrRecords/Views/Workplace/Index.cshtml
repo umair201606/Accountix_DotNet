@@ -1,0 +1,92 @@
+@model WorkplaceController.IndexModel
+@{
+    ViewData["Title"] = "Workplace - Accountix ERP";
+    static string Badge(string? p) => p == "urgent" ? "danger" : p == "high" ? "warning" : "info";
+}
+<div class="page-header">
+    <h1>Modern Workplace</h1>
+</div>
+
+<div class="grid-3 mb-20">
+    <a href="/workplace/announcements" class="btn btn-outline btn-block">&#128240; Announcements</a>
+    <a href="/workplace/events" class="btn btn-outline btn-block">&#128197; Team Calendar</a>
+    <a href="/workplace/kanban" class="btn btn-outline btn-block">&#128203; Task Board</a>
+</div>
+
+<div class="card mb-20">
+    <div class="card-header flex-between">
+        <span>Latest Announcements</span>
+        @if (Model.CanPost)
+        {
+        <button class="btn btn-sm btn-primary" id="show-ann-form">+ New</button>
+        }
+    </div>
+    @if (Model.CanPost)
+    {
+    <div id="ann-form" class="hidden" style="margin-bottom:14px;padding:14px;background:var(--paper);border:1px solid var(--line);border-radius:3px;">
+        <form method="POST" action="/workplace/announcements/create">
+            <div class="form-group"><input type="text" name="title" class="form-control" placeholder="Title" required></div>
+            <div class="form-group"><textarea name="content" class="form-control form-textarea" placeholder="Content" required></textarea></div>
+            <div class="form-group">
+                <select name="priority" class="form-control" style="width:auto;">
+                    <option value="normal">Normal</option>
+                    <option value="high">High</option>
+                    <option value="urgent">Urgent</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm">Publish</button>
+        </form>
+    </div>
+    }
+    @foreach (var a in Model.Announcements)
+    {
+    <div style="padding:10px 0;border-bottom:1px solid var(--line);">
+        <div class="flex-between">
+            <strong style="font-size:13px;">@a.Title</strong>
+            <span class="badge badge-@Badge(a.Priority)">@(a.Priority ?? "None")</span>
+        </div>
+        <p style="font-size:12px;color:var(--muted);margin-top:4px;">@Py.Cut(a.Content, 150)@(a.Content.Length > 150 ? "..." : "")</p>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">@a.Author &middot; @Py.DMonY(a.CreatedAt)</div>
+    </div>
+    }
+    @if (Model.Announcements.Count == 0)
+    {
+    <p style="color:var(--muted);font-size:13px;">No announcements</p>
+    }
+</div>
+
+<div class="grid-2">
+    <div class="card">
+        <div class="card-header">Upcoming Events</div>
+        @foreach (var e in Model.Events)
+        {
+        <div style="padding:8px 0;border-bottom:1px solid var(--line);">
+            <strong style="font-size:13px;">@e.Title</strong>
+            <div style="font-size:12px;color:var(--muted);">@Py.Date(e.EventDate) @if (!string.IsNullOrEmpty(e.Location)) {@Html.Raw(" &middot; ")@e.Location}</div>
+        </div>
+        }
+        @if (Model.Events.Count == 0)
+        {
+        <p style="color:var(--muted);font-size:13px;">No upcoming events</p>
+        }
+    </div>
+    <div class="card">
+        <div class="card-header">Task Boards</div>
+        @foreach (var b in Model.Boards)
+        {
+        <a href="/workplace/kanban?board=@b.Id" style="display:block;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px;">@b.Title</a>
+        }
+        @if (Model.Boards.Count == 0)
+        {
+        <p style="color:var(--muted);font-size:13px;">No boards yet</p>
+        }
+    </div>
+</div>
+
+@section Scripts {
+<script>
+document.getElementById('show-ann-form')?.addEventListener('click', () => {
+    document.getElementById('ann-form').classList.toggle('hidden');
+});
+</script>
+}

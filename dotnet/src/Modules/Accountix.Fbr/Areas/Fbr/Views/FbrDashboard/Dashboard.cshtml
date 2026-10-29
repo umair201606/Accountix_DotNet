@@ -1,0 +1,174 @@
+@model Accountix.Fbr.Controllers.FbrDashboardController.DashboardModel
+@{
+    // fbr_app/templates/fbr/dashboard.html
+    ViewData["Title"] = "FBR Invoice Dashboard";
+    ViewData["Heading"] = "FBR Digital Invoicing — Submissions";
+    var config = Model.Config;
+    string? picked = Context.Request.Query["status"].FirstOrDefault();
+}
+@if (!FbrConfigs.Configured(config))
+{
+<div class="card" style="border-color:var(--amber);">
+  <div class="card-body" style="text-align:center;padding:32px;">
+    <p style="font-size:15px;color:var(--muted);margin-bottom:12px;">&#9888; FBR Digital Invoicing is not configured yet.</p>
+    <a href="/fbr/settings/" class="btn btn-accent">Go to FBR Settings</a>
+  </div>
+</div>
+}
+else
+{
+<div class="page-header">
+  <div>
+    <span class="badge badge-@(FbrConfigs.IsSandbox(config) ? "success" : "info")" style="font-size:11px;">
+      @((config.Environment ?? "None").ToUpperInvariant())
+    </span>
+    <span class="badge badge-@(config.IsActive == true ? "success" : "default")">
+      @(config.IsActive == true ? "ACTIVE" : "INACTIVE")
+    </span>
+  </div>
+  <div style="display:flex;gap:8px;">
+    <a href="/fbr/settings/" class="btn btn-primary btn-sm">Settings</a>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body" style="padding-bottom:8px;">
+    <form method="GET" style="display:inline-block;">
+      <select name="status" class="form-control" style="width:200px;display:inline-block;" onchange="this.form.submit()">
+        <option value="">All Status</option>
+        @foreach (var s in Accountix.Fbr.Controllers.FbrDashboardController.Statuses)
+        {
+        <option value="@s" selected="@(picked == s)">@ViewHelpers.Title(s)</option>
+        }
+      </select>
+    </form>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Invoice</th>
+          <th>FBR Invoice No.</th>
+          <th>Type</th>
+          <th>Status</th>
+          <th>Attempts</th>
+          <th>Submitted At</th>
+          <th>Submitted By</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach (var r in Model.Records)
+        {
+            string sc = r.Status == "success" ? "success" : r.Status == "failed" ? "danger" : r.Status == "pending" ? "warning" : "info";
+        <tr>
+          <td>@r.Id</td>
+          <td>
+            <a href="/inventory/invoices/@r.InvInvoiceId" style="font-weight:600;">
+              @(r.InvoiceNumber ?? "#" + r.InvInvoiceId)
+            </a>
+          </td>
+          <td class="mono">@(string.IsNullOrEmpty(r.FbrInvoiceNumber) ? "-" : r.FbrInvoiceNumber)</td>
+          <td>@(r.InvoiceType ?? "None")</td>
+          <td>
+            <span class="badge badge-@sc">@ViewHelpers.Title(r.Status ?? "None")</span>
+            @if (!string.IsNullOrEmpty(r.ErrorMessage) && r.Status == "failed")
+            {
+            <span class="mono" style="display:block;font-size:10px;color:var(--red);margin-top:2px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="@r.ErrorMessage">@r.ErrorMessage</span>
+            }
+          </td>
+          <td>@(r.AttemptCount?.ToString() ?? "None")</td>
+          <td>@(r.SubmittedAt?.ToString("yyyy-MM-dd HH:mm", System.Globalization.CultureInfo.InvariantCulture) ?? "-")</td>
+          <td>@(r.SubmittedBy ?? "-")</td>
+          <td>
+            <button type="button" class="btn btn-sm btn-info" onclick="viewJSON(@r.Id)">JSON</button>
+            @if (r.Status == "failed")
+            {
+            <button type="button" class="btn btn-sm btn-warning" onclick="retrySubmit(@r.Id)">Retry</button>
+            }
+          </td>
+        </tr>
+        }
+        @if (Model.Records.Count == 0)
+        {
+        <tr><td colspan="9" style="text-align:center;padding:24px;color:var(--muted);">No FBR submissions yet. Submit an invoice from the sales invoice page.</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+}
+
+<div class="modal-overlay" id="jsonModal" style="display:none;">
+  <div class="modal-content" style="max-width:800px;">
+    <div class="modal-header">
+      <h3>FBR Submission JSON</h3>
+      <button type="button" class="modal-close" onclick="closeJSON()">&times;</button>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:12px;">
+      <button type="button" class="btn btn-sm btn-primary" id="jsonReqTab" onclick="showJSONTab('req')">Request</button>
+      <button type="button" class="btn btn-sm btn-outline" id="jsonResTab" onclick="showJSONTab('res')">Response</button>
+    </div>
+    <pre id="jsonContent" class="mono" style="background:var(--ledger-dim);padding:14px;border-radius:4px;font-size:12px;overflow:auto;max-height:60vh;border:1px solid var(--line);white-space:pre-wrap;"></pre>
+  </div>
+</div>
+
+@section Scripts {
+<script>
+var _jsonRecord = null;
+var _jsonTab = 'req';
+
+async function viewJSON(recordId) {
+  var r = await fetch('/fbr/record/0'.replace('0', recordId));
+  _jsonRecord = await r.json();
+  _jsonTab = 'req';
+  document.getElementById('jsonModal').style.display = 'flex';
+  renderJSONTab();
+}
+
+function renderJSONTab() {
+  var content = document.getElementById('jsonContent');
+  var reqTab = document.getElementById('jsonReqTab');
+  var resTab = document.getElementById('jsonResTab');
+  if (_jsonTab === 'req') {
+    content.textContent = _jsonRecord.request_json || '{}';
+    reqTab.className = 'btn btn-sm btn-primary';
+    resTab.className = 'btn btn-sm btn-outline';
+  } else {
+    content.textContent = _jsonRecord.response_json || '{}';
+    resTab.className = 'btn btn-sm btn-primary';
+    reqTab.className = 'btn btn-sm btn-outline';
+  }
+}
+
+function showJSONTab(tab) {
+  _jsonTab = tab;
+  renderJSONTab();
+}
+
+function closeJSON() {
+  document.getElementById('jsonModal').style.display = 'none';
+}
+
+async function retrySubmit(recordId) {
+  if (!confirm('Retry this FBR submission?')) return;
+  try {
+    var r = await fetch('/fbr/retry/0'.replace('0', recordId), { method: 'POST' });
+    var data = await r.json();
+    if (data.ok) {
+      location.reload();
+    } else {
+      alert('Retry failed: ' + (data.error || 'Unknown error'));
+      location.reload();
+    }
+  } catch (e) {
+    alert('Retry error: ' + e.message);
+  }
+}
+
+document.getElementById('jsonModal').addEventListener('click', function(e) {
+  if (e.target === this) closeJSON();
+});
+</script>
+}

@@ -1,0 +1,170 @@
+@model PfAdminModel
+@{
+    ViewData["Title"] = "Provident Fund - Accountix ERP";
+    var config = Model.Config;
+    string today = Model.Today.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+    string Cut(string? s, int n) => s is null ? "" : s.Length > n ? s[..n] : s;
+}
+<div class="page-header">
+    <h1>Provident Fund Management</h1>
+</div>
+
+@if (config is not null)
+{
+<div class="stats-grid mb-20">
+    <div class="stat-card"><div class="stat-label">Employee Contribution</div><div class="stat-value">@(config.EmployeeContributionPct is null ? "None" : Py.Repr(Py.F(config.EmployeeContributionPct)))%</div></div>
+    <div class="stat-card"><div class="stat-label">Employer Contribution</div><div class="stat-value">@(config.EmployerContributionPct is null ? "None" : Py.Repr(Py.F(config.EmployerContributionPct)))%</div></div>
+    <div class="stat-card"><div class="stat-label">Max Loan %</div><div class="stat-value">@(config.MaxLoanPercentage is null ? "None" : Py.Repr(Py.F(config.MaxLoanPercentage)))%</div></div>
+    <div class="stat-card"><div class="stat-label">Min Service (Months)</div><div class="stat-value">@(config.MinServiceMonthsForLoan?.ToString() ?? "None")</div></div>
+</div>
+}
+
+<div class="card mb-20">
+    <div class="card-header">Recent Contributions</div>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Employee</th><th>Period</th><th>Employee Amt</th><th>Employer Amt</th><th>Total</th></tr></thead>
+            <tbody>
+                @foreach (var c in Model.Contributions)
+                {
+                <tr>
+                    <td>@c.FullName</td>
+                    <td>@c.Row.Month/@c.Row.Year</td>
+                    <td>Rs. @Html.Amount(c.Row.EmployeeAmount, 0)</td>
+                    <td>Rs. @Html.Amount(c.Row.EmployerAmount, 0)</td>
+                    <td><strong>Rs. @Html.Amount(c.Row.TotalAmount, 0)</strong></td>
+                </tr>
+                }
+                @if (Model.Contributions.Count == 0)
+                {
+                <tr><td colspan="5" class="text-center" style="color:var(--muted);">No contributions yet</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card mb-20">
+    <div class="card-header">Pending Withdrawal Requests</div>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Employee</th><th>Amount</th><th>Reason</th><th>Actions</th></tr></thead>
+            <tbody>
+                @{ var pendingW = Model.Withdrawals.Where(w => w.Row.Status == "pending").ToList(); }
+                @foreach (var w in pendingW)
+                {
+                <tr>
+                    <td>@w.FullName</td>
+                    <td>Rs. @Html.Amount(w.Row.Amount, 0)</td>
+                    <td>@Cut(w.Row.Reason, 40)</td>
+                    <td>
+                        <form method="POST" action="/pf/approve-withdrawal/@w.Row.Id" class="pf-pay">
+                            <select name="account_id" class="form-control pf-inline" required aria-label="Paid from"><option value="">Paid from…</option>@foreach (var a in Model.Accounts) {<option value="@a.Id">@a.Code @a.Name</option>}</select><input type="date" name="paid_on" class="form-control pf-inline" value="@today" aria-label="Paid on">
+                            <button class="btn btn-sm btn-accent">Approve &amp; pay</button>
+                        </form>
+                        <form method="POST" action="/pf/approve-withdrawal/@w.Row.Id" style="display:inline;">
+                            <input type="hidden" name="action" value="reject">
+                            <button class="btn btn-sm btn-outline">Reject</button>
+                        </form>
+                    </td>
+                </tr>
+                }
+                @if (pendingW.Count == 0)
+                {
+                <tr><td colspan="4" class="text-center" style="color:var(--muted);">No pending withdrawals</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">Pending Loan Requests</div>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Employee</th><th>Amount</th><th>Installments</th><th>Monthly</th><th>Purpose</th><th>Actions</th></tr></thead>
+            <tbody>
+                @{ var pendingL = Model.Loans.Where(l => l.Row.Status == "pending").ToList(); }
+                @foreach (var l in pendingL)
+                {
+                <tr>
+                    <td>@l.FullName</td>
+                    <td>Rs. @Html.Amount(l.Row.Amount, 0)</td>
+                    <td>@(l.Row.InstallmentMonths?.ToString() ?? "None")</td>
+                    <td>Rs. @Html.Amount(l.Row.MonthlyInstallment, 0)</td>
+                    <td>@Cut(l.Row.Purpose, 30)</td>
+                    <td>
+                        <form method="POST" action="/pf/approve-loan/@l.Row.Id" class="pf-pay">
+                            <select name="account_id" class="form-control pf-inline" required aria-label="Paid from"><option value="">Paid from…</option>@foreach (var a in Model.Accounts) {<option value="@a.Id">@a.Code @a.Name</option>}</select><input type="date" name="paid_on" class="form-control pf-inline" value="@today" aria-label="Paid on">
+                            <button class="btn btn-sm btn-accent">Approve &amp; pay</button>
+                        </form>
+                        <form method="POST" action="/pf/approve-loan/@l.Row.Id" style="display:inline;">
+                            <input type="hidden" name="action" value="reject">
+                            <button class="btn btn-sm btn-outline">Reject</button>
+                        </form>
+                    </td>
+                </tr>
+                }
+                @if (pendingL.Count == 0)
+                {
+                <tr><td colspan="6" class="text-center" style="color:var(--muted);">No pending loans</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<p class="text-muted" style="font-size:.85rem;">Every payment out of the fund posts Dr PF Payable / Cr the bank or cash account; profit credited to members posts Dr PF Profit Credited to Members / Cr PF Payable; PF loans are repaid through payroll. Books Integrity checks that the members' ledger equals PF Payable.</p>
+
+@if (Model.CanProfit)
+{
+<div class="card">
+    <div class="card-header">Distribute profit</div>
+    <form method="POST" action="/pf/distribute-profit" class="pf-pay" style="padding:12px;">
+        <input type="number" name="month" class="form-control pf-inline" min="1" max="12" value="@Model.Today.Month" required aria-label="Month">
+        <input type="number" name="year" class="form-control pf-inline" min="2000" max="2100" value="@Model.Today.Year" required aria-label="Year">
+        <input type="number" name="total_profit" class="form-control pf-inline" min="0.01" step="0.01" placeholder="Total profit (Rs.)" required aria-label="Total profit">
+        <button class="btn btn-sm btn-primary">Distribute</button>
+        <span class="text-muted" style="font-size:.8rem;">Shared over members with a positive balance, in proportion to it.</span>
+    </form>
+</div>
+}
+
+@if (Model.CanSettle)
+{
+<div class="card">
+    <div class="card-header">Final settlement</div>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Member</th><th class="r">Balance</th><th>Pay out</th></tr></thead>
+            <tbody>
+            @foreach (var (uid, name, b) in Model.Members)
+            {
+            <tr><td>@name</td><td class="r">Rs. @Py.Amount(b, 0, Context.Access()?.NumberFormat ?? "en")</td>
+                <td>@if (b > 0)
+                    {
+                    <form method="POST" action="/pf/settle/@uid" class="pf-pay"
+                          onsubmit="return confirm('Pay out this member\'s whole PF balance and close it?');">
+                        <select name="account_id" class="form-control pf-inline" required aria-label="Paid from"><option value="">Paid from…</option>@foreach (var a in Model.Accounts) {<option value="@a.Id">@a.Code @a.Name</option>}</select><input type="date" name="paid_on" class="form-control pf-inline" value="@today" aria-label="Paid on">
+                        <button class="btn btn-sm btn-danger">Settle</button>
+                    </form>
+                    }
+                    else
+                    {
+                    <span class="text-muted">Owes the fund</span>
+                    }</td></tr>
+            }
+            @if (Model.Members.Count == 0)
+            {
+            <tr><td colspan="3" class="text-center" style="color:var(--muted);">No member balances</td></tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+}
+<style>
+  .pf-pay { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .pf-inline { width: auto; min-width: 0; max-width: 100%; display: inline-block; }
+  .r { text-align: right; white-space: nowrap; }
+</style>

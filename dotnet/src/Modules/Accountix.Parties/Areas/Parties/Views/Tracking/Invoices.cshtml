@@ -1,0 +1,247 @@
+@model Accountix.Parties.Controllers.InvoicesPageModel
+@using Accountix.Parties.Services
+@{
+    var m = Model;
+    var meta = m.DocMeta;
+    ViewData["Title"] = meta.Title;
+    var bucketColors = new Dictionary<string, string>
+    {
+        ["not_due"] = "var(--v2-line-2)",
+        ["d1_30"] = "color-mix(in srgb, var(--v2-neg) 28%, var(--v2-surface))",
+        ["d31_60"] = "color-mix(in srgb, var(--v2-neg) 52%, var(--v2-surface))",
+        ["d61_90"] = "color-mix(in srgb, var(--v2-neg) 76%, var(--v2-surface))",
+        ["d90_plus"] = "var(--v2-neg)",
+    };
+    var s = m.Summary;
+    decimal ageTotal = s.Buckets.Values.Sum();
+    string partyWord = meta.PartyLabel.ToLowerInvariant();
+    var chips = new (string Key, string Label)[] { ("unpaid", "Unpaid"), ("partial", "Partial"), ("paid", "Paid") };
+    var inv = System.Globalization.CultureInfo.InvariantCulture;
+}
+@section Head {
+<partial name="_TrackingStyle" />
+}
+<div class="trk">
+
+  <div class="trk-statline">
+    <span><b>@Html.Amount(s.Outstanding, 0)</b> @meta.OpenWord.ToLowerInvariant()</span>
+    <span class="sep">·</span>
+    <span>@s.OpenCount open</span>
+    <span class="sep">·</span>
+    @if (s.OverdueCount > 0)
+    {
+    <a href="@(meta.Endpoint)?overdue=1" class="late">
+      <b>@Html.Amount(s.Overdue, 0)</b> overdue in
+      @s.OverdueCount @(s.OverdueCount == 1 ? "invoice" : "invoices")</a>
+    }
+    else {<span>nothing past due</span>}
+  </div>
+  @if (ageTotal != 0)
+  {
+  <div class="trk-agestrip" role="img"
+       aria-label="Ageing of the @meta.OpenWord.ToLowerInvariant()">
+    @foreach (var b in TrackingRules.AgeBuckets)
+    {
+    decimal v = s.Buckets.GetValueOrDefault(b.Key);
+    if (v > 0)
+    {
+    <span style="width:@((v / ageTotal * 100).ToString("F2", inv))%;background:@bucketColors[b.Key];"
+          title="@b.Label: @Html.Amount(v, 0)"></span>
+    }
+    }
+  </div>
+  }
+
+  @if (m.WaitingTotal > 0)
+  {
+  <div class="trk-matchbar" id="trkMatchBar">
+    <div>
+      <p><b>@Html.Amount(m.WaitingTotal, 2)</b> @meta.MoneyWord.ToLowerInvariant() from
+        @m.WaitingParties @(m.WaitingParties != 1 ? meta.PartyPlural : partyWord)
+        is not matched to invoices yet, so some invoices below are not really @(m.DocType == "SI" ? "unpaid" : "owed").</p>
+      <p class="trk-note">Match it oldest invoice first, or assign it by hand in the
+        <a href="/invoicing/tracking/?side=@partyWord">payment &amp; receipt feed</a>.</p>
+    </div>
+    @if (m.CanAssign)
+    {
+    <button type="button" class="btn btn-sm btn-primary" id="trkMatch"
+            data-side="@partyWord" data-label="Match oldest first">Match oldest first</button>
+    }
+  </div>
+  }
+
+  <form method="GET" class="trk-filterbar @(m.Filtering ? "open" : "")">
+    <input type="hidden" name="pay" value="">
+    <div class="trk-chips">
+      @foreach (var (key, label) in chips)
+      {
+      <label class="trk-chip">
+        <input type="checkbox" name="pay" value="@key" checked="@m.Pay.Contains(key)">
+        <span>@label</span>
+      </label>
+      }
+      <label class="trk-chip is-late">
+        <input type="checkbox" name="overdue" value="1" checked="@m.Overdue">
+        <span>Overdue only</span>
+      </label>
+      <button type="button" class="btn btn-sm btn-outline trk-filter-toggle"
+              aria-expanded="@(m.Filtering ? "true" : "false")"
+              onclick="var f=this.form;f.classList.toggle('open');this.setAttribute('aria-expanded',f.classList.contains('open'))">
+        Filters</button>
+    </div>
+
+    <div class="trk-filterbar-row">
+      <select name="sort" class="trk-select" aria-label="Order">
+        @foreach (var (key, label) in Accountix.Parties.Controllers.TrackingController.Sorts)
+        {
+        <option value="@key" selected="@(key == m.Sort)">@label</option>
+        }
+      </select>
+      <select name="age" class="trk-select" aria-label="Overdue age">
+        <option value="">Any age</option>
+        @foreach (var b in TrackingRules.AgeBuckets)
+        {
+        <option value="@b.Key" selected="@m.Age.Contains(b.Key)">@b.Label</option>
+        }
+      </select>
+      <select name="party_id" class="trk-select" aria-label="@meta.PartyLabel"
+              disabled="@(m.Parties.Count == 0)">
+        @if (m.Parties.Count > 0)
+        {
+        <option value="">All @meta.PartyPlural</option>
+        @foreach (var p in m.Parties)
+        {
+        <option value="@p.Id" selected="@(m.PartyId == p.Id)">@p.Name</option>
+        }
+        }
+        else
+        {
+        <option value="">No @meta.PartyPlural yet</option>
+        }
+      </select>
+      <input type="search" name="q" value="@m.Q" class="trk-input trk-filterbar-search"
+             placeholder="Invoice number" aria-label="Invoice number" autocomplete="off">
+      <input type="date" name="from" value="@m.From" class="trk-input" aria-label="From date">
+      <input type="date" name="to" value="@m.To" class="trk-input" aria-label="To date">
+      <button type="submit" class="btn btn-sm btn-primary">Apply</button>
+      @if (m.Filtering || m.Sort != "newest")
+      {
+      <a href="@meta.Endpoint" class="trk-rowbtn">Reset</a>
+      }
+    </div>
+  </form>
+
+  <p class="trk-count">@m.Pager.Total @(m.Pager.Total == 1 ? "invoice" : "invoices")@if (m.Pay.Count > 0 && m.Pay.Count < 3) {<text> · @string.Join(" or ", m.Pay)</text>}</p>
+
+    <div class="trk-table-wrap trk-table-plain">
+      <table class="trk-table">
+        <thead>
+          <tr>
+            <th>Invoice</th>
+            <th>@meta.PartyLabel</th>
+            <th class="trk-hide-sm">Date</th>
+            <th>Due</th>
+            <th class="num trk-hide-sm">Total</th>
+            <th class="num">@meta.MoneyWord</th>
+            <th class="num">Outstanding</th>
+            <th>Age</th>
+            <th>State</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach (var r in m.Rows)
+          {
+          <tr>
+            <td data-label="Invoice">
+              <a href="/invoicing/tracking/invoice/@m.DocType/@r.Id"
+                 class="trk-doclink" title="Settlement history">@r.Number</a>
+            </td>
+            <td data-label="@meta.PartyLabel">@r.PartyName</td>
+            <td data-label="Date" class="trk-nowrap trk-hide-sm">@(r.DateStr.Length > 0 ? r.DateStr : "—")</td>
+            <td data-label="Due" class="trk-nowrap">@(r.DueStr.Length > 0 ? r.DueStr : "—")</td>
+            <td data-label="Total" class="num trk-hide-sm">@Html.Amount(r.Total, 2)</td>
+            <td data-label="@meta.MoneyWord" class="num">
+              @Html.Amount(r.Settled, 2)
+              @if (r.Credited != 0) {<span class="trk-subline">+ @Html.Amount(r.Credited, 2) returned</span>}
+            </td>
+            <td data-label="Outstanding" class="num strong">@Html.Amount(r.Outstanding, 2)</td>
+            <td data-label="Age" class="trk-nowrap">
+              @if (r.OverdueDays > 0)
+              {
+              <span class="trk-age @(r.OverdueDays > 30 ? "hot" : "warm")">@r.OverdueDays days late</span>
+              }
+              else
+              {
+              <span class="trk-age">@(r.PayState == "paid" ? "Settled" : "Not due")</span>
+              }
+            </td>
+            <td data-label="State">
+              <span class="trk-pay trk-pay-@r.PayState">
+                @(r.PayState == "unpaid" ? "Unpaid" : r.PayState == "partial" ? "Partial" : "Paid")
+              </span>
+            </td>
+          </tr>
+          }
+          @if (m.Rows.Count == 0)
+          {
+          <tr>
+            <td colspan="9" class="trk-empty">
+              <span class="trk-empty-icon">&#128203;</span>
+              <strong>No invoice matches these filters</strong>
+              <p>Only approved invoices are tracked here — an unapproved one owes
+                nothing yet.@if (m.Pay.SequenceEqual(["unpaid", "partial"])) {<text> Every open invoice is settled; tick Paid to see them.</text>}</p>
+              <a href="@(meta.Endpoint)?pay=" class="btn btn-outline">Show every invoice</a>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <partial name="_Pager" model="@m.Pager" />
+</div>
+
+@section Scripts {
+@if (m.CanAssign && m.WaitingTotal > 0)
+{
+<script>
+(function () {
+  var btn = document.getElementById('trkMatch');
+  if (!btn) return;
+  var armed = null;
+  btn.addEventListener('click', function () {
+    // First press arms it; the second matches.
+    if (!btn.classList.contains('is-armed')) {
+      btn.classList.add('is-armed');
+      btn.textContent = 'Press again to match';
+      armed = setTimeout(function () { btn.classList.remove('is-armed'); btn.textContent = btn.dataset.label; }, 4000);
+      return;
+    }
+    clearTimeout(armed);
+    btn.classList.remove('is-armed');
+    btn.disabled = true;
+    btn.textContent = 'Matching…';
+    fetch('/invoicing/tracking/api/auto-match', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ side: btn.dataset.side })
+    }).then(function (r) { return r.json(); })
+      .then(function (data) {
+        var bar = document.getElementById('trkMatchBar');
+        if (!data.ok) {
+          btn.disabled = false;
+          btn.textContent = btn.dataset.label;
+          if (bar) bar.querySelector('.trk-note').textContent = data.error || 'That was refused.';
+          return;
+        }
+        if (bar) {
+          bar.classList.add('is-done');
+          bar.querySelector('div').innerHTML = '<p></p>';
+          bar.querySelector('p').textContent = data.message;
+        }
+        setTimeout(function () { window.location.reload(); }, 900);
+      })
+      .catch(function () { btn.disabled = false; btn.textContent = btn.dataset.label; });
+  });
+})();
+</script>
+}
+}

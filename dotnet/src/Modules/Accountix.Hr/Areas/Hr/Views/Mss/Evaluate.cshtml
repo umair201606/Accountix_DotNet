@@ -1,0 +1,42 @@
+@model Accountix.Hr.Controllers.MssController.EvaluateModel
+@{
+    ViewData["Title"] = "Evaluate - Accountix ERP";
+    var e = Model.Employee;
+}
+<div class="page-header">
+    <h1>Performance Evaluation: @e.FullName</h1>
+</div>
+<div class="grid-2">
+    <div class="card">
+        <div class="card-header">Employee Details</div>
+        <table>
+            <tr><td style="font-weight:600;">Designation</td><td>@(Py.Text(Model.Designation) is { Length: > 0 } des ? des : "-")</td></tr>
+            <tr><td style="font-weight:600;">Department</td><td>@(Py.Text(Model.Department) is { Length: > 0 } dep ? dep : "-")</td></tr>
+            <tr><td style="font-weight:600;">Date of Joining</td><td>@(e.DateOfJoining is null ? "-" : Py.Date(e.DateOfJoining))</td></tr>
+        </table>
+    </div>
+    <div class="card">
+        <div class="card-header">Salary Revision</div>
+        <form method="POST">
+            <div class="form-group">
+                <label>Current Basic Salary</label>
+                <input type="text" class="form-control" value="@(Model.Profile is null ? "Not set" : Html.Amount(Model.Profile.BasicSalary, 0))" disabled>
+            </div>
+            <div class="form-group">
+                <label>New Basic Salary</label>
+                <input type="number" name="new_basic" class="form-control" step="1000" required placeholder="Enter new salary">
+            </div>
+            <div class="form-group">
+                <label>Effective from</label>
+                <input type="date" name="effective_from" class="form-control" value="@Py.Date(Model.Today)" required>
+                <small class="text-muted">Payroll pays each month at the rate in force then; a raise from the 16th pays half that month at each rate.</small>
+            </div>
+            <div class="form-group">
+                <label>Reason / Notes</label>
+                <textarea name="reason" class="form-control form-textarea" placeholder="Evaluation notes..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit Revision</button>
+            <a href="/mss/" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>

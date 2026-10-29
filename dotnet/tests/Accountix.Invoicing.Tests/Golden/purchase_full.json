@@ -1,0 +1,125 @@
+{
+  "captured": "2026-10-29, Python app (Flask), before it was removed",
+  "capture": "Golden/capture/invoices.py",
+  "inputs": {
+    "settings": {
+      "valuation_method": "weighted_average",
+      "allow_negative_stock": false,
+      "per_line_labeling_invoice": false,
+      "default_cogs_account_id": null,
+      "default_inventory_account_id": null,
+      "default_return_account_id": null,
+      "default_invoice_label_id": null
+    },
+    "steps": [
+      {
+        "role": "PI",
+        "type": "PI",
+        "url": "/inventory/purchase-invoice/save",
+        "payload": {
+          "supplier_id": -2,
+          "invoice_date": "2026-05-20",
+          "action": "approve",
+          "label_id": "",
+          "driver_name": "Aslam",
+          "driver_contact": "0300",
+          "vehicle_number": "LES-1234",
+          "gate_pass": "GP-7",
+          "discount_mode": "general",
+          "expenses_mode": "individual",
+          "tax_mode": "general",
+          "global_discount_pct": 2.5,
+          "global_discount_value": 0,
+          "global_commission": 0,
+          "global_freight": 0,
+          "global_loading": 0,
+          "global_sales_tax_pct": 18,
+          "global_withholding_tax_pct": 4.5,
+          "apply_withholding_tax": true,
+          "subtotal": 13333.33,
+          "total_discount": 333.33,
+          "total_expenses": 0,
+          "total_tax": 0,
+          "net_payable": 0,
+          "total_amount": 0,
+          "paid_amount": 0,
+          "payment_status": "unpaid",
+          "notes": "Parity purchase",
+          "items": [
+            {
+              "product_id": -3,
+              "description": "Panel",
+              "quantity": 7,
+              "unit": "pcs",
+              "unit_price": 333.333,
+              "freight": 15.5,
+              "commission": 0,
+              "loading_unloading": 4.25,
+              "total_before_discount": 2333.33,
+              "total_after_discount": 2333.33
+            },
+            {
+              "product_id": -4,
+              "description": "Inverter",
+              "quantity": 3,
+              "unit": "pcs",
+              "unit_price": 3666.6667,
+              "freight": 0,
+              "commission": 12,
+              "loading_unloading": 0,
+              "total_before_discount": 11000,
+              "total_after_discount": 11000
+            }
+          ],
+          "charges": [
+            {
+              "charge_account_id": -6,
+              "description": "Carriage inward",
+              "amount": 211.11,
+              "treatment": "absorb"
+            },
+            {
+              "charge_account_id": -5,
+              "description": "Supplier freight",
+              "amount": 150,
+              "treatment": "bill",
+              "st_taxable": true,
+              "wht_taxable": true
+            },
+            {
+              "charge_account_id": -6,
+              "description": "Octroi",
+              "amount": 77.77,
+              "treatment": "expense"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "expected": {
+    "PI": [
+      "answer|200|Invoice approved and locked",
+      "pi PI|PI|PI|2026-05-20|Supp|||Aslam|0300|LES-1234|GP-7|general|individual|general|2.5|0|0|0|0|18|4.5|0|False|True|13333.33|333.33|0|2410.71|0|602.68|15200.89|15200.89|0|unpaid||Parity purchase|approved|U|U|set|0",
+      "pi_item PI|P1|Panel|7|pcs|333.333|||||0|0|0|15.5|4.25|0|0|2333.33|2333.33|",
+      "pi_item PI|P2|Inverter|3|pcs|3666.6667|||||0|0|12|0|0|0|0|11000|11000|",
+      "charge PI|5-04-01-01-0001|Carriage inward|211.11|general|pro_rata_value||absorb|False|False|False|True|after_discount",
+      "charge PI|4-01-01-01-0001|Supplier freight|150|general|pro_rata_value||bill|True|True|False|True|after_discount",
+      "charge PI|5-04-01-01-0001|Octroi|77.77|general|pro_rata_value||expense|False|False|False|True|after_discount",
+      "ledger P1:PI:IN|7|333.0986|2331.69|7|2331.69|333.0986|weighted_average|2026-05-20|PI|Purchase PI|U",
+      "ledger P2:PI:IN|3|3637.0567|10911.17|3|10911.17|3637.0567|weighted_average|2026-05-20|PI|Purchase PI|U",
+      "layer P1:layer0|P1:PI:IN|333.0986|7|7|2331.69|weighted_average|False|Purchase PI",
+      "layer P2:layer0|P2:PI:IN|3637.0567|3|3|10911.17|weighted_average|False|Purchase PI",
+      "product P1|7|333.0986",
+      "product P2|3|3637.0567",
+      "journal je0 PI|True|2026-05-20|PI|Purchase Invoice PI - Supp TAG|U",
+      "  line 1-01-04-01-0001|13242.86|0||Inventory - PI",
+      "  line 1-01-05-01-0001|2410.71|0||Input Tax - PI",
+      "  line 4-01-01-01-0001|150|0||Supplier freight - PI",
+      "  line 5-04-01-01-0001|77.77|0||Octroi - PI",
+      "  line @Supp TAG|0|15200.89||AP - PI",
+      "  line 2-01-03-03-0001|0|602.68||WHT - PI",
+      "  line 2-01-02-03-0001|0|77.77||Charges payable - PI"
+    ]
+  }
+}

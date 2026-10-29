@@ -1,0 +1,59 @@
+@model Accountix.Returns.Models.ReturnListModel
+@* Ported from invoicing_app/templates/purchase_return/list_return.html. *@
+@{
+    ViewData["Title"] = "Purchase Returns";
+    ViewData["Heading"] = "Purchase Returns (Debit Notes)";
+}
+<div class="page-header">
+  <a href="/inventory/purchase-return/" class="btn btn-primary" style="background:var(--danger);">+ New Return</a>
+</div>
+<div class="card">
+  <div class="table-responsive">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Return #</th>
+          <th>Original Invoice</th>
+          <th>Supplier</th>
+          <th>Date</th>
+          <th>Gross Return</th>
+          <th>Net Return</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach (var ret in Model.Rows)
+        {
+        <tr>
+          <td><strong>@ret.ReturnNumber</strong></td>
+          <td>@(ret.InvoiceNumber ?? "-")</td>
+          <td>@(ret.PartyName ?? "-")</td>
+          <td>@(ret.CreatedAt?.ToString("yyyy-MM-dd") ?? "")</td>
+          <td>@Html.Amount(ret.GrossReturnValue, 0)</td>
+          <td>@Html.Amount(ret.NetReturnAmount, 0)</td>
+          <td>
+            <span class="badge badge-@(ret.Status)">
+              @(ret.Status switch { "new" => "New", "unapproved" => "Unapproved", "approved" => "Approved", _ => ret.Status })
+            </span>
+          </td>
+          <td class="actions">
+            <a href="/inventory/purchase-return/@ret.Id" class="btn btn-sm btn-outline">
+              @(ret.Status == "approved" ? "View" : "Edit")
+            </a>
+          </td>
+        </tr>
+        }
+        @if (Model.Rows.Count == 0)
+        {
+        <tr><td colspan="8" class="empty">No purchase returns</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+<style>
+.badge-new { background:var(--bg-top); color:var(--accent); }
+.badge-unapproved { background:var(--danger-light); color:var(--danger); }
+.badge-approved { background:var(--bg-top); color:var(--success); }
+</style>

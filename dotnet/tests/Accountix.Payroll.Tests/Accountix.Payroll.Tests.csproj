@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Modules\Accountix.Payroll\Accountix.Payroll.csproj" />
+    <!-- The real general ledger (Accounting is finished and stable): journals post through it in every test. -->
+    <ProjectReference Include="..\..\src\Modules\Accountix.Accounting\Accountix.Accounting.csproj" />
+    <!-- Worlds are provisioned as the portal provisions a company (Platform's CompanySetup); the books are
+         checked after each posting step with Books Integrity (Executive); the sanity steps use HR's MSS routes. -->
+    <ProjectReference Include="..\..\src\Modules\Accountix.Platform\Accountix.Platform.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Accountix.Executive\Accountix.Executive.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Accountix.Hr\Accountix.Hr.csproj" />
+    <ProjectReference Include="..\Accountix.TestSupport\Accountix.TestSupport.csproj" />
+  </ItemGroup>
+
+  <!-- Golden fixtures captured from the Python app (Golden/capture/ says how). -->
+  <ItemGroup>
+    <None Update="Golden\**\*.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

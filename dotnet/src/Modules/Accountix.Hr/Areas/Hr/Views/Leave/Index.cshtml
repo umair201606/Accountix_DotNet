@@ -1,0 +1,54 @@
+@model Accountix.Hr.Controllers.LeaveController.IndexModel
+@{
+    ViewData["Title"] = "Leaves - Accountix ERP";
+}
+<div class="page-header">
+    <div>
+        <h1>Leave Management</h1>
+        <p class="subtitle">Apply for leave and check your balances</p>
+    </div>
+    <a href="/leaves/apply" class="btn btn-primary">&#43; Apply Leave</a>
+</div>
+
+<div class="stats-grid">
+    @foreach (var (q, t) in Model.Quotas)
+    {
+    <div class="stat-card">
+        <div class="stat-label">@t.Name (@t.Code)</div>
+        <div class="stat-value" style="font-size:22px;">@Py.G(q.Remaining)</div>
+        <div class="stat-sub">Used @Py.G(q.Used) / Total @Py.G(q.Total)</div>
+    </div>
+    }
+    @if (Model.Quotas.Count == 0)
+    {
+    <div class="stat-card"><div class="stat-label">No quotas configured</div></div>
+    }
+</div>
+
+<div class="card">
+    <div class="card-header">My Leave Requests</div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>Type</th><th>Start</th><th>End</th><th>Days</th><th>Status</th><th>Applied</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var (r, type) in Model.Requests)
+                {
+                <tr>
+                    <td>@type</td>
+                    <td>@Py.Date(r.StartDate)</td>
+                    <td>@Py.Date(r.EndDate)</td>
+                    <td>@Py.Float(r.TotalDays)</td>
+                    <td><span class="badge badge-@(r.Status == "approved" ? "success" : r.Status == "rejected" ? "danger" : "warning")">@r.Status</span></td>
+                    <td>@Py.DMonY(r.CreatedAt)</td>
+                </tr>
+                }
+                @if (Model.Requests.Count == 0)
+                {
+                <tr><td colspan="6" class="text-center" style="color:var(--muted);">No leave requests</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

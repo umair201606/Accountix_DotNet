@@ -1,0 +1,71 @@
+@model LoansModel
+@{
+    ViewData["Title"] = "Staff Loans - Accountix ERP";
+    string today = Model.Today.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+}
+<div class="page-header">
+    <div>
+        <a href="/compensation/" class="prd-back">&larr; Compensation</a>
+        <h1>Staff loans &amp; advances</h1>
+    </div>
+</div>
+<p class="text-muted" style="font-size:.85rem;">An approved loan is paid out here, from a bank or cash account (Dr the employee's loan account, Cr the bank). Payroll recovers instalments only after it has been paid out, and each recovery is credited back to the same loan account.</p>
+<div class="card">
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>#</th><th>Employee</th><th>Type</th><th class="r">Amount</th><th class="r">Instalment</th><th class="r">To recover</th><th>Status</th><th>Paid out</th></tr></thead>
+            <tbody>
+            @foreach (var row in Model.Loans)
+            {
+            var l = row.Loan;
+            <tr>
+                <td>@l.Id</td>
+                <td>@(row.FullName ?? "")</td>
+                <td>@Py.Title(l.RequestType ?? "")</td>
+                <td class="r">@Html.Amount(l.Amount, 0)</td>
+                <td class="r">@Html.Amount(l.MonthlyInstallment ?? 0, 0)</td>
+                <td class="r">@Html.Amount(l.RemainingAmount ?? 0, 0)</td>
+                <td><span class="badge badge-@(l.Status is "approved" or "paid" ? "success" : l.Status == "rejected" ? "danger" : "warning")">@l.Status</span></td>
+                <td>
+                    @if (l.DisbursedAt is DateTime paid)
+                    {
+                        @paid.ToString("dd-MMM-yyyy", CultureInfo.InvariantCulture)
+                        if (l.Status == "approved")
+                        {
+                        <form method="POST" action="/compensation/loans/@l.Id/undo-disbursement" style="display:inline;"
+                              onsubmit="return confirm('Reverse the payment of this loan?');">
+                            <button class="btn btn-sm btn-outline" type="submit">Undo</button>
+                        </form>
+                        }
+                    }
+                    else if (l.Status == "approved")
+                    {
+                        <form method="POST" action="/compensation/loans/@l.Id/disburse" class="loan-pay">
+                            <select name="account_id" class="form-control" required aria-label="Paid from">
+                                <option value="">Paid from…</option>
+                                @foreach (var a in Model.Accounts) { <option value="@a.Id">@a.Code @a.Name</option> }
+                            </select>
+                            <input type="date" name="paid_on" class="form-control" value="@today" aria-label="Paid on">
+                            <button class="btn btn-sm btn-primary" type="submit">Pay out</button>
+                        </form>
+                    }
+                    else
+                    {
+                        @Html.Raw("&mdash;")
+                    }
+                </td>
+            </tr>
+            }
+            @if (Model.Loans.Count == 0)
+            {
+            <tr><td colspan="8" class="text-center" style="color:var(--muted);">No loan requests yet.</td></tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+<style>
+  .r { text-align: right; white-space: nowrap; }
+  .loan-pay { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .loan-pay .form-control { width: auto; min-width: 0; max-width: 100%; }
+</style>

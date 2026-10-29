@@ -1,0 +1,19 @@
+@model Accountix.Parties.Controllers.RegisterBodyModel
+@* Invoice register rows — data rows only (no tbody/tfoot wrapper), so the partial nests inside the page's tbody
+   and parses cleanly from JS. Used by the no-JS view and the chunked data endpoint alike. *@
+@foreach (var r in Model.Rows)
+{
+<tr>
+  <td>@(r.Date is DateTime d ? d.ToString("dd MMM yyyy", System.Globalization.CultureInfo.InvariantCulture) : "-")</td>
+  <td><strong>@r.InvoiceNumber</strong></td>
+  <td>@r.VoucherNumber</td>
+  <td>@r.Party</td>
+  @foreach (var v in r.Vals) {<td class="num">@Html.Amount(v, 0)</td>}
+  <td><span class="badge badge-@r.StatusClass">@r.Status</span></td>
+  <td class="no-print"><a href="@(Model.ViewPath)@r.Id" class="btn btn-sm btn-outline" title="Open full invoice (print from there)">View</a></td>
+</tr>
+}
+@if (Model.Rows.Count == 0)
+{
+<tr><td colspan="@(Model.ColumnCount + 1)" class="empty">No invoices found for this filter</td></tr>
+}

@@ -1,0 +1,402 @@
+@* Shared look for the Executive Reports pages. No page heading — the top bar
+   already names the page — and no card wrappers around the lists. *@
+<style>
+:root{
+  /* Palette bridge — see static/css/ui.css. Every name here resolves to a v2
+     token so this page follows the shell's theme instead of holding a private
+     light-only palette. Literals are fallbacks, not values. */
+  --bg:var(--v2-ground,#f7f6f3); --bg-top:var(--v2-hover,#f1efea);
+  --card:var(--v2-surface,#ffffff);
+  --border:var(--v2-line-2,#ddd9d1); --border-soft:var(--v2-line,#e8e5df);
+  --surface-low:var(--v2-hover,#f1efea); --surface-variant:var(--v2-sunk,#ebe8e2);
+  --text:var(--v2-ink,#1a1917); --muted:var(--v2-body,#57544e); --light:var(--v2-faint,#ada79d);
+  --primary:var(--v2-ink,#1a1917); --primary-hover:var(--v2-ink-2,#33312d);
+  --primary-light:var(--v2-sunk,#ebe8e2);
+  --accent:var(--v2-accent,#2563eb); --accent-light:var(--v2-accent-soft,#eff4fe);
+  --danger:var(--v2-neg,#c0392b); --danger-light:var(--v2-neg-bg,#fdecea);
+  --success:var(--v2-pos,#12794f); --success-light:var(--v2-pos-bg,#e7f6ee);
+  --success-dark:var(--v2-pos,#12794f);
+  --warning:var(--v2-warn,#8f6100); --warning-light:var(--v2-warn-bg,#fdf3e0);
+  --warning-dark:var(--v2-warn,#8f6100);
+  --radius:8px; --radius-card:8px;
+  --shadow-sm:none;
+  --shadow:var(--v2-shadow,0 1px 2px rgba(23,24,26,.04));
+  --shadow-lg:var(--v2-pop,0 4px 16px -4px rgba(23,24,26,.12));
+}
+.exr{max-width:1240px;margin:0 auto}
+.exr *{box-sizing:border-box}
+
+/* ── Series identity ─────────────────────────────────────────────────────────
+   Receivable and payable are two categories, not a good one and a bad one, so
+   they must not wear the status palette (--v2-pos / --v2-warn is reserved for
+   good / needs-attention — see UI_V2_GUIDE.md §5). They use the house emphasis
+   pair instead: the subject in ink, the context in muted.
+
+   Receivable is the subject because it is the side this page exists to chase.
+   Payable also carries a 45° hatch, so the two series stay distinguishable in
+   greyscale, in print, and under any colour vision deficiency — identity is
+   never colour alone (§8). */
+.exr-mark-recv{background:var(--v2-ink)}
+.exr-mark-pay{
+  background:
+    repeating-linear-gradient(45deg,
+      var(--v2-surface) 0 1.5px, transparent 1.5px 4.5px),
+    var(--v2-muted);
+}
+
+/* The figures the pages lead with: how much, across how many parties. */
+.exr-head{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+  gap:12px;margin:0 0 12px}
+.exr-total{display:flex;flex-direction:column;gap:3px;padding:14px 16px;
+  border:1px solid var(--border-soft);border-radius:12px;background:var(--card);
+  text-decoration:none;min-width:0}
+a.exr-total:hover{border-color:var(--light);background:var(--surface-low)}
+.exr-total .lbl{color:var(--muted);font-size:11.5px;font-weight:500}
+.exr-total .val{color:var(--text);font-size:29px;font-weight:600;line-height:1.1;
+  font-variant-numeric:tabular-nums;letter-spacing:-.025em}
+.exr-total .sub{color:var(--muted);font-size:11.5px}
+.exr-asof{color:var(--muted);font-size:11.5px}
+
+.exr-filterbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 12px}
+.exr-input,.exr-select{min-height:36px;padding:8px 11px;border:1px solid var(--border);
+  border-radius:8px;background:var(--card);color:var(--text);font-family:inherit;font-size:12.5px;
+  outline:none;min-width:140px}
+.exr-input:focus,.exr-select:focus{outline:2px solid var(--v2-ink);outline-offset:2px}
+.exr-search{flex:1 1 200px}
+.exr-filterbar .btn{min-height:36px}
+.exr-count{margin:0 0 12px;color:var(--muted);font-size:11.5px}
+
+.exr-wrap{border:1px solid var(--border-soft);border-radius:12px;background:var(--card);
+  overflow-x:auto}
+.exr-table{width:100%;border-collapse:collapse;min-width:720px}
+.exr-table th{padding:10px 14px;border-bottom:1px solid var(--border-soft);
+  background:var(--card);color:var(--muted);font-size:11.5px;
+  font-weight:500;text-align:left;white-space:nowrap}
+.exr-table td{padding:11px 14px;border-bottom:1px solid var(--border-soft);font-size:13px;color:var(--text);
+  vertical-align:middle}
+.exr-table tbody tr:last-child td{border-bottom:0}
+.exr-table tbody tr:hover{background:var(--surface-low)}
+.exr-table .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.exr-table .strong{font-weight:600}
+.exr-code{color:var(--muted);font-size:11px;font-variant-numeric:tabular-nums}
+.exr-link{color:var(--accent);font-weight:500;text-decoration:none}
+.exr-link:hover{text-decoration:underline}
+.exr-group{display:inline-flex;padding:2px 8px;border-radius:6px;background:var(--surface-variant);
+  color:var(--muted);font-size:11px;font-weight:500;white-space:nowrap}
+/* Which side a row sits on is a category too: a neutral chip, distinguished by
+   the word inside it and by the swatch that matches the charts. */
+.exr-side{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:6px;
+  font-size:11px;font-weight:500;background:var(--surface-variant);color:var(--muted)}
+.exr-side::before{content:"";width:8px;height:8px;border-radius:2px;flex:none}
+.exr-side-receivable::before{background:var(--v2-ink)}
+.exr-side-payable::before{
+  background:
+    repeating-linear-gradient(45deg,
+      var(--v2-surface) 0 1.5px, transparent 1.5px 4.5px),
+    var(--v2-muted);
+}
+
+.exr-empty{padding:40px 16px;text-align:center;color:var(--muted)}
+.exr-empty strong{display:block;margin-bottom:5px;color:var(--text);font-size:14px;font-weight:600}
+.exr-empty p{margin:0 auto;max-width:52ch;font-size:12.5px;line-height:1.6}
+.exr-empty .btn{margin-top:14px}
+
+/* ── Dashboard: KPI tiles and CSS-only charts (no chart library, no canvas) ── */
+.exr-band{margin:0 0 12px}
+.exr-band-title{margin:0 0 7px;color:var(--muted);font-size:11.5px;font-weight:500}
+.exr-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:12px}
+.exr-kpi{border:1px solid var(--border-soft);border-radius:12px;background:var(--card);
+  padding:14px 16px;display:flex;flex-direction:column;gap:3px;min-width:0}
+.exr-kpi-lbl{color:var(--muted);font-size:11.5px;font-weight:500;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.exr-kpi-val{color:var(--text);font-size:29px;font-weight:600;line-height:1.1;
+  font-variant-numeric:tabular-nums;letter-spacing:-.025em;white-space:nowrap}
+.exr-kpi-val small{font-size:13px;font-weight:400;color:var(--muted);letter-spacing:0}
+/* "No value" is not a value: an em dash set at 29px reads as a horizontal rule
+   sitting where a number should be. */
+.exr-kpi-val.is-empty{font-size:15px;font-weight:400;color:var(--light);letter-spacing:0}
+.exr-kpi-sub{color:var(--muted);font-size:11.5px;white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis}
+/* A healthy ratio is not an achievement worth a colour; only the two states
+   that need a decision get one, and each is paired with a word so the colour
+   is never the only channel. */
+.exr-kpi.is-thin .exr-kpi-val{color:var(--v2-warn)}
+.exr-kpi.is-short .exr-kpi-val{color:var(--v2-neg)}
+.exr-kpi-flag{font-size:11.5px;font-weight:500}
+.exr-kpi.is-thin .exr-kpi-flag{color:var(--v2-warn)}
+.exr-kpi.is-short .exr-kpi-flag{color:var(--v2-neg)}
+
+.exr-charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(340px,100%),1fr));
+  gap:12px}
+.exr-chart{border:1px solid var(--border-soft);border-radius:12px;background:var(--card);
+  padding:16px;min-width:0}
+.exr-chart-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin:0 0 14px}
+.exr-chart-title{margin:0;font-size:13.5px;font-weight:600;color:var(--text)}
+/* A legend carries values as well as names (UI_V2_GUIDE.md §6) — it is where
+   the side totals live now that they are not four more tiles. */
+.exr-chart-legend{display:flex;flex-wrap:wrap;align-items:center;gap:5px 14px;
+  margin-left:auto;color:var(--muted);font-size:11.5px}
+.exr-legend-item{display:inline-flex;align-items:center;gap:6px}
+.exr-legend-key{width:10px;height:10px;border-radius:2px;flex:none}
+.exr-legend-val{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums}
+
+/* ── Line chart ──────────────────────────────────────────────────────────────
+   Two series on one axis, never two. Net profit is the answer the chart exists
+   to give, so it carries the accent and the area wash; revenue is the context
+   it is read against, so it is muted and dashed. The dash is a second identity
+   channel, which is what lets the pair survive greyscale printing and colour
+   vision deficiency (UI_V2_GUIDE.md §6). */
+.exr-chart-wide{margin:0 0 12px}
+.exr-plot{width:100%;overflow:hidden}
+.exr-plot svg{display:block;width:100%;height:248px}
+.exr-grid{stroke:var(--border-soft);stroke-width:1;vector-effect:non-scaling-stroke}
+.exr-zero{stroke:var(--border);stroke-width:1;vector-effect:non-scaling-stroke}
+.exr-axis{fill:var(--muted);font-size:10px;font-family:inherit;
+  font-variant-numeric:tabular-nums}
+.exr-line{fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round;
+  vector-effect:non-scaling-stroke}
+.exr-area{stroke:none;opacity:.10}
+.exr-dot{stroke:var(--card);stroke-width:2;vector-effect:non-scaling-stroke}
+.s-rev{stroke:var(--v2-muted);fill:var(--v2-muted)}
+.s-net{stroke:var(--v2-accent);fill:var(--v2-accent)}
+/* A hit target the width of a column, so the tooltip is reachable without
+   having to land on a 2px line. */
+.exr-hover-band{fill:transparent}
+.exr-hover-band:hover{fill:var(--v2-ink);fill-opacity:.04}
+.exr-legend-line{width:14px;height:0;flex:none;border-top:2px solid currentColor}
+.exr-legend-line.s-rev{color:var(--v2-muted);border-top-style:dashed}
+.exr-legend-line.s-net{color:var(--v2-accent)}
+
+/* Year-on-year deltas. Up is positive, down is the warn tone — a softer month
+   is information, not an error, so red stays reserved (§5). The arrow glyph
+   repeats the direction, so colour is never the only channel. */
+.exr-delta{font-weight:500;font-variant-numeric:tabular-nums}
+.exr-delta.is-up{color:var(--v2-pos)}
+.exr-delta.is-down{color:var(--v2-warn)}
+.exr-delta-base{color:var(--light)}
+
+.exr-bar-group{margin-bottom:13px}
+.exr-bar-group:last-of-type{margin-bottom:0}
+.exr-bar-label{display:block;color:var(--muted);font-size:11.5px;font-weight:500;
+  margin-bottom:6px}
+.exr-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:2px;position:relative}
+.exr-bar-row:last-child{margin-bottom:0}
+.exr-bar-track{flex:1;height:10px;border-radius:3px;background:var(--surface-variant);
+  min-width:0}
+/* Rounded only on the data end, anchored to the baseline, so a short bar still
+   starts where every other bar starts. */
+.exr-bar-fill{display:block;height:100%;border-radius:0 4px 4px 0;min-width:0}
+.exr-bar-fill[style*="width:0"],.exr-bar-fill[style*="width: 0"]{border-radius:0}
+.exr-bar-amt{flex:none;min-width:84px;text-align:right;font-size:11.5px;font-weight:500;
+  color:var(--text);font-variant-numeric:tabular-nums}
+
+/* Hover layer: an HTML chart is interactive, so every mark answers on hover
+   (dataviz step 5). CSS-only — no library, no script. */
+.exr-bar-row .exr-tip,.exr-top-row .exr-tip{
+  position:absolute;left:0;bottom:calc(100% + 6px);z-index:20;
+  padding:6px 9px;border-radius:8px;border:1px solid var(--border);
+  background:var(--card);box-shadow:var(--shadow-lg);
+  color:var(--text);font-size:11.5px;line-height:1.45;white-space:nowrap;
+  opacity:0;visibility:hidden;transition:opacity .12s;pointer-events:none}
+.exr-bar-row:hover .exr-tip,.exr-bar-row:focus-within .exr-tip,
+.exr-top-row:hover .exr-tip,.exr-top-row:focus-within .exr-tip{opacity:1;visibility:visible}
+.exr-tip b{font-weight:600;font-variant-numeric:tabular-nums}
+.exr-tip span{color:var(--muted)}
+
+/* The chart's accessible twin, not a fallback. */
+.exr-table-view{margin-top:14px;border-top:1px solid var(--border-soft);padding-top:10px}
+/* On a 320px phone an opened table view scrolls inside its card instead of
+   widening the page (a grid item grows to its content unless min-width is 0). */
+.exr-chart{min-width:0}
+.exr-table-view{overflow-x:auto}
+.exr-table-view summary{cursor:pointer;color:var(--muted);font-size:11.5px;
+  list-style:none;display:inline-flex;align-items:center;gap:6px}
+.exr-table-view summary::-webkit-details-marker{display:none}
+.exr-table-view summary::before{content:"▸";font-size:9px;transition:transform .12s;
+  display:inline-block}
+.exr-table-view[open] summary::before{transform:rotate(90deg)}
+.exr-table-view summary:hover{color:var(--text)}
+.exr-mini{width:100%;border-collapse:collapse;margin-top:9px;font-size:12px}
+.exr-mini th{padding:5px 8px;border-bottom:1px solid var(--border-soft);color:var(--muted);
+  font-size:11.5px;font-weight:500;text-align:left}
+.exr-mini td{padding:5px 8px;border-bottom:1px solid var(--border-soft);color:var(--text)}
+.exr-mini tr:last-child td{border-bottom:0}
+.exr-mini .num{text-align:right;font-variant-numeric:tabular-nums}
+
+/* The context that used to be four more stat tiles. */
+.exr-facts{display:flex;flex-wrap:wrap;gap:4px 20px;margin-top:12px;
+  padding-top:10px;border-top:1px solid var(--border-soft);
+  color:var(--muted);font-size:11.5px}
+.exr-fact b{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums}
+
+.exr-top-cols{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.exr-top-col h4{margin:0 0 7px;color:var(--muted);font-size:11.5px;font-weight:500}
+.exr-top-row{display:flex;align-items:center;gap:10px;padding:7px 0;
+  border-bottom:1px solid var(--border-soft);text-decoration:none;min-width:0;
+  position:relative}
+.exr-top-row:last-child{border-bottom:0}
+.exr-top-row:hover{background:var(--surface-low)}
+.exr-top-name{flex:1;min-width:0;font-size:12.5px;font-weight:400;color:var(--text);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.exr-top-track{flex:none;width:34%;height:9px;border-radius:3px;background:var(--surface-variant)}
+.exr-top-fill{display:block;height:100%;border-radius:0 4px 4px 0}
+.exr-top-amt{flex:none;font-size:11.5px;font-weight:500;color:var(--text);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.exr-top-amt em{font-style:normal;color:var(--muted);font-weight:400;margin-left:5px}
+
+/* Settings picker — browse the chart on the left, live scope on the right. */
+.exr-picker{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:14px;align-items:start}
+.exr-pane{border:1px solid var(--border-soft);border-radius:12px;background:var(--card);
+  overflow:hidden;display:flex;flex-direction:column;
+  min-width:0}
+.exr-pane-head{display:flex;align-items:center;gap:10px;padding:11px 14px;
+  border-bottom:1px solid var(--border-soft);background:var(--card)}
+.exr-pane-title{font-size:13.5px;font-weight:600;color:var(--text)}
+.exr-pane-sub{margin-left:auto;color:var(--muted);font-size:11.5px;white-space:nowrap;
+  font-variant-numeric:tabular-nums}
+.exr-pane-scroll{overflow:auto;max-height:64vh;border-top:1px solid var(--border-soft)}
+.exr-pane-scroll .exr-search-wrap{position:sticky;top:0;z-index:6;background:var(--card);
+  padding:10px 14px 9px;border-bottom:1px solid var(--border-soft)}
+.exr-search-wrap{position:relative}
+.exr-search-wrap svg{position:absolute;left:25px;top:50%;transform:translateY(-50%);
+  width:14px;height:14px;color:var(--light);pointer-events:none;z-index:1}
+.exr-search{width:100%;min-height:38px;padding:8px 11px 8px 34px;border:1px solid var(--border);
+  border-radius:9px;background:var(--card);color:var(--text);font-family:inherit;font-size:12.5px;
+  outline:none;-webkit-appearance:none;appearance:none}
+.exr-search:focus{outline:2px solid var(--v2-ink);outline-offset:2px}
+.exr-search::-webkit-search-cancel-button{opacity:.5;cursor:pointer}
+
+.exr-tree{background:var(--card)}
+.exr-section-head{display:flex;align-items:center;gap:8px;width:100%;padding:10px 14px;
+  background:var(--card);border-bottom:1px solid var(--border-soft);
+  border-top:1px solid var(--border-soft);font-family:inherit;font-size:11.5px;font-weight:500;
+  color:var(--muted);cursor:pointer;
+  text-align:left}
+.exr-section:first-child .exr-section-head{border-top:0}
+.exr-section-head:hover{background:var(--surface-low)}
+.exr-section-head svg{width:13px;height:13px;margin-left:auto;flex:none;color:var(--light);
+  transition:transform .15s}
+.exr-section-head[aria-expanded="false"] svg{transform:rotate(-90deg)}
+.exr-section-count{font-weight:400;font-variant-numeric:tabular-nums;
+  white-space:nowrap}
+.exr-section.is-close .exr-node{display:none}
+.exr-node{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:8px;
+  align-items:center;padding:8px 14px;padding-left:calc(14px + var(--lvl,0)*14px);
+  border-bottom:1px solid var(--border-soft);min-width:0}
+.exr-node:last-child{border-bottom:0}
+.exr-node:hover{background:var(--surface-low)}
+.exr-node.is-on{background:var(--accent-light);box-shadow:inset 3px 0 0 var(--accent)}
+.exr-node.exr-is-hidden{display:none}
+.exr-node.exr-ghost{opacity:.5}
+.exr-caret{width:22px;height:22px;flex:none;display:inline-flex;align-items:center;
+  justify-content:center;border:0;background:none;border-radius:6px;cursor:pointer;
+  color:var(--light);font-size:9px;padding:0;transition:transform .15s}
+.exr-caret[aria-expanded="false"]{transform:rotate(-90deg)}
+.exr-caret:hover{background:var(--surface-low);color:var(--muted)}
+.exr-caret.is-void{cursor:default}
+.exr-caret.is-void:hover{background:none}
+.exr-caret:focus-visible{outline:2px solid var(--v2-ink);outline-offset:1px}
+.exr-node-check{display:flex;align-items:center;gap:10px;min-width:0;cursor:pointer}
+.exr-node-check input{position:absolute;opacity:0;width:0;height:0}
+.exr-checkbox{width:18px;height:18px;flex:none;border:1.5px solid var(--border);
+  border-radius:5px;background:var(--card);display:inline-flex;align-items:center;
+  justify-content:center;transition:background .15s,border-color .15s}
+.exr-node-check input:checked + .exr-checkbox{background:var(--accent);border-color:var(--accent)}
+.exr-node-check input:checked + .exr-checkbox::after{content:"\2713";color:var(--v2-ground);
+  font-size:11px;font-weight:600;line-height:1}
+.exr-node-check input:focus-visible + .exr-checkbox{outline:2px solid var(--v2-ink);
+  outline-offset:2px}
+.exr-node-name{font-size:13px;color:var(--text);font-weight:400;min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.exr-node-sub{color:var(--muted);font-size:11px;font-variant-numeric:tabular-nums;
+  white-space:nowrap;justify-self:end}
+.exr-deep{display:inline-flex;align-items:center;gap:7px;cursor:pointer;color:var(--muted);
+  font-size:11.5px;white-space:nowrap;justify-self:end}
+.exr-deep.is-off{display:none}
+.exr-deep input{position:absolute;opacity:0;width:0;height:0}
+.exr-switch{width:30px;height:17px;flex:none;border-radius:999px;background:var(--border);
+  position:relative;transition:background .15s}
+.exr-switch::after{content:"";position:absolute;top:2px;left:2px;width:13px;
+  height:13px;border-radius:50%;background:var(--card);transition:left .15s;
+  box-shadow:0 1px 2px rgba(15,23,42,.25)}
+.exr-deep input:checked + .exr-switch{background:var(--accent)}
+.exr-deep input:checked + .exr-switch::after{left:15px}
+.exr-deep input:focus-visible + .exr-switch{outline:2px solid var(--v2-ink);
+  outline-offset:2px}
+.exr-deep-label{color:var(--muted)}
+.exr-deep input:checked ~ .exr-deep-label{color:var(--accent);font-weight:500}
+.exr-node input:disabled ~ *{opacity:.55}
+.exr-node input:disabled{cursor:not-allowed}
+
+/* Right pane — what the reports actually read. */
+.exr-pick{background:var(--card)}
+.exr-pick-type{display:flex;align-items:center;gap:8px;padding:8px 14px;background:var(--card);
+  border-bottom:1px solid var(--border-soft);font-size:11.5px;font-weight:500;
+  color:var(--muted)}
+.exr-pick-type-n{display:inline-flex;min-width:18px;height:18px;align-items:center;
+  justify-content:center;border-radius:999px;background:var(--surface-variant);color:var(--muted);
+  font-size:11px;font-weight:500;font-variant-numeric:tabular-nums}
+.exr-pick-row{display:flex;align-items:center;gap:10px;padding:9px 14px;
+  border-bottom:1px solid var(--border-soft);min-width:0}
+.exr-pick-row:last-child{border-bottom:0}
+.exr-pick-row:hover{background:var(--surface-low)}
+.exr-pick-name{font-size:13px;font-weight:400;color:var(--text);min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.exr-pick-code{color:var(--muted);font-size:11px;font-variant-numeric:tabular-nums;flex:none}
+.exr-pick-via{margin-left:auto;flex:none;color:var(--muted);font-size:11px;
+  white-space:nowrap;max-width:38%;overflow:hidden;text-overflow:ellipsis;
+  font-variant-numeric:tabular-nums}
+.exr-pick-empty{padding:36px 16px;text-align:center;color:var(--muted);font-size:12.5px;
+  line-height:1.6}
+.exr-pick-empty strong{display:block;color:var(--text);font-size:13.5px;margin-bottom:4px;
+  font-weight:600}
+.exr-savebar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px}
+.exr-save-note{color:var(--muted);font-size:12px;line-height:1.5}
+.exr-savebar .btn{min-height:40px;padding-left:24px;padding-right:24px;margin-left:auto}
+.exr.is-ro .exr-pane{opacity:.8}
+.exr.is-ro .exr-pick{opacity:.7}
+
+@@media(max-width:720px){
+  .exr-total .val{font-size:24px}
+  .exr-kpi-val{font-size:24px}
+  .exr-filterbar .exr-input,.exr-filterbar .exr-select{flex:1 1 140px;min-width:0;min-height:40px}
+  .exr-filterbar .btn{min-height:40px}
+  /* Table becomes cards: each cell shows its own label. */
+  .exr-table{min-width:0}
+  .exr-table thead{display:none}
+  .exr-table,.exr-table tbody,.exr-table tr,.exr-table td{display:block;width:100%}
+  .exr-table tbody tr{padding:12px 14px;border-bottom:1px solid var(--border-soft)}
+  .exr-table td{display:flex;align-items:center;justify-content:space-between;gap:14px;
+    padding:4px 0;border:0;text-align:right}
+  .exr-table td::before{content:attr(data-label);color:var(--muted);font-size:11.5px;
+    font-weight:500;text-align:left;flex:none}
+  /* Picker stacks; tree rows get the sub-accounts switch on its own line. */
+  .exr-picker{grid-template-columns:1fr;gap:12px}
+  .exr-pane-scroll{max-height:none}
+  .exr-node{grid-template-columns:auto minmax(0,1fr) auto;row-gap:5px;
+    padding-top:10px;padding-bottom:10px}
+  .exr-node-sub{grid-column:2;grid-row:1;align-self:center}
+  .exr-deep{grid-column:1/-1;justify-self:start;padding-left:30px;min-height:36px}
+  .exr-node-check{min-height:36px}
+  .exr-pick-via{max-width:42%}
+  .exr-savebar .btn{margin-left:0;flex:1 1 100%}
+  .exr-save-note{flex:1 1 100%}
+  .exr-top-cols{grid-template-columns:1fr;gap:14px}
+  .exr-chart-legend{margin-left:0;width:100%}
+}
+@@media(max-width:480px){
+  .exr-head,.exr-kpis{grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+  .exr-total .val,.exr-kpi-val{font-size:21px}
+  .exr-bar-amt{min-width:70px}
+  .exr-top-track{width:26%}
+}
+/* Hover tooltips are a screen affordance and a print artefact. */
+@@media print{
+  .exr-tip{display:none!important}
+  .exr-table-view{display:block}
+  .exr-table-view > summary{display:none}
+  .exr-table-view .exr-mini{display:table}
+}
+</style>

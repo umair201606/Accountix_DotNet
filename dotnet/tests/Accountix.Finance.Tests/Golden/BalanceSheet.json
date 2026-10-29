@@ -1,0 +1,407 @@
+{
+ "filter_mode=period&period_id={FY 2026}": {
+  "assets": [
+   {
+    "code": "1-01-01-01-0001",
+    "name": "Main Cash",
+    "amount": 627843.69
+   },
+   {
+    "code": "1-01-02-01-0001",
+    "name": "Trade Debtors \u2014 General",
+    "amount": 33000.0
+   },
+   {
+    "code": "1-01-04-01-0001",
+    "name": "Stock \u2014 General",
+    "amount": -15000.0
+   },
+   {
+    "code": "1-02-01-01-0001",
+    "name": "Fixed Assets \u2014 General",
+    "amount": 92000.0
+   },
+   {
+    "code": "1-02-02-01-0001",
+    "name": "Accumulated Depreciation \u2014 General",
+    "amount": -5000.0
+   }
+  ],
+  "liabilities": [
+   {
+    "code": "2-01-01-01-0001",
+    "name": "Trade Creditors \u2014 General",
+    "amount": 15000.0
+   },
+   {
+    "code": "2-01-03-01-0001",
+    "name": "Output Sales Tax",
+    "amount": 4250.0
+   },
+   {
+    "code": "2-01-03-02-0001",
+    "name": "Income Tax Payable",
+    "amount": 9000.0
+   },
+   {
+    "code": "2-02-01-01-0001",
+    "name": "Long-term Loans \u2014 General",
+    "amount": 200000.0
+   }
+  ],
+  "equity": [
+   {
+    "code": "3-01-01-01-0001",
+    "name": "Share Capital",
+    "amount": 500000.0
+   },
+   {
+    "code": "3-01-01-01-0002",
+    "name": "Suspense Equity",
+    "amount": 2500.0
+   },
+   {
+    "code": "3-02-01-02-0001",
+    "name": "Retained Earnings \u2014 Closing",
+    "amount": -2500.0
+   },
+   {
+    "code": "3-02-02-01-0001",
+    "name": "Dividends",
+    "amount": -30000.0
+   },
+   {
+    "code": "3-02-03-01-0001",
+    "name": "Other Comprehensive Income",
+    "amount": 12000.0
+   },
+   {
+    "code": "",
+    "name": "Net Income (Current Period)",
+    "amount": 22593.69
+   }
+  ],
+  "total_assets": 732843.69,
+  "total_liabilities": 228250.0,
+  "total_equity": 504593.69,
+  "merged_assets": [],
+  "merged_liabilities": [],
+  "merged_equity": [],
+  "comp_totals": []
+ },
+ "filter_mode=custom&from=2025-03-01&to=2026-06-30&label_ids={Proj Alpha}": {
+  "assets": [],
+  "liabilities": [],
+  "equity": [
+   {
+    "code": "",
+    "name": "Net Loss (Current Period)",
+    "amount": -18234.56
+   }
+  ],
+  "total_assets": 0.0,
+  "total_liabilities": 0.0,
+  "total_equity": -18234.56,
+  "merged_assets": [],
+  "merged_liabilities": [],
+  "merged_equity": [],
+  "comp_totals": []
+ },
+ "filter_mode=comparative&period_id={FY 2026}&comp_mode=1&comp_period_ids={FY 2025},{FY 2024}": {
+  "assets": [
+   {
+    "code": "1-01-01-01-0001",
+    "name": "Main Cash",
+    "amount": 627843.69
+   },
+   {
+    "code": "1-01-02-01-0001",
+    "name": "Trade Debtors \u2014 General",
+    "amount": 33000.0
+   },
+   {
+    "code": "1-01-04-01-0001",
+    "name": "Stock \u2014 General",
+    "amount": -15000.0
+   },
+   {
+    "code": "1-02-01-01-0001",
+    "name": "Fixed Assets \u2014 General",
+    "amount": 92000.0
+   },
+   {
+    "code": "1-02-02-01-0001",
+    "name": "Accumulated Depreciation \u2014 General",
+    "amount": -5000.0
+   }
+  ],
+  "liabilities": [
+   {
+    "code": "2-01-01-01-0001",
+    "name": "Trade Creditors \u2014 General",
+    "amount": 15000.0
+   },
+   {
+    "code": "2-01-03-01-0001",
+    "name": "Output Sales Tax",
+    "amount": 4250.0
+   },
+   {
+    "code": "2-01-03-02-0001",
+    "name": "Income Tax Payable",
+    "amount": 9000.0
+   },
+   {
+    "code": "2-02-01-01-0001",
+    "name": "Long-term Loans \u2014 General",
+    "amount": 200000.0
+   }
+  ],
+  "equity": [
+   {
+    "code": "3-01-01-01-0001",
+    "name": "Share Capital",
+    "amount": 500000.0
+   },
+   {
+    "code": "3-01-01-01-0002",
+    "name": "Suspense Equity",
+    "amount": 2500.0
+   },
+   {
+    "code": "3-02-01-02-0001",
+    "name": "Retained Earnings \u2014 Closing",
+    "amount": -2500.0
+   },
+   {
+    "code": "3-02-02-01-0001",
+    "name": "Dividends",
+    "amount": -30000.0
+   },
+   {
+    "code": "3-02-03-01-0001",
+    "name": "Other Comprehensive Income",
+    "amount": 12000.0
+   },
+   {
+    "code": "",
+    "name": "Net Income (Current Period)",
+    "amount": 22593.69
+   }
+  ],
+  "total_assets": 732843.69,
+  "total_liabilities": 228250.0,
+  "total_equity": 504593.69,
+  "merged_assets": [
+   {
+    "code": "1-01-01-01-0001",
+    "name": "Main Cash",
+    "amounts": [
+     627843.69,
+     0.0,
+     655344.92
+    ]
+   },
+   {
+    "code": "1-01-02-01-0001",
+    "name": "Trade Debtors \u2014 General",
+    "amounts": [
+     33000.0,
+     0.0,
+     15000.0
+    ]
+   },
+   {
+    "code": "1-01-04-01-0001",
+    "name": "Stock \u2014 General",
+    "amounts": [
+     -15000.0,
+     0.0,
+     -60000.0
+    ]
+   },
+   {
+    "code": "1-02-01-01-0001",
+    "name": "Fixed Assets \u2014 General",
+    "amounts": [
+     92000.0,
+     0.0,
+     80000.0
+    ]
+   },
+   {
+    "code": "1-02-02-01-0001",
+    "name": "Accumulated Depreciation \u2014 General",
+    "amounts": [
+     -5000.0,
+     0.0,
+     -5000.0
+    ]
+   }
+  ],
+  "merged_liabilities": [
+   {
+    "code": "2-01-01-01-0001",
+    "name": "Trade Creditors \u2014 General",
+    "amounts": [
+     15000.0,
+     0.0,
+     0.0
+    ]
+   },
+   {
+    "code": "2-01-03-01-0001",
+    "name": "Output Sales Tax",
+    "amounts": [
+     4250.0,
+     0.0,
+     0.0
+    ]
+   },
+   {
+    "code": "2-01-03-02-0001",
+    "name": "Income Tax Payable",
+    "amounts": [
+     9000.0,
+     0.0,
+     9000.0
+    ]
+   },
+   {
+    "code": "2-02-01-01-0001",
+    "name": "Long-term Loans \u2014 General",
+    "amounts": [
+     200000.0,
+     0.0,
+     200000.0
+    ]
+   }
+  ],
+  "merged_equity": [
+   {
+    "code": "",
+    "name": "Net Income (Current Period)",
+    "amounts": [
+     22593.69,
+     0.0,
+     -23655.08
+    ]
+   },
+   {
+    "code": "3-01-01-01-0001",
+    "name": "Share Capital",
+    "amounts": [
+     500000.0,
+     0.0,
+     500000.0
+    ]
+   },
+   {
+    "code": "3-01-01-01-0002",
+    "name": "Suspense Equity",
+    "amounts": [
+     2500.0,
+     0.0,
+     0.0
+    ]
+   },
+   {
+    "code": "3-02-01-02-0001",
+    "name": "Retained Earnings \u2014 Closing",
+    "amounts": [
+     -2500.0,
+     0.0,
+     0.0
+    ]
+   },
+   {
+    "code": "3-02-02-01-0001",
+    "name": "Dividends",
+    "amounts": [
+     -30000.0,
+     0.0,
+     0.0
+    ]
+   },
+   {
+    "code": "3-02-03-01-0001",
+    "name": "Other Comprehensive Income",
+    "amounts": [
+     12000.0,
+     0.0,
+     0.0
+    ]
+   }
+  ],
+  "comp_totals": [
+   {
+    "total_equity": 0.0
+   },
+   {
+    "total_equity": 476344.92
+   }
+  ]
+ },
+ "filter_mode=custom&from=2025-01-01&to=2026-12-31&label_ids={Proj Alpha},{Proj Beta}": {
+  "assets": [],
+  "liabilities": [],
+  "equity": [
+   {
+    "code": "",
+    "name": "Net Income (Current Period)",
+    "amount": 19693.94
+   }
+  ],
+  "total_assets": 0.0,
+  "total_liabilities": 0.0,
+  "total_equity": 19693.94,
+  "merged_assets": [],
+  "merged_liabilities": [],
+  "merged_equity": [],
+  "comp_totals": []
+ },
+ "filter_mode=custom&from=2025-06-01&to=2025-06-30": {
+  "assets": [
+   {
+    "code": "1-01-01-01-0001",
+    "name": "Main Cash",
+    "amount": 537499.25
+   },
+   {
+    "code": "1-01-02-01-0001",
+    "name": "Trade Debtors \u2014 General",
+    "amount": 20000.0
+   },
+   {
+    "code": "1-01-04-01-0001",
+    "name": "Stock \u2014 General",
+    "amount": -60000.0
+   },
+   {
+    "code": "1-02-02-01-0001",
+    "name": "Accumulated Depreciation \u2014 General",
+    "amount": -5000.0
+   }
+  ],
+  "liabilities": [],
+  "equity": [
+   {
+    "code": "3-01-01-01-0001",
+    "name": "Share Capital",
+    "amount": 500000.0
+   },
+   {
+    "code": "",
+    "name": "Net Loss (Current Period)",
+    "amount": -7500.75
+   }
+  ],
+  "total_assets": 492499.25,
+  "total_liabilities": 0.0,
+  "total_equity": 492499.25,
+  "merged_assets": [],
+  "merged_liabilities": [],
+  "merged_equity": [],
+  "comp_totals": []
+ }
+}

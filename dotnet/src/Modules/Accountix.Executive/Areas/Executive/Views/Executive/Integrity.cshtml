@@ -1,0 +1,88 @@
+@model IntegrityModel
+@{
+    ViewData["Title"] = "Books Integrity";
+    ViewData["Heading"] = "Books Integrity";
+    var inv = System.Globalization.CultureInfo.InvariantCulture;
+}
+@section Head {
+<partial name="_Style" />
+<style>
+  .bi-banner{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;
+    border:1px solid var(--border-soft);background:var(--card);margin-bottom:14px;font-size:14px}
+  .bi-banner .dot{width:10px;height:10px;border-radius:50%;flex:none}
+  .bi-banner.ok .dot{background:var(--success)} .bi-banner.bad .dot{background:var(--danger)}
+  .bi-banner.bad{border-color:var(--danger)}
+  .bi-status{font-weight:600;font-size:12px;white-space:nowrap}
+  .bi-status.ok{color:var(--success)} .bi-status.bad{color:var(--danger)}
+  .bi-detail{color:var(--muted);font-size:12.5px}
+  .bi-h{font-size:13px;font-weight:600;margin:22px 0 8px;color:var(--text)}
+  .bi-intro{color:var(--muted);font-size:13px;margin:-4px 0 14px;max-width:760px}
+</style>
+}
+@section Actions {
+@if (Model.Loaded)
+{
+<partial name="_ExportButtons" model='new ExportButtons("excel", "pdf", "csv")' />
+}
+<a class="btn btn-primary btn-sm" href="?run=1" id="runChecks">@(Model.Loaded ? "Run again" : "Run checks")</a>
+}
+<div class="exr">
+@if (Model.Loaded)
+{
+  <div class="bi-banner @(Model.AllOk == true ? "ok" : "bad")">
+    <span class="dot" aria-hidden="true"></span>
+    <span>@(Model.AllOk == true ? "All checks pass — the general ledger agrees with stock, assets and documents." : $"{Model.Checks.Count(c => !c.Ok)} check(s) need attention.")</span>
+  </div>
+  <p class="bi-intro">Each document posts to its own register and to the general ledger. These checks prove both halves still match after every back-dated entry, edit and reversal.</p>
+
+  <div class="exr-wrap">
+    <table class="exr-table" style="min-width:640px">
+      <thead><tr><th>Check</th><th>Status</th><th class="num">Expected</th><th class="num">Actual</th><th>Detail</th></tr></thead>
+      <tbody>
+        @foreach (var c in Model.Checks)
+        {
+        <tr>
+          <td class="strong">@c.Label</td>
+          <td><span class="bi-status @(c.Ok ? "ok" : "bad")">@(c.Ok ? "Pass" : "Fail")</span></td>
+          <td class="num">@Html.Amount(c.Expected, 2)</td>
+          <td class="num">@Html.Amount(c.Actual, 2)</td>
+          <td class="bi-detail">@c.Detail</td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <h2 class="bi-h">Recent stock re-costings</h2>
+  @if (Model.Adjustments.Count > 0)
+  {
+  <div class="exr-wrap">
+    <table class="exr-table" style="min-width:640px">
+      <thead><tr><th>Document</th><th>Posted on</th><th class="num">Was</th><th class="num">Now</th><th class="num">Change</th><th>Why</th></tr></thead>
+      <tbody>
+        @foreach (var a in Model.Adjustments)
+        {
+        <tr>
+          <td class="strong">@a.VoucherNumber</td>
+          <td>@(a.EntryDate is DateOnly d ? d.ToString("dd MMM yyyy", inv) : "")</td>
+          <td class="num">@Html.Amount(a.OldCost, 2)</td>
+          <td class="num">@Html.Amount(a.NewCost, 2)</td>
+          <td class="num">@Html.Amount(a.Delta, 2)</td>
+          <td class="bi-detail">@a.Trigger</td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  }
+  else
+  {
+  <p class="bi-detail">No issue has been re-costed. Re-costings happen when a document is back-dated, or an earlier one is corrected or reversed.</p>
+  }
+}
+else
+{
+  <p class="bi-intro">Each document posts to its own register and to the general ledger. These checks prove both halves still match after every back-dated entry, edit and reversal.</p>
+  <div class="report-wait" role="status" style="border:1px dashed var(--border,#d9dce0);border-radius:12px;padding:36px 20px;text-align:center;color:var(--muted,#5b6068);font-size:14px;background:var(--card,#fff)"><b style="display:block;color:var(--text,#17181a);font-size:15px;margin-bottom:4px">Press Run checks to test the books</b>Trial balance, the reporting table, stock, cost layers, fixed assets and documents are each compared with the general ledger.</div>
+}
+</div>

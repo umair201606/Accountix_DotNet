@@ -1,0 +1,93 @@
+@model CapitaliseModel
+@{
+    ViewData["Title"] = "Capitalise Stock as Fixed Asset";
+    ViewData["Heading"] = "Capitalise Stock as Fixed Asset";
+}
+<div class="card" style="max-width:720px;">
+  <div class="card-body">
+    <p class="text-muted">
+      Take an item out of trading stock and capitalise it as a fixed asset. The
+      asset is booked at whatever the costing engine says that stock cost, so the
+      ledger and the stock valuation stay in step.
+    </p>
+    <form method="POST">
+      <select name="status" class="form-control" style="display:none;">
+        <option value="unapproved">Unapproved</option>
+        <option value="approved">Approved</option>
+      </select>
+      <div class="form-group">
+        <label class="form-label">Stock item <span style="color:var(--danger);">*</span></label>
+        <select name="source_product_id" class="form-control" required>
+          <option value="">— Select product —</option>
+          @foreach (var p in Model.Products)
+          {
+          <option value="@p.Id">@p.Sku — @p.Name (on hand: @Py.Quantity(p.CurrentStock))</option>
+          }
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Quantity</label>
+        <input type="number" name="quantity" class="form-control" value="1" min="0" step="any">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Asset name <span style="color:var(--danger);">*</span></label>
+        <input type="text" name="name" class="form-control" required placeholder="e.g. Forklift #3">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Category <span style="color:var(--danger);">*</span></label>
+        <select name="category_id" class="form-control" required>
+          <option value="">— Select category —</option>
+          @foreach (var c in Model.Categories)
+          {
+          <option value="@c.Id">@c.Name</option>
+          }
+        </select>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;">
+        <div class="form-group">
+          <label class="form-label">Useful life (years)</label>
+          <input type="number" name="useful_life" class="form-control" min="1" placeholder="from category">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Salvage value</label>
+          <input type="number" name="salvage_value" class="form-control" value="0" step="any">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Depreciation method</label>
+          <select name="depreciation_method" class="form-control">
+            <option value="straight_line">Straight line</option>
+            <option value="declining_balance">Declining balance</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Location</label>
+        <input type="text" name="location" class="form-control">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea name="description" class="form-control" rows="2"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="transferDate">Capitalisation date</label>
+        <input type="date" id="transferDate" name="transfer_date" class="form-control">
+        <small style="display:block;margin-top:4px;color:var(--muted);">Stock is issued and the asset is acquired on this date (blank = today); depreciation starts from it.</small>
+      </div>
+      <div class="card" style="background:var(--bg-top);padding:12px;border:1px solid var(--border);border-radius:8px;margin-bottom:16px;">
+        <strong>Journal Entry (on approve):</strong>
+        <table class="table" style="margin:8px 0 0;font-size:13px;font-variant-numeric:tabular-nums;">
+          <thead><tr><th>Account</th><th>Debit</th><th>Credit</th></tr></thead>
+          <tbody>
+            <tr><td>Fixed Asset</td><td>cost of the stock issued</td><td>—</td></tr>
+            <tr><td>Trading Stock</td><td>—</td><td>cost of the stock issued</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" onclick="this.form.status.value='unapproved'">Save as Unapproved</button>
+        <button type="submit" class="btn btn-success" onclick="this.form.status.value='approved'">Save &amp; Approve</button>
+        <a href="/fixed-assets/transfers/" class="btn btn-outline">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,51 @@
+*,*::before,*::after{box-sizing:border-box}
+body{font-family:Inter,'Segoe UI',system-ui,sans-serif;margin:0;padding:24px;background:var(--v2-ground,#f5f5f5);font-size:13px;color:var(--v2-body,#4a4a48)}
+.pa{max-width:750px;margin:0 auto;background:var(--v2-surface,#fff);border:1px solid var(--v2-line,#e8e8e6);border-radius:12px;padding:28px 36px}
+.co{text-align:center;margin-bottom:10px}
+.co-name{font-size:19px;font-weight:600;color:var(--v2-ink,#161616);line-height:1.1;letter-spacing:-.02em}
+.co-addr{font-size:10px;color:var(--v2-muted,#7c7c7a);margin-top:2px;line-height:1.4}
+.hdr{border-bottom:1px solid var(--v2-line-2,#dcdcda);padding-bottom:12px;margin-bottom:20px;text-align:center}
+.hdr h1{margin:0;font-size:17px;font-weight:600;color:var(--v2-ink,#161616);letter-spacing:-.01em}
+.hdr .no{font-size:14px;color:var(--v2-muted,#7c7c7a);font-weight:500;margin-top:2px;font-variant-numeric:tabular-nums}
+.meta{display:grid;grid-template-columns:1fr 1fr;gap:4px 24px;margin-bottom:16px;font-size:12px}
+.meta .l{color:var(--v2-muted,#7c7c7a);font-weight:400}
+.meta .v{color:var(--v2-ink,#161616)}
+.sb{display:inline-block;padding:3px 8px;border-radius:6px;font-size:11.5px;font-weight:500}
+.sb-a{background:var(--v2-pos-bg,#e8f4f2);color:var(--v2-pos,#2b7263)}
+.sb-u{background:var(--v2-warn-bg,#f7f2e4);color:var(--v2-warn,#86794f)}
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:12px}
+th{background:var(--v2-surface,#fff);padding:8px 10px;text-align:left;font-weight:500;border-bottom:1px solid var(--v2-line,#e8e8e6);font-size:11.5px;color:var(--v2-muted,#7c7c7a)}
+td{padding:7px 10px;border-bottom:1px solid var(--v2-line,#e8e8e6);color:var(--v2-body,#4a4a48)}
+.nu{text-align:right;font-variant-numeric:tabular-nums}
+tfoot td{font-weight:600;color:var(--v2-ink,#161616);background:var(--v2-hover,#f0f0ef);border-top:1px solid var(--v2-ink,#161616);padding:8px 10px}
+.notes{border-top:1px solid var(--v2-line,#e8e8e6);margin-top:14px;padding-top:10px;font-size:11px;color:var(--v2-muted,#7c7c7a)}
+.app{border-top:1px solid var(--v2-line,#e8e8e6);margin-top:10px;padding-top:8px;font-size:11px;color:var(--v2-muted,#7c7c7a)}
+.act{text-align:center;margin-top:20px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+/* Print is the committing action here and the only filled button; Edit and
+   Close are outlines (UI_V2_GUIDE.md sec 5). */
+.bp{padding:8px 22px;background:var(--v2-ink,#161616);color:var(--v2-ground,#f5f5f5);border:1px solid var(--v2-ink,#161616);border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit}
+.bp:hover{background:var(--v2-ink-2,#2e2e2e)}
+.bx,.bc{padding:8px 22px;background:var(--v2-surface,#fff);color:var(--v2-ink,#161616);border:1px solid var(--v2-line-2,#dcdcda);border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;text-decoration:none;display:inline-block;font-family:inherit}
+.bx:hover,.bc:hover{background:var(--v2-hover,#f0f0ef)}
+@@media(max-width:560px){
+  body{padding:12px}
+  .pa{padding:18px 14px}
+  .meta{grid-template-columns:1fr}
+}
+/* The lines table scrolls inside its own box on phones instead of pushing the page sideways. */
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tw table{min-width:460px}
+/* Print stays light: ui.css re-declares the light palette inside its own
+   @@media print, so these rules only strip the screen chrome. */
+@@media print{
+  body{padding:0;font-size:11px}
+  .pa{border:none;border-radius:0;padding:16px 20px;max-width:none}
+  .hdr h1{font-size:15px}
+  .meta{font-size:10px;grid-template-columns:1fr 1fr 1fr}
+  table{font-size:10px}
+  th,td{padding:4px 6px}
+  .act{display:none}
+  .tw{overflow:visible}
+  .tw table{min-width:0}
+  .pa{margin:0}
+}

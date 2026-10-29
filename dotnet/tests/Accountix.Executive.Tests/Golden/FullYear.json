@@ -1,0 +1,3116 @@
+{
+ "integrity": [
+  {
+   "key": "trial_balance",
+   "label": "Trial balance (debits = credits)",
+   "ok": true,
+   "expected": 19689811066.79,
+   "actual": 19689811066.79,
+   "detail": "Total posted debits vs credits"
+  },
+  {
+   "key": "journals_balanced",
+   "label": "Every journal balances",
+   "ok": true,
+   "expected": 0,
+   "actual": 0,
+   "detail": "6809 posted journals checked"
+  },
+  {
+   "key": "reporting_table",
+   "label": "Reporting table matches the ledger",
+   "ok": true,
+   "expected": 0.0,
+   "actual": 0.0,
+   "detail": "Accounts whose report totals differ from their journal lines"
+  },
+  {
+   "key": "inventory_vs_gl",
+   "label": "Inventory account = stock valuation",
+   "ok": true,
+   "expected": 68006385.49,
+   "actual": 68006385.48,
+   "detail": "General-ledger inventory balance vs the stock ledger's value"
+  },
+  {
+   "key": "stock_layers",
+   "label": "Cost layers back the stock ledger",
+   "ok": true,
+   "expected": 0,
+   "actual": 0,
+   "detail": "24 products checked"
+  },
+  {
+   "key": "stock_quantity",
+   "label": "On-hand quantity = stock ledger",
+   "ok": true,
+   "expected": 0,
+   "actual": 0,
+   "detail": "24 products checked"
+  },
+  {
+   "key": "fixed_assets_vs_gl",
+   "label": "Asset register = fixed-asset accounts",
+   "ok": true,
+   "expected": 0.0,
+   "actual": 0.0,
+   "detail": "Cost 0.00 vs GL 0.00; accumulated depreciation 0.00 vs GL 0.00"
+  },
+  {
+   "key": "documents_posted",
+   "label": "Approved documents = posted journals",
+   "ok": true,
+   "expected": 0,
+   "actual": 0,
+   "detail": "6809 documents checked"
+  },
+  {
+   "key": "payroll_vs_gl",
+   "label": "Payroll runs = salary journals",
+   "ok": true,
+   "expected": 0.0,
+   "actual": 0.0,
+   "detail": "0 runs checked"
+  },
+  {
+   "key": "staff_loans_vs_gl",
+   "label": "Staff loans = loan accounts",
+   "ok": true,
+   "expected": 0.0,
+   "actual": 0.0,
+   "detail": "0 loans paid out through payroll checked"
+  },
+  {
+   "key": "pf_fund_vs_gl",
+   "label": "PF members' ledger = PF Payable",
+   "ok": true,
+   "expected": 0.0,
+   "actual": 0.0,
+   "detail": "Members' balances 0.00 vs PF Payable 0.00"
+  }
+ ],
+ "aging": {
+  "receivable": {
+   "total": 538909806.62,
+   "parties": 110,
+   "avg_days": 23.48248476534654,
+   "oldest_days": 285,
+   "oldest_name": "Faisal Solar",
+   "oldest_code": "1-01-02-01-0153",
+   "oldest_account": "1-01-02-01-0153",
+   "peak": 368869769.15,
+   "buckets": [
+    {
+     "key": "current",
+     "label": "Current",
+     "amount": 368869769.15,
+     "share": 68.45,
+     "width": 100.0
+    },
+    {
+     "key": "d31",
+     "label": "31\u201360 days",
+     "amount": 151474011.83,
+     "share": 28.11,
+     "width": 41.06
+    },
+    {
+     "key": "d61",
+     "label": "61\u201390 days",
+     "amount": 17358006.58,
+     "share": 3.22,
+     "width": 4.71
+    },
+    {
+     "key": "d91",
+     "label": "90+ days",
+     "amount": 1208019.06,
+     "share": 0.22,
+     "width": 0.33
+    }
+   ],
+   "top": [
+    {
+     "account": "1-01-02-01-0186",
+     "name": "Bahria Orchard Mosque Trust",
+     "code": "1-01-02-01-0186",
+     "amount": 18690444.76,
+     "share": 3.47
+    },
+    {
+     "account": "1-01-02-01-0110",
+     "name": "Usman Traders",
+     "code": "1-01-02-01-0110",
+     "amount": 15591228.0,
+     "share": 2.89
+    },
+    {
+     "account": "1-01-02-01-0184",
+     "name": "Sundar Industrial Estate Unit 12",
+     "code": "1-01-02-01-0184",
+     "amount": 14892955.09,
+     "share": 2.76
+    },
+    {
+     "account": "1-01-02-01-0141",
+     "name": "Madina Green Energy",
+     "code": "1-01-02-01-0141",
+     "amount": 13737348.27,
+     "share": 2.55
+    },
+    {
+     "account": "1-01-02-01-0171",
+     "name": "Rizwan Solar Hub",
+     "code": "1-01-02-01-0171",
+     "amount": 12947365.2,
+     "share": 2.4
+    }
+   ]
+  },
+  "payable": {
+   "total": 224651393.71,
+   "parties": 12,
+   "avg_days": 7.499482899780492,
+   "oldest_days": 22,
+   "oldest_name": "Punjab Steel Structures",
+   "oldest_code": "2-01-01-01-0115",
+   "oldest_account": "2-01-01-01-0115",
+   "peak": 368869769.15,
+   "buckets": [
+    {
+     "key": "current",
+     "label": "Current",
+     "amount": 224651393.71,
+     "share": 100.0,
+     "width": 60.9
+    },
+    {
+     "key": "d31",
+     "label": "31\u201360 days",
+     "amount": 0.0,
+     "share": 0.0,
+     "width": 0.0
+    },
+    {
+     "key": "d61",
+     "label": "61\u201390 days",
+     "amount": 0.0,
+     "share": 0.0,
+     "width": 0.0
+    },
+    {
+     "key": "d91",
+     "label": "90+ days",
+     "amount": 0.0,
+     "share": 0.0,
+     "width": 0.0
+    }
+   ],
+   "top": [
+    {
+     "account": "2-01-01-01-0107",
+     "name": "Crescent Solar Imports",
+     "code": "2-01-01-01-0107",
+     "amount": 36424808.39,
+     "share": 16.21
+    },
+    {
+     "account": "2-01-01-01-0111",
+     "name": "Margalla Inverter House",
+     "code": "2-01-01-01-0111",
+     "amount": 35380028.2,
+     "share": 15.75
+    },
+    {
+     "account": "2-01-01-01-0114",
+     "name": "Kohinoor Battery Co.",
+     "code": "2-01-01-01-0114",
+     "amount": 32133587.52,
+     "share": 14.3
+    },
+    {
+     "account": "2-01-01-01-0110",
+     "name": "Ravi Power Systems",
+     "code": "2-01-01-01-0110",
+     "amount": 27905564.76,
+     "share": 12.42
+    },
+    {
+     "account": "2-01-01-01-0108",
+     "name": "Indus PV Distribution",
+     "code": "2-01-01-01-0108",
+     "amount": 22682135.0,
+     "share": 10.1
+    }
+   ]
+  }
+ },
+ "now": {
+  "receivable": {
+   "total": 538909806.62,
+   "parties": 110,
+   "avg_days": 144.48248476534653,
+   "oldest_days": 406,
+   "oldest_name": "Faisal Solar",
+   "oldest_code": "1-01-02-01-0153",
+   "oldest_account": "1-01-02-01-0153",
+   "peak": 538909806.62,
+   "buckets": [
+    {
+     "key": "current",
+     "label": "Current",
+     "amount": 0.0,
+     "share": 0.0,
+     "width": 0.0
+    },
+    {
+     "key": "d31",
+     "label": "31\u201360 days",
+     "amount": 0.0,
+     "share": 0.0,
+     "width": 0.0
+    },
+    {
+     "key": "d61",
+     "label": "61\u201390 days",
+     "amount": 0.0,
+     "share": 0.0,
+     "width": 0.0
+    },
+    {
+     "key": "d91",
+     "label": "90+ days",
+     "amount": 538909806.62,
+     "share": 100.0,
+     "width": 100.0
+    }
+   ],
+   "top": [
+    {
+     "account": "1-01-02-01-0186",
+     "name": "Bahria Orchard Mosque Trust",
+     "code": "1-01-02-01-0186",
+     "amount": 18690444.76,
+     "share": 3.47
+    },
+    {
+     "account": "1-01-02-01-0110",
+     "name": "Usman Traders",
+     "code": "1-01-02-01-0110",
+     "amount": 15591228.0,
+     "share": 2.89
+    },
+    {
+     "account": "1-01-02-01-0184",
+     "name": "Sundar Industrial Estate Unit 12",
+     "code": "1-01-02-01-0184",
+     "amount": 14892955.09,
+     "share": 2.76
+    },
+    {
+     "account": "1-01-02-01-0141",
+     "name": "Madina Green Energy",
+     "code": "1-01-02-01-0141",
+     "amount": 13737348.27,
+     "share": 2.55
+    },
+    {
+     "account": "1-01-02-01-0171",
+     "name": "Rizwan Solar Hub",
+     "code": "1-01-02-01-0171",
+     "amount": 12947365.2,
+     "share": 2.4
+    }
+   ]
+  },
+  "payable": {
+   "total": 224651393.71,
+   "parties": 12,
+   "avg_days": 128.4994828997805,
+   "oldest_days": 143,
+   "oldest_name": "Punjab Steel Structures",
+   "oldest_code": "2-01-01-01-0115",
+   "oldest_account": "2-01-01-01-0115",
+   "peak": 538909806.62,
+   "buckets": [
+    {
+     "key": "current",
+     "label": "Current",
+     "amount": 0.0,
+     "share": 0.0,
+     "width": 0.0
+    },
+    {
+     "key": "d31",
+     "label": "31\u201360 days",
+     "amount": 0.0,
+     "share": 0.0,
+     "width": 0.0
+    },
+    {
+     "key": "d61",
+     "label": "61\u201390 days",
+     "amount": 0.0,
+     "share": 0.0,
+     "width": 0.0
+    },
+    {
+     "key": "d91",
+     "label": "90+ days",
+     "amount": 224651393.71,
+     "share": 100.0,
+     "width": 41.69
+    }
+   ],
+   "top": [
+    {
+     "account": "2-01-01-01-0107",
+     "name": "Crescent Solar Imports",
+     "code": "2-01-01-01-0107",
+     "amount": 36424808.39,
+     "share": 16.21
+    },
+    {
+     "account": "2-01-01-01-0111",
+     "name": "Margalla Inverter House",
+     "code": "2-01-01-01-0111",
+     "amount": 35380028.2,
+     "share": 15.75
+    },
+    {
+     "account": "2-01-01-01-0114",
+     "name": "Kohinoor Battery Co.",
+     "code": "2-01-01-01-0114",
+     "amount": 32133587.52,
+     "share": 14.3
+    },
+    {
+     "account": "2-01-01-01-0110",
+     "name": "Ravi Power Systems",
+     "code": "2-01-01-01-0110",
+     "amount": 27905564.76,
+     "share": 12.42
+    },
+    {
+     "account": "2-01-01-01-0108",
+     "name": "Indus PV Distribution",
+     "code": "2-01-01-01-0108",
+     "amount": 22682135.0,
+     "share": 10.1
+    }
+   ]
+  }
+ },
+ "liq": {
+  "net_assets": 492412365.28,
+  "total_assets": 735022129.5,
+  "total_liabilities": 242609764.22,
+  "current_assets": 735022129.5,
+  "current_liabilities": 242609764.22,
+  "inventory": 68006385.48,
+  "current_ratio": 3.03,
+  "quick_ratio": 2.75
+ },
+ "ages": {
+  "1-01-02-01-0208": {
+   "avg_days": 4.000168619731408,
+   "oldest_days": 19,
+   "buckets": {
+    "current": 2379614.75,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0200": {
+   "avg_days": 8.001676174881512,
+   "oldest_days": 88,
+   "buckets": {
+    "current": 2333836.45,
+    "d31": 0.0,
+    "d61": 48.9,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0160": {
+   "avg_days": 33.63016865480368,
+   "oldest_days": 45,
+   "buckets": {
+    "current": 386029.8,
+    "d31": 5158903.28,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0134": {
+   "avg_days": 64.0,
+   "oldest_days": 64,
+   "buckets": {
+    "current": 0.0,
+    "d31": 0.0,
+    "d61": 454276.34,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0162": {
+   "avg_days": 25.969028276873512,
+   "oldest_days": 71,
+   "buckets": {
+    "current": 5206246.76,
+    "d31": 3668393.4400000004,
+    "d61": 29.41,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0174": {
+   "avg_days": 18.569439206967125,
+   "oldest_days": 24,
+   "buckets": {
+    "current": 1977971.97,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0202": {
+   "avg_days": 54.0,
+   "oldest_days": 54,
+   "buckets": {
+    "current": 0.0,
+    "d31": 453938.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0180": {
+   "avg_days": 35.250870717571935,
+   "oldest_days": 45,
+   "buckets": {
+    "current": 5585898.970000001,
+    "d31": 6864794.4,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0128": {
+   "avg_days": 15.469571862314744,
+   "oldest_days": 40,
+   "buckets": {
+    "current": 7451257.5,
+    "d31": 550575.13,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0209": {
+   "avg_days": 4.70667555451785,
+   "oldest_days": 8,
+   "buckets": {
+    "current": 860530.46,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0145": {
+   "avg_days": 24.10434946808598,
+   "oldest_days": 38,
+   "buckets": {
+    "current": 7176525.890000001,
+    "d31": 2658993.34,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0114": {
+   "avg_days": 29.099195661695656,
+   "oldest_days": 63,
+   "buckets": {
+    "current": 4822912.52,
+    "d31": 2199199.04,
+    "d61": 511626.38,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0171": {
+   "avg_days": 13.292550107414906,
+   "oldest_days": 29,
+   "buckets": {
+    "current": 12947365.2,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0159": {
+   "avg_days": 36.823504943478014,
+   "oldest_days": 63,
+   "buckets": {
+    "current": 785880.0,
+    "d31": 2293075.12,
+    "d61": 106729.12,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0106": {
+   "avg_days": 8.0,
+   "oldest_days": 8,
+   "buckets": {
+    "current": 2197377.58,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0207": {
+   "avg_days": 30.13227320214072,
+   "oldest_days": 45,
+   "buckets": {
+    "current": 2069748.3199999998,
+    "d31": 1569387.44,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0139": {
+   "avg_days": 22.280000286991797,
+   "oldest_days": 28,
+   "buckets": {
+    "current": 5133247.8100000005,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0110": {
+   "avg_days": 39.472832964792765,
+   "oldest_days": 99,
+   "buckets": {
+    "current": 3147661.8,
+    "d31": 8489349.52,
+    "d61": 3305770.0,
+    "d91": 648446.68
+   }
+  },
+  "1-01-02-01-0210": {
+   "avg_days": 15.200570087780143,
+   "oldest_days": 21,
+   "buckets": {
+    "current": 678260.46,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0154": {
+   "avg_days": 16.779225320199643,
+   "oldest_days": 34,
+   "buckets": {
+    "current": 8816554.08,
+    "d31": 3431963.56,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0119": {
+   "avg_days": 18.100595445096296,
+   "oldest_days": 50,
+   "buckets": {
+    "current": 2776285.12,
+    "d31": 530950.11,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0167": {
+   "avg_days": 29.671003636927853,
+   "oldest_days": 122,
+   "buckets": {
+    "current": 1486850.6,
+    "d31": 1947000.0,
+    "d61": 0.0,
+    "d91": 36.6
+   }
+  },
+  "1-01-02-01-0213": {
+   "avg_days": 3.0003830203496786,
+   "oldest_days": 46,
+   "buckets": {
+    "current": 1248382.08,
+    "d31": 11.12,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0125": {
+   "avg_days": 24.971574019556297,
+   "oldest_days": 55,
+   "buckets": {
+    "current": 10801595.620000001,
+    "d31": 1731471.47,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0144": {
+   "avg_days": 13.16631803095803,
+   "oldest_days": 15,
+   "buckets": {
+    "current": 6394052.430000001,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0121": {
+   "avg_days": 1.0,
+   "oldest_days": 1,
+   "buckets": {
+    "current": 1818576.35,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0177": {
+   "avg_days": 29.916725434674998,
+   "oldest_days": 97,
+   "buckets": {
+    "current": 5621686.93,
+    "d31": 5820437.8100000005,
+    "d61": 428089.84,
+    "d91": 324714.04
+   }
+  },
+  "1-01-02-01-0157": {
+   "avg_days": 8.67288977993959,
+   "oldest_days": 12,
+   "buckets": {
+    "current": 2697409.79,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0170": {
+   "avg_days": 35.0,
+   "oldest_days": 35,
+   "buckets": {
+    "current": 0.0,
+    "d31": 226997.78,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0186": {
+   "avg_days": 22.333468842503883,
+   "oldest_days": 50,
+   "buckets": {
+    "current": 11453550.66,
+    "d31": 7236894.1,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0113": {
+   "avg_days": 17.0,
+   "oldest_days": 17,
+   "buckets": {
+    "current": 218023.67,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0175": {
+   "avg_days": 17.358482071797987,
+   "oldest_days": 21,
+   "buckets": {
+    "current": 4779154.37,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0212": {
+   "avg_days": 13.188179732442377,
+   "oldest_days": 31,
+   "buckets": {
+    "current": 4783289.8,
+    "d31": 45.41,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0107": {
+   "avg_days": 20.000065644763662,
+   "oldest_days": 38,
+   "buckets": {
+    "current": 2881864.44,
+    "d31": 10.51,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0138": {
+   "avg_days": 23.84641493124582,
+   "oldest_days": 69,
+   "buckets": {
+    "current": 5589919.6,
+    "d31": 3509072.2,
+    "d61": 283454.76,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0116": {
+   "avg_days": 20.77480323342822,
+   "oldest_days": 22,
+   "buckets": {
+    "current": 2957525.9899999998,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0156": {
+   "avg_days": 6.000115585432468,
+   "oldest_days": 110,
+   "buckets": {
+    "current": 3698039.76,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 4.11
+   }
+  },
+  "1-01-02-01-0201": {
+   "avg_days": 8.60855534317339,
+   "oldest_days": 28,
+   "buckets": {
+    "current": 1723847.3900000001,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0149": {
+   "avg_days": 18.248378699239588,
+   "oldest_days": 42,
+   "buckets": {
+    "current": 2648146.56,
+    "d31": 696652.34,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0109": {
+   "avg_days": 14.525090933068155,
+   "oldest_days": 45,
+   "buckets": {
+    "current": 3454162.08,
+    "d31": 1991607.0999999999,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0179": {
+   "avg_days": 58.71537000686882,
+   "oldest_days": 104,
+   "buckets": {
+    "current": 2337582.48,
+    "d31": 5657434.95,
+    "d61": 4467406.62,
+    "d91": 176800.23
+   }
+  },
+  "1-01-02-01-0205": {
+   "avg_days": 32.00050032185452,
+   "oldest_days": 40,
+   "buckets": {
+    "current": 0.0,
+    "d31": 645664.38,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0141": {
+   "avg_days": 15.199679148121358,
+   "oldest_days": 27,
+   "buckets": {
+    "current": 13737348.27,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0126": {
+   "avg_days": 49.0,
+   "oldest_days": 49,
+   "buckets": {
+    "current": 0.0,
+    "d31": 10.22,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0147": {
+   "avg_days": 21.965104882846695,
+   "oldest_days": 38,
+   "buckets": {
+    "current": 3774547.42,
+    "d31": 3202886.67,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0172": {
+   "avg_days": 0.0,
+   "oldest_days": 0,
+   "buckets": {
+    "current": 684012.96,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0129": {
+   "avg_days": 24.132655977815638,
+   "oldest_days": 29,
+   "buckets": {
+    "current": 4013421.7,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0187": {
+   "avg_days": 87.0,
+   "oldest_days": 87,
+   "buckets": {
+    "current": 0.0,
+    "d31": 0.0,
+    "d61": 23.27,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0178": {
+   "avg_days": 98.0,
+   "oldest_days": 98,
+   "buckets": {
+    "current": 0.0,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 57923.91
+   }
+  },
+  "1-01-02-01-0124": {
+   "avg_days": 39.647656415735064,
+   "oldest_days": 49,
+   "buckets": {
+    "current": 2324934.92,
+    "d31": 8412882.309999999,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0173": {
+   "avg_days": 22.89151699216453,
+   "oldest_days": 49,
+   "buckets": {
+    "current": 4479014.74,
+    "d31": 1353821.32,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0137": {
+   "avg_days": 32.627177871514235,
+   "oldest_days": 41,
+   "buckets": {
+    "current": 2426403.79,
+    "d31": 2856694.26,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0182": {
+   "avg_days": 12.522866387118656,
+   "oldest_days": 57,
+   "buckets": {
+    "current": 8694979.6,
+    "d31": 3356033.25,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0142": {
+   "avg_days": 10.001069104471041,
+   "oldest_days": 60,
+   "buckets": {
+    "current": 1343151.52,
+    "d31": 28.72,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0158": {
+   "avg_days": 15.896964233558817,
+   "oldest_days": 22,
+   "buckets": {
+    "current": 9062636.91,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0146": {
+   "avg_days": 17.017799338625867,
+   "oldest_days": 81,
+   "buckets": {
+    "current": 106509.16,
+    "d31": 0.0,
+    "d61": 29.63,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0214": {
+   "avg_days": 5.000640475794097,
+   "oldest_days": 76,
+   "buckets": {
+    "current": 2441007.0,
+    "d31": 0.0,
+    "d61": 22.02,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0151": {
+   "avg_days": 15.0,
+   "oldest_days": 15,
+   "buckets": {
+    "current": 222483.8,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0120": {
+   "avg_days": 14.007927453822607,
+   "oldest_days": 29,
+   "buckets": {
+    "current": 9301130.18,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0176": {
+   "avg_days": 33.47405329281253,
+   "oldest_days": 61,
+   "buckets": {
+    "current": 6551569.46,
+    "d31": 5087012.0,
+    "d61": 632908.24,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0108": {
+   "avg_days": 6.0,
+   "oldest_days": 6,
+   "buckets": {
+    "current": 2254470.24,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0204": {
+   "avg_days": 36.0,
+   "oldest_days": 36,
+   "buckets": {
+    "current": 0.0,
+    "d31": 760132.93,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0133": {
+   "avg_days": 61.00000000000001,
+   "oldest_days": 61,
+   "buckets": {
+    "current": 0.0,
+    "d31": 0.0,
+    "d61": 2525.12,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0197": {
+   "avg_days": 13.00215615712222,
+   "oldest_days": 59,
+   "buckets": {
+    "current": 701864.0,
+    "d31": 32.9,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0217": {
+   "avg_days": 9.081223674554156,
+   "oldest_days": 19,
+   "buckets": {
+    "current": 6263032.58,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0127": {
+   "avg_days": 13.019199284645937,
+   "oldest_days": 40,
+   "buckets": {
+    "current": 7266312.5600000005,
+    "d31": 468889.18,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0169": {
+   "avg_days": 24.0,
+   "oldest_days": 24,
+   "buckets": {
+    "current": 879678.1,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0163": {
+   "avg_days": 12.274870439453561,
+   "oldest_days": 68,
+   "buckets": {
+    "current": 4157390.16,
+    "d31": 0.0,
+    "d61": 406522.36,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0115": {
+   "avg_days": 22.0,
+   "oldest_days": 22,
+   "buckets": {
+    "current": 278119.2,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0216": {
+   "avg_days": 9.827370732132149,
+   "oldest_days": 28,
+   "buckets": {
+    "current": 3181743.9,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0155": {
+   "avg_days": 1.0008400127401191,
+   "oldest_days": 62,
+   "buckets": {
+    "current": 1485742.72,
+    "d31": 0.0,
+    "d61": 20.46,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0219": {
+   "avg_days": 22.0,
+   "oldest_days": 22,
+   "buckets": {
+    "current": 517045.0,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0211": {
+   "avg_days": 15.106413864213925,
+   "oldest_days": 34,
+   "buckets": {
+    "current": 1007454.5,
+    "d31": 592222.49,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0140": {
+   "avg_days": 50.0,
+   "oldest_days": 50,
+   "buckets": {
+    "current": 0.0,
+    "d31": 416310.03,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0122": {
+   "avg_days": 15.000251806694571,
+   "oldest_days": 55,
+   "buckets": {
+    "current": 1083363.9,
+    "d31": 6.82,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0112": {
+   "avg_days": 6.0,
+   "oldest_days": 6,
+   "buckets": {
+    "current": 2401721.28,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0143": {
+   "avg_days": 24.572435758466142,
+   "oldest_days": 97,
+   "buckets": {
+    "current": 2074451.7999999998,
+    "d31": 1092090.0,
+    "d61": 0.0,
+    "d91": 29.93
+   }
+  },
+  "1-01-02-01-0218": {
+   "avg_days": 14.001995433298653,
+   "oldest_days": 56,
+   "buckets": {
+    "current": 1257402.12,
+    "d31": 566662.86,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0168": {
+   "avg_days": 37.20273451241419,
+   "oldest_days": 40,
+   "buckets": {
+    "current": 397618.7,
+    "d31": 1994044.24,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0183": {
+   "avg_days": 8.000334087760773,
+   "oldest_days": 52,
+   "buckets": {
+    "current": 2076923.53,
+    "d31": 15.77,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0195": {
+   "avg_days": 32.607988482655536,
+   "oldest_days": 43,
+   "buckets": {
+    "current": 6876165.15,
+    "d31": 2437794.3600000003,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0130": {
+   "avg_days": 26.97674301358741,
+   "oldest_days": 42,
+   "buckets": {
+    "current": 2630496.12,
+    "d31": 8632652.74,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0152": {
+   "avg_days": 19.333836116849554,
+   "oldest_days": 36,
+   "buckets": {
+    "current": 6019653.18,
+    "d31": 48.28,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0220": {
+   "avg_days": 20.0,
+   "oldest_days": 20,
+   "buckets": {
+    "current": 1636212.42,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0132": {
+   "avg_days": 28.715619482736248,
+   "oldest_days": 53,
+   "buckets": {
+    "current": 3995826.92,
+    "d31": 5391559.62,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0161": {
+   "avg_days": 53.00000000000001,
+   "oldest_days": 53,
+   "buckets": {
+    "current": 0.0,
+    "d31": 39.2,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0165": {
+   "avg_days": 10.347268272658603,
+   "oldest_days": 36,
+   "buckets": {
+    "current": 8757004.34,
+    "d31": 1088631.6400000001,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0192": {
+   "avg_days": 14.399356642548224,
+   "oldest_days": 145,
+   "buckets": {
+    "current": 12648333.370000001,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 16.28
+   }
+  },
+  "1-01-02-01-0131": {
+   "avg_days": 11.44891863958725,
+   "oldest_days": 17,
+   "buckets": {
+    "current": 5158296.84,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0111": {
+   "avg_days": 17.57369293034859,
+   "oldest_days": 42,
+   "buckets": {
+    "current": 6919425.6,
+    "d31": 907641.22,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0191": {
+   "avg_days": 32.862615752117854,
+   "oldest_days": 69,
+   "buckets": {
+    "current": 4384892.7,
+    "d31": 4611263.63,
+    "d61": 569016.39,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0118": {
+   "avg_days": 27.394043657507467,
+   "oldest_days": 47,
+   "buckets": {
+    "current": 6093202.579999999,
+    "d31": 544968.42,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0153": {
+   "avg_days": 31.002154653280467,
+   "oldest_days": 285,
+   "buckets": {
+    "current": 0.0,
+    "d31": 3211143.7,
+    "d61": 0.0,
+    "d91": 27.24
+   }
+  },
+  "1-01-02-01-0150": {
+   "avg_days": 19.405965902610426,
+   "oldest_days": 62,
+   "buckets": {
+    "current": 3690719.51,
+    "d31": 0.0,
+    "d61": 29367.03,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0199": {
+   "avg_days": 74.0,
+   "oldest_days": 74,
+   "buckets": {
+    "current": 0.0,
+    "d31": 0.0,
+    "d61": 45.54,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0117": {
+   "avg_days": 42.0,
+   "oldest_days": 42,
+   "buckets": {
+    "current": 0.0,
+    "d31": 429117.28,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0194": {
+   "avg_days": 52.082241869683045,
+   "oldest_days": 116,
+   "buckets": {
+    "current": 0.0,
+    "d31": 7159503.68,
+    "d61": 4838700.71,
+    "d91": 20.04
+   }
+  },
+  "1-01-02-01-0123": {
+   "avg_days": 43.41196541641372,
+   "oldest_days": 48,
+   "buckets": {
+    "current": 377741.48,
+    "d31": 1351227.85,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0185": {
+   "avg_days": 42.972265072713874,
+   "oldest_days": 90,
+   "buckets": {
+    "current": 3516447.2,
+    "d31": 6886709.77,
+    "d61": 411252.85,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0184": {
+   "avg_days": 24.389710575565832,
+   "oldest_days": 64,
+   "buckets": {
+    "current": 9687384.059999999,
+    "d31": 4539954.53,
+    "d61": 665616.5,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0181": {
+   "avg_days": 14.509637348812175,
+   "oldest_days": 22,
+   "buckets": {
+    "current": 1674416.41,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0188": {
+   "avg_days": 14.740715148013111,
+   "oldest_days": 28,
+   "buckets": {
+    "current": 2181030.46,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0190": {
+   "avg_days": 53.0,
+   "oldest_days": 53,
+   "buckets": {
+    "current": 0.0,
+    "d31": 47.61,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0189": {
+   "avg_days": 11.331747498882072,
+   "oldest_days": 45,
+   "buckets": {
+    "current": 8200341.94,
+    "d31": 9335.93,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0136": {
+   "avg_days": 35.07976648278318,
+   "oldest_days": 60,
+   "buckets": {
+    "current": 0.0,
+    "d31": 3317840.1599999997,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0203": {
+   "avg_days": 25.28152230583645,
+   "oldest_days": 45,
+   "buckets": {
+    "current": 1015421.0,
+    "d31": 271976.81,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0196": {
+   "avg_days": 17.638176530599296,
+   "oldest_days": 61,
+   "buckets": {
+    "current": 3463069.43,
+    "d31": 764640.0,
+    "d61": 244525.09,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0164": {
+   "avg_days": 22.065565931723263,
+   "oldest_days": 40,
+   "buckets": {
+    "current": 3930816.0,
+    "d31": 2425317.88,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0193": {
+   "avg_days": 0.0,
+   "oldest_days": 0,
+   "buckets": {
+    "current": 6040740.12,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "1-01-02-01-0215": {
+   "avg_days": 13.0,
+   "oldest_days": 13,
+   "buckets": {
+    "current": 197780.56,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "2-01-01-01-0114": {
+   "avg_days": 5.61933217719974,
+   "oldest_days": 13,
+   "buckets": {
+    "current": 32133587.52,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "2-01-01-01-0117": {
+   "avg_days": 7.654559722531743,
+   "oldest_days": 15,
+   "buckets": {
+    "current": 12627952.6,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "2-01-01-01-0107": {
+   "avg_days": 6.912586565016108,
+   "oldest_days": 14,
+   "buckets": {
+    "current": 36424808.39,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "2-01-01-01-0116": {
+   "avg_days": 10.0,
+   "oldest_days": 10,
+   "buckets": {
+    "current": 2338736.4,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "2-01-01-01-0115": {
+   "avg_days": 12.925472434027302,
+   "oldest_days": 22,
+   "buckets": {
+    "current": 16681910.16,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "2-01-01-01-0112": {
+   "avg_days": 5.57319648984994,
+   "oldest_days": 6,
+   "buckets": {
+    "current": 10014711.45,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "2-01-01-01-0109": {
+   "avg_days": 5.351639979666201,
+   "oldest_days": 6,
+   "buckets": {
+    "current": 13265990.7,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "2-01-01-01-0118": {
+   "avg_days": 13.0,
+   "oldest_days": 13,
+   "buckets": {
+    "current": 4438771.75,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "2-01-01-01-0113": {
+   "avg_days": 5.992991982805394,
+   "oldest_days": 11,
+   "buckets": {
+    "current": 10757196.78,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "2-01-01-01-0111": {
+   "avg_days": 6.9832481040814995,
+   "oldest_days": 15,
+   "buckets": {
+    "current": 35380028.2,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "2-01-01-01-0108": {
+   "avg_days": 8.996913395498263,
+   "oldest_days": 15,
+   "buckets": {
+    "current": 22682135.0,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  },
+  "2-01-01-01-0110": {
+   "avg_days": 7.762705608112552,
+   "oldest_days": 15,
+   "buckets": {
+    "current": 27905564.759999998,
+    "d31": 0.0,
+    "d61": 0.0,
+    "d91": 0.0
+   }
+  }
+ },
+ "rows": {
+  "amounts": [
+   36424808.39,
+   35380028.2,
+   32133587.52,
+   27905564.76,
+   22682135.0,
+   18690444.76,
+   16681910.16,
+   15591228.0,
+   14892955.09,
+   13737348.27,
+   13265990.7,
+   12947365.2,
+   12648349.65,
+   12639224.28,
+   12627952.6,
+   12533067.09,
+   12450693.37,
+   12271489.7,
+   12248517.64,
+   12194928.62,
+   12051012.85,
+   11998224.43,
+   11263148.86,
+   10814409.82,
+   10757196.78,
+   10737817.23,
+   10014711.45,
+   9845635.98,
+   9835519.23,
+   9565172.72,
+   9387386.54,
+   9382446.56,
+   9313959.51,
+   9301130.18,
+   9062636.91,
+   8874669.61,
+   8209677.87,
+   8001832.63,
+   7827066.82,
+   7735201.74,
+   7533737.94,
+   6977434.09,
+   6638171.0,
+   6394052.43,
+   6356133.88,
+   6263032.58,
+   6040740.12,
+   6019701.46,
+   5832836.06,
+   5544933.08,
+   5445769.18,
+   5283098.05,
+   5158296.84,
+   5133247.81,
+   4783335.21,
+   4779154.37,
+   4563912.52,
+   4472234.52,
+   4438771.75,
+   4013421.7,
+   3720086.54,
+   3698043.87,
+   3639135.76,
+   3433887.2,
+   3344798.9,
+   3317840.16,
+   3307235.23,
+   3211170.94,
+   3185684.24,
+   3181743.9,
+   3166571.73,
+   2957525.99,
+   2881874.95,
+   2697409.79,
+   2441029.02,
+   2401721.28,
+   2391662.94,
+   2379614.75,
+   2338736.4,
+   2333885.35,
+   2254470.24,
+   2197377.58,
+   2181030.46,
+   2076939.3,
+   1977971.97,
+   1824064.98,
+   1818576.35,
+   1728969.33,
+   1723847.39,
+   1674416.41,
+   1636212.42,
+   1599676.99,
+   1485763.18,
+   1343180.24,
+   1287397.81,
+   1248393.2,
+   1083370.72,
+   879678.1,
+   860530.46,
+   760132.93,
+   701896.9,
+   684012.96,
+   678260.46,
+   645664.38,
+   517045.0,
+   454276.34,
+   453938.0,
+   429117.28,
+   416310.03,
+   278119.2,
+   226997.78,
+   222483.8,
+   218023.67,
+   197780.56,
+   106538.79,
+   57923.91,
+   2525.12,
+   47.61,
+   45.54,
+   39.2,
+   23.27,
+   10.22
+  ],
+  "by_code": {
+   "2-01-01-01-0107": {
+    "account": "2-01-01-01-0107",
+    "name": "Crescent Solar Imports",
+    "type": "liability",
+    "group": "2-01-01-01",
+    "group_label": "2-01-01-01 \u00b7 Trade Creditors",
+    "debit": 506582064.65,
+    "credit": 543006873.04,
+    "side": "payable"
+   },
+   "2-01-01-01-0111": {
+    "account": "2-01-01-01-0111",
+    "name": "Margalla Inverter House",
+    "type": "liability",
+    "group": "2-01-01-01",
+    "group_label": "2-01-01-01 \u00b7 Trade Creditors",
+    "debit": 357554009.02,
+    "credit": 392934037.22,
+    "side": "payable"
+   },
+   "2-01-01-01-0114": {
+    "account": "2-01-01-01-0114",
+    "name": "Kohinoor Battery Co.",
+    "type": "liability",
+    "group": "2-01-01-01",
+    "group_label": "2-01-01-01 \u00b7 Trade Creditors",
+    "debit": 413663192.86,
+    "credit": 445796780.38,
+    "side": "payable"
+   },
+   "2-01-01-01-0110": {
+    "account": "2-01-01-01-0110",
+    "name": "Ravi Power Systems",
+    "type": "liability",
+    "group": "2-01-01-01",
+    "group_label": "2-01-01-01 \u00b7 Trade Creditors",
+    "debit": 436545644.09,
+    "credit": 464451208.85,
+    "side": "payable"
+   },
+   "2-01-01-01-0108": {
+    "account": "2-01-01-01-0108",
+    "name": "Indus PV Distribution",
+    "type": "liability",
+    "group": "2-01-01-01",
+    "group_label": "2-01-01-01 \u00b7 Trade Creditors",
+    "debit": 478332945.41,
+    "credit": 501015080.41,
+    "side": "payable"
+   },
+   "1-01-02-01-0186": {
+    "account": "1-01-02-01-0186",
+    "name": "Bahria Orchard Mosque Trust",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 47880795.35,
+    "credit": 29190350.59,
+    "side": "receivable"
+   },
+   "2-01-01-01-0115": {
+    "account": "2-01-01-01-0115",
+    "name": "Punjab Steel Structures",
+    "type": "liability",
+    "group": "2-01-01-01",
+    "group_label": "2-01-01-01 \u00b7 Trade Creditors",
+    "debit": 94263985.86,
+    "credit": 110945896.02,
+    "side": "payable"
+   },
+   "1-01-02-01-0110": {
+    "account": "1-01-02-01-0110",
+    "name": "Usman Traders",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 51644428.0,
+    "credit": 36053200.0,
+    "side": "receivable"
+   },
+   "1-01-02-01-0184": {
+    "account": "1-01-02-01-0184",
+    "name": "Sundar Industrial Estate Unit 12",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 33641955.09,
+    "credit": 18749000.0,
+    "side": "receivable"
+   },
+   "1-01-02-01-0141": {
+    "account": "1-01-02-01-0141",
+    "name": "Madina Green Energy",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 60942903.39,
+    "credit": 47205555.12,
+    "side": "receivable"
+   },
+   "2-01-01-01-0109": {
+    "account": "2-01-01-01-0109",
+    "name": "Sunrise Energy Traders",
+    "type": "liability",
+    "group": "2-01-01-01",
+    "group_label": "2-01-01-01 \u00b7 Trade Creditors",
+    "debit": 346813648.96,
+    "credit": 360079639.66,
+    "side": "payable"
+   },
+   "1-01-02-01-0171": {
+    "account": "1-01-02-01-0171",
+    "name": "Rizwan Solar Hub",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 99795701.4,
+    "credit": 86848336.2,
+    "side": "receivable"
+   },
+   "1-01-02-01-0192": {
+    "account": "1-01-02-01-0192",
+    "name": "Valencia Commercial Plaza",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 30684949.65,
+    "credit": 18036600.0,
+    "side": "receivable"
+   },
+   "1-01-02-01-0179": {
+    "account": "1-01-02-01-0179",
+    "name": "DHA Phase 6 Residence Block",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 59423643.4,
+    "credit": 46784419.12,
+    "side": "receivable"
+   },
+   "2-01-01-01-0117": {
+    "account": "2-01-01-01-0117",
+    "name": "Pak Cables & Accessories",
+    "type": "liability",
+    "group": "2-01-01-01",
+    "group_label": "2-01-01-01 \u00b7 Trade Creditors",
+    "debit": 128859198.98,
+    "credit": 141487151.58,
+    "side": "payable"
+   },
+   "1-01-02-01-0125": {
+    "account": "1-01-02-01-0125",
+    "name": "Usman Power",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 96089223.09,
+    "credit": 83556156.0,
+    "side": "receivable"
+   },
+   "1-01-02-01-0180": {
+    "account": "1-01-02-01-0180",
+    "name": "Gulberg Office Tower",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 34672951.64,
+    "credit": 22222258.27,
+    "side": "receivable"
+   },
+   "1-01-02-01-0176": {
+    "account": "1-01-02-01-0176",
+    "name": "Riverside Textile Mills",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 44438825.14,
+    "credit": 32167335.44,
+    "side": "receivable"
+   },
+   "1-01-02-01-0154": {
+    "account": "1-01-02-01-0154",
+    "name": "Saad Traders",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 77391161.64,
+    "credit": 65142644.0,
+    "side": "receivable"
+   },
+   "1-01-02-01-0177": {
+    "account": "1-01-02-01-0177",
+    "name": "Green Valley School System",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 37585305.03,
+    "credit": 25390376.41,
+    "side": "receivable"
+   },
+   "1-01-02-01-0182": {
+    "account": "1-01-02-01-0182",
+    "name": "Ferozepur Road Cold Storage",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 70834493.85,
+    "credit": 58783481.0,
+    "side": "receivable"
+   },
+   "1-01-02-01-0194": {
+    "account": "1-01-02-01-0194",
+    "name": "Thokar Niaz Baig Flour Mill",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 21290277.8,
+    "credit": 9292053.37,
+    "side": "receivable"
+   },
+   "1-01-02-01-0130": {
+    "account": "1-01-02-01-0130",
+    "name": "Ittefaq Energy",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 41646148.28,
+    "credit": 30382999.42,
+    "side": "receivable"
+   },
+   "1-01-02-01-0185": {
+    "account": "1-01-02-01-0185",
+    "name": "Johar Town Hostel",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 38137509.82,
+    "credit": 27323100.0,
+    "side": "receivable"
+   },
+   "2-01-01-01-0113": {
+    "account": "2-01-01-01-0113",
+    "name": "Volt Storage (Pvt) Ltd",
+    "type": "liability",
+    "group": "2-01-01-01",
+    "group_label": "2-01-01-01 \u00b7 Trade Creditors",
+    "debit": 256180539.97,
+    "credit": 266937736.75,
+    "side": "payable"
+   },
+   "1-01-02-01-0124": {
+    "account": "1-01-02-01-0124",
+    "name": "Fateh Power",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 103076801.91,
+    "credit": 92338984.68,
+    "side": "receivable"
+   },
+   "2-01-01-01-0112": {
+    "account": "2-01-01-01-0112",
+    "name": "Arabian Sea Electronics",
+    "type": "liability",
+    "group": "2-01-01-01",
+    "group_label": "2-01-01-01 \u00b7 Trade Creditors",
+    "debit": 298941799.65,
+    "credit": 308956511.1,
+    "side": "payable"
+   },
+   "1-01-02-01-0165": {
+    "account": "1-01-02-01-0165",
+    "name": "Al-Noor Electronics",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 48716478.29,
+    "credit": 38870842.31,
+    "side": "receivable"
+   },
+   "1-01-02-01-0145": {
+    "account": "1-01-02-01-0145",
+    "name": "Rizwan Power",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 96363342.29,
+    "credit": 86527823.06,
+    "side": "receivable"
+   },
+   "1-01-02-01-0191": {
+    "account": "1-01-02-01-0191",
+    "name": "Lake City Villas",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 40826172.72,
+    "credit": 31261000.0,
+    "side": "receivable"
+   },
+   "1-01-02-01-0132": {
+    "account": "1-01-02-01-0132",
+    "name": "Iqra Power",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 18083848.1,
+    "credit": 8696461.56,
+    "side": "receivable"
+   },
+   "1-01-02-01-0138": {
+    "account": "1-01-02-01-0138",
+    "name": "Hamza Power",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 40284008.67,
+    "credit": 30901562.11,
+    "side": "receivable"
+   },
+   "1-01-02-01-0195": {
+    "account": "1-01-02-01-0195",
+    "name": "Allama Iqbal Town Hospital",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 81400659.51,
+    "credit": 72086700.0,
+    "side": "receivable"
+   },
+   "1-01-02-01-0120": {
+    "account": "1-01-02-01-0120",
+    "name": "Shaheen Electric",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 32942630.18,
+    "credit": 23641500.0,
+    "side": "receivable"
+   },
+   "1-01-02-01-0158": {
+    "account": "1-01-02-01-0158",
+    "name": "Noor Electronics",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 33972092.62,
+    "credit": 24909455.71,
+    "side": "receivable"
+   },
+   "1-01-02-01-0162": {
+    "account": "1-01-02-01-0162",
+    "name": "Hamza Energy",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 30411069.61,
+    "credit": 21536400.0,
+    "side": "receivable"
+   },
+   "1-01-02-01-0189": {
+    "account": "1-01-02-01-0189",
+    "name": "Sheikhupura Rice Mill",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 26426677.87,
+    "credit": 18217000.0,
+    "side": "receivable"
+   },
+   "1-01-02-01-0128": {
+    "account": "1-01-02-01-0128",
+    "name": "Bismillah Energy",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 48486332.63,
+    "credit": 40484500.0,
+    "side": "receivable"
+   },
+   "1-01-02-01-0111": {
+    "account": "1-01-02-01-0111",
+    "name": "Zam Zam Electric",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 47106440.16,
+    "credit": 39279373.34,
+    "side": "receivable"
+   },
+   "1-01-02-01-0127": {
+    "account": "1-01-02-01-0127",
+    "name": "Pak Energy",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 23646240.66,
+    "credit": 15911038.92,
+    "side": "receivable"
+   },
+   "1-01-02-01-0114": {
+    "account": "1-01-02-01-0114",
+    "name": "Rizwan Renewables",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 19163019.46,
+    "credit": 11629281.52,
+    "side": "receivable"
+   },
+   "1-01-02-01-0147": {
+    "account": "1-01-02-01-0147",
+    "name": "Saad Green Energy",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 26142129.46,
+    "credit": 19164695.37,
+    "side": "receivable"
+   },
+   "1-01-02-01-0118": {
+    "account": "1-01-02-01-0118",
+    "name": "Butt Green Energy",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 13768771.0,
+    "credit": 7130600.0,
+    "side": "receivable"
+   },
+   "1-01-02-01-0144": {
+    "account": "1-01-02-01-0144",
+    "name": "Saad Electric",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 45905264.83,
+    "credit": 39511212.4,
+    "side": "receivable"
+   },
+   "1-01-02-01-0164": {
+    "account": "1-01-02-01-0164",
+    "name": "Qadri Power",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 21314593.7,
+    "credit": 14958459.82,
+    "side": "receivable"
+   },
+   "1-01-02-01-0217": {
+    "account": "1-01-02-01-0217",
+    "name": "Al-Hamd Solar Installers",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 64291225.78,
+    "credit": 58028193.2,
+    "side": "receivable"
+   },
+   "1-01-02-01-0193": {
+    "account": "1-01-02-01-0193",
+    "name": "Askari 11 Residence",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 9113092.62,
+    "credit": 3072352.5,
+    "side": "receivable"
+   },
+   "1-01-02-01-0152": {
+    "account": "1-01-02-01-0152",
+    "name": "Malik Solar",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 26024076.36,
+    "credit": 20004374.9,
+    "side": "receivable"
+   },
+   "1-01-02-01-0173": {
+    "account": "1-01-02-01-0173",
+    "name": "Chaudhry Traders",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 51092957.12,
+    "credit": 45260121.06,
+    "side": "receivable"
+   },
+   "1-01-02-01-0160": {
+    "account": "1-01-02-01-0160",
+    "name": "Rehman Sun Tech",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 48635633.08,
+    "credit": 43090700.0,
+    "side": "receivable"
+   },
+   "1-01-02-01-0109": {
+    "account": "1-01-02-01-0109",
+    "name": "Zam Zam Renewables",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 54073230.96,
+    "credit": 48627461.78,
+    "side": "receivable"
+   },
+   "1-01-02-01-0137": {
+    "account": "1-01-02-01-0137",
+    "name": "Iqra Renewables",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 18493924.06,
+    "credit": 13210826.01,
+    "side": "receivable"
+   },
+   "1-01-02-01-0131": {
+    "account": "1-01-02-01-0131",
+    "name": "Madina Renewables",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 18811898.66,
+    "credit": 13653601.82,
+    "side": "receivable"
+   },
+   "1-01-02-01-0139": {
+    "account": "1-01-02-01-0139",
+    "name": "Kashmir Solar Hub",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 55118047.81,
+    "credit": 49984800.0,
+    "side": "receivable"
+   },
+   "1-01-02-01-0212": {
+    "account": "1-01-02-01-0212",
+    "name": "Gondal Solar Installers",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 40522945.21,
+    "credit": 35739610.0,
+    "side": "receivable"
+   },
+   "1-01-02-01-0175": {
+    "account": "1-01-02-01-0175",
+    "name": "Al-Hamd Sun Tech",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 90285833.59,
+    "credit": 85506679.22,
+    "side": "receivable"
+   },
+   "1-01-02-01-0163": {
+    "account": "1-01-02-01-0163",
+    "name": "Khan Power",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 29100676.79,
+    "credit": 24536764.27,
+    "side": "receivable"
+   },
+   "1-01-02-01-0196": {
+    "account": "1-01-02-01-0196",
+    "name": "Fateh Solar Installers",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 10363034.52,
+    "credit": 5890800.0,
+    "side": "receivable"
+   },
+   "2-01-01-01-0118": {
+    "account": "2-01-01-01-0118",
+    "name": "Metro Electric Supplies",
+    "type": "liability",
+    "group": "2-01-01-01",
+    "group_label": "2-01-01-01 \u00b7 Trade Creditors",
+    "debit": 87673857.27,
+    "credit": 92112629.02,
+    "side": "payable"
+   },
+   "1-01-02-01-0129": {
+    "account": "1-01-02-01-0129",
+    "name": "Kashmir Power",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 48395406.2,
+    "credit": 44381984.5,
+    "side": "receivable"
+   },
+   "1-01-02-01-0150": {
+    "account": "1-01-02-01-0150",
+    "name": "Ittefaq Traders",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 7645086.54,
+    "credit": 3925000.0,
+    "side": "receivable"
+   },
+   "1-01-02-01-0156": {
+    "account": "1-01-02-01-0156",
+    "name": "Zam Zam Power",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 22608484.81,
+    "credit": 18910440.94,
+    "side": "receivable"
+   },
+   "1-01-02-01-0207": {
+    "account": "1-01-02-01-0207",
+    "name": "Noor Solar Installers",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 22314296.78,
+    "credit": 18675161.02,
+    "side": "receivable"
+   },
+   "1-01-02-01-0167": {
+    "account": "1-01-02-01-0167",
+    "name": "Pak Power",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 16407248.7,
+    "credit": 12973361.5,
+    "side": "receivable"
+   },
+   "1-01-02-01-0149": {
+    "account": "1-01-02-01-0149",
+    "name": "Bilal Solar",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 27304392.06,
+    "credit": 23959593.16,
+    "side": "receivable"
+   },
+   "1-01-02-01-0136": {
+    "account": "1-01-02-01-0136",
+    "name": "Hamza Electronics",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 8666835.93,
+    "credit": 5348995.77,
+    "side": "receivable"
+   },
+   "1-01-02-01-0119": {
+    "account": "1-01-02-01-0119",
+    "name": "Rehman Electric",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 65079652.76,
+    "credit": 61772417.53,
+    "side": "receivable"
+   },
+   "1-01-02-01-0153": {
+    "account": "1-01-02-01-0153",
+    "name": "Faisal Solar",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 8000670.94,
+    "credit": 4789500.0,
+    "side": "receivable"
+   },
+   "1-01-02-01-0159": {
+    "account": "1-01-02-01-0159",
+    "name": "Bismillah Renewables",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 27859936.88,
+    "credit": 24674252.64,
+    "side": "receivable"
+   },
+   "1-01-02-01-0216": {
+    "account": "1-01-02-01-0216",
+    "name": "Bilal Solar Installers",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 35440307.95,
+    "credit": 32258564.05,
+    "side": "receivable"
+   },
+   "1-01-02-01-0143": {
+    "account": "1-01-02-01-0143",
+    "name": "Ali Green Energy",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 11528471.73,
+    "credit": 8361900.0,
+    "side": "receivable"
+   },
+   "1-01-02-01-0116": {
+    "account": "1-01-02-01-0116",
+    "name": "Noor Green Energy",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 49603274.89,
+    "credit": 46645748.9,
+    "side": "receivable"
+   },
+   "1-01-02-01-0107": {
+    "account": "1-01-02-01-0107",
+    "name": "Hamza Renewables",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 56252938.05,
+    "credit": 53371063.1,
+    "side": "receivable"
+   },
+   "1-01-02-01-0157": {
+    "account": "1-01-02-01-0157",
+    "name": "Malik Electric",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 29860735.69,
+    "credit": 27163325.9,
+    "side": "receivable"
+   },
+   "1-01-02-01-0214": {
+    "account": "1-01-02-01-0214",
+    "name": "Chaudhry Solar Installers",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 12399429.02,
+    "credit": 9958400.0,
+    "side": "receivable"
+   },
+   "1-01-02-01-0112": {
+    "account": "1-01-02-01-0112",
+    "name": "Gondal Renewables",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 24102141.08,
+    "credit": 21700419.8,
+    "side": "receivable"
+   },
+   "1-01-02-01-0168": {
+    "account": "1-01-02-01-0168",
+    "name": "Zam Zam Electronics",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 29026070.7,
+    "credit": 26634407.76,
+    "side": "receivable"
+   },
+   "1-01-02-01-0208": {
+    "account": "1-01-02-01-0208",
+    "name": "Pak Solar Installers",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 77292717.45,
+    "credit": 74913102.7,
+    "side": "receivable"
+   },
+   "2-01-01-01-0116": {
+    "account": "2-01-01-01-0116",
+    "name": "Shalimar Fabricators",
+    "type": "liability",
+    "group": "2-01-01-01",
+    "group_label": "2-01-01-01 \u00b7 Trade Creditors",
+    "debit": 92448899.28,
+    "credit": 94787635.68,
+    "side": "payable"
+   },
+   "1-01-02-01-0200": {
+    "account": "1-01-02-01-0200",
+    "name": "Sheikh Solar Installers",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 12843451.23,
+    "credit": 10509565.88,
+    "side": "receivable"
+   },
+   "1-01-02-01-0108": {
+    "account": "1-01-02-01-0108",
+    "name": "Gondal Power",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 20189365.76,
+    "credit": 17934895.52,
+    "side": "receivable"
+   },
+   "1-01-02-01-0106": {
+    "account": "1-01-02-01-0106",
+    "name": "Pak Electric",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 41447925.98,
+    "credit": 39250548.4,
+    "side": "receivable"
+   },
+   "1-01-02-01-0188": {
+    "account": "1-01-02-01-0188",
+    "name": "Raiwind Poultry Farm",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 29791530.46,
+    "credit": 27610500.0,
+    "side": "receivable"
+   },
+   "1-01-02-01-0183": {
+    "account": "1-01-02-01-0183",
+    "name": "Model Town Marriage Hall",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 38955839.3,
+    "credit": 36878900.0,
+    "side": "receivable"
+   },
+   "1-01-02-01-0174": {
+    "account": "1-01-02-01-0174",
+    "name": "Khan Solar",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 26079972.96,
+    "credit": 24102000.99,
+    "side": "receivable"
+   },
+   "1-01-02-01-0218": {
+    "account": "1-01-02-01-0218",
+    "name": "Rehman Solar Installers",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 11803459.42,
+    "credit": 9979394.44,
+    "side": "receivable"
+   },
+   "1-01-02-01-0121": {
+    "account": "1-01-02-01-0121",
+    "name": "Al-Hamd Power",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 104077793.71,
+    "credit": 102259217.36,
+    "side": "receivable"
+   },
+   "1-01-02-01-0123": {
+    "account": "1-01-02-01-0123",
+    "name": "Bilal Sun Tech",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 18750369.33,
+    "credit": 17021400.0,
+    "side": "receivable"
+   },
+   "1-01-02-01-0201": {
+    "account": "1-01-02-01-0201",
+    "name": "Malik Solar Installers",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 18887796.49,
+    "credit": 17163949.1,
+    "side": "receivable"
+   },
+   "1-01-02-01-0181": {
+    "account": "1-01-02-01-0181",
+    "name": "Pak Arab Housing Society",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 35215683.54,
+    "credit": 33541267.13,
+    "side": "receivable"
+   },
+   "1-01-02-01-0220": {
+    "account": "1-01-02-01-0220",
+    "name": "Madina Solar Installers",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 3989567.02,
+    "credit": 2353354.6,
+    "side": "receivable"
+   },
+   "1-01-02-01-0211": {
+    "account": "1-01-02-01-0211",
+    "name": "Faisal Solar Installers",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 18064236.01,
+    "credit": 16464559.02,
+    "side": "receivable"
+   },
+   "1-01-02-01-0155": {
+    "account": "1-01-02-01-0155",
+    "name": "Khan Traders",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 34469963.18,
+    "credit": 32984200.0,
+    "side": "receivable"
+   },
+   "1-01-02-01-0142": {
+    "account": "1-01-02-01-0142",
+    "name": "Bismillah Traders",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 33362610.82,
+    "credit": 32019430.58,
+    "side": "receivable"
+   },
+   "1-01-02-01-0203": {
+    "account": "1-01-02-01-0203",
+    "name": "Hamza Solar Installers",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 7302662.21,
+    "credit": 6015264.4,
+    "side": "receivable"
+   },
+   "1-01-02-01-0213": {
+    "account": "1-01-02-01-0213",
+    "name": "Mughal Solar Installers",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 16408877.99,
+    "credit": 15160484.79,
+    "side": "receivable"
+   },
+   "1-01-02-01-0122": {
+    "account": "1-01-02-01-0122",
+    "name": "Malik Renewables",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 28090570.72,
+    "credit": 27007200.0,
+    "side": "receivable"
+   },
+   "1-01-02-01-0169": {
+    "account": "1-01-02-01-0169",
+    "name": "Fateh Green Energy",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 29749604.46,
+    "credit": 28869926.36,
+    "side": "receivable"
+   },
+   "1-01-02-01-0209": {
+    "account": "1-01-02-01-0209",
+    "name": "Kashmir Solar Installers",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 21149549.5,
+    "credit": 20289019.04,
+    "side": "receivable"
+   },
+   "1-01-02-01-0204": {
+    "account": "1-01-02-01-0204",
+    "name": "Rizwan Solar Installers",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 15657906.93,
+    "credit": 14897774.0,
+    "side": "receivable"
+   },
+   "1-01-02-01-0197": {
+    "account": "1-01-02-01-0197",
+    "name": "Al-Noor Solar Installers",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 23639372.7,
+    "credit": 22937475.8,
+    "side": "receivable"
+   },
+   "1-01-02-01-0172": {
+    "account": "1-01-02-01-0172",
+    "name": "Bilal Energy",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 6999035.48,
+    "credit": 6315022.52,
+    "side": "receivable"
+   },
+   "1-01-02-01-0210": {
+    "account": "1-01-02-01-0210",
+    "name": "Bismillah Solar Installers",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 9400760.46,
+    "credit": 8722500.0,
+    "side": "receivable"
+   },
+   "1-01-02-01-0205": {
+    "account": "1-01-02-01-0205",
+    "name": "Shaheen Solar Installers",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 16118414.22,
+    "credit": 15472749.84,
+    "side": "receivable"
+   },
+   "1-01-02-01-0219": {
+    "account": "1-01-02-01-0219",
+    "name": "Saad Solar Installers",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 34210276.25,
+    "credit": 33693231.25,
+    "side": "receivable"
+   },
+   "1-01-02-01-0134": {
+    "account": "1-01-02-01-0134",
+    "name": "Kashmir Green Energy",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 35748968.6,
+    "credit": 35294692.26,
+    "side": "receivable"
+   },
+   "1-01-02-01-0202": {
+    "account": "1-01-02-01-0202",
+    "name": "Haider Solar Installers",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 5762396.25,
+    "credit": 5308458.25,
+    "side": "receivable"
+   },
+   "1-01-02-01-0117": {
+    "account": "1-01-02-01-0117",
+    "name": "Iqra Electronics",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 23288177.92,
+    "credit": 22859060.64,
+    "side": "receivable"
+   },
+   "1-01-02-01-0140": {
+    "account": "1-01-02-01-0140",
+    "name": "Shaheen Power",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 12429926.95,
+    "credit": 12013616.92,
+    "side": "receivable"
+   },
+   "1-01-02-01-0115": {
+    "account": "1-01-02-01-0115",
+    "name": "Usman Energy",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 22214473.81,
+    "credit": 21936354.61,
+    "side": "receivable"
+   },
+   "1-01-02-01-0170": {
+    "account": "1-01-02-01-0170",
+    "name": "Ali Solar Hub",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 10236130.66,
+    "credit": 10009132.88,
+    "side": "receivable"
+   },
+   "1-01-02-01-0151": {
+    "account": "1-01-02-01-0151",
+    "name": "Noor Energy",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 29838600.68,
+    "credit": 29616116.88,
+    "side": "receivable"
+   },
+   "1-01-02-01-0113": {
+    "account": "1-01-02-01-0113",
+    "name": "Madina Sun Tech",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 49499394.72,
+    "credit": 49281371.05,
+    "side": "receivable"
+   },
+   "1-01-02-01-0215": {
+    "account": "1-01-02-01-0215",
+    "name": "Iqra Solar Installers",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 5263738.56,
+    "credit": 5065958.0,
+    "side": "receivable"
+   },
+   "1-01-02-01-0146": {
+    "account": "1-01-02-01-0146",
+    "name": "Sheikh Green Energy",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 27033391.37,
+    "credit": 26926852.58,
+    "side": "receivable"
+   },
+   "1-01-02-01-0178": {
+    "account": "1-01-02-01-0178",
+    "name": "Shadman Medical Centre",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 40173672.71,
+    "credit": 40115748.8,
+    "side": "receivable"
+   },
+   "1-01-02-01-0133": {
+    "account": "1-01-02-01-0133",
+    "name": "Qadri Solar Hub",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 2360925.12,
+    "credit": 2358400.0,
+    "side": "receivable"
+   },
+   "1-01-02-01-0190": {
+    "account": "1-01-02-01-0190",
+    "name": "Kasur Leather Works",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 15995226.48,
+    "credit": 15995178.87,
+    "side": "receivable"
+   },
+   "1-01-02-01-0199": {
+    "account": "1-01-02-01-0199",
+    "name": "Ittefaq Solar Installers",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 5680745.54,
+    "credit": 5680700.0,
+    "side": "receivable"
+   },
+   "1-01-02-01-0161": {
+    "account": "1-01-02-01-0161",
+    "name": "Zam Zam Traders",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 18659299.66,
+    "credit": 18659260.46,
+    "side": "receivable"
+   },
+   "1-01-02-01-0187": {
+    "account": "1-01-02-01-0187",
+    "name": "Wapda Town Clinic",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 39387706.89,
+    "credit": 39387683.62,
+    "side": "receivable"
+   },
+   "1-01-02-01-0126": {
+    "account": "1-01-02-01-0126",
+    "name": "Gondal Energy",
+    "type": "asset",
+    "group": "1-01-02-01",
+    "group_label": "1-01-02-01 \u00b7 Trade Debtors",
+    "debit": 33704610.22,
+    "credit": 33704600.0,
+    "side": "receivable"
+   }
+  }
+ },
+ "profit": {
+  "months": [
+   {
+    "start": "2025-11-01",
+    "label": "Nov",
+    "full_label": "Nov 2025",
+    "revenue": 232464611.3,
+    "cogs": 206508662.64,
+    "gross": 25955948.66,
+    "net": 21424714.96
+   },
+   {
+    "start": "2025-12-01",
+    "label": "Dec",
+    "full_label": "Dec 2025",
+    "revenue": 223777426.8,
+    "cogs": 197441609.04,
+    "gross": 26335817.76,
+    "net": 23023495.16
+   },
+   {
+    "start": "2026-01-01",
+    "label": "Jan",
+    "full_label": "Jan 2026",
+    "revenue": 239775402.7,
+    "cogs": 212577055.96,
+    "gross": 27198346.74,
+    "net": 22783202.11
+   },
+   {
+    "start": "2026-02-01",
+    "label": "Feb",
+    "full_label": "Feb 2026",
+    "revenue": 262432522.0,
+    "cogs": 233426053.34,
+    "gross": 29006468.66,
+    "net": 24982904.16
+   },
+   {
+    "start": "2026-03-01",
+    "label": "Mar",
+    "full_label": "Mar 2026",
+    "revenue": 311620877.5,
+    "cogs": 278440427.74,
+    "gross": 33180449.76,
+    "net": 29532166.78
+   },
+   {
+    "start": "2026-04-01",
+    "label": "Apr",
+    "full_label": "Apr 2026",
+    "revenue": 341116095.2,
+    "cogs": 303539576.35,
+    "gross": 37576518.85,
+    "net": 32923020.28
+   },
+   {
+    "start": "2026-05-01",
+    "label": "May",
+    "full_label": "May 2026",
+    "revenue": 388238904.7,
+    "cogs": 345519973.04,
+    "gross": 42718931.66,
+    "net": 38750462.81
+   },
+   {
+    "start": "2026-06-01",
+    "label": "Jun",
+    "full_label": "Jun 2026",
+    "revenue": 366039783.1,
+    "cogs": 324415548.18,
+    "gross": 41624234.92,
+    "net": 38017744.72
+   },
+   {
+    "start": "2026-07-01",
+    "label": "Jul",
+    "full_label": "Jul 2026",
+    "revenue": 0.0,
+    "cogs": 0.0,
+    "gross": 0.0,
+    "net": 0.0
+   },
+   {
+    "start": "2026-08-01",
+    "label": "Aug",
+    "full_label": "Aug 2026",
+    "revenue": 0.0,
+    "cogs": 0.0,
+    "gross": 0.0,
+    "net": 0.0
+   },
+   {
+    "start": "2026-09-01",
+    "label": "Sep",
+    "full_label": "Sep 2026",
+    "revenue": 0.0,
+    "cogs": 0.0,
+    "gross": 0.0,
+    "net": 0.0
+   },
+   {
+    "start": "2026-10-01",
+    "label": "Oct",
+    "full_label": "Oct 2026",
+    "revenue": 0.0,
+    "cogs": 0.0,
+    "gross": 0.0,
+    "net": 0.0
+   }
+  ],
+  "totals": {
+   "revenue": 2365465623.3,
+   "cogs": 2101868906.29,
+   "gross": 263596717.01,
+   "net": 231437710.98
+  },
+  "prior": {
+   "revenue": 271920881.7,
+   "cogs": 241209454.66,
+   "gross": 30711427.04,
+   "net": 27362068.77
+  },
+  "deltas": {
+   "revenue": -100.0,
+   "gross": -100.0,
+   "net": -100.0
+  },
+  "peak": 388238904.7,
+  "trough": 0.0,
+  "margin": 9.78
+ }
+}

@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <!--
+    The tests boot the real services the return routes call: Inventory's costing engine (IStockCosting),
+    Parties' invoice tracking (IPaymentTracking), and Invoicing / Orders, whose own routes build the
+    invoices and orders the tests return against.
+  -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Modules\Accountix.Returns\Accountix.Returns.csproj" />
+    <ProjectReference Include="..\Accountix.TestSupport\Accountix.TestSupport.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Accountix.Accounting\Accountix.Accounting.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Accountix.Inventory\Accountix.Inventory.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Accountix.Invoicing\Accountix.Invoicing.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Accountix.Parties\Accountix.Parties.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Accountix.Orders\Accountix.Orders.csproj" />
+  </ItemGroup>
+
+  <!-- Fixed expectations captured from the Python app (Golden/capture/*.py, kept for the record). -->
+  <ItemGroup>
+    <None Update="Golden\**\*.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

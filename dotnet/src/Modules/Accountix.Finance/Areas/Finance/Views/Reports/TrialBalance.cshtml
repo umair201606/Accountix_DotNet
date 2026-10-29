@@ -1,0 +1,113 @@
+@model Accountix.Finance.Controllers.TrialBalancePage
+@using System.Globalization
+@{
+    ViewData["Title"] = "Trial Balance";
+    ViewData["Heading"] = "Trial Balance";
+    var inv = CultureInfo.InvariantCulture;
+    var r = Model.Result;
+    var comp = Model.Comp;
+    string Cell(decimal v) => v != 0 ? Html.Amount(v) : "—";
+    decimal dr = r?.TotalDrClosing ?? 0m, cr = r?.TotalCrClosing ?? 0m;
+}
+@section Head { <partial name="_FinanceHead" /> }
+@section Actions {
+<partial name="_ExportLinks" model="(Model.Period, Model.Loaded, true)" />
+<button onclick="window.print()" class="btn btn-outline btn-sm"><i class="fas fa-print"></i> Print</button>
+}
+<partial name="_ViewForm" model="Model.Period.FilterModel(Model.Loaded)" />
+
+<div class="card report-sheet">
+  <div class="report-head">
+    <div>
+      <div class="report-company"><partial name="_CompanyName" /></div>
+      <div class="report-title-lg">Trial Balance</div>
+      <div class="report-period">
+        @(Model.From is DateOnly f ? $"For the period {f.ToString("dd MMMM, yyyy", inv)} to " : "As at ")@Model.AsOf.ToString("dd MMMM, yyyy", inv)
+        &nbsp;·&nbsp; Opening → Movement → Closing
+      </div>
+    </div>
+  </div>
+  @if (r is not null && r.Rows.Count > 0)
+  {
+  <div class="overflow-x-auto">
+    <table class="report-table statement">
+      <colgroup>
+        <col><col><col>
+        <col><col>
+        <col><col>
+        <col><col>
+        @foreach (var cp in comp)
+        {
+        <col><col>
+        }
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Code</th><th>Account</th><th>Type</th>
+          <th class="num">Dr Opening</th><th class="num">Cr Opening</th>
+          <th class="num">Dr Movement</th><th class="num">Cr Movement</th>
+          <th class="num">Dr Closing</th><th class="num">Cr Closing</th>
+          @foreach (var cp in comp)
+          {
+          <th class="num">Dr Clsg (@cp.EndDate.ToString("dd MMMM, yyyy", inv))</th>
+          <th class="num">Cr Clsg (@cp.EndDate.ToString("dd MMMM, yyyy", inv))</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @foreach (var row in r.Rows)
+        {
+        <tr class="@(row.IsSubtotal ? "subtotal-row" : null)">
+          <td class="mono">@row.Code</td>
+          <td>@row.Name</td>
+          <td>@if (row.Type.Length > 0) {<span class="badge badge-default">@row.Type</span>}</td>
+          <td class="num">@Cell(row.DrOpening)</td>
+          <td class="num">@Cell(row.CrOpening)</td>
+          <td class="num">@Cell(row.DrMovement)</td>
+          <td class="num">@Cell(row.CrMovement)</td>
+          <td class="num">@Cell(row.DrClosing)</td>
+          <td class="num">@Cell(row.CrClosing)</td>
+          @if (comp.Count > 0 && row.CompDrClosing is { Count: > 0 })
+          {
+              for (int i = 0; i < comp.Count; i++)
+              {
+          <td class="num">@Cell(row.CompDrClosing[i])</td>
+          <td class="num">@Cell(row.CompCrClosing![i])</td>
+              }
+          }
+        </tr>
+        }
+      </tbody>
+      <tfoot>
+        <tr style="font-weight:600;background:var(--v2-hover);">
+          <td></td>
+          <td>TOTAL</td>
+          <td></td>
+          <td class="num">@Html.Amount(r.TotalDrOpening)</td>
+          <td class="num">@Html.Amount(r.TotalCrOpening)</td>
+          <td class="num">@Html.Amount(r.TotalDrMovement)</td>
+          <td class="num">@Html.Amount(r.TotalCrMovement)</td>
+          <td class="num">@Html.Amount(r.TotalDrClosing)</td>
+          <td class="num">@Html.Amount(r.TotalCrClosing)</td>
+          @if (comp.Count > 0)
+          {
+              foreach (var (cdr, ccr) in r.CompTotals)
+              {
+          <td class="num">@Html.Amount(cdr)</td>
+          <td class="num">@Html.Amount(ccr)</td>
+              }
+          }
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+  <p class="mt-2 text-sm @(dr == cr ? "num-pos" : "num-neg")">
+    <i class="fas @(dr == cr ? "fa-check-circle" : "fa-exclamation-triangle")"></i>
+    @if (dr == cr) {<text>Trial Balance is <strong>IN BALANCE</strong></text>} else {<text>Difference: @Html.Amount(dr - cr)</text>}
+  </p>
+  }
+  else
+  {
+  <p class="t-muted text-center py-8">No journal entries posted yet.</p>
+  }
+</div>

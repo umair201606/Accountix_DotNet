@@ -1,0 +1,93 @@
+@model Accountix.Hr.Controllers.AttendanceController.AdminModel
+@{
+    ViewData["Title"] = "All Attendance - Accountix ERP";
+    string Name(int id) => Model.Names.TryGetValue(id, out var n) ? n : "";
+}
+<div class="page-header">
+    <h1>All Attendance Records</h1>
+    <form method="GET" style="display:flex;gap:8px;">
+        <select name="month" class="form-control" style="width:auto;">
+            @for (int m = 1; m < 13; m++) { <option value="@m" selected="@(m == Model.Month)">@m</option> }
+        </select>
+        <select name="year" class="form-control" style="width:auto;">
+            @for (int y = 2024; y < 2028; y++) { <option value="@y" selected="@(y == Model.Year)">@y</option> }
+        </select>
+        <button type="submit" class="btn btn-sm btn-outline">Filter</button>
+    </form>
+</div>
+<div class="card mb-20">
+    <div class="card-header">Attendance</div>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Date</th><th>Employee</th><th>Clock In</th><th>Clock Out</th><th>Status</th><th>Late</th><th>Correct</th></tr></thead>
+            <tbody>
+                @foreach (var r in Model.Records)
+                {
+                <tr>
+                    <td>@Py.Date(r.Date)</td>
+                    <td>@Name(r.UserId)</td>
+                    <td>@(r.ClockIn is null ? "-" : Py.Hms(r.ClockIn))</td>
+                    <td>@(r.ClockOut is null ? "-" : Py.Hms(r.ClockOut))</td>
+                    <td><span class="badge badge-@(r.Status == "present" ? "success" : "warning")">@r.Status</span></td>
+                    <td>@if (r.IsLate == true) {<text>&#10060;</text>} else {<text>&#10004;</text>}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline correct-btn" data-id="@r.Id">Edit</button>
+                        <div class="correct-form hidden" data-att="@r.Id" style="display:none;">
+                            <form method="POST" action="/attendance/correct" style="display:flex;gap:4px;flex-wrap:wrap;">
+                                <input type="hidden" name="attendance_id" value="@r.Id">
+                                <select name="field" class="form-control" style="width:80px;font-size:11px;">
+                                    <option value="clock_in">Clock In</option>
+                                    <option value="clock_out">Clock Out</option>
+                                    <option value="status">Status</option>
+                                </select>
+                                <input name="new_value" class="form-control" style="width:100px;font-size:11px;" placeholder="New value">
+                                <input name="reason" class="form-control" style="width:100px;font-size:11px;" placeholder="Reason *" required>
+                                <button type="submit" class="btn btn-sm btn-primary">Save</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                }
+                @if (Model.Records.Count == 0)
+                {
+                <tr><td colspan="7" class="text-center" style="color:var(--muted);">No records</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="card">
+    <div class="card-header">Correction Audit Log</div>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Date</th><th>Corrected By</th><th>Field</th><th>Old Value</th><th>New Value</th><th>Reason</th></tr></thead>
+            <tbody>
+                @foreach (var c in Model.Corrections)
+                {
+                <tr>
+                    <td>@c.CorrectedAt?.ToString("dd-MMM-yyyy HH:mm", System.Globalization.CultureInfo.InvariantCulture)</td>
+                    <td>@Name(c.CorrectedBy)</td>
+                    <td>@c.Field</td>
+                    <td>@Py.Str(c.OldValue)</td>
+                    <td>@c.NewValue</td>
+                    <td>@Py.Cut(c.Reason, 40)</td>
+                </tr>
+                }
+                @if (Model.Corrections.Count == 0)
+                {
+                <tr><td colspan="6" class="text-center" style="color:var(--muted);">No corrections</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+@section Scripts {
+<script>
+document.querySelectorAll('.correct-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        this.nextElementSibling.classList.toggle('hidden');
+        this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? '' : 'none';
+    });
+});
+</script>
+}

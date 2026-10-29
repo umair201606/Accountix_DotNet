@@ -1,0 +1,77 @@
+{
+  "captured": "2026-10-29, Python app (Flask), before it was removed",
+  "capture": "Golden/capture/vouchers.py",
+  "inputs": {
+    "url": "/inventory/vouchers/stock-take",
+    "stock": {
+      "P": [
+        "10",
+        "5",
+        10
+      ],
+      "Q": [
+        "4",
+        "9",
+        10
+      ]
+    },
+    "form": [
+      [
+        "location",
+        "Main store"
+      ],
+      [
+        "date",
+        "D-1"
+      ],
+      [
+        "label_id",
+        ""
+      ],
+      [
+        "status",
+        "approved"
+      ],
+      [
+        "product_id[]",
+        "P"
+      ],
+      [
+        "system_qty[]",
+        ""
+      ],
+      [
+        "physical_qty[]",
+        "12"
+      ],
+      [
+        "product_id[]",
+        "Q"
+      ],
+      [
+        "system_qty[]",
+        ""
+      ],
+      [
+        "physical_qty[]",
+        "1.5"
+      ]
+    ]
+  },
+  "expected": [
+    "take approved|D-1 00:00:00|Main store|owner_b",
+    "take-item P|Voucher Part TAGP|10.0000|12.0000|2.0000|5.0000",
+    "take-item Q|Voucher Part TAGQ|4.0000|1.5000|-2.5000|9.0000",
+    "voucher ADJ|approved|D-1 00:00:00|Stock Take: R (Main store)||owner_b",
+    "item P|Voucher Part TAGP|10.0000|12.0000|2.0000|5.0000|10.0000",
+    "item Q|Voucher Part TAGQ|4.0000|1.5000|-2.5000|9.0000|22.5000",
+    "row P|ADJ|IN|2.0000|5.0000|10.0000|12.0000|60.0000|5.0000|weighted_average|D-1|N|Stock Take R adjustment (Main store)",
+    "row Q|ADJ|OUT|2.5000|9.0000|22.5000|1.5000|13.5000|9.0000|weighted_average|D-1|N|Stock Take R adjustment (Main store)",
+    "journal ADJ|N|Stock Adjustment N: Stock Take: R (Main store)|D-1 00:00:00|true",
+    "  line 1-01-04-01-0001|10.0000|0.0000||",
+    "  line 5-01-02-01-0002|0.0000|10.0000||",
+    "  line 5-01-02-01-0002|22.5000|0.0000||",
+    "  line 1-01-04-01-0001|0.0000|22.5000||"
+  ],
+  "redirect": "/inventory/vouchers/stock-take/list"
+}

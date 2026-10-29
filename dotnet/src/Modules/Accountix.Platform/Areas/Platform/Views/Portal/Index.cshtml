@@ -1,0 +1,205 @@
+@model Accountix.Platform.Controllers.PortalController.PortalModel
+@{ Layout = null; }
+<!doctype html>
+<html lang="en" data-ui="v2">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Companies — Accountix ERP</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%232B7263'/><text x='16' y='22' font-size='18' font-family='Arial' font-weight='bold' text-anchor='middle' fill='white'>A</text></svg>">
+<partial name="_V2Head" />
+<partial name="_Antiforgery" />
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    font-family: Inter, "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+    background: var(--v2-ground); color: var(--v2-body);
+    font-size: 13px; line-height: 20px; min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { text-decoration: none; }
+
+  /* The rail is light, not a navy slab — and so is the bar above it (§1).
+     This used to be a solid navy strip carrying white text. */
+  .pt-top { background: var(--v2-surface); border-bottom: 1px solid var(--v2-line);
+            padding: 12px 24px; display: flex; align-items: center;
+            justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .pt-top .brand { display: flex; align-items: center; gap: 9px; font-size: 14px;
+                   font-weight: 600; letter-spacing: -.01em; color: var(--v2-ink); }
+  .mark { width: 26px; height: 26px; border-radius: 7px; background: var(--v2-ink);
+          color: var(--v2-ground); display: grid; place-items: center;
+          font-size: 12px; font-weight: 600; flex: none; }
+  .top-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .top-actions .who { font-size: 12.5px; color: var(--v2-muted); margin-right: 4px; }
+
+  /* ui.css owns .btn and .btn-sm; only the variants are page-specific. */
+  .btn-fill { background: var(--v2-ink); color: var(--v2-ground); border-color: var(--v2-ink); }
+  .btn-fill:hover { background: var(--v2-ink-2); }
+  .btn-line { background: var(--v2-surface); color: var(--v2-ink); border-color: var(--v2-line-2); }
+  .btn-line:hover { background: var(--v2-hover); }
+  .btn-go { background: var(--v2-surface); color: var(--v2-accent-ink);
+            border-color: var(--v2-accent); }
+  .btn-go:hover { background: var(--v2-accent-soft); }
+
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 26px 24px 64px; }
+  h1 { font-size: 21px; line-height: 29px; font-weight: 600; letter-spacing: -.02em;
+       color: var(--v2-ink); }
+  .sub { color: var(--v2-muted); margin: 5px 0 22px; font-size: 12.5px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+  .pt-card { background: var(--v2-surface); border: 1px solid var(--v2-line);
+             border-radius: 11px; padding: 16px; display: flex; flex-direction: column; gap: 9px; }
+  .pt-card h3 { font-size: 14px; font-weight: 600; color: var(--v2-ink); letter-spacing: -.01em; }
+  .meta { color: var(--v2-muted); font-size: 12px; display: flex; gap: 9px;
+          flex-wrap: wrap; align-items: center; }
+  /* ui.css owns .badge's shape; sentence case, no tracking (§4). */
+  .badge-admin, .badge-manager, .badge-employee { background: var(--v2-sunk); color: var(--v2-body); }
+  .badge-off { background: var(--v2-neg-bg); color: var(--v2-neg); }
+  .badge-on { background: var(--v2-pos-bg); color: var(--v2-pos); }
+  .pt-card .enter { margin-top: auto; align-self: flex-start; }
+  .section { margin-top: 28px; }
+  .section h2 { font-size: 13.5px; font-weight: 600; color: var(--v2-ink); margin-bottom: 10px;
+                display: flex; align-items: center; gap: 8px; }
+  .section h2 .count { background: var(--v2-sunk); color: var(--v2-body); font-size: 11.5px;
+                       font-weight: 500; padding: 1px 8px; border-radius: 6px;
+                       font-variant-numeric: tabular-nums; }
+  .empty { background: var(--v2-surface); border: 1px dashed var(--v2-line-2);
+           border-radius: 11px; padding: 18px; color: var(--v2-muted); font-size: 12.5px; }
+  .create { background: var(--v2-surface); border: 1px solid var(--v2-line);
+            border-radius: 11px; padding: 18px; margin-top: 8px; }
+  .create form { display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; align-items: end; }
+  .field label { display: block; font-size: 12px; font-weight: 500;
+                 color: var(--v2-muted); margin-bottom: 5px; }
+  .field input { width: 100%; padding: 9px 12px; font: inherit; font-size: 13px;
+                 border: 1px solid var(--v2-line-2); border-radius: 8px;
+                 background: var(--v2-surface); color: var(--v2-ink); outline: none;
+                 transition: border-color .15s; }
+  .field input::placeholder { color: var(--v2-faint); }
+  .field input:focus { border-color: var(--v2-accent); }
+  .quota { font-size: 12px; color: var(--v2-muted); margin-top: 12px;
+           font-variant-numeric: tabular-nums; }
+  .invite-form { display: flex; gap: 8px; flex-wrap: wrap; margin-top: auto; }
+  .flash { padding: 9px 12px; border-radius: 8px; margin-bottom: 14px; font-size: 12.5px; }
+  .flash.success { background: var(--v2-pos-bg); color: var(--v2-pos); }
+  .flash.error, .flash.danger { background: var(--v2-neg-bg); color: var(--v2-neg); }
+  .flash.info { background: var(--v2-accent-soft); color: var(--v2-accent-ink); }
+  @@media (max-width: 640px) {
+    .create form { grid-template-columns: 1fr; }
+    .pt-top { padding: 10px 16px; }
+    .wrap { padding: 18px 16px 48px; }
+    h1 { font-size: 19px; line-height: 26px; }
+  }
+</style>
+</head>
+<body>
+<div class="pt-top">
+  <span class="brand"><span class="mark">A</span> Accountix ERP</span>
+  <div class="top-actions">
+    <span class="who">@Model.UserName</span>
+    <partial name="_ThemeToggle" />
+    <a class="btn btn-line btn-sm" href="/auth/logout">Logout</a>
+  </div>
+</div>
+
+<div class="wrap">
+  <partial name="_Flash" />
+
+  <h1>My companies</h1>
+  <p class="sub">Choose a company to open its books, or create a new one. Invitations from other users appear below.</p>
+
+  <div class="create">
+    <form method="post" asp-antiforgery="true" action="/portal/create">
+      <div class="field">
+        <label for="cname">Company name</label>
+        <input id="cname" name="name" placeholder="Acme Corporation" required>
+      </div>
+      <div class="field">
+        <label for="cslug">Company address</label>
+        <input id="cslug" name="slug" placeholder="acme-corp" required>
+      </div>
+      
+      <button class="btn btn-fill" type="submit">Create company</button>
+    </form>
+    <div class="quota">You own @Model.QuotaUsed of @Model.QuotaTotal companies.</div>
+  </div>
+
+  <div class="section">
+    <h2>Companies I created <span class="count">@Model.Owned.Count</span></h2>
+    @if (Model.Owned.Count > 0) {
+    <div class="grid">
+      @foreach (var c in Model.Owned) {
+      <div class="pt-card">
+        <h3>@c.Name</h3>
+        <div class="meta">
+          <span>@c.Slug</span>
+          <span>@(c.PlanName ?? "free")</span>
+          @if (!c.Active) {<span class="badge badge-off">suspended</span>}
+        </div>
+        @if (c.Active) {
+        <a class="btn btn-go btn-sm enter" href="/company/switch/@c.Id?next=%2Fdashboard%2F">Open books &rarr;</a>
+        } else {
+        <div class="meta">Suspended by the platform administrator — its books cannot be opened.</div>
+        }
+      </div>
+      }
+    </div>
+    } else {
+    <div class="empty">You have not created any companies yet.</div>
+    }
+  </div>
+
+  <div class="section">
+    <h2>Companies where I have a role <span class="count">@Model.Memberships.Count</span></h2>
+    @if (Model.Memberships.Count > 0) {
+    <div class="grid">
+      @foreach (var (m, c, role) in Model.Memberships) {
+      if (c is not null) {
+      <div class="pt-card">
+        <h3>@c.Name</h3>
+        <div class="meta">
+          <span class="badge badge-@role">@role</span>
+          <span>@m.Status</span>
+          @if (!c.Active) {<span class="badge badge-off">suspended</span>}
+        </div>
+        @if (m.Status == "active" && c.Active) {
+        <a class="btn btn-go btn-sm enter" href="/company/switch/@c.Id?next=%2Fdashboard%2F">Open books &rarr;</a>
+        }
+      </div>
+      }
+      }
+    </div>
+    } else {
+    <div class="empty">No companies have given you a role yet.</div>
+    }
+  </div>
+
+  <div class="section">
+    <h2>Invitations <span class="count">@Model.Invites.Count</span></h2>
+    @if (Model.Invites.Count > 0) {
+    <div class="grid">
+      @foreach (var (inv, ic, irole) in Model.Invites) {
+      <div class="pt-card">
+        <h3>@(ic?.Name ?? "Unknown company")</h3>
+        <div class="meta">
+          <span class="badge badge-@irole">@irole</span>
+        </div>
+        <div class="invite-form">
+          <form method="post" asp-antiforgery="true" action="/settings/invitations/@inv.Id/accept">
+            <input type="hidden" name="next" value="/portal/">
+            <button class="btn btn-go btn-sm" type="submit">Accept</button>
+          </form>
+          <form method="post" asp-antiforgery="true" action="/settings/invitations/@inv.Id/decline">
+            <input type="hidden" name="next" value="/portal/">
+            <button class="btn btn-line btn-sm" type="submit">Decline</button>
+          </form>
+        </div>
+      </div>
+      }
+    </div>
+    } else {
+    <div class="empty">No pending invitations.</div>
+    }
+  </div>
+</div>
+<script src="/static/js/theme.js"></script>
+</body>
+</html>

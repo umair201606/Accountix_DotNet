@@ -1,0 +1,68 @@
+@model SettingsController.SettingsPage
+@{ var t = (SettingsController.TemplatesTab)Model.TabModel!; }
+<div class="set-card">
+  <h3 style="margin:0 0 4px;">Invoice Designs</h3>
+  <p class="hint" style="margin-bottom:16px;">
+    How your invoices look when printed. Pick a design, choose a colour, and tick what
+    should appear &mdash; there is a live preview, and no HTML to write. The design
+    marked <strong>In use</strong> is what prints.
+  </p>
+
+  @foreach (var (docType, heading, blurb, rows) in new[] { ("sales", "Sales invoices", "What your customer receives", t.Sales), ("purchase", "Purchase invoices", "Your own record of what you bought", t.Purchase) }) {
+  <div style="margin-bottom:22px;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:8px;">
+      <div>
+        <h4 style="font-size:14px;margin:0;color:var(--text);">@heading</h4>
+        <div style="font-size:12px;color:var(--light);margin-top:1px;">@blurb</div>
+      </div>
+      <a href="/settings/templates/create?type=@docType"
+         class="btn btn-primary btn-sm">+ New design</a>
+    </div>
+
+    @if (rows.Count > 0) {
+    <div class="tbl-scroll">
+    <table class="stbl">
+      <thead>
+        <tr><th>Name</th><th>Look</th><th>Colour</th><th>Status</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        @foreach (var tp in rows) { bool custom = tp.Design is null or "" or "custom";
+        <tr>
+          <td><strong>@tp.Name</strong></td>
+          <td style="text-transform:capitalize;color:var(--muted);">
+            @(custom ? "Custom HTML" : J.Or(tp.Design, "Classic"))
+          </td>
+          <td>
+            @if (custom) {
+              <span style="color:var(--light);">&mdash;</span>
+            } else {
+              <span style="display:inline-block;width:15px;height:15px;border-radius:50%;
+                background:@J.Or(tp.AccentColor, "#0f766e");box-shadow:0 0 0 1px var(--border);
+                vertical-align:middle;"></span>
+            }
+          </td>
+          <td>
+            @if (tp.IsDefault == true) {<span class="pill pill-on">In use</span>}
+            else {<span style="color:var(--light);font-size:12px;">Not used</span>}
+          </td>
+          <td class="actions">
+            <a href="/settings/templates/edit/@tp.Id" class="btn btn-sm btn-outline">Edit</a>
+            <form method="POST" asp-antiforgery="true" action="/settings/templates/delete/@tp.Id" style="display:inline;"
+                  onsubmit="return confirm('Delete the design &quot;' + @System.Text.Json.JsonSerializer.Serialize(tp.Name) + '&quot;? Invoices already printed are not affected.')">
+              <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+            </form>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+    </div>
+    } else {
+    <p style="color:var(--muted);font-size:13px;margin:0;">
+      No design yet &mdash;
+      <a href="/settings/templates/create?type=@docType">create one</a>.
+    </p>
+    }
+  </div>
+  }
+</div>

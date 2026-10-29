@@ -1,0 +1,56 @@
+{
+ "status_code": 302,
+ "voucher": {
+  "voucher_type": "CPV",
+  "number": "CPV-#####",
+  "status": "approved",
+  "voucher_date": "2026-04-10T09:30:00",
+  "cash_bank_account": "1-01-01-01-0001",
+  "label": null,
+  "notes": "Office rent",
+  "lines": [
+   {
+    "line_no": 0,
+    "account": "1-01-01-01-0001",
+    "description": "Cash Payment Voucher - Payment",
+    "debit": 0.0,
+    "credit": 1250.75,
+    "label": null
+   },
+   {
+    "line_no": 1,
+    "account": "5-04-01-01-0001",
+    "description": "Rent April",
+    "debit": 1250.75,
+    "credit": 0.0,
+    "label": null
+   }
+  ]
+ },
+ "journal": [
+  {
+   "voucher_type": "CPV",
+   "number": "CPV-#####",
+   "same_number": true,
+   "description": "Cash Payment Voucher {number}",
+   "entry_date": "2026-04-10T09:30:00",
+   "is_posted": true,
+   "lines": [
+    {
+     "account": "1-01-01-01-0001",
+     "debit": 0.0,
+     "credit": 1250.75,
+     "description": "Cash Payment Voucher - Payment",
+     "label": null
+    },
+    {
+     "account": "5-04-01-01-0001",
+     "debit": 1250.75,
+     "credit": 0.0,
+     "description": "Rent April",
+     "label": null
+    }
+   ]
+  }
+ ]
+}

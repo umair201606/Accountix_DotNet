@@ -1,0 +1,200 @@
+@model Accountix.Inventory.Controllers.UnitBatchModel
+@using Accountix.Inventory.Services
+@{
+    ViewData["Title"] = "Batch Import Units";
+    ViewData["Heading"] = "Batch Import Units";
+}
+@section Head {
+<style>
+  .be-wrap{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch}
+  .be-note{font-size:13px;padding:8px 12px;border-radius:5px;margin-bottom:10px;border:1px solid var(--border);overflow-wrap:anywhere}
+  .be-note.err{border-color:var(--danger);color:var(--danger)}
+  .be-note.ok{border-color:var(--success);color:var(--success)}
+  .be-rowerr{font-size:11px;color:var(--danger);margin-top:3px;line-height:1.35;min-width:160px;white-space:normal}
+  .be-tbl{width:100%;border-collapse:collapse;font-size:13px}
+  .be-tbl th{background:var(--bg-top);padding:8px 10px;text-align:left;font-size:11px;font-weight:700;color:var(--muted);border-bottom:2px solid var(--border)}
+  .be-tbl td{padding:4px;border-bottom:1px solid var(--border-soft);vertical-align:top}
+  .be-tbl .be-inp{width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:3px;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box;transition:border-color .12s,background .12s;font-variant-numeric:tabular-nums}
+  .be-tbl .be-inp:focus{border-color:var(--accent)}
+  .be-tbl .be-inp.err{border-color:var(--danger);background:var(--danger-light)}
+  .be-tbl .be-inp.ok{border-color:var(--success);background:var(--success-light)}
+  .be-tbl .be-del{width:32px;height:32px;border-radius:50%;border:1px solid var(--danger-light);background:var(--card);color:var(--danger);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .12s}
+  .be-tbl .be-del:hover{background:var(--danger-light)}
+  .be-summary{font-size:13px;color:var(--muted);margin-bottom:10px}
+  .be-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+  .be-add{background:var(--card);border:1px dashed var(--accent);color:var(--accent);padding:6px 14px;border-radius:5px;cursor:pointer;font-size:13px;font-weight:600;transition:all .12s}
+  .be-add:hover{background:var(--accent-light)}
+  .be-msg{font-size:10.5px;margin-top:2px;line-height:1.3}
+  .be-msg.err{color:var(--danger)}
+  .be-msg.ok{color:var(--success)}
+</style>
+}
+<div class="card">
+  <div class="card-h">Review &amp; Edit Units</div>
+  <div class="card-b">
+    <p class="be-summary">Review the units below before saving. Editable — change names, abbreviations, or delete rows as needed.</p>
+
+    @if (Model.Created > 0) {<div class="be-note ok">@Model.Created unit(s) saved. The rows below were not — fix them and press Save All again.</div>}
+    @if (Model.Flagged > 0) {<div class="be-note err">@Model.Flagged row(s) need attention — the reason is under each one. Rows that still have a problem are kept here when you save; the rest are created.</div>}
+
+    <form id="batchForm" method="POST" action="/inventory/units/batch">
+      <input type="hidden" name="data" id="dataInput" value="">
+      <div class="be-wrap">
+        <table class="be-tbl" id="beTbl">
+          <thead>
+            <tr><th style="width:30px;">#</th><th>Name *</th><th style="width:140px;">Abbreviation *</th><th>Explanation</th><th style="width:44px;"></th></tr>
+          </thead>
+          <tbody id="beBody">
+            @for (int i = 0; i < Model.Rows.Count; i++)
+            {
+              var r = Model.Rows[i];
+              var errs = r.Errors;
+            <tr>
+              <td style="text-align:center;color:var(--light);font-size:11px;" class="be-idx">@(i + 1)</td>
+              <td><input type="text" class="be-inp be-name" value="@r.Cell("name")"><div class="be-msg"></div>@if (errs.Count > 0) {<div class="be-rowerr">@(MasterData.Truthy(r.Get("row_line")) ? $"Row {r.Cell("row_line")}: " : "")@string.Join(" ", errs)</div>}</td>
+              <td><input type="text" class="be-inp be-abbr" value="@r.Cell("abbreviation")" maxlength="20"><div class="be-msg"></div></td>
+              <td><input type="text" class="be-inp be-expl" value="@r.Cell("explanation")"></td>
+              <td><button type="button" class="be-del" onclick="delRow(this)" title="Remove">&times;</button></td>
+            </tr>
+            }
+            @if (Model.Rows.Count == 0)
+            {
+            <tr>
+              <td style="text-align:center;color:var(--light);font-size:11px;" class="be-idx">1</td>
+              <td><input type="text" class="be-inp be-name" placeholder="Unit name"><div class="be-msg"></div></td>
+              <td><input type="text" class="be-inp be-abbr" placeholder="e.g. kg" maxlength="20"><div class="be-msg"></div></td>
+              <td><input type="text" class="be-inp be-expl" placeholder="Optional"></td>
+              <td><button type="button" class="be-del" onclick="delRow(this)" title="Remove">&times;</button></td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="be-actions">
+        <button type="button" class="be-add" onclick="addRow()">+ Add Row</button>
+        <button type="submit" class="btn btn-primary" onclick="return collectData()">Save All</button>
+        <a href="/inventory/units/" class="btn btn-outline">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+var CHECK_URL = '/inventory/units/check';
+var timers = {};
+
+function checkField(inp, msgEl) {
+  var val = inp.value.trim();
+  var field = inp.classList.contains('be-name') ? 'name' : 'abbreviation';
+  inp.classList.remove('err', 'ok');
+  msgEl.className = 'be-msg';
+  msgEl.textContent = '';
+  if (!val) return;
+
+  var url = CHECK_URL + '?field=' + encodeURIComponent(field) + '&value=' + encodeURIComponent(val);
+  fetch(url, { credentials: 'same-origin' })
+    .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(function(d){
+      if (d.exists) {
+        inp.classList.add('err');
+        msgEl.className = 'be-msg err';
+        msgEl.textContent = 'Already taken';
+      } else {
+        inp.classList.add('ok');
+        msgEl.className = 'be-msg ok';
+        msgEl.textContent = 'Available';
+      }
+    })
+    .catch(function(e){ console.warn('Check failed:', e); });
+}
+
+function debounceCheck(inp, msgEl) {
+  var key = inp === msgEl ? inp.name : (inp.className + '_' + Math.random());
+  clearTimeout(timers[key]);
+  timers[key] = setTimeout(function(){ checkField(inp, msgEl); }, 400);
+}
+
+function wireRow(tr) {
+  var names = tr.querySelectorAll('.be-name, .be-abbr');
+  names.forEach(function(inp){
+    var msgEl = inp.parentElement.querySelector('.be-msg');
+    if (!msgEl) return;
+    inp.addEventListener('input', function(){ debounceCheck(inp, msgEl); });
+  });
+}
+
+function addRow() {
+  var tbody = document.getElementById('beBody');
+  var tr = document.createElement('tr');
+  tr.innerHTML =
+    '<td style="text-align:center;color:var(--light);font-size:11px;" class="be-idx">' + (tbody.children.length + 1) + '</td>' +
+    '<td><input type="text" class="be-inp be-name" placeholder="Unit name"><div class="be-msg"></div></td>' +
+    '<td><input type="text" class="be-inp be-abbr" placeholder="e.g. kg" maxlength="20"><div class="be-msg"></div></td>' +
+    '<td><input type="text" class="be-inp be-expl" placeholder="Optional"></td>' +
+    '<td><button type="button" class="be-del" onclick="delRow(this)" title="Remove">&times;</button></td>';
+  tbody.appendChild(tr);
+  wireRow(tr);
+  reindex();
+}
+
+function delRow(btn) {
+  var tr = btn.closest('tr');
+  tr.parentNode.removeChild(tr);
+  reindex();
+}
+
+function reindex() {
+  var idxs = document.querySelectorAll('.be-idx');
+  for (var i = 0; i < idxs.length; i++) idxs[i].textContent = i + 1;
+}
+
+function collectData() {
+  var rows = [];
+  var err = false;
+  var names = {};
+  var abbrs = {};
+  var msgs = [];
+
+  var tbody = document.getElementById('beBody');
+  for (var i = 0; i < tbody.children.length; i++) {
+    var tr = tbody.children[i];
+    var nameInp = tr.querySelector('.be-name');
+    var abbrInp = tr.querySelector('.be-abbr');
+    var explInp = tr.querySelector('.be-expl');
+    var name = nameInp.value.trim();
+    var abbr = abbrInp.value.trim();
+    var expl = explInp.value.trim();
+
+    nameInp.classList.remove('err');
+    abbrInp.classList.remove('err');
+
+    if (!name && !abbr) continue;
+    if (!name) { nameInp.classList.add('err'); err = true; msgs.push('Row ' + (i+1) + ': Name required'); }
+    if (!abbr) { abbrInp.classList.add('err'); err = true; msgs.push('Row ' + (i+1) + ': Abbreviation required'); }
+
+    if (name && names[name]) { nameInp.classList.add('err'); err = true; msgs.push('Duplicate name "' + name + '"'); }
+    if (abbr && abbrs[abbr]) { abbrInp.classList.add('err'); err = true; msgs.push('Duplicate abbreviation "' + abbr + '"'); }
+
+    // Check DB conflict markers on inputs
+    if (nameInp.classList.contains('err')) { err = true; }
+    if (abbrInp.classList.contains('err')) { err = true; }
+
+    names[name] = true;
+    abbrs[abbr] = true;
+
+    rows.push({ name: name, abbreviation: abbr, explanation: expl });
+  }
+
+  if (err) {
+    alert('Please fix the highlighted errors.\n' + msgs.join('\n'));
+    return false;
+  }
+
+  document.getElementById('dataInput').value = JSON.stringify(rows);
+  return true;
+}
+
+// Wire existing rows
+document.querySelectorAll('#beBody tr').forEach(function(tr){ wireRow(tr); });
+</script>

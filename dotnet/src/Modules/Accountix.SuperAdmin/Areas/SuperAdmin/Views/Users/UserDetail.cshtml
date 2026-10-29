@@ -1,0 +1,200 @@
+@model UsersController.DetailModel
+@{
+    var user = Model.User;
+    int me = Context.Access()!.User.Id;
+    ViewData["Title"] = $"{user.FullName} - Super Admin";
+}
+
+<a href="/superadmin/users/" class="sa-back">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+  All users
+</a>
+
+<div class="sa-card">
+  <div class="sa-card-header">
+    <div>
+      <h3 class="sa-card-title" style="display:flex;align-items:center;gap:10px;">
+        @user.FullName
+        @if (user.IsSuperAdmin == true) {<span class="pill pill-sa">super admin</span>}
+        @if (user.IsActive == true) {<span class="pill pill-on">active</span>}
+        else {<span class="pill pill-off">deactivated</span>}
+      </h3>
+      <p class="sa-card-subtitle">@user.Email &middot; account code <code>@user.EmployeeCode</code></p>
+    </div>
+  </div>
+
+  <form method="POST" action="/superadmin/users/@user.Id/" asp-antiforgery="true">
+    <input type="hidden" name="action" value="profile">
+    <div class="fgrid">
+      <div class="fgroup">
+        <label class="lbl">Full Name</label>
+        <input type="text" name="full_name" class="inp" value="@user.FullName">
+      </div>
+      <div class="fgroup">
+        <label class="lbl">Email</label>
+        <input type="text" class="inp" value="@user.Email" disabled>
+        <p class="field-hint">Email cannot be changed</p>
+      </div>
+      <div class="fgroup">
+        <label class="lbl">Max Companies Owned</label>
+        <input type="number" name="max_companies_owned" class="inp" min="0"
+               value="@(user.MaxCompaniesOwned?.ToString() ?? "")"
+               placeholder="blank = default (@Model.Limits.MaxCompaniesPerUser)">
+        <p class="field-hint">Owns @Model.Owned of @Model.EffectiveOwned.</p>
+      </div>
+      <div class="fgroup">
+        <label class="lbl">Max Companies Joined</label>
+        <input type="number" name="max_companies_joined" class="inp" min="0"
+               value="@(user.MaxCompaniesJoined?.ToString() ?? "")"
+               placeholder="blank = unlimited">
+        <p class="field-hint">
+          @if (Model.EffectiveJoined is null) {<text>No limit on how many companies this user may belong to.</text>}
+          else {<text>May belong to at most @Model.EffectiveJoined companies.</text>}
+        </p>
+      </div>
+    </div>
+    <div class="sa-actions">
+      <button type="submit" class="btn btn-p">Save Changes</button>
+    </div>
+  </form>
+</div>
+
+<div class="sa-card">
+  <div class="sa-card-header">
+    <div>
+      <h3 class="sa-card-title">Access &amp; Security</h3>
+      <p class="sa-card-subtitle">Reset the password or take the account out of service. A deactivated account cannot log in anywhere.</p>
+    </div>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;">
+    <form method="POST" action="/superadmin/users/@user.Id/" asp-antiforgery="true"
+          style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;flex:1;min-width:280px;">
+      <input type="hidden" name="action" value="password">
+      <div class="fgroup" style="flex:1;min-width:180px;">
+        <label class="lbl">New Password</label>
+        <input type="text" name="new_password" class="inp" required minlength="8"
+               placeholder="at least 8 characters">
+      </div>
+      <button type="submit" class="btn">Reset Password</button>
+    </form>
+    @if (user.Id != me)
+    {
+    <form method="POST" action="/superadmin/users/@user.Id/" asp-antiforgery="true">
+      <input type="hidden" name="action" value="active">
+      <button type="submit" class="btn @(user.IsActive == true ? "btn-danger" : "")">
+        @(user.IsActive == true ? "Deactivate Account" : "Reactivate Account")
+      </button>
+    </form>
+    @if (user.IsSuperAdmin == true)
+    {
+    <form method="POST" action="/superadmin/users/@user.Id/toggle-super" asp-antiforgery="true"
+          onsubmit="return confirm('Delete super admin access for ' + @Html.Raw(Py.TojsonForceescape(user.FullName)) + '? They will no longer be able to access the super admin console.');">
+      <button type="submit" class="btn btn-danger">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+        Delete Super Admin Access
+      </button>
+    </form>
+    }
+    else
+    {
+    <form method="POST" action="/superadmin/users/@user.Id/toggle-super" asp-antiforgery="true">
+      <button type="submit" class="btn">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+        Grant Super Admin
+      </button>
+    </form>
+    }
+    }
+    else
+    {
+    <p class="field-hint" style="margin:0;">This is your own account — deactivation and super-admin changes are disabled.</p>
+    }
+  </div>
+</div>
+
+<div class="sa-card">
+  <div class="sa-card-header">
+    <div>
+      <h3 class="sa-card-title">Company Memberships</h3>
+      <p class="sa-card-subtitle">Where this user belongs. Block or unblock a membership from that company's page.</p>
+    </div>
+  </div>
+  <div class="tbl-wrap">
+    <table class="sa-tbl">
+      <thead>
+        <tr>
+          <th>Company</th>
+          <th>Role</th>
+          <th>Employee Code</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach (var (m, c, role) in Model.Memberships)
+        {
+        <tr>
+          <td>
+            @if (c is not null)
+            {
+              <a href="/superadmin/companies/@c.Id/">@c.Name</a>
+              @if (c.CreatedBy == user.Id) {<span class="pill pill-mine" style="margin-left:6px;">owner</span>}
+            }
+            else
+            {
+              <span style="color:var(--text-muted);">—</span>
+            }
+          </td>
+          <td>@role</td>
+          <td>@if (!string.IsNullOrEmpty(m.EmployeeCode)) {<code>@m.EmployeeCode</code>} else {<span style="color:var(--text-muted);">—</span>}</td>
+          <td>
+            @if (m.Status == CompanyMembership.StatusActive) {<span class="pill pill-on">active</span>}
+            else {<span class="pill pill-off">@m.Status</span>}
+          </td>
+          <td>
+            @if (c is not null)
+            {
+            <a class="btn btn-sm" href="/superadmin/companies/@c.Id/">Manage</a>
+            }
+          </td>
+        </tr>
+        }
+        @if (Model.Memberships.Count == 0)
+        {
+        <tr>
+          <td colspan="5">
+            <div class="empty-state">
+              This user does not belong to any company yet. Invite them from a company's Settings &rsaquo; Invitations.
+            </div>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+@if (user.Id != me && user.IsSuperAdmin == true)
+{
+<div class="sa-card" style="border-color:#fecaca;background:#fef2f2;margin-top:20px;">
+  <div class="sa-card-header">
+    <div>
+      <h3 class="sa-card-title" style="color:var(--danger);display:flex;align-items:center;gap:8px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Danger Zone
+      </h3>
+      <p class="sa-card-subtitle" style="color:var(--danger-hover);">Irreversible actions for this user.</p>
+    </div>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
+    <form method="POST" action="/superadmin/users/@user.Id/toggle-super" asp-antiforgery="true"
+          onsubmit="return confirm('Permanently delete super admin access for ' + @Html.Raw(Py.TojsonForceescape(user.FullName)) + '? This cannot be undone — you would have to grant it again manually.');">
+      <button type="submit" class="btn btn-danger">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+        Delete Super Admin Access
+      </button>
+    </form>
+    <span style="font-size:12px;color:var(--danger);">Removes all platform-operator privileges from this account immediately.</span>
+  </div>
+</div>
+}

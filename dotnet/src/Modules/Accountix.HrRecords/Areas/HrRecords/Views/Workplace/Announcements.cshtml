@@ -1,0 +1,25 @@
+@model IReadOnlyList<WorkplaceController.AnnouncementRow>
+@{
+    ViewData["Title"] = "Announcements - Accountix ERP";
+    static string Badge(string? p) => p == "urgent" ? "danger" : p == "high" ? "warning" : "info";
+}
+<div class="page-header">
+    <h1>Announcements</h1>
+</div>
+<div class="card">
+    @foreach (var a in Model)
+    {
+    <div style="padding:14px 0;border-bottom:1px solid var(--border-soft);">
+        <div class="flex-between">
+            <strong style="font-size:14px;">@a.Title</strong>
+            <span class="badge badge-@Badge(a.Priority)">@(a.Priority ?? "None")</span>
+        </div>
+        <p style="font-size:13px;color:var(--ink);margin-top:6px;">@a.Content</p>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">By @a.Author on @Py.DMonYHm(a.CreatedAt)</div>
+    </div>
+    }
+    @if (Model.Count == 0)
+    {
+    <p style="text-align:center;color:var(--muted);padding:30px;">No announcements</p>
+    }
+</div>

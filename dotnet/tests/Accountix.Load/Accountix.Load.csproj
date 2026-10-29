@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Many people in ONE company at once, against a running .NET host
+    (Kestrel), on a writable copy of the speed-test database. Not a unit
+    test project: run it (docs/DEPLOY.md, "Load test").
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>false</IsTestProject>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Accountix.Core\Accountix.Core.csproj" />
+    <ProjectReference Include="..\Accountix.TestSupport\Accountix.TestSupport.csproj" />
+    <!-- Books Integrity after a run: the same checks as the Executive page. -->
+    <ProjectReference Include="..\..\src\Modules\Accountix.Executive\Accountix.Executive.csproj" />
+    <!-- seed-users: memberships made as the app makes them. -->
+    <ProjectReference Include="..\..\src\Modules\Accountix.Platform\Accountix.Platform.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- One copy of the checks for the load test and the cut-over runbook. -->
+    <EmbeddedResource Include="..\..\deploy\checks\data_checks.sql" LogicalName="data_checks.sql" />
+  </ItemGroup>
+
+</Project>

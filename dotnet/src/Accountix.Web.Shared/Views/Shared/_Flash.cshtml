@@ -1,0 +1,38 @@
+@using Microsoft.AspNetCore.Mvc.ViewFeatures
+@{
+    var flashes = Accountix.Web.Infrastructure.Flashes.Take(TempData);
+}
+@if (flashes.Count > 0)
+{
+<div class="app-flash-wrap" id="appFlashWrap" aria-live="polite">
+    @foreach (var (category, message) in flashes)
+    {
+        string kind = category is "error" or "danger" ? "error" : category == "success" ? "success" : category is "warning" or "warn" ? "warning" : "info";
+        string ico = kind switch { "success" => "&#10003;", "error" => "&#10005;", "warning" => "&#9888;", _ => "&#8505;" };
+        <div class="app-flash app-flash-@kind" role="status">
+            <span class="app-flash-ico">@Html.Raw(ico)</span>
+            <span class="app-flash-msg">@message</span>
+            <button type="button" class="app-flash-x" aria-label="Dismiss" onclick="this.parentElement.remove()">&times;</button>
+        </div>
+    }
+</div>
+<style>
+.app-flash-wrap{position:fixed;top:16px;right:16px;z-index:4000;display:flex;flex-direction:column;gap:8px;max-width:min(92vw,380px)}
+.app-flash{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:8px;font-size:13.5px;font-weight:500;color:#fff;box-shadow:0 10px 28px rgba(15,23,42,.22);animation:appFlashIn .22s ease}
+.app-flash-ico{font-size:14px;line-height:1;flex:none}.app-flash-msg{flex:1;line-height:1.35}
+.app-flash-x{background:none;border:none;color:inherit;font-size:18px;line-height:1;cursor:pointer;opacity:.8;padding:0;flex:none}.app-flash-x:hover{opacity:1}
+.app-flash-success{background:var(--v2-pos-bg,#15803d);color:var(--v2-pos,#fff);border:1px solid var(--v2-pos,transparent)}
+.app-flash-error{background:var(--v2-neg-bg,#b91c1c);color:var(--v2-neg,#fff);border:1px solid var(--v2-neg,transparent)}
+.app-flash-warning{background:var(--v2-warn-bg,#b45309);color:var(--v2-warn,#fff);border:1px solid var(--v2-warn,transparent)}
+.app-flash-info{background:var(--v2-accent-soft,#2B7263);color:var(--v2-accent-ink,#fff);border:1px solid var(--v2-accent,transparent)}
+@@keyframes appFlashIn{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
+@@media print{.app-flash-wrap{display:none!important}}
+@@media (max-width:480px){.app-flash-wrap{top:auto;bottom:12px;left:12px;right:12px;max-width:none}}
+</style>
+<script>
+(function(){var w=document.getElementById('appFlashWrap');if(!w)return;
+Array.prototype.forEach.call(w.children,function(el){var msg=el.querySelector('.app-flash-msg');var len=msg?msg.textContent.length:40;
+var ms=Math.min(4500,Math.max(2200,1400+len*22));setTimeout(function(){el.style.transition='opacity .3s,transform .3s';
+el.style.opacity='0';el.style.transform='translateX(16px)';setTimeout(function(){el.remove()},300);},ms);});})();
+</script>
+}

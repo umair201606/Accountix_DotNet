@@ -1,0 +1,475 @@
+{
+ "indirect": {
+  "filter_mode=period&period_id={FY 2026}": {
+   "method": "indirect",
+   "op_items": [
+    {
+     "name": "Net Profit / (Loss) for the period",
+     "value": 46248.770000000004,
+     "comps": null
+    },
+    {
+     "name": "(Increase) / Decrease in Inventories",
+     "value": -45000.0,
+     "comps": null
+    },
+    {
+     "name": "Decrease / (Increase) in Tax Liabilities",
+     "value": 4250.0,
+     "comps": null
+    },
+    {
+     "name": "Decrease / (Increase) in Trade Payables",
+     "value": 15000.0,
+     "comps": null
+    },
+    {
+     "name": "(Increase) / Decrease in Trade Receivables",
+     "value": -18000.0,
+     "comps": null
+    }
+   ],
+   "inv_items": [
+    {
+     "name": "Movement in Property, Plant & Equipment",
+     "value": -12000.0,
+     "comps": null
+    }
+   ],
+   "fin_items": [
+    {
+     "name": "Movement in Dividends",
+     "value": -30000.0,
+     "comps": null
+    },
+    {
+     "name": "Movement in Other Comprehensive Income",
+     "value": 12000.0,
+     "comps": null
+    },
+    {
+     "name": "Movement in Owner Capital",
+     "value": 2500.0,
+     "comps": null
+    },
+    {
+     "name": "Movement in Retained Earnings",
+     "value": -2500.0,
+     "comps": null
+    }
+   ],
+   "net_operating": 2498.770000000004,
+   "net_investing": -12000.0,
+   "net_financing": -18000.0,
+   "net_change": -27501.229999999996,
+   "opening_cash": 655344.92,
+   "closing_cash": 627843.69,
+   "cash_movement": -27501.23,
+   "comp_item_maps": []
+  },
+  "filter_mode=custom&from=2025-03-01&to=2026-06-30&label_ids={Proj Alpha}": {
+   "method": "indirect",
+   "op_items": [
+    {
+     "name": "Net Profit / (Loss) for the period",
+     "value": -18234.56,
+     "comps": null
+    }
+   ],
+   "inv_items": [],
+   "fin_items": [],
+   "net_operating": -18234.56,
+   "net_investing": 0.0,
+   "net_financing": 0.0,
+   "net_change": -18234.56,
+   "opening_cash": 0.0,
+   "closing_cash": 0.0,
+   "cash_movement": 0.0,
+   "comp_item_maps": []
+  },
+  "filter_mode=comparative&period_id={FY 2026}&comp_mode=1&comp_period_ids={FY 2025},{FY 2024}": {
+   "method": "indirect",
+   "op_items": [
+    {
+     "name": "Net Profit / (Loss) for the period",
+     "value": 46248.770000000004,
+     "comps": [
+      0.0,
+      -23655.08
+     ]
+    },
+    {
+     "name": "(Increase) / Decrease in Inventories",
+     "value": -45000.0,
+     "comps": [
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "Decrease / (Increase) in Tax Liabilities",
+     "value": 4250.0,
+     "comps": [
+      0.0,
+      9000.0
+     ]
+    },
+    {
+     "name": "Decrease / (Increase) in Trade Payables",
+     "value": 15000.0,
+     "comps": [
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "(Increase) / Decrease in Trade Receivables",
+     "value": -18000.0,
+     "comps": [
+      0.0,
+      -15000.0
+     ]
+    }
+   ],
+   "inv_items": [
+    {
+     "name": "Movement in Property, Plant & Equipment",
+     "value": -12000.0,
+     "comps": [
+      0.0,
+      -80000.0
+     ]
+    }
+   ],
+   "fin_items": [
+    {
+     "name": "Movement in Dividends",
+     "value": -30000.0,
+     "comps": [
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "Movement in Other Comprehensive Income",
+     "value": 12000.0,
+     "comps": [
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "Movement in Owner Capital",
+     "value": 2500.0,
+     "comps": [
+      0.0,
+      500000.0
+     ]
+    },
+    {
+     "name": "Movement in Retained Earnings",
+     "value": -2500.0,
+     "comps": [
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "net_operating": 2498.770000000004,
+   "net_investing": -12000.0,
+   "net_financing": -18000.0,
+   "net_change": -27501.229999999996,
+   "opening_cash": 655344.92,
+   "closing_cash": 627843.69,
+   "cash_movement": -27501.23,
+   "comp_item_maps": [
+    {
+     "Net Profit / (Loss) for the period": 0.0,
+     "__net_op__": 0.0,
+     "__net_inv__": 0.0,
+     "__net_fin__": 0.0,
+     "__net_chg__": 0.0,
+     "__open__": 0.0,
+     "__close__": 0.0
+    },
+    {
+     "Net Profit / (Loss) for the period": -23655.08,
+     "Decrease / (Increase) in Inventories": 60000.0,
+     "Decrease / (Increase) in Tax Liabilities": 9000.0,
+     "(Increase) / Decrease in Trade Receivables": -15000.0,
+     "Movement in Accumulated Depreciation": 5000.0,
+     "Movement in Property, Plant & Equipment": -80000.0,
+     "Movement in Long-term Loans": 200000.0,
+     "Movement in Owner Capital": 500000.0,
+     "__net_op__": 30344.92,
+     "__net_inv__": -75000.0,
+     "__net_fin__": 700000.0,
+     "__net_chg__": 655344.92,
+     "__open__": 0.0,
+     "__close__": 655344.92
+    }
+   ]
+  },
+  "filter_mode=custom&from=2025-01-01&to=2026-12-31&label_ids={Proj Alpha},{Proj Beta}": {
+   "method": "indirect",
+   "op_items": [
+    {
+     "name": "Net Profit / (Loss) for the period",
+     "value": 19693.94,
+     "comps": null
+    }
+   ],
+   "inv_items": [],
+   "fin_items": [],
+   "net_operating": 19693.94,
+   "net_investing": 0.0,
+   "net_financing": 0.0,
+   "net_change": 19693.94,
+   "opening_cash": 0.0,
+   "closing_cash": 0.0,
+   "cash_movement": 0.0,
+   "comp_item_maps": []
+  },
+  "filter_mode=custom&from=2025-06-01&to=2025-06-30": {
+   "method": "indirect",
+   "op_items": [
+    {
+     "name": "Net Profit / (Loss) for the period",
+     "value": -52500.75,
+     "comps": null
+    }
+   ],
+   "inv_items": [
+    {
+     "name": "Movement in Accumulated Depreciation",
+     "value": 5000.0,
+     "comps": null
+    }
+   ],
+   "fin_items": [],
+   "net_operating": -52500.75,
+   "net_investing": 5000.0,
+   "net_financing": 0.0,
+   "net_change": -47500.75,
+   "opening_cash": 585000.0,
+   "closing_cash": 537499.25,
+   "cash_movement": -47500.75,
+   "comp_item_maps": []
+  }
+ },
+ "direct": {
+  "filter_mode=period&period_id={FY 2026}": {
+   "method": "direct",
+   "op_items": [
+    {
+     "name": "Cash paid \u2014 Freight & Transportation",
+     "value": -1234.56,
+     "comps": null
+    },
+    {
+     "name": "Cash received \u2014 Office & Supplies",
+     "value": 400.0,
+     "comps": null
+    },
+    {
+     "name": "Cash received \u2014 Product Sales",
+     "value": 25000.0,
+     "comps": null
+    },
+    {
+     "name": "Cash received \u2014 Service Income",
+     "value": 4083.33,
+     "comps": null
+    },
+    {
+     "name": "Cash received \u2014 Tax Liabilities",
+     "value": 4250.0,
+     "comps": null
+    },
+    {
+     "name": "Cash paid \u2014 Trade Payables",
+     "value": -30000.0,
+     "comps": null
+    }
+   ],
+   "inv_items": [],
+   "fin_items": [
+    {
+     "name": "Repayment of Dividends",
+     "value": -30000.0,
+     "comps": null
+    }
+   ],
+   "net_operating": 2498.77,
+   "net_investing": 0.0,
+   "net_financing": -30000.0,
+   "net_change": -27501.23,
+   "opening_cash": 655344.92,
+   "closing_cash": 627843.69,
+   "cash_movement": -27501.23,
+   "comp_item_maps": []
+  },
+  "filter_mode=custom&from=2025-03-01&to=2026-06-30&label_ids={Proj Alpha}": {
+   "method": "direct",
+   "op_items": [],
+   "inv_items": [],
+   "fin_items": [],
+   "net_operating": 0.0,
+   "net_investing": 0.0,
+   "net_financing": 0.0,
+   "net_change": 0.0,
+   "opening_cash": 0.0,
+   "closing_cash": 0.0,
+   "cash_movement": 0.0,
+   "comp_item_maps": []
+  },
+  "filter_mode=comparative&period_id={FY 2026}&comp_mode=1&comp_period_ids={FY 2025},{FY 2024}": {
+   "method": "direct",
+   "op_items": [
+    {
+     "name": "Cash paid \u2014 Freight & Transportation",
+     "value": -1234.56,
+     "comps": [
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "Cash received \u2014 Office & Supplies",
+     "value": 400.0,
+     "comps": [
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "Cash received \u2014 Product Sales",
+     "value": 25000.0,
+     "comps": [
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "Cash received \u2014 Service Income",
+     "value": 4083.33,
+     "comps": [
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "Cash received \u2014 Tax Liabilities",
+     "value": 4250.0,
+     "comps": [
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "Cash paid \u2014 Trade Payables",
+     "value": -30000.0,
+     "comps": [
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "inv_items": [],
+   "fin_items": [
+    {
+     "name": "Repayment of Dividends",
+     "value": -30000.0,
+     "comps": [
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "net_operating": 2498.77,
+   "net_investing": 0.0,
+   "net_financing": -30000.0,
+   "net_change": -27501.23,
+   "opening_cash": 655344.92,
+   "closing_cash": 627843.69,
+   "cash_movement": -27501.23,
+   "comp_item_maps": [
+    {
+     "__net_op__": 0.0,
+     "__net_inv__": 0.0,
+     "__net_fin__": 0.0,
+     "__net_chg__": 0.0,
+     "__open__": 0.0,
+     "__close__": 0.0
+    },
+    {
+     "Cash paid \u2014 Bank & Interest Charges": -4500.0,
+     "Cash paid \u2014 Fees, Taxes & Licenses": -800.0,
+     "Cash paid \u2014 Office & Supplies": -1200.25,
+     "Cash received \u2014 Other Income": 2345.67,
+     "Cash paid \u2014 Rent & Utilities": -18500.5,
+     "Cash paid \u2014 Salaries & Benefits": -42000.0,
+     "Cash received \u2014 Trade Receivables": 100000.0,
+     "Purchase of Property, Plant & Equipment": -80000.0,
+     "Proceeds from Long-term Loans": 200000.0,
+     "Proceeds from Owner Capital": 500000.0,
+     "__net_op__": 35344.92,
+     "__net_inv__": -80000.0,
+     "__net_fin__": 700000.0,
+     "__net_chg__": 655344.92,
+     "__open__": 0.0,
+     "__close__": 655344.92
+    }
+   ]
+  },
+  "filter_mode=custom&from=2025-01-01&to=2026-12-31&label_ids={Proj Alpha},{Proj Beta}": {
+   "method": "direct",
+   "op_items": [],
+   "inv_items": [],
+   "fin_items": [],
+   "net_operating": 0.0,
+   "net_investing": 0.0,
+   "net_financing": 0.0,
+   "net_change": 0.0,
+   "opening_cash": 0.0,
+   "closing_cash": 0.0,
+   "cash_movement": 0.0,
+   "comp_item_maps": []
+  },
+  "filter_mode=custom&from=2025-06-01&to=2025-06-30": {
+   "method": "direct",
+   "op_items": [
+    {
+     "name": "Cash paid \u2014 Fees, Taxes & Licenses",
+     "value": -800.0,
+     "comps": null
+    },
+    {
+     "name": "Cash paid \u2014 Office & Supplies",
+     "value": -1200.25,
+     "comps": null
+    },
+    {
+     "name": "Cash paid \u2014 Rent & Utilities",
+     "value": -3500.5,
+     "comps": null
+    },
+    {
+     "name": "Cash paid \u2014 Salaries & Benefits",
+     "value": -42000.0,
+     "comps": null
+    }
+   ],
+   "inv_items": [],
+   "fin_items": [],
+   "net_operating": -47500.75,
+   "net_investing": 0.0,
+   "net_financing": 0.0,
+   "net_change": -47500.75,
+   "opening_cash": 585000.0,
+   "closing_cash": 537499.25,
+   "cash_movement": -47500.75,
+   "comp_item_maps": []
+  }
+ }
+}

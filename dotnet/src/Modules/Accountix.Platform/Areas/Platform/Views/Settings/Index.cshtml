@@ -1,0 +1,173 @@
+@model Accountix.Platform.Controllers.SettingsController.SettingsPage
+@{
+    ViewData["Title"] = "Settings - Accountix ERP";
+    ViewData["Heading"] = "Settings";
+    ViewData["Module"] = "settings";
+}
+@section Head {
+<style>
+  /* Wider tables (labels, rights) scroll inside their cards instead of
+     forcing the section column — and the whole page — past the viewport. */
+  .set-main { min-width: 0; }
+  .set-card { background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+              padding: 20px 22px; }
+  .set-card h3 { margin: 0 0 4px; font-size: 17px; }
+  .set-card .hint { color: var(--muted); font-size: 12.5px; margin: 0 0 18px; }
+  /* Figure 7 — dark card headers, two-column layout, pill toggles */
+  .set-card.set-boxed { padding: 0; overflow: hidden; }
+  .set-card-hd { background: var(--primary); color: var(--card); padding: 10px 16px; font-size: 12px;
+                 font-weight: 700;
+                 display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .set-card-hd .sub { font-size: 10.5px; font-weight: 400; text-transform: none;
+                      letter-spacing: 0; color: var(--light); }
+  .set-card-bd { padding: 16px; }
+  .set-2col { display: grid; grid-template-columns: minmax(0,1.35fr) minmax(0,1fr);
+              gap: 16px; align-items: start; margin-bottom: 16px; }
+  @@media (max-width: 1000px) { .set-2col { grid-template-columns: 1fr; } }
+  /* Pill toggle — the switch Figure 7 uses in place of a checkbox */
+  .stog { position: relative; display: inline-block; width: 40px; height: 22px; flex: none; }
+  .stog input { opacity: 0; width: 0; height: 0; }
+  .stog .sl { position: absolute; inset: 0; background: var(--border); border-radius: 11px;
+              cursor: pointer; transition: .18s; }
+  .stog .sl:before { content: ''; position: absolute; height: 18px; width: 18px; left: 2px;
+                     bottom: 2px; background: var(--card); border-radius: 50%; transition: .18s;
+                     box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+  .stog input:checked + .sl { background: var(--success); }
+  .stog input:checked + .sl:before { transform: translateX(18px); }
+  .stog input:disabled + .sl { opacity: .45; cursor: not-allowed; }
+  .tog-row { display: flex; align-items: center; justify-content: space-between; gap: 12px;
+             padding: 9px 0; border-bottom: 1px solid var(--bg-top); font-size: 13px; }
+  .tog-row:last-child { border-bottom: none; }
+  .tog-row .tog-l { display: flex; flex-direction: column; gap: 2px; }
+  .tog-row .tog-d { font-size: 11px; color: var(--muted); }
+  .tog-row.off .tog-l { color: var(--muted); }
+  .set-note { background: var(--warning-light); border: 1px solid var(--warning); border-radius: 8px;
+              padding: 10px 12px; font-size: 11.5px; line-height: 1.55; color: var(--warning);
+              margin-top: 12px; }
+  /* Charge-ledger defaults table */
+  .cld-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .cld-tbl th { text-align: left; padding: 7px 10px; font-size: 10px;
+                color: var(--muted); background: var(--bg-top);
+                border-bottom: 2px solid var(--line); white-space: nowrap; }
+  .cld-tbl td { padding: 7px 10px; border-bottom: 1px solid var(--bg-top); vertical-align: middle; }
+  .cld-tbl tr:hover td { background: var(--surface-low); }
+  .cld-tbl .inp { padding: 4px 7px; font-size: 12px; }
+  .fgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  .fgroup { margin-bottom: 14px; min-width: 0; }
+  .fgroup label.lbl { display: block; font-size: 10.5px; font-weight: 700; color: var(--muted);
+                      margin-bottom: 4px; }
+  .inp, .sel { width: 100%; max-width: 100%; padding: 8px 10px; font: inherit; font-size: 13px;
+               border: 1px solid var(--line); border-radius: 6px; background: var(--card); outline: none; }
+  .inp:focus, .sel:focus { border-color: var(--ledger); box-shadow: 0 0 0 3px var(--primary-light); }
+  .help { font-size: 11.5px; color: var(--muted); margin-top: 4px; line-height: 1.5; }
+  .radio-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .radio-card { flex: 1; min-width: 190px; border: 1px solid var(--line); border-radius: 8px;
+                padding: 10px 12px; cursor: pointer; font-size: 13px; }
+  .radio-card:hover { border-color: var(--ledger); }
+  .radio-card input { margin-right: 7px; }
+  .radio-card.sel-on { border-color: var(--ledger); background: var(--accent-light); }
+  .radio-card .rc-h { font-weight: 600; }
+  .radio-card .rc-d { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+  .set-actions { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+  .stbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .stbl th { text-align: left; font-size: 10.5px;
+             color: var(--muted); padding: 8px 10px; border-bottom: 2px solid var(--line); }
+  .stbl td { padding: 8px 10px; border-bottom: 1px solid var(--bg-top); }
+  .tbl-scroll { overflow-x: auto; }
+  /* The posting-map tables (Invoice Defaults) scroll inside their card on phones. */
+  .set-table-wrap { overflow-x: auto; }
+  .pill { font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
+  .pill-on { background: var(--success-light); color: var(--success); }
+  .pill-off { background: var(--bg-top); color: var(--muted); }
+  @@media (max-width: 900px) {
+    .fgrid { grid-template-columns: 1fr; }
+  }
+
+  /* ── Clean-up layer ───────────────────────────────────────────────────
+     One readable column, light section headers, sentence-case labels and
+     one button language: Save is the filled primary everywhere (it was an
+     outline on some tabs and black on others), secondary actions are
+     outlines, destructive ones carry red text. */
+  .set-main { max-width: 1060px; display: flex; flex-direction: column; gap: 16px; }
+  .set-card { border-color: var(--v2-line, var(--line)); border-radius: 12px; padding: 22px 24px; margin: 0; }
+  .set-card h3 { font-size: 18px; font-weight: 650; letter-spacing: -.01em; }
+  .set-card .hint { font-size: 13px; line-height: 1.55; max-width: 72ch; }
+  /* Boxed cards (Labels, Cash Flow, ...) read like every other card: the
+     title sits in the card at h3 size, not on a grey band. */
+  .set-card-hd { background: transparent; color: var(--v2-ink, var(--text));
+                 font-size: 18px; font-weight: 650; letter-spacing: -.01em;
+                 padding: 22px 24px 0; border-bottom: 0; align-items: baseline; flex-wrap: wrap; }
+  .set-card-hd .sub { color: var(--v2-muted, var(--muted)); font-size: 12.5px; font-weight: 400; }
+  .set-card-bd { padding: 12px 24px 22px; }
+  .set-card-bd > .hint:first-child { margin-top: 0; }
+  .fgroup label.lbl, .set-card .lbl { font-size: 12.5px; font-weight: 500; text-transform: none;
+                                     letter-spacing: 0; color: var(--v2-body, var(--muted)); margin-bottom: 5px; }
+  .inp, .sel { min-height: 38px; border-radius: 8px; border-color: var(--v2-line-2, var(--line));
+               background: var(--v2-surface, var(--card)); color: var(--v2-ink, var(--text)); }
+  textarea.inp { min-height: 76px; }
+  .help { font-size: 12px; }
+  .stbl th, .cld-tbl th { font-size: 12px; font-weight: 500; text-transform: none; letter-spacing: 0;
+                          border-bottom-width: 1px; background: transparent; }
+  .set-note { background: var(--v2-sunk, var(--bg-top)); border-color: var(--v2-line, var(--line));
+              color: var(--v2-body, var(--muted)); font-size: 12.5px; }
+  .set-actions { border-top: 1px solid var(--v2-line, var(--line)); padding-top: 16px; margin-top: 20px;
+                 align-items: center; }
+  .set-main .btn, .set-main .bsm { display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    min-height: 38px; padding: 0 16px; border-radius: 9px; border: 1px solid var(--v2-line-2, var(--line));
+    background: var(--v2-surface, var(--card)); color: var(--v2-ink, var(--text)); font: inherit;
+    font-size: 13.5px; font-weight: 500; cursor: pointer; text-decoration: none; }
+  .set-main .btn:hover, .set-main .bsm:hover { background: var(--v2-hover, var(--bg-top)); }
+  .set-main .btn-p, .set-main .btn-primary { background: var(--v2-ink, #17181a); color: var(--v2-ground, #fff);
+    border-color: var(--v2-ink, #17181a); font-weight: 600; }
+  .set-main .btn-p:hover, .set-main .btn-primary:hover { background: var(--v2-ink-2, #2c2f34); }
+  .set-main .btn-danger { color: var(--v2-neg, #b4453b); background: var(--v2-surface, var(--card)); }
+  .set-main .btn-danger:hover { background: var(--v2-neg-bg, #fbecea); border-color: var(--v2-neg, #b4453b); }
+  .set-main .btn-sm, .set-main .bsm { min-height: 32px; padding: 0 12px; font-size: 12.5px; }
+  @@media (max-width: 640px) {
+    .set-card { padding: 16px; }
+    .set-actions .btn, .set-actions .bsm { flex: 1 1 auto; }
+  }
+
+  /* Report structure: rows move with up/down, not typed order numbers. */
+  .rs-row td { vertical-align: middle; }
+  .rs-move { display: inline-flex; gap: 4px; }
+  .rs-move button { width: 30px; height: 30px; border-radius: 7px; border: 1px solid var(--v2-line-2, var(--line));
+    background: var(--v2-surface, var(--card)); color: var(--v2-body, var(--muted)); cursor: pointer; font-size: 13px; line-height: 1; }
+  .rs-move button:hover:not(:disabled) { color: var(--v2-ink, var(--text)); background: var(--v2-hover, var(--bg-top)); }
+  .rs-move button:disabled { opacity: .35; cursor: default; }
+  .rs-kind { font-size: 11.5px; font-weight: 600; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+  .rs-kind.sec { background: var(--v2-sunk, var(--bg-top)); color: var(--v2-body, var(--muted)); }
+  .rs-kind.sub { background: var(--v2-accent-soft, var(--accent-light)); color: var(--v2-accent-ink, var(--accent)); }
+  .rs-row.is-sub td { background: var(--v2-hover, transparent); }
+  .rs-row.is-sub .inp { font-weight: 600; }
+  .rs-effect { font-size: 12px; color: var(--v2-muted, var(--muted)); white-space: nowrap; }
+</style>
+}
+<div class="set-main">
+    @if (Model.Tab == "account") { <partial name="Tabs/_Account" model="Model" /> }
+    else if (Model.Tab == "company") { <partial name="Tabs/_Company" model="Model" /> }
+    else if (Model.Tab == "periods") { <partial name="Tabs/_Periods" model="Model" /> }
+    else if (Model.Tab == "reports") { <partial name="Tabs/_Reports" model="Model" /> }
+    else if (Model.Tab == "cash_flow") { <partial name="Tabs/_CashFlow" model="Model" /> }
+    else if (Model.Tab == "labels") { <partial name="Tabs/_Labels" model="Model" /> }
+    else if (Model.Tab == "inventory") { <partial name="Tabs/_Inventory" model="Model" /> }
+    else if (Model.Tab is "purchase" or "sales") { <partial name="Tabs/_Documents" model="Model" /> }
+    else if (Model.Tab == "invoicing") { <partial name="Tabs/_Invoice" model="Model" /> }
+    else if (Model.Tab == "templates") { <partial name="Tabs/_Templates" model="Model" /> }
+    else if (Model.Tab == "rights") { <partial name="Tabs/_Rights" model="Model" /> }
+    else if (Model.Tab == "members") { <partial name="Tabs/_Members" model="Model" /> }
+    else if (Model.Tab == "invites") { <partial name="Tabs/_Invitations" model="Model" /> }
+    else if (Model.Tab == "audit") { <partial name="Tabs/_Audit" model="Model" /> }
+</div>
+<script>
+  // Reflect the checked radio on its card wrapper.
+  document.querySelectorAll('.radio-card input[type=radio]').forEach(function (r) {
+    var sync = function () {
+      document.querySelectorAll('input[name="' + r.name + '"]').forEach(function (o) {
+        o.closest('.radio-card').classList.toggle('sel-on', o.checked);
+      });
+    };
+    r.addEventListener('change', sync);
+    sync();
+  });
+</script>

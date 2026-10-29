@@ -1,0 +1,118 @@
+{
+  "captured": "2026-10-29, Python app (Flask), before it was removed",
+  "capture": "Golden/capture/reopened_draft.py",
+  "inputs": {
+    "purchase": {
+      "supplier_id": "SUPPLIER",
+      "invoice_date": "2026-10-20",
+      "discount_mode": "general",
+      "expenses_mode": "general",
+      "tax_mode": "line",
+      "global_discount_pct": 0,
+      "global_discount_value": 0,
+      "global_commission": 0,
+      "global_freight": 0,
+      "global_loading": 0,
+      "global_sales_tax_pct": 0,
+      "global_withholding_tax_pct": 0,
+      "subtotal": 1000,
+      "total_discount": 0,
+      "net_payable": 1000,
+      "total_amount": 1000,
+      "items": [
+        {
+          "product_id": "P0",
+          "description": "Part 0",
+          "unit": "pcs",
+          "quantity": 10,
+          "unit_price": 100,
+          "discount_pct": 0,
+          "freight": 0,
+          "sales_tax_pct": 0,
+          "withholding_tax_pct": 0,
+          "total_before_discount": 1000,
+          "total_after_discount": 1000
+        }
+      ],
+      "action": "approve"
+    },
+    "sale": {
+      "customer_id": "CUSTOMER",
+      "invoice_date": "2026-10-20",
+      "discount_mode": "line",
+      "charges_mode": "general",
+      "tax_mode": "line",
+      "global_discount_pct": 0,
+      "global_discount_value": 0,
+      "global_delivery": 0,
+      "global_installation": 0,
+      "global_sales_tax_pct": 0,
+      "further_tax_pct": 0,
+      "apply_further_tax": false,
+      "withholding_tax_pct": 0,
+      "subtotal": 750,
+      "total_discount": 0,
+      "total_charges": 0,
+      "total_tax": 0,
+      "total_amount": 750,
+      "items": [
+        {
+          "product_id": "P0",
+          "description": "Part 0",
+          "unit": "pcs",
+          "quantity": 5,
+          "unit_price": 150,
+          "discount_pct": 0,
+          "delivery": 0,
+          "installation": 0,
+          "sales_tax_pct": 0,
+          "total_before_discount": 750,
+          "total_after_discount": 750
+        }
+      ],
+      "action": "approve"
+    },
+    "draft": {
+      "id": null,
+      "original_invoice_id": "SI",
+      "customer_id": "CUSTOMER",
+      "date": "2026-10-22",
+      "notes": "Damaged in transit",
+      "reverse_charges": true,
+      "gross_return_value": 750,
+      "total_discount": 0,
+      "total_charges": 0,
+      "total_tax": 0,
+      "net_return_amount": 750,
+      "items": [
+        {
+          "product_id": "P0",
+          "description": "Part",
+          "original_quantity": 5,
+          "previously_returned": 0,
+          "max_returnable_qty": 5,
+          "current_return_qty": 5,
+          "unit": "pcs",
+          "unit_price": 150,
+          "discount_pct": 0,
+          "discount_amount": 0,
+          "delivery": 0,
+          "installation": 0,
+          "sales_tax_pct": 0,
+          "total_before_discount": 750,
+          "total_after_discount": 750,
+          "proportional_discount": 0,
+          "proportional_sales_tax": 0,
+          "proportional_delivery": 0,
+          "proportional_installation": 0,
+          "net_return_value": 750
+        }
+      ],
+      "action": "save"
+    }
+  },
+  "expected": [
+    "new {\"invoice\":{\"charges_mode\":\"general\",\"customer_id\":\"CUSTOMER\",\"customer_name\":\"Ret Customer TAG\",\"date\":\"2026-10-20\",\"discount_mode\":\"line\",\"id\":\"SI\",\"invoice_number\":\"<SI>\",\"subtotal\":750.0,\"tax_mode\":\"line\",\"total_amount\":750.0,\"total_charges\":0.0,\"total_discount\":0.0,\"total_tax\":0.0,\"voucher_number\":\"<SI>\"},\"items\":[{\"cost_basis\":100.0,\"delivery\":0.0,\"description\":\"Part 0\",\"discount_amount\":0.0,\"discount_pct\":0.0,\"installation\":0.0,\"max_returnable_qty\":0.0,\"original_quantity\":5.0,\"previously_returned\":5.0,\"product_id\":\"P0\",\"sales_tax_pct\":0.0,\"sku\":\"RET-TAG-0\",\"total_after_discount\":750.0,\"total_before_discount\":750.0,\"unit\":\"pcs\",\"unit_price\":150.0}],\"ok\":true}",
+    "draft {\"invoice\":{\"charges_mode\":\"general\",\"customer_id\":\"CUSTOMER\",\"customer_name\":\"Ret Customer TAG\",\"date\":\"2026-10-20\",\"discount_mode\":\"line\",\"id\":\"SI\",\"invoice_number\":\"<SI>\",\"subtotal\":750.0,\"tax_mode\":\"line\",\"total_amount\":750.0,\"total_charges\":0.0,\"total_discount\":0.0,\"total_tax\":0.0,\"voucher_number\":\"<SI>\"},\"items\":[{\"cost_basis\":100.0,\"delivery\":0.0,\"description\":\"Part 0\",\"discount_amount\":0.0,\"discount_pct\":0.0,\"installation\":0.0,\"max_returnable_qty\":5.0,\"original_quantity\":5.0,\"previously_returned\":0.0,\"product_id\":\"P0\",\"sales_tax_pct\":0.0,\"sku\":\"RET-TAG-0\",\"total_after_discount\":750.0,\"total_before_discount\":750.0,\"unit\":\"pcs\",\"unit_price\":150.0}],\"ok\":true}"
+  ]
+}

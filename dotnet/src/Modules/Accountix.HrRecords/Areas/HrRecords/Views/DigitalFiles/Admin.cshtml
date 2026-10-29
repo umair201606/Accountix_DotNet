@@ -1,0 +1,45 @@
+@model DigitalFilesController.AdminModel
+@{
+    ViewData["Title"] = "All Files - Accountix ERP";
+}
+<div class="page-header">
+    <h1>All Employee Documents</h1>
+</div>
+@if (Model.Expired > 0)
+{
+<div class="flash-danger">@Model.Expired file(s) expired. Review required.</div>
+}
+@if (Model.Expiring > 0)
+{
+<div class="flash-warning">@Model.Expiring file(s) expiring within 30 days.</div>
+}
+<div class="card">
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Employee</th><th>Title</th><th>Category</th><th>Expiry</th><th>Verified</th><th>Actions</th></tr></thead>
+            <tbody>
+                @foreach (var f in Model.Files)
+                {
+                <tr>
+                    <td>@f.Employee</td>
+                    <td>@f.Title</td>
+                    <td>@(f.Category ?? "-")</td>
+                    <td>@(f.ExpiryDate is null ? "-" : Py.Date(f.ExpiryDate))
+                        @if (f.ExpiryDate is DateOnly e && e < Model.Now) {<span class="badge badge-danger">Expired</span>}
+                    </td>
+                    <td>@if (f.IsVerified) {@Html.Raw("&#10004;")} else {<span class="badge badge-warning">Pending</span>}</td>
+                    <td>
+                        <a href="/digital-files/download/@f.Id" class="btn btn-sm btn-outline">Download</a>
+                        @if (!f.IsVerified)
+                        {
+                        <form method="POST" action="/digital-files/verify/@f.Id" style="display:inline;">
+                            <button class="btn btn-sm btn-accent">Verify</button>
+                        </form>
+                        }
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

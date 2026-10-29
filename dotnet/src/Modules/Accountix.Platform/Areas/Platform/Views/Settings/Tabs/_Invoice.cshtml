@@ -1,0 +1,379 @@
+@model SettingsController.SettingsPage
+@{ var t = (SettingsController.InvoicingTab)Model.TabModel!; var s = t.Settings; }
+<form method="POST" asp-antiforgery="true" action="/settings/invoicing">
+
+  <!-- §11.2 — Tax application defaults & order tolerance ─────────────────── -->
+  <div class="set-card" style="margin-bottom:16px;">
+    <h3>Tax Application Defaults</h3>
+    <p class="hint">Document-wide tax defaults and the over-invoicing tolerance.
+      Every order and invoice inherits these and may override them per document.</p>
+    <div class="fgrid">
+      <div class="fgroup">
+        <label class="lbl">Default Sales Tax %</label>
+        <input type="number" name="default_sales_tax_pct" class="inp" step="0.01" min="0" max="100"
+               value="@J.Py(s.DefaultSalesTaxPct)">
+      </div>
+      <div class="fgroup">
+        <label class="lbl">Default Discount %</label>
+        <input type="number" name="default_discount_pct" class="inp" step="0.01" min="0" max="100"
+               value="@J.Py(s.DefaultDiscountPct)">
+      </div>
+      <div class="fgroup">
+        <label class="lbl">Default Further Tax %</label>
+        <input type="number" name="default_further_tax_pct" class="inp" step="0.01" min="0" max="100"
+               value="@J.Py(s.DefaultFurtherTaxPct)">
+        <div class="help">Apply further tax defaults to <strong>Off</strong>, and turns on
+          automatically for unregistered customers.</div>
+      </div>
+      <div class="fgroup">
+        <label class="lbl">Default Withholding Tax %</label>
+        <input type="number" name="default_withholding_tax_pct" class="inp" step="0.01" min="0" max="100"
+               value="@J.Py(s.DefaultWithholdingTaxPct)">
+        <div class="help">Apply withholding is defaulted per partner class on the document itself.</div>
+      </div>
+    </div>
+    <div class="fgrid">
+      <div class="fgroup">
+        <label class="lbl">Over-invoicing Tolerance %</label>
+        <input type="number" name="over_invoice_tolerance_pct" class="inp" step="0.01" min="0" max="100"
+               value="@J.Py(s.OverInvoiceTolerancePct)">
+        <div class="help">How far an invoice may exceed the quantities/values of the
+          orders it is created from before the save is blocked.</div>
+      </div>
+      <div class="fgroup">
+        <label class="lbl">Withholding Base</label>
+        <div class="radio-row">
+          <label class="radio-card">
+            <input type="radio" name="withholding_base" value="taxable"
+                   @J.Chk(s.WithholdingBase != "gross")>
+            <span class="rc-h">Taxable value</span>
+            <div class="rc-d">Withhold on the net taxable amount (before sales tax).</div>
+          </label>
+          <label class="radio-card">
+            <input type="radio" name="withholding_base" value="gross"
+                   @J.Chk(s.WithholdingBase == "gross")>
+            <span class="rc-h">Gross</span>
+            <div class="rc-d">Withhold on the gross amount (inclusive of sales tax).</div>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Default calculation scopes ─────────────────────────────────────────── -->
+  <div class="set-card" style="margin-bottom:16px;">
+    <h3>Default Calculation Scopes</h3>
+    <p class="hint">Whether discount, charges and tax are entered once for the whole document
+      (Combined) or line by line (Per item). Documents may switch scope unless the matching
+      per-line toggle below is hidden.</p>
+    <div class="fgrid">
+      <div class="fgroup">
+        <label class="lbl">Default Discount Mode</label>
+        <select name="default_discount_mode" class="sel">
+          <option value="general" selected="@(s.DefaultDiscountMode == "general")">Combined</option>
+          <option value="individual" selected="@(s.DefaultDiscountMode == "individual")">Per Item</option>
+        </select>
+      </div>
+      <div class="fgroup">
+        <label class="lbl">Default Charges Mode</label>
+        <select name="default_charges_mode" class="sel">
+          <option value="general" selected="@(s.DefaultChargesMode == "general")">Combined</option>
+          <option value="individual" selected="@(s.DefaultChargesMode == "individual")">Per Item</option>
+        </select>
+      </div>
+      <div class="fgroup">
+        <label class="lbl">Default Tax Mode</label>
+        <select name="default_tax_mode" class="sel">
+          <option value="general" selected="@(s.DefaultTaxMode == "general")">Combined</option>
+          <option value="individual" selected="@(s.DefaultTaxMode == "individual")">Per Item</option>
+        </select>
+      </div>
+      <div class="fgroup">
+        <label class="lbl">Default Party Mode</label>
+        <select name="default_party_mode" class="sel">
+          <option value="relevant" selected="@(s.DefaultPartyMode == "relevant")">Customer/Supplier Only</option>
+          <option value="all" selected="@(s.DefaultPartyMode == "all")">Any Ledger Account</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="set-2col">
+  <!-- §11.1 — Charge-ledger defaults ─────────────────────────────────────── -->
+  <div class="set-card set-boxed">
+    <div class="set-card-hd">Charge ledger defaults<span class="sub">filled in when a charge uses this ledger</span></div>
+    <div class="set-card-bd">
+    <div style="overflow-x:auto;">
+      <table class="cld-tbl">
+        <thead>
+          <tr>
+            <th>Ledger (chart of accounts)</th>
+            <th>Default treatment</th>
+            <th style="text-align:center;">ST</th>
+            <th style="text-align:center;">W/H</th>
+            <th style="text-align:center;">Extra</th>
+            <th style="text-align:center;">Applies to</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach (var (d, acct) in t.ChargeDefaults) {
+          <tr>
+            <td>
+              @(acct?.Name ?? "—")
+              <span style="color:var(--muted);">&middot; @(acct?.Code ?? "")</span>
+              <input type="hidden" name="cld_id" value="@d.Id">
+            </td>
+            <td>
+              <select name="cld_treatment_@d.Id" class="inp">
+                <option value="bill" selected="@(d.Treatment == "bill")">Bill to counterparty</option>
+                <option value="absorb" selected="@(d.Treatment == "absorb")">Absorb into item values</option>
+                <option value="expense" selected="@(d.Treatment == "expense")">Expense ledger only</option>
+              </select>
+            </td>
+            @if (d.Treatment == "bill") {
+            <td style="text-align:center;"><label class="stog"><input type="checkbox" name="cld_st_@d.Id" @J.Chk(d.StTaxable == true)><span class="sl"></span></label></td>
+            <td style="text-align:center;"><label class="stog"><input type="checkbox" name="cld_wht_@d.Id" @J.Chk(d.WhtTaxable == true)><span class="sl"></span></label></td>
+            <td style="text-align:center;"><label class="stog"><input type="checkbox" name="cld_extra_@d.Id" @J.Chk(d.ExtraTaxable == true)><span class="sl"></span></label></td>
+            } else {
+            <td colspan="3" style="text-align:center;color:var(--muted);font-size:12px;">n/a</td>
+            }
+            <td style="text-align:center;">
+              <select name="cld_applies_@d.Id" class="inp">
+                <option value="both" selected="@(d.AppliesTo == "both")">Both</option>
+                <option value="sales" selected="@(d.AppliesTo == "sales")">Sales</option>
+                <option value="purchase" selected="@(d.AppliesTo == "purchase")">Purchases</option>
+              </select>
+            </td>
+            <td style="text-align:center;">
+              <label style="font-size:11px;color:var(--danger);cursor:pointer;">
+                <input type="checkbox" name="cld_delete_@d.Id"> remove</label>
+            </td>
+          </tr>
+          }
+          @if (t.ChargeDefaults.Count == 0) {
+          <tr><td colspan="7" style="text-align:center;color:var(--muted);padding:18px;">
+            No charge-ledger defaults yet — add one below.</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="fgrid" style="margin-top:14px;align-items:end;">
+      <div class="fgroup">
+        <label class="lbl">Add a charge ledger</label>
+        <select name="cld_new_account" class="inp">
+          <option value="">— pick a level-5 ledger —</option>
+          @foreach (var a in t.ChargeLedgerChoices) {
+          <option value="@a.Id">@a.Code — @a.Name</option>
+          }
+        </select>
+      </div>
+      <div class="fgroup">
+        <label class="lbl">Default treatment</label>
+        <select name="cld_new_treatment" class="inp">
+          <option value="bill">Bill to counterparty</option>
+          <option value="absorb">Absorb into item values</option>
+          <option value="expense">Expense ledger only</option>
+        </select>
+      </div>
+      <div class="fgroup">
+        <label class="lbl">Tax bases (billed charges only)</label>
+        <div style="display:flex;gap:14px;flex-wrap:wrap;font-size:13px;padding:6px 0;">
+          <label style="display:inline-flex;align-items:center;gap:6px;"><label class="stog"><input type="checkbox" name="cld_new_st" checked><span class="sl"></span></label> ST</label>
+          <label style="display:inline-flex;align-items:center;gap:6px;"><label class="stog"><input type="checkbox" name="cld_new_wht"><span class="sl"></span></label> W/H</label>
+          <label style="display:inline-flex;align-items:center;gap:6px;"><label class="stog"><input type="checkbox" name="cld_new_extra"><span class="sl"></span></label> Extra</label>
+        </div>
+      </div>
+    </div>
+    <div class="set-note">
+      ST / W-H / Extra are the default tax-base inclusions for a charge <em>when it is billed</em>.
+      Further tax has no switch of its own — applied to a document, it is always computed on the
+      sales-tax base. Absorbed and expense-only ledgers have no base switches at all: an absorbed
+      amount sits inside the line values and is therefore always taxed with the goods, and an
+      expense-only amount never reaches the counterparty.
+    </div>
+  </div>
+  </div>
+  <!-- §11.3 — Form-field visibility (Figure 7, right-hand card) ────────── -->
+  <div class="set-card set-boxed">
+    <div class="set-card-hd">Form field visibility</div>
+    <div class="set-card-bd">
+      <div class="tog-row">
+        <span class="tog-l">Create-from-orders picker
+          <span class="tog-d">Off = blank documents only, no order sourcing</span></span>
+        <label class="stog"><input type="checkbox" name="create_from_orders_enabled" @J.Chk(s.CreateFromOrdersEnabled == true)><span class="sl"></span></label>
+      </div>
+      <div class="tog-row">
+        <span class="tog-l">Per-line discount toggle
+          <span class="tog-d">Off = Combined discount only</span></span>
+        <label class="stog"><input type="checkbox" name="per_line_discount_enabled" @J.Chk(s.PerLineDiscountEnabled == true)><span class="sl"></span></label>
+      </div>
+      <div class="tog-row">
+        <span class="tog-l">Additional Charges button
+          <span class="tog-d">Off = a no-charges document</span></span>
+        <label class="stog"><input type="checkbox" name="show_charges_column" @J.Chk(s.ShowChargesColumn == true)><span class="sl"></span></label>
+      </div>
+      <div class="tog-row">
+        <span class="tog-l">Per-line tax toggle
+          <span class="tog-d">Off = Combined tax only</span></span>
+        <label class="stog"><input type="checkbox" name="per_line_tax_enabled" @J.Chk(s.PerLineTaxEnabled == true)><span class="sl"></span></label>
+      </div>
+      <div class="tog-row">
+        <span class="tog-l">Withholding tax field</span>
+        <label class="stog"><input type="checkbox" name="show_withholding_tax" @J.Chk(s.ShowWithholdingTax == true)><span class="sl"></span></label>
+      </div>
+      <div class="tog-row">
+        <span class="tog-l">Further tax field
+          <span class="tog-d">Sales documents only</span></span>
+        <label class="stog"><input type="checkbox" name="show_further_tax" @J.Chk(s.ShowFurtherTax == true)><span class="sl"></span></label>
+      </div>
+      <div class="tog-row">
+        <span class="tog-l">Transport / logistics block
+          <span class="tog-d">For businesses shipping physical goods</span></span>
+        <label class="stog"><input type="checkbox" name="show_transport_block" @J.Chk(s.ShowTransportBlock == true)><span class="sl"></span></label>
+      </div>
+      <div class="tog-row">
+        <span class="tog-l">Discount column in grid</span>
+        <label class="stog"><input type="checkbox" name="show_discount_column" @J.Chk(s.ShowDiscountColumn == true)><span class="sl"></span></label>
+      </div>
+      <div class="tog-row">
+        <span class="tog-l">Tax column in grid</span>
+        <label class="stog"><input type="checkbox" name="show_tax_column" @J.Chk(s.ShowTaxColumn == true)><span class="sl"></span></label>
+      </div>
+      <div class="tog-row">
+        <span class="tog-l">Auto-add empty line</span>
+        <label class="stog"><input type="checkbox" name="auto_add_line" @J.Chk(s.AutoAddLine == true)><span class="sl"></span></label>
+      </div>
+      <div class="tog-row">
+        <span class="tog-l">Require approval to post</span>
+        <label class="stog"><input type="checkbox" name="require_approval" @J.Chk(s.RequireApproval == true)><span class="sl"></span></label>
+      </div>
+      <div class="tog-row">
+        <span class="tog-l">Allow partial payment</span>
+        <label class="stog"><input type="checkbox" name="allow_partial_payment" @J.Chk(s.AllowPartialPayment == true)><span class="sl"></span></label>
+      </div>
+      <div class="set-note">Off = the control never appears on the creation form or in the
+        Additional Settings panel; hidden sections are forced to Combined.</div>
+    </div>
+  </div>
+
+  </div>
+
+  <!-- §12.2 — Posting accounts: which revenue account each category credits,
+       and which Output Sales Tax sub-account each rate credits ───────────── -->
+  <div class="set-card set-boxed">
+    <div class="set-card-hd">Posting accounts (per-line)</div>
+    <div class="set-card-bd">
+      <div class="set-note" style="margin-bottom:12px;">
+        Per-line mode can post several lines against the same natural account type.
+        Map a category or a rate here and an invoice credits that account instead of
+        the single global one. <strong>Anything left unmapped keeps posting to the
+        global Revenue / Output Sales Tax account</strong>, so these tables are
+        optional — an empty pair changes nothing.
+      </div>
+
+      <label class="lbl">Revenue account by product category</label>
+      <div class="set-table-wrap">
+        <table class="set-table">
+          <thead><tr><th>Category</th><th>Revenue account</th><th style="text-align:center;">Remove</th></tr></thead>
+          <tbody>
+          @foreach (var (m, mc, ma) in t.CategoryMaps) {
+            <tr>
+              <td>@(t.Categories.FirstOrDefault(c => c.Id == m.CategoryId)?.Name)</td>
+              <td>
+                <select name="cra_account_@m.Id" class="inp">
+                  @foreach (var a in t.RevenueAccounts) {
+                  <option value="@a.Id" selected="@(a.Id == m.AccountId)">@a.Code — @a.Name</option>
+                  }
+                </select>
+              </td>
+              <td style="text-align:center;">
+                <label style="font-size:11px;color:var(--danger);cursor:pointer;">
+                  <input type="checkbox" name="cra_delete_@m.Id"> remove</label>
+              </td>
+            </tr>
+          }
+          @if (t.CategoryMaps.Count == 0) {
+            <tr><td colspan="3" style="text-align:center;color:var(--muted);padding:18px;">
+              No category mapped — all revenue posts to the global account.</td></tr>
+          }
+          </tbody>
+        </table>
+      </div>
+      <div class="fgrid" style="margin-top:12px;align-items:end;">
+        <div class="fgroup">
+          <label class="lbl">Add a category</label>
+          <select name="cra_new_category" class="inp">
+            <option value="">— pick a category —</option>
+            @foreach (var c in t.UnmappedCategories) {
+            <option value="@c.Id">@c.Name</option>
+            }
+          </select>
+        </div>
+        <div class="fgroup">
+          <label class="lbl">Revenue account</label>
+          <select name="cra_new_account" class="inp">
+            <option value="">— pick a level-5 revenue ledger —</option>
+            @foreach (var a in t.RevenueAccounts) {
+            <option value="@a.Id">@a.Code — @a.Name</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <label class="lbl" style="margin-top:20px;display:block;">Output Sales Tax sub-account by rate</label>
+      <div class="set-table-wrap">
+        <table class="set-table">
+          <thead><tr><th>Rate %</th><th>Output tax sub-account</th><th style="text-align:center;">Remove</th></tr></thead>
+          <tbody>
+          @foreach (var (m, ta) in t.TaxRateMaps) {
+            <tr>
+              <td>@(((double)m.RatePct).ToString("G6", System.Globalization.CultureInfo.InvariantCulture))%</td>
+              <td>
+                <select name="tra_account_@m.Id" class="inp">
+                  @foreach (var a in t.TaxAccounts) {
+                  <option value="@a.Id" selected="@(a.Id == m.AccountId)">@a.Code — @a.Name</option>
+                  }
+                </select>
+              </td>
+              <td style="text-align:center;">
+                <label style="font-size:11px;color:var(--danger);cursor:pointer;">
+                  <input type="checkbox" name="tra_delete_@m.Id"> remove</label>
+              </td>
+            </tr>
+          }
+          @if (t.TaxRateMaps.Count == 0) {
+            <tr><td colspan="3" style="text-align:center;color:var(--muted);padding:18px;">
+              No rate mapped — all output tax posts to the global account.</td></tr>
+          }
+          </tbody>
+        </table>
+      </div>
+      <div class="fgrid" style="margin-top:12px;align-items:end;">
+        <div class="fgroup">
+          <label class="lbl">Add a rate</label>
+          <input type="number" name="tra_new_rate" class="inp" step="0.01" min="0" placeholder="e.g. 18">
+        </div>
+        <div class="fgroup">
+          <label class="lbl">Output tax sub-account</label>
+          <select name="tra_new_account" class="inp">
+            <option value="">— pick a level-5 liability ledger —</option>
+            @foreach (var a in t.TaxAccounts) {
+            <option value="@a.Id">@a.Code — @a.Name</option>
+            }
+          </select>
+        </div>
+      </div>
+      <div class="set-note">
+        The sales-tax return is filed by rate, so a document carrying two rates
+        credits two sub-accounts rather than pooling both into one balance that
+        then has to be taken apart again. The split apportions the tax already
+        posted, so the journal can never drift from the invoice total.
+      </div>
+    </div>
+  </div>
+
+  <div class="set-actions">
+    <button type="submit" class="btn btn-primary">Save Invoice Settings</button>
+  </div>
+</form>

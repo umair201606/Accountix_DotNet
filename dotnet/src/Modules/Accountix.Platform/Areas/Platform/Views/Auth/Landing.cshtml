@@ -1,0 +1,392 @@
+@{ Layout = null; }
+<!doctype html>
+<html lang="en" data-ui="v2">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Accountix ERP — one system for stock, books and payroll</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%232B7263'/><text x='16' y='22' font-size='18' font-family='Arial' font-weight='bold' text-anchor='middle' fill='white'>A</text></svg>">
+<meta name="description" content="Accountix ERP runs inventory, invoicing, accounting, payroll, fixed assets and FBR digital invoicing on one shared ledger, across as many companies as you need.">
+<partial name="_V2Head" />
+<partial name="_Antiforgery" />
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: Inter, "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+    background: var(--v2-ground); color: var(--v2-body);
+    font-size: 13px; line-height: 20px; -webkit-font-smoothing: antialiased;
+  }
+  a { text-decoration: none; }
+  .wrap { max-width: 1140px; margin: 0 auto; padding: 0 24px; }
+
+  /* ── Buttons ─────────────────────────────────────────────────────────── */
+  .cta .btn, .nav-actions .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 10px 18px; border-radius: 8px; border: 1px solid transparent;
+    font-size: 13.5px; font-weight: 500; cursor: pointer; white-space: nowrap;
+    transition: background .15s, border-color .15s, color .15s;
+  }
+  .btn-primary { background: var(--v2-ink); color: var(--v2-ground); border-color: var(--v2-ink); }
+  .btn-primary:hover { background: var(--v2-ink-2); }
+  .btn-secondary { background: var(--v2-surface); color: var(--v2-ink); border-color: var(--v2-line-2); }
+  .btn-secondary:hover { background: var(--v2-hover); }
+  .btn-ghost { color: var(--v2-muted); }
+  .btn-ghost:hover { color: var(--v2-ink); }
+  .nav-actions .btn-sm { padding: 7px 13px; font-size: 12.5px; }
+
+  /* ── Header ──────────────────────────────────────────────────────────── */
+  header {
+    background: var(--v2-surface); border-bottom: 1px solid var(--v2-line);
+    position: sticky; top: 0; z-index: 20;
+  }
+  .nav { display: flex; align-items: center; gap: 16px; height: 60px; }
+  .brand { display: flex; align-items: center; gap: 9px; font-weight: 600; font-size: 15px;
+           color: var(--v2-ink); letter-spacing: -.01em; }
+  .mark {
+    width: 28px; height: 28px; border-radius: 7px; background: var(--v2-ink);
+    color: var(--v2-ground); display: grid; place-items: center;
+    font-size: 13px; font-weight: 600; flex: none;
+  }
+  .nav-links { display: flex; align-items: center; gap: 4px; margin-left: 24px; }
+  .nav-links a { padding: 7px 11px; border-radius: 8px; color: var(--v2-muted);
+                 font-weight: 500; font-size: 12.5px; }
+  .nav-links a:hover { background: var(--v2-hover); color: var(--v2-ink); }
+  .nav-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+
+  /* ── Hero ────────────────────────────────────────────────────────────── */
+  .hero { padding: 68px 0 52px; }
+  .hero-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 48px; align-items: center; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px; margin-bottom: 18px;
+    padding: 4px 10px; border-radius: 6px; background: var(--v2-sunk);
+    color: var(--v2-body); font-size: 11.5px; font-weight: 500;
+  }
+  h1 { font-size: 42px; line-height: 50px; font-weight: 600; letter-spacing: -.025em;
+       color: var(--v2-ink); }
+  .lede { margin-top: 16px; font-size: 15px; line-height: 25px; color: var(--v2-body); max-width: 34em; }
+  .cta { margin-top: 26px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .cta-note { margin-top: 13px; font-size: 12px; color: var(--v2-faint); }
+
+  /* Hero figure: a miniature of the card-wrapped-table signature pattern. */
+  .figure { background: var(--v2-surface); border: 1px solid var(--v2-line);
+            border-radius: 12px; overflow: hidden; }
+  .figure-bar { background: var(--v2-hover); border-bottom: 1px solid var(--v2-line);
+                padding: 10px 14px; display: flex; align-items: center; gap: 8px; }
+  .figure-bar .chip { background: var(--v2-surface); border: 1px solid var(--v2-line);
+                      border-radius: 6px; padding: 2px 8px; font-size: 11.5px;
+                      font-weight: 500; color: var(--v2-body);
+                      font-variant-numeric: tabular-nums; }
+  .figure-bar .lbl { font-size: 11.5px; font-weight: 500; color: var(--v2-muted); }
+  /* Wide content scrolls inside its own container rather than pushing the
+     page sideways at 320px (§8). .figure itself keeps overflow:hidden so the
+     first row squares off against the radius, which is why the scroll box has
+     to be a separate element inside it. */
+  .figure-scroll { overflow-x: auto; }
+  .figure table { width: 100%; min-width: 300px; border-collapse: collapse;
+                  background: var(--v2-surface); }
+  .figure thead th {
+    background: var(--v2-surface); text-align: left; padding: 9px 14px;
+    font-size: 11.5px; font-weight: 500; letter-spacing: 0;
+    color: var(--v2-muted); border-bottom: 1px solid var(--v2-line);
+  }
+  /* Hairline rows, no zebra striping (§5). */
+  .figure tbody td { padding: 9px 14px; border-top: 1px solid var(--v2-line);
+                     border-bottom: 0; color: var(--v2-body); font-size: 12.5px;
+                     background: var(--v2-surface); }
+  .figure .num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 500; }
+  .figure .doc { color: var(--v2-ink); font-weight: 500; }
+  .pill { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 11.5px;
+          font-weight: 500; }
+  .pill-ok { background: var(--v2-pos-bg); color: var(--v2-pos); }
+  .pill-draft { background: var(--v2-sunk); color: var(--v2-body); }
+  .figure-foot { padding: 13px 14px; display: flex; justify-content: space-between;
+                 align-items: baseline; border-top: 1px solid var(--v2-ink); }
+  .figure-foot span:first-child { font-size: 11.5px; font-weight: 500; color: var(--v2-muted); }
+  .figure-foot .total { font-size: 20px; line-height: 28px; font-weight: 600;
+                        color: var(--v2-ink); font-variant-numeric: tabular-nums;
+                        letter-spacing: -.025em; }
+
+  /* ── Section furniture ───────────────────────────────────────────────── */
+  section.band { padding: 60px 0; border-top: 1px solid var(--v2-line); }
+  section.band.tint { background: var(--v2-hover); }
+  .sec-head { max-width: 42em; margin-bottom: 32px; }
+  .sec-head h2 { font-size: 26px; line-height: 34px; font-weight: 600;
+                 letter-spacing: -.02em; color: var(--v2-ink); }
+  .sec-head p { margin-top: 8px; font-size: 14px; line-height: 23px; color: var(--v2-body); }
+
+  /* ── Modules ─────────────────────────────────────────────────────────── */
+  .modules { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+  .module { background: var(--v2-surface); border: 1px solid var(--v2-line);
+            border-radius: 11px; padding: 18px; }
+  .module .ico { width: 32px; height: 32px; border-radius: 8px; background: var(--v2-sunk);
+                 color: var(--v2-ink); display: grid; place-items: center;
+                 font-size: 15px; margin-bottom: 12px; }
+  .module h3 { font-size: 13.5px; font-weight: 600; color: var(--v2-ink); letter-spacing: -.01em; }
+  .module p { margin-top: 5px; color: var(--v2-muted); font-size: 12.5px; line-height: 19px; }
+
+  /* ── Steps ───────────────────────────────────────────────────────────── */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .step { background: var(--v2-surface); border: 1px solid var(--v2-line);
+          border-radius: 11px; padding: 20px; }
+  .step .n { width: 26px; height: 26px; border-radius: 9999px; background: var(--v2-ink);
+             color: var(--v2-ground); display: grid; place-items: center;
+             font-size: 12px; font-weight: 600; margin-bottom: 12px;
+             font-variant-numeric: tabular-nums; }
+  .step h3 { font-size: 13.5px; font-weight: 600; color: var(--v2-ink); letter-spacing: -.01em; }
+  .step p { margin-top: 5px; color: var(--v2-muted); font-size: 12.5px; line-height: 19px; }
+
+  /* ── Trust points ────────────────────────────────────────────────────── */
+  .points { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 28px; }
+  .point h3 { font-size: 13.5px; font-weight: 600; color: var(--v2-ink);
+              letter-spacing: -.01em; padding-bottom: 9px;
+              border-bottom: 1px solid var(--v2-line); }
+  .point p { margin-top: 11px; color: var(--v2-body); font-size: 12.5px; line-height: 20px; }
+
+  /* ── Closing call to action ──────────────────────────────────────────── */
+  /* An ink slab, not a navy one: --v2-ink inverts with the theme, so every
+     label on it rides --v2-ground rather than a literal white (§7). */
+  .close-cta { background: var(--v2-ink); color: var(--v2-ground); border-radius: 12px;
+               padding: 40px; text-align: center; }
+  .close-cta h2 { font-size: 24px; line-height: 32px; font-weight: 600; letter-spacing: -.02em; }
+  .close-cta p { margin: 10px auto 0; max-width: 40em; opacity: .74;
+                 font-size: 14px; line-height: 23px; }
+  .close-cta .cta { justify-content: center; }
+  .close-cta .btn-primary { background: var(--v2-ground); color: var(--v2-ink);
+                            border-color: var(--v2-ground); }
+  .close-cta .btn-primary:hover { background: var(--v2-hover); }
+  .close-cta .btn-secondary { background: transparent; color: var(--v2-ground);
+                              border-color: var(--v2-muted); }
+  .close-cta .btn-secondary:hover { background: transparent; border-color: var(--v2-ground); }
+
+  /* ── Footer ──────────────────────────────────────────────────────────── */
+  footer { border-top: 1px solid var(--v2-line); background: var(--v2-surface);
+           padding: 24px 0; margin-top: 60px; }
+  .foot { display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+          color: var(--v2-muted); font-size: 12.5px; }
+  .foot .sep { margin-left: auto; display: flex; gap: 16px; }
+  .foot a { color: var(--v2-accent); }
+  .foot a:hover { text-decoration: underline; }
+
+  /* ── Responsive: 320px is the floor (AGENTS.md §3) ───────────────────── */
+  @@media (max-width: 900px) {
+    .hero-grid { grid-template-columns: 1fr; gap: 32px; }
+    .steps { grid-template-columns: 1fr; }
+    h1 { font-size: 31px; line-height: 39px; }
+    .nav-links { display: none; }
+  }
+  @@media (max-width: 560px) {
+    .wrap { padding: 0 16px; }
+    /* At 320px the public header must stay compact rather than wrapping to two
+       rows — it is still reachable from the closing CTA and the footer, and
+       it is not the door most visitors want. */
+    .nav { gap: 8px; }
+    .nav-actions .btn-ghost { display: none; }
+    .brand { font-size: 14px; }
+    .hero { padding: 40px 0 32px; }
+    section.band { padding: 40px 0; }
+    h1 { font-size: 25px; line-height: 33px; }
+    .close-cta { padding: 28px 20px; }
+    .cta .btn { flex: 1 1 100%; }
+    .foot .sep { margin-left: 0; }
+  }
+  /* The narrowest phones (320px): brand, theme switch and two buttons do not
+     fit on one line. "Get started" is repeated in the hero, so it goes. */
+  @@media (max-width: 380px) {
+    .nav-actions .btn-secondary { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="/">
+      <span class="mark">A</span> Accountix ERP
+    </a>
+    <nav class="nav-links">
+      <a href="#modules">Modules</a>
+      <a href="#how">How it works</a>
+      <a href="#why">Why Accountix</a>
+    </nav>
+    <div class="nav-actions">
+      <partial name="_ThemeToggle" />
+      <a class="btn btn-secondary btn-sm" href="/signup">Get started</a>
+      <a class="btn btn-primary btn-sm" href="/auth/login">Sign in</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap hero">
+    <div class="hero-grid">
+      <div>
+        <span class="eyebrow">Multi-company ERP</span>
+        <h1>Every voucher lands in the ledger. Nothing is typed twice.</h1>
+        <p class="lede">
+          Accountix runs stock, invoicing, accounting, payroll, fixed assets and
+          FBR digital invoicing on one double-entry ledger. Post a goods issue
+          and the cost of sales is already there; approve an invoice and the
+          receivable, the tax and the stock layer move together.
+        </p>
+        <div class="cta">
+          <a class="btn btn-primary" href="/signup">Request access</a>
+          <a class="btn btn-secondary" href="/auth/login">Sign in</a>
+        </div>
+        <p class="cta-note">Run as many companies as your plan allows — each with its own chart of accounts, periods and numbering.</p>
+      </div>
+
+      <div class="figure" aria-hidden="true">
+        <div class="figure-bar">
+          <span class="lbl">Sales invoice</span>
+          <span class="chip">SI-000418</span>
+          <span class="chip">FY 2026</span>
+        </div>
+        <div class="figure-scroll">
+        <table>
+          <thead>
+            <tr><th>Item</th><th class="num">Qty</th><th class="num">Amount</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="doc">Poly module 550W</td><td class="num">120</td><td class="num">4,392,000</td></tr>
+            <tr><td class="doc">Hybrid inverter 8kW</td><td class="num">14</td><td class="num">1,806,000</td></tr>
+            <tr><td class="doc">Mounting rail 4.2m</td><td class="num">240</td><td class="num">372,000</td></tr>
+            <tr><td>Sales tax @@ 18%</td><td class="num">—</td><td class="num">1,182,600</td></tr>
+          </tbody>
+        </table>
+        </div>
+        <div class="figure-bar" style="border-top:1px solid var(--v2-line);border-bottom:0;">
+          <span class="pill pill-ok">Posted</span>
+          <span class="pill pill-draft">Synced to FBR</span>
+        </div>
+        <div class="figure-foot">
+          <span>Net receivable</span>
+          <span class="total">7,752,600</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section class="band tint" id="modules">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Seven modules, one ledger</h2>
+        <p>Each module is switched on per company and per user, so people only see the screens they actually work in.</p>
+      </div>
+      <div class="modules">
+        <div class="module">
+          <div class="ico">&#9878;</div>
+          <h3>Accounting</h3>
+          <p>Cash, bank and journal vouchers on a five-level chart of accounts, with periods you can close and reopen.</p>
+        </div>
+        <div class="module">
+          <div class="ico">&#128230;</div>
+          <h3>Inventory</h3>
+          <p>Goods receipt, issue, consumption, scrap and stock takes — costed in layers so valuation always ties to the ledger.</p>
+        </div>
+        <div class="module">
+          <div class="ico">&#129534;</div>
+          <h3>Invoicing</h3>
+          <p>Sales and purchase orders through to invoices and returns, with over-invoicing checks on every linked line.</p>
+        </div>
+        <div class="module">
+          <div class="ico">&#128202;</div>
+          <h3>Finance</h3>
+          <p>Trial balance, general ledger, P&amp;L and balance sheet — on screen, as PDF statements, or exported to a sheet.</p>
+        </div>
+        <div class="module">
+          <div class="ico">&#128100;</div>
+          <h3>HR &amp; Payroll</h3>
+          <p>Employees, attendance, leaves, loans, provident fund and a payroll run that posts straight to the books.</p>
+        </div>
+        <div class="module">
+          <div class="ico">&#127970;</div>
+          <h3>Fixed assets</h3>
+          <p>Asset registers, categories and depreciation schedules derived live from journals, so a reversal self-corrects.</p>
+        </div>
+        <div class="module">
+          <div class="ico">&#128228;</div>
+          <h3>FBR digital invoicing</h3>
+          <p>Approved invoices mapped to the FBR schema and submitted, with the response and every retry kept on record.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="how">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>How it works</h2>
+        <p>Your account is global. Companies hang off it — the ones you created and the ones that gave you a role.</p>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="n">1</div>
+          <h3>Sign in once</h3>
+          <p>One User ID and password gets you in, whether you work in one company's books or a dozen.</p>
+        </div>
+        <div class="step">
+          <div class="n">2</div>
+          <h3>Pick a company</h3>
+          <p>Your portal lists what you own, what you've been invited to, and any invitation still waiting on an answer.</p>
+        </div>
+        <div class="step">
+          <div class="n">3</div>
+          <h3>Open its books</h3>
+          <p>A new company arrives ready: chart of accounts, fiscal periods, voucher numbering and invoice templates seeded.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band tint" id="why">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Why Accountix</h2>
+        <p>The parts of an ERP that usually drift apart are held together here by design.</p>
+      </div>
+      <div class="points">
+        <div class="point">
+          <h3>Company data stays separated</h3>
+          <p>Every scoped query is filtered by the active company at the engine level, not by hand in each route — so a missing filter fails closed instead of leaking rows.</p>
+        </div>
+        <div class="point">
+          <h3>Stock value equals ledger value</h3>
+          <p>Cost lives in stock layers, and layer value is reconciled against the ledger's running cost. Valuation and the balance sheet cannot quietly disagree.</p>
+        </div>
+        <div class="point">
+          <h3>Rights that follow the person</h3>
+          <p>Module access and section rights are set per company. Move someone between companies and their access moves with the role, not the login.</p>
+        </div>
+        <div class="point">
+          <h3>Reports you can hand over</h3>
+          <p>Screen, PDF and spreadsheet render the same figures through the same formatter — an export never disagrees with what you just read.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap" style="padding-top:60px;">
+      <div class="close-cta">
+        <h2>Ready to get started?</h2>
+        <p>Request platform access and an operator will review your request.</p>
+        <div class="cta">
+          <a class="btn btn-primary" href="/signup">Request access</a>
+          <a class="btn btn-secondary" href="/auth/login">Sign in</a>
+        </div>
+      </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <span class="brand" style="font-size:13px;"><span class="mark" style="width:22px;height:22px;font-size:11px;">A</span> Accountix ERP</span>
+    <span class="sep">
+      <a href="/auth/login">Sign in</a>
+    </span>
+  </div>
+</footer>
+
+<script src="/static/js/theme.js"></script>
+</body>
+</html>

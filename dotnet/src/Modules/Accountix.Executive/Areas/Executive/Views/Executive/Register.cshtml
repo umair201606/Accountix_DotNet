@@ -1,0 +1,112 @@
+@model RegisterModel
+@{
+    ViewData["Title"] = Model.Meta.Title;
+    ViewData["Heading"] = Model.Meta.Title;
+    string here = Context.Request.Path.Value ?? "/executive/receivables";
+}
+@section Head {
+<partial name="_Style" />
+}
+@section Actions {
+@if (Model.Configured)
+{
+<partial name="_ExportButtons" model='new ExportButtons("excel", "pdf", "csv")' />
+}
+}
+<div class="exr">
+
+  @* The two headline figures, then the list. No page heading: the top bar already names it. *@
+  <div class="exr-head">
+    <div class="exr-total @(Model.Side == "receivable" ? "in" : "out")">
+      <span class="lbl">Total @Model.Meta.Noun</span>
+      <span class="val">@Html.Amount(Model.Totals.Amount, 2)</span>
+    </div>
+    <div class="exr-total">
+      <span class="lbl">Parties</span>
+      <span class="val">@Model.Totals.Parties</span>
+      <span class="sub">@Model.Meta.PartyWord</span>
+    </div>
+    @if (Model.AsOf.Length > 0)
+    {
+    <span class="exr-asof">Balances as at @Model.AsOf</span>
+    }
+  </div>
+
+  @if (Model.Configured)
+  {
+  <form method="GET" class="exr-filterbar">
+    <select name="group" class="exr-select" aria-label="Account group">
+      <option value="">All selected accounts</option>
+      @foreach (var g in Model.Groups)
+      {
+      <option value="@g.Id" selected="@(Model.Group == g.Id)">@g.Label</option>
+      }
+    </select>
+    <input type="search" name="q" value="@Model.Q" class="exr-input exr-search"
+           placeholder="Party or account code" aria-label="Search" autocomplete="off">
+    <input type="date" name="as_of" value="@Model.AsOf" class="exr-input"
+           aria-label="Balances as at">
+    <button type="submit" class="btn btn-sm btn-primary">Apply</button>
+    @if (Model.Q.Length > 0 || Model.Group is > 0 or < 0 || Model.AsOf.Length > 0)
+    {
+    <a href="@here" class="btn btn-sm btn-outline">Reset</a>
+    }
+  </form>
+
+  <p class="exr-count">@Model.Rows.Count part@(Model.Rows.Count == 1 ? "y" : "ies")</p>
+  }
+
+  <div class="exr-wrap">
+    <table class="exr-table">
+      <thead>
+        <tr>
+          <th>Party / account</th>
+          <th>Group</th>
+          <th class="num">Debit</th>
+          <th class="num">Credit</th>
+          <th class="num">@(Model.Side == "receivable" ? "Receivable" : "Payable")</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach (var r in Model.Rows)
+        {
+        <tr>
+          <td data-label="Party">
+            <a href="/executive/party/@r.AccountId"
+               class="exr-link">@r.Name</a>
+            <div class="exr-code">@r.Code</div>
+          </td>
+          <td data-label="Group"><span class="exr-group">@r.Group</span></td>
+          <td data-label="Debit" class="num">@Html.Amount(r.Debit, 2)</td>
+          <td data-label="Credit" class="num">@Html.Amount(r.Credit, 2)</td>
+          <td data-label="@Model.Meta.Title" class="num strong">@Html.Amount(r.Amount, 2)</td>
+        </tr>
+        }
+        @if (Model.Rows.Count == 0)
+        {
+        <tr>
+          <td colspan="5" class="exr-empty">
+            @if (!Model.Configured)
+            {
+            <strong>No accounts selected yet</strong>
+            <p>Choose which ledger accounts feed these reports — trade debtors
+              and creditors, other receivables and payables, loans. A party
+              appears here whenever one of them carries a balance.</p>
+            @if (Model.CanEdit)
+            {
+            <a href="/executive/settings" class="btn btn-primary">Select accounts</a>
+            }
+            }
+            else
+            {
+            <strong>Nothing @Model.Meta.Noun</strong>
+            <p>@Model.Meta.Empty A party moves to the other side on its own the
+              moment its balance changes sign.</p>
+            }
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,32 @@
+@model Accountix.Accounting.Controllers.VoucherDoc
+@{
+    Layout = null;
+    var labels = Accountix.Accounting.Controllers.VouchersController.Labels;
+}
+<!DOCTYPE html>
+<html lang="en" data-ui="v2">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>@labels[Model.Voucher.VoucherType] - @Model.Voucher.VoucherNumber</title>
+<script>(function(){try{var t=localStorage.getItem("ax-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
+<link rel="stylesheet" href="/static/css/app.css">
+<link rel="stylesheet" href="/static/css/ui.css">
+<style>
+<partial name="_VoucherDocStyle" />
+</style>
+</head>
+<body>
+<partial name="_VoucherDoc" model="Model" />
+<div class="act">
+  <button class="bp" onclick="window.print()">Print</button>
+  <a href="/accounting/vouchers/@Model.Voucher.Id/export?fmt=pdf" class="bx">PDF</a>
+  <a href="/accounting/vouchers/@Model.Voucher.Id/export?fmt=excel" class="bx">Excel</a>
+  @if (Model.Voucher.Status == "unapproved")
+  {
+  <a href="/accounting/vouchers/@Model.Voucher.Id?edit=1" class="bx">Edit</a>
+  }
+  <a href="javascript:window.close()" class="bc">Close</a>
+</div>
+</body>
+</html>

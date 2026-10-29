@@ -1,0 +1,35 @@
+@model InvProduct
+@using Accountix.Inventory.Services
+@{
+    ViewData["Title"] = "Adjust Stock";
+    ViewData["Heading"] = $"Adjust Stock: {Model.Name}";
+    bool low = (Model.CurrentStock ?? 0) <= (Model.ReorderLevel ?? 0) && (Model.ReorderLevel ?? 0) > 0;
+}
+<div class="card" style="max-width:500px;">
+  <div style="padding:16px;background:var(--bg-top);border-bottom:1px solid var(--border);">
+    <strong>Current Stock:</strong> 
+    <span class="badge @(low ? "badge-danger" : "badge-success")" style="font-size:18px;">@MasterData.Qty(Model.CurrentStock)</span>
+    &nbsp;&nbsp; <strong>SKU:</strong> @Model.Sku
+    &nbsp;&nbsp; <strong>Reorder Level:</strong> @(Model.ReorderLevel?.ToString() ?? "None")
+  </div>
+  <form method="POST" class="form" style="padding:20px;">
+    <div class="form-group">
+      <label>Quantity Adjustment</label>
+      <input type="number" step="any" name="quantity" class="form-control focus-ring" required placeholder="Positive to add, negative to remove">
+      <small style="color:var(--muted);">Enter a positive number to add stock, negative to remove</small>
+    </div>
+    <div class="form-group">
+      <label>Date</label>
+      <input type="date" name="date" class="form-control focus-ring">
+      <small style="color:var(--muted);">Blank = today. Posted as an approved Stock Adjustment voucher at valuation cost.</small>
+    </div>
+    <div class="form-group">
+      <label>Reason / Notes</label>
+      <textarea name="notes" class="form-control focus-ring" rows="2" placeholder="e.g., Physical count adjustment, damaged goods, etc."></textarea>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Apply Adjustment</button>
+      <a href="/inventory/products/" class="btn btn-outline">Cancel</a>
+    </div>
+  </form>
+</div>

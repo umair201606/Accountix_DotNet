@@ -1,0 +1,811 @@
+{
+ "filter_mode=period&period_id={FY 2026}": {
+  "pl_rows": [
+   {
+    "kind": "header",
+    "label": "Sales",
+    "code": "",
+    "name": "",
+    "amount": null,
+    "comp_amounts": null
+   },
+   {
+    "kind": "account",
+    "label": "",
+    "code": "4-01-01-01-0001",
+    "name": "Sales \u2014 General",
+    "amount": 43000.0,
+    "comp_amounts": null
+   },
+   {
+    "kind": "account",
+    "label": "",
+    "code": "4-01-02-01-0001",
+    "name": "Service Income \u2014 General",
+    "amount": 4083.33,
+    "comp_amounts": null
+   },
+   {
+    "kind": "total",
+    "label": "Total Sales",
+    "code": "",
+    "name": "",
+    "amount": 47083.33,
+    "comp_amounts": null
+   },
+   {
+    "kind": "subtotal",
+    "label": "Net Sales",
+    "code": "",
+    "name": "",
+    "amount": 47083.33,
+    "comp_amounts": null
+   },
+   {
+    "kind": "subtotal",
+    "label": "Gross Profit",
+    "code": "",
+    "name": "",
+    "amount": 47083.33,
+    "comp_amounts": null
+   },
+   {
+    "kind": "header",
+    "label": "Administrative Expenses",
+    "code": "",
+    "name": "",
+    "amount": null,
+    "comp_amounts": null
+   },
+   {
+    "kind": "account",
+    "label": "",
+    "code": "5-02-03-01-0001",
+    "name": "Office Supplies",
+    "amount": 400.0,
+    "comp_amounts": null
+   },
+   {
+    "kind": "total",
+    "label": "Total Administrative Expenses",
+    "code": "",
+    "name": "",
+    "amount": 400.0,
+    "comp_amounts": null
+   },
+   {
+    "kind": "header",
+    "label": "Selling & Distribution Expenses",
+    "code": "",
+    "name": "",
+    "amount": null,
+    "comp_amounts": null
+   },
+   {
+    "kind": "account",
+    "label": "",
+    "code": "5-03-01-01-0001",
+    "name": "Freight & Transportation \u2014 General",
+    "amount": 1234.56,
+    "comp_amounts": null
+   },
+   {
+    "kind": "total",
+    "label": "Total Selling & Distribution Expenses",
+    "code": "",
+    "name": "",
+    "amount": 1234.56,
+    "comp_amounts": null
+   },
+   {
+    "kind": "subtotal",
+    "label": "Operating Profit",
+    "code": "",
+    "name": "",
+    "amount": 45448.77,
+    "comp_amounts": null
+   },
+   {
+    "kind": "subtotal",
+    "label": "Profit Before Tax",
+    "code": "",
+    "name": "",
+    "amount": 45448.77,
+    "comp_amounts": null
+   },
+   {
+    "kind": "subtotal",
+    "label": "Net Profit",
+    "code": "",
+    "name": "",
+    "amount": 45448.77,
+    "comp_amounts": null
+   }
+  ],
+  "net_profit": 45448.77
+ },
+ "filter_mode=custom&from=2025-03-01&to=2026-06-30&label_ids={Proj Alpha}": {
+  "pl_rows": [
+   {
+    "kind": "header",
+    "label": "Sales",
+    "code": "",
+    "name": "",
+    "amount": null,
+    "comp_amounts": null
+   },
+   {
+    "kind": "account",
+    "label": "",
+    "code": "4-01-01-01-0001",
+    "name": "Sales \u2014 General",
+    "amount": 95000.0,
+    "comp_amounts": null
+   },
+   {
+    "kind": "total",
+    "label": "Total Sales",
+    "code": "",
+    "name": "",
+    "amount": 95000.0,
+    "comp_amounts": null
+   },
+   {
+    "kind": "header",
+    "label": "Less: Sales Returns & Discounts",
+    "code": "",
+    "name": "",
+    "amount": null,
+    "comp_amounts": null
+   },
+   {
+    "kind": "account",
+    "label": "",
+    "code": "4-02-01-01-0001",
+    "name": "Sales Returns \u2014 General",
+    "amount": 5000.0,
+    "comp_amounts": null
+   },
+   {
+    "kind": "total",
+    "label": "Total Less: Sales Returns & Discounts",
+    "code": "",
+    "name": "",
+    "amount": 5000.0,
+    "comp_amounts": null
+   },
+   {
+    "kind": "subtotal",
+    "label": "Net Sales",
+    "code": "",
+    "name": "",
+    "amount": 90000.0,
+    "comp_amounts": null
+   },
+   {
+    "kind": "header",
+    "label": "Cost of Sales",
+    "code": "",
+    "name": "",
+    "amount": null,
+    "comp_amounts": null
+   },
+   {
+    "kind": "account",
+    "label": "",
+    "code": "5-01-01-01-0001",
+    "name": "Cost of Goods Sold",
+    "amount": 60000.0,
+    "comp_amounts": null
+   },
+   {
+    "kind": "total",
+    "label": "Total Cost of Sales",
+    "code": "",
+    "name": "",
+    "amount": 60000.0,
+    "comp_amounts": null
+   },
+   {
+    "kind": "subtotal",
+    "label": "Gross Profit",
+    "code": "",
+    "name": "",
+    "amount": 30000.0,
+    "comp_amounts": null
+   },
+   {
+    "kind": "header",
+    "label": "Administrative Expenses",
+    "code": "",
+    "name": "",
+    "amount": null,
+    "comp_amounts": null
+   },
+   {
+    "kind": "account",
+    "label": "",
+    "code": "5-02-01-01-0001",
+    "name": "Salary Expense",
+    "amount": 40000.0,
+    "comp_amounts": null
+   },
+   {
+    "kind": "account",
+    "label": "",
+    "code": "5-02-04-01-0001",
+    "name": "Depreciation Expense",
+    "amount": 5000.0,
+    "comp_amounts": null
+   },
+   {
+    "kind": "account",
+    "label": "",
+    "code": "5-02-01-01-0002",
+    "name": "PF Employer Expense",
+    "amount": 2000.0,
+    "comp_amounts": null
+   },
+   {
+    "kind": "total",
+    "label": "Total Administrative Expenses",
+    "code": "",
+    "name": "",
+    "amount": 47000.0,
+    "comp_amounts": null
+   },
+   {
+    "kind": "header",
+    "label": "Selling & Distribution Expenses",
+    "code": "",
+    "name": "",
+    "amount": null,
+    "comp_amounts": null
+   },
+   {
+    "kind": "account",
+    "label": "",
+    "code": "5-03-01-01-0001",
+    "name": "Freight & Transportation \u2014 General",
+    "amount": 1234.56,
+    "comp_amounts": null
+   },
+   {
+    "kind": "total",
+    "label": "Total Selling & Distribution Expenses",
+    "code": "",
+    "name": "",
+    "amount": 1234.56,
+    "comp_amounts": null
+   },
+   {
+    "kind": "subtotal",
+    "label": "Operating Profit",
+    "code": "",
+    "name": "",
+    "amount": -18234.56,
+    "comp_amounts": null
+   },
+   {
+    "kind": "subtotal",
+    "label": "Profit Before Tax",
+    "code": "",
+    "name": "",
+    "amount": -18234.56,
+    "comp_amounts": null
+   },
+   {
+    "kind": "subtotal",
+    "label": "Net Profit",
+    "code": "",
+    "name": "",
+    "amount": -18234.56,
+    "comp_amounts": null
+   }
+  ],
+  "net_profit": -18234.56
+ },
+ "filter_mode=comparative&period_id={FY 2026}&comp_mode=1&comp_period_ids={FY 2025},{FY 2024}": {
+  "pl_rows": [
+   {
+    "kind": "header",
+    "label": "Sales",
+    "code": "",
+    "name": "",
+    "amount": null,
+    "comp_amounts": null
+   },
+   {
+    "kind": "account",
+    "label": "",
+    "code": "4-01-01-01-0001",
+    "name": "Sales \u2014 General",
+    "amount": 43000.0,
+    "comp_amounts": [
+     43000.0,
+     0.0,
+     120000.0
+    ]
+   },
+   {
+    "kind": "account",
+    "label": "",
+    "code": "4-01-02-01-0001",
+    "name": "Service Income \u2014 General",
+    "amount": 4083.33,
+    "comp_amounts": [
+     4083.33,
+     0.0,
+     0.0
+    ]
+   },
+   {
+    "kind": "total",
+    "label": "Total Sales",
+    "code": "",
+    "name": "",
+    "amount": 47083.33,
+    "comp_amounts": [
+     47083.33,
+     0.0,
+     120000.0
+    ]
+   },
+   {
+    "kind": "subtotal",
+    "label": "Net Sales",
+    "code": "",
+    "name": "",
+    "amount": 47083.33,
+    "comp_amounts": [
+     47083.33,
+     0.0,
+     115000.0
+    ]
+   },
+   {
+    "kind": "subtotal",
+    "label": "Gross Profit",
+    "code": "",
+    "name": "",
+    "amount": 47083.33,
+    "comp_amounts": [
+     47083.33,
+     0.0,
+     55000.0
+    ]
+   },
+   {
+    "kind": "header",
+    "label": "Administrative Expenses",
+    "code": "",
+    "name": "",
+    "amount": null,
+    "comp_amounts": null
+   },
+   {
+    "kind": "account",
+    "label": "",
+    "code": "5-02-03-01-0001",
+    "name": "Office Supplies",
+    "amount": 400.0,
+    "comp_amounts": [
+     400.0,
+     0.0,
+     1200.25
+    ]
+   },
+   {
+    "kind": "total",
+    "label": "Total Administrative Expenses",
+    "code": "",
+    "name": "",
+    "amount": 400.0,
+    "comp_amounts": [
+     400.0,
+     0.0,
+     67500.75
+    ]
+   },
+   {
+    "kind": "header",
+    "label": "Selling & Distribution Expenses",
+    "code": "",
+    "name": "",
+    "amount": null,
+    "comp_amounts": null
+   },
+   {
+    "kind": "account",
+    "label": "",
+    "code": "5-03-01-01-0001",
+    "name": "Freight & Transportation \u2014 General",
+    "amount": 1234.56,
+    "comp_amounts": [
+     1234.56,
+     0.0,
+     0.0
+    ]
+   },
+   {
+    "kind": "total",
+    "label": "Total Selling & Distribution Expenses",
+    "code": "",
+    "name": "",
+    "amount": 1234.56,
+    "comp_amounts": [
+     1234.56,
+     0.0,
+     0.0
+    ]
+   },
+   {
+    "kind": "subtotal",
+    "label": "Operating Profit",
+    "code": "",
+    "name": "",
+    "amount": 45448.77,
+    "comp_amounts": [
+     45448.77,
+     0.0,
+     -12500.75
+    ]
+   },
+   {
+    "kind": "subtotal",
+    "label": "Profit Before Tax",
+    "code": "",
+    "name": "",
+    "amount": 45448.77,
+    "comp_amounts": [
+     45448.77,
+     0.0,
+     -14655.08
+    ]
+   },
+   {
+    "kind": "subtotal",
+    "label": "Net Profit",
+    "code": "",
+    "name": "",
+    "amount": 45448.77,
+    "comp_amounts": [
+     45448.77,
+     0.0,
+     -23655.08
+    ]
+   }
+  ],
+  "net_profit": 45448.77
+ },
+ "filter_mode=custom&from=2025-01-01&to=2026-12-31&label_ids={Proj Alpha},{Proj Beta}": {
+  "pl_rows": [
+   {
+    "kind": "header",
+    "label": "Sales",
+    "code": "",
+    "name": "",
+    "amount": null,
+    "comp_amounts": null
+   },
+   {
+    "kind": "account",
+    "label": "",
+    "code": "4-01-01-01-0001",
+    "name": "Sales \u2014 General",
+    "amount": 145000.0,
+    "comp_amounts": null
+   },
+   {
+    "kind": "account",
+    "label": "",
+    "code": "4-01-02-01-0001",
+    "name": "Service Income \u2014 General",
+    "amount": 4083.33,
+    "comp_amounts": null
+   },
+   {
+    "kind": "total",
+    "label": "Total Sales",
+    "code": "",
+    "name": "",
+    "amount": 149083.33,
+    "comp_amounts": null
+   },
+   {
+    "kind": "header",
+    "label": "Less: Sales Returns & Discounts",
+    "code": "",
+    "name": "",
+    "amount": null,
+    "comp_amounts": null
+   },
+   {
+    "kind": "account",
+    "label": "",
+    "code": "4-02-01-01-0001",
+    "name": "Sales Returns \u2014 General",
+    "amount": 5000.0,
+    "comp_amounts": null
+   },
+   {
+    "kind": "total",
+    "label": "Total Less: Sales Returns & Discounts",
+    "code": "",
+    "name": "",
+    "amount": 5000.0,
+    "comp_amounts": null
+   },
+   {
+    "kind": "subtotal",
+    "label": "Net Sales",
+    "code": "",
+    "name": "",
+    "amount": 144083.33,
+    "comp_amounts": null
+   },
+   {
+    "kind": "header",
+    "label": "Cost of Sales",
+    "code": "",
+    "name": "",
+    "amount": null,
+    "comp_amounts": null
+   },
+   {
+    "kind": "account",
+    "label": "",
+    "code": "5-01-01-01-0001",
+    "name": "Cost of Goods Sold",
+    "amount": 60000.0,
+    "comp_amounts": null
+   },
+   {
+    "kind": "total",
+    "label": "Total Cost of Sales",
+    "code": "",
+    "name": "",
+    "amount": 60000.0,
+    "comp_amounts": null
+   },
+   {
+    "kind": "subtotal",
+    "label": "Gross Profit",
+    "code": "",
+    "name": "",
+    "amount": 84083.33,
+    "comp_amounts": null
+   },
+   {
+    "kind": "header",
+    "label": "Administrative Expenses",
+    "code": "",
+    "name": "",
+    "amount": null,
+    "comp_amounts": null
+   },
+   {
+    "kind": "account",
+    "label": "",
+    "code": "5-02-01-01-0001",
+    "name": "Salary Expense",
+    "amount": 40000.0,
+    "comp_amounts": null
+   },
+   {
+    "kind": "account",
+    "label": "",
+    "code": "5-02-02-01-0001",
+    "name": "Rent Expense",
+    "amount": 15000.0,
+    "comp_amounts": null
+   },
+   {
+    "kind": "account",
+    "label": "",
+    "code": "5-02-04-01-0001",
+    "name": "Depreciation Expense",
+    "amount": 5000.0,
+    "comp_amounts": null
+   },
+   {
+    "kind": "account",
+    "label": "",
+    "code": "5-02-02-01-0002",
+    "name": "Utilities Expense",
+    "amount": 3500.5,
+    "comp_amounts": null
+   },
+   {
+    "kind": "account",
+    "label": "",
+    "code": "",
+    "name": "Others (1 accounts)",
+    "amount": 2000.0,
+    "comp_amounts": null
+   },
+   {
+    "kind": "total",
+    "label": "Total Administrative Expenses",
+    "code": "",
+    "name": "",
+    "amount": 65500.5,
+    "comp_amounts": null
+   },
+   {
+    "kind": "header",
+    "label": "Selling & Distribution Expenses",
+    "code": "",
+    "name": "",
+    "amount": null,
+    "comp_amounts": null
+   },
+   {
+    "kind": "account",
+    "label": "",
+    "code": "5-03-01-01-0001",
+    "name": "Freight & Transportation \u2014 General",
+    "amount": 1234.56,
+    "comp_amounts": null
+   },
+   {
+    "kind": "total",
+    "label": "Total Selling & Distribution Expenses",
+    "code": "",
+    "name": "",
+    "amount": 1234.56,
+    "comp_amounts": null
+   },
+   {
+    "kind": "subtotal",
+    "label": "Operating Profit",
+    "code": "",
+    "name": "",
+    "amount": 17348.27,
+    "comp_amounts": null
+   },
+   {
+    "kind": "header",
+    "label": "Other Income",
+    "code": "",
+    "name": "",
+    "amount": null,
+    "comp_amounts": null
+   },
+   {
+    "kind": "account",
+    "label": "",
+    "code": "4-03-01-01-0001",
+    "name": "Other Income \u2014 General",
+    "amount": 2345.67,
+    "comp_amounts": null
+   },
+   {
+    "kind": "total",
+    "label": "Total Other Income",
+    "code": "",
+    "name": "",
+    "amount": 2345.67,
+    "comp_amounts": null
+   },
+   {
+    "kind": "subtotal",
+    "label": "Profit Before Tax",
+    "code": "",
+    "name": "",
+    "amount": 19693.94,
+    "comp_amounts": null
+   },
+   {
+    "kind": "subtotal",
+    "label": "Net Profit",
+    "code": "",
+    "name": "",
+    "amount": 19693.94,
+    "comp_amounts": null
+   }
+  ],
+  "net_profit": 19693.94
+ },
+ "filter_mode=custom&from=2025-06-01&to=2025-06-30": {
+  "pl_rows": [
+   {
+    "kind": "subtotal",
+    "label": "Net Sales",
+    "code": "",
+    "name": "",
+    "amount": 0.0,
+    "comp_amounts": null
+   },
+   {
+    "kind": "subtotal",
+    "label": "Gross Profit",
+    "code": "",
+    "name": "",
+    "amount": 0.0,
+    "comp_amounts": null
+   },
+   {
+    "kind": "header",
+    "label": "Administrative Expenses",
+    "code": "",
+    "name": "",
+    "amount": null,
+    "comp_amounts": null
+   },
+   {
+    "kind": "account",
+    "label": "",
+    "code": "5-02-01-01-0001",
+    "name": "Salary Expense",
+    "amount": 40000.0,
+    "comp_amounts": null
+   },
+   {
+    "kind": "account",
+    "label": "",
+    "code": "5-02-04-01-0001",
+    "name": "Depreciation Expense",
+    "amount": 5000.0,
+    "comp_amounts": null
+   },
+   {
+    "kind": "account",
+    "label": "",
+    "code": "5-02-02-01-0002",
+    "name": "Utilities Expense",
+    "amount": 3500.5,
+    "comp_amounts": null
+   },
+   {
+    "kind": "account",
+    "label": "",
+    "code": "5-02-01-01-0002",
+    "name": "PF Employer Expense",
+    "amount": 2000.0,
+    "comp_amounts": null
+   },
+   {
+    "kind": "account",
+    "label": "",
+    "code": "",
+    "name": "Others (2 accounts)",
+    "amount": 2000.25,
+    "comp_amounts": null
+   },
+   {
+    "kind": "total",
+    "label": "Total Administrative Expenses",
+    "code": "",
+    "name": "",
+    "amount": 52500.75,
+    "comp_amounts": null
+   },
+   {
+    "kind": "subtotal",
+    "label": "Operating Profit",
+    "code": "",
+    "name": "",
+    "amount": -52500.75,
+    "comp_amounts": null
+   },
+   {
+    "kind": "subtotal",
+    "label": "Profit Before Tax",
+    "code": "",
+    "name": "",
+    "amount": -52500.75,
+    "comp_amounts": null
+   },
+   {
+    "kind": "subtotal",
+    "label": "Net Profit",
+    "code": "",
+    "name": "",
+    "amount": -52500.75,
+    "comp_amounts": null
+   }
+  ],
+  "net_profit": -52500.75
+ }
+}

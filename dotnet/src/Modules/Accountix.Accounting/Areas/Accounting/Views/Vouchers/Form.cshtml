@@ -1,0 +1,971 @@
+@model Accountix.Accounting.Controllers.VoucherFormModel
+@using System.Globalization
+@{
+    var v = Model.Voucher;
+    string vtype = Model.VType;
+    var labels = Accountix.Accounting.Controllers.VouchersController.Labels;
+    ViewData["Title"] = (v is not null ? "Edit" : "New") + " " + labels[vtype];
+    ViewData["Heading"] = v is not null ? "Edit: " + v.VoucherNumber : "New " + labels[vtype];
+    // Inside <script>: the serializer already escapes <, >, & and quotes, so the text goes in raw.
+    Microsoft.AspNetCore.Html.IHtmlContent Json(string s) => Html.Raw(System.Text.Json.JsonSerializer.Serialize(s));
+    string Num(decimal? d) => (d ?? 0m).ToString(CultureInfo.InvariantCulture);
+    string Dis() => Model.FormActive ? "" : "disabled";
+    var approver = v?.ApprovedByNavigation;
+}
+@section Head {
+<style>
+*,*::before,*::after{box-sizing:border-box}
+.vwrap{max-width:1160px;margin:0 auto}
+.vcard{background:var(--v2-surface);border:1px solid var(--v2-line);border-radius:12px;margin-bottom:12px;overflow:hidden}
+.vcard-h{padding:11px 18px;border-bottom:1px solid var(--v2-line);font-size:12px;font-weight:500;color:var(--v2-muted);background:var(--v2-surface);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.vcard-b{padding:14px 18px}
+.vlbl{display:block;font-size:11.5px;font-weight:500;color:var(--v2-muted);margin-bottom:3px}
+.vinp{display:block;width:100%;padding:8px 10px;font-size:13px;color:var(--v2-ink);background:var(--v2-surface);border:1px solid var(--v2-line-2);border-radius:8px;outline:none;transition:border-color .12s;font-family:inherit}
+.vinp:focus{outline:2px solid var(--v2-ink);outline-offset:2px}
+.vinp:disabled{background:var(--v2-sunk);color:var(--v2-faint)}
+.vinp[readonly]{background:var(--v2-sunk)}
+/* type pills */
+.vtype-pills{display:flex;gap:0;flex-wrap:wrap}
+.vtype-pill{padding:8px 18px;font-size:12.5px;font-weight:500;border:1px solid var(--v2-line-2);cursor:pointer;background:var(--v2-surface);color:var(--v2-body);transition:background .12s,border-color .12s,color .12s;user-select:none;line-height:1.4}
+.vtype-pill:first-child{border-radius:6px 0 0 6px}
+.vtype-pill:last-child{border-radius:0 6px 6px 0}
+.vtype-pill:not(:last-child){border-right:none}
+.vtype-pill.active{background:var(--v2-accent-soft);border-color:var(--v2-accent);color:var(--v2-accent-ink);z-index:1}
+.vtype-pill:disabled{opacity:.5;cursor:not-allowed}
+.vtype-pill small{display:block;font-size:9.5px;font-weight:400;color:inherit;opacity:.75}
+/* Flow banner. Which way the money moves is real information, so it keeps a
+   colour: in is positive, out is the warn tone (a payment is not an error),
+   and a journal voucher moves nothing, so it stays neutral. */
+.flow-banner{display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:8px;font-size:12.5px;margin-bottom:12px;line-height:1.5}
+.flow-in{background:var(--v2-pos-bg);border:1px solid var(--v2-pos);color:var(--v2-pos)}
+.flow-out{background:var(--v2-warn-bg);border:1px solid var(--v2-warn);color:var(--v2-warn)}
+.flow-jv{background:var(--v2-sunk);border:1px solid var(--v2-line-2);color:var(--v2-body)}
+.flow-banner .arrow{font-size:16px;flex:none}
+.flow-banner b{font-weight:600}
+/* Dr and Cr are two letters that already say which side they are; the blue and
+   red pair they used to wear was colour restating a label. */
+.side-tag{display:inline-block;padding:1px 6px;border-radius:4px;font-size:11px;font-weight:500;background:var(--v2-sunk);color:var(--v2-body)}
+/* grid */
+.vtb-w{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.vtb{width:100%;border-collapse:collapse;font-size:13px}
+.vtb th{padding:9px 10px;font-size:11.5px;font-weight:500;color:var(--v2-muted);background:var(--v2-surface);border-bottom:1px solid var(--v2-line);text-align:left;white-space:nowrap}
+.vtb th.num,.vtb td.num{text-align:right}
+.vtb td{padding:2px 4px;border-bottom:1px solid var(--v2-line);vertical-align:middle}
+.vtb tbody tr:hover td{background:var(--v2-hover)}
+.vtb .ri{width:100%;border:1px solid transparent;padding:7px 8px;font-size:13px;background:transparent;color:var(--v2-ink);outline:none;border-radius:6px;font-family:inherit;min-height:34px}
+.vtb .ri:focus{outline:2px solid var(--v2-ink);outline-offset:-1px;background:var(--v2-surface)}
+.vtb .ri:disabled{background:transparent;color:var(--v2-muted)}
+.vtb .ri.num{text-align:right;font-variant-numeric:tabular-nums}
+.vtb .ri.ld-inp{min-width:150px;background:var(--v2-surface);cursor:pointer;color:var(--v2-ink);border:1px solid transparent}
+.vtb .ri.ld-inp:focus{border-color:var(--v2-accent)}
+.vtb .ri.ld-inp:disabled{background:transparent;color:var(--v2-muted)}
+.ld-it[data-sel="1"]{background:var(--v2-accent-soft)}
+.ac-dd-empty{padding:8px 12px;font-size:12px;color:var(--v2-muted)}
+.vtb .rn{width:30px;text-align:center;color:var(--v2-muted);font-size:11px;font-weight:500;font-variant-numeric:tabular-nums}
+.vtb .code-cell{width:78px}
+.vtb .code-cell .ri{font-family:ui-monospace,monospace;font-size:12px;color:var(--v2-muted)}
+.vtb .amt-col{width:150px}
+.amt-display{display:inline-block;padding:7px 8px;font-size:13px;font-weight:600;text-align:right;font-variant-numeric:tabular-nums;color:var(--v2-ink);min-height:34px;line-height:20px}
+.row-acts{display:flex;gap:3px;justify-content:center;align-items:center}
+.row-acts button{width:23px;height:23px;border-radius:50%;border:1px solid var(--v2-line-2);background:var(--v2-surface);color:var(--v2-muted);font-size:14px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;transition:border-color .12s,color .12s}
+.row-acts button:hover{border-color:var(--v2-faint);color:var(--v2-ink)}
+.row-acts button.del:hover{border-color:var(--v2-neg);color:var(--v2-neg)}
+/* grid footer actions */
+.grid-acts{display:flex;gap:8px;padding:8px 12px;border-top:1px solid var(--v2-line);background:var(--v2-surface);align-items:center}
+.bsm{padding:6px 14px;font-size:11.5px;border-radius:6px;border:1px solid var(--v2-line-2);background:var(--v2-surface);color:var(--v2-ink);cursor:pointer;font-weight:500;font-family:inherit;transition:background .12s,border-color .12s}
+.bsm:hover{background:var(--v2-hover);border-color:var(--v2-faint)}
+.bsm-d{color:var(--v2-neg)}
+.bsm-d:hover{background:var(--v2-neg-bg);border-color:var(--v2-neg)}
+.kbd-hint{margin-left:auto;font-size:11px;color:var(--v2-muted)}
+.kbd-hint kbd{background:var(--v2-sunk);border:1px solid var(--v2-line-2);border-radius:3px;padding:0 5px;font-size:10px;font-family:inherit}
+/* summary */
+.vsummary{padding:12px 18px;background:var(--v2-surface);border-top:1px solid var(--v2-line)}
+.vsum-line{display:flex;justify-content:flex-end;gap:26px;align-items:baseline;padding:3px 0;font-size:13px}
+.vsum-line .l{color:var(--v2-muted)}
+.vsum-line .a{font-weight:600;color:var(--v2-ink);font-variant-numeric:tabular-nums;min-width:120px;text-align:right}
+.contra-line{display:flex;justify-content:flex-end;gap:8px;align-items:center;font-size:12.5px;color:var(--v2-body);padding:4px 0;border-top:1px dashed var(--v2-line-2);margin-top:4px;padding-top:8px}
+/* Whether the voucher balances is the one thing on this screen that is either
+   right or wrong, so it is the one place red belongs. */
+.bal-chip{display:inline-flex;align-items:center;gap:6px;padding:3px 12px;border-radius:12px;font-size:11.5px;font-weight:500}
+.bal-ok{background:var(--v2-pos-bg);color:var(--v2-pos)}
+.bal-bad{background:var(--v2-neg-bg);color:var(--v2-neg)}
+/* autocomplete */
+.ac-wrap{position:relative}
+.ac-dd{position:fixed;min-width:280px;background:var(--v2-surface);border:1px solid var(--v2-line-2);border-radius:8px;z-index:9999;max-height:240px;overflow-y:auto;box-shadow:var(--v2-pop);display:none}
+.ac-dd.show{display:block}
+.ac-it{padding:7px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--v2-line);display:flex;justify-content:space-between;gap:8px;align-items:center;word-break:break-word}
+.ac-it:hover,.ac-it.hl{background:var(--v2-hover)}
+.ac-it .ac-n{font-weight:500;color:var(--v2-ink)}
+.ac-it .ac-c{font-size:11px;color:var(--v2-muted);font-family:ui-monospace,monospace;white-space:nowrap}
+.vtb .acct-input{overflow:visible;white-space:nowrap}
+/* Action bar.
+   Save and Approve is what posts to the ledger, so it is the single filled
+   button on this screen (UI_V2_GUIDE.md section 5); Save, Cancel, Print and
+   Edit are outlines, and the destructive pair carries red as text, not a fill. */
+.vab{display:flex;gap:10px;justify-content:flex-end;align-items:center;padding:14px 18px;border-top:1px solid var(--v2-line);flex-wrap:wrap}
+.vbtn{padding:9px 20px;border:1px solid transparent;font-size:13px;font-weight:500;cursor:pointer;border-radius:8px;transition:background .12s,border-color .12s,color .12s;font-family:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.vbtn:disabled{opacity:.45;cursor:not-allowed}
+.vbtn-s{background:var(--v2-ink);color:var(--v2-ground);border-color:var(--v2-ink)}
+.vbtn-s:hover:not(:disabled){background:var(--v2-ink-2);border-color:var(--v2-ink-2)}
+.vbtn-p,.vbtn-o,.vbtn-e{background:var(--v2-surface);color:var(--v2-ink);border-color:var(--v2-line-2)}
+.vbtn-p:hover:not(:disabled),.vbtn-o:hover,.vbtn-e:hover{background:var(--v2-hover);border-color:var(--v2-faint)}
+.vbtn-d{background:var(--v2-surface);color:var(--v2-neg);border-color:var(--v2-line-2)}
+.vbtn-d:hover:not(:disabled){background:var(--v2-neg-bg);border-color:var(--v2-neg)}
+.vbtn-g{background:var(--v2-surface);color:var(--v2-faint);border-color:var(--v2-line)}
+.ap-banner{background:var(--v2-pos-bg);border:1px solid var(--v2-pos);border-radius:8px;padding:10px 16px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--v2-pos)}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.vcard-title{color:var(--v2-ink);font-size:13px;font-weight:600;letter-spacing:0;text-transform:none}
+.vcard-subtitle{margin-left:7px;color:var(--v2-muted);font-size:11.5px;font-weight:400;letter-spacing:0;text-transform:none}
+.vdoc-badge{padding:3px 8px;border-radius:999px;background:var(--v2-sunk);color:var(--v2-body);font-size:11px;font-weight:500}
+.vtype-pills{padding:4px;border:1px solid var(--v2-line);border-radius:10px;background:var(--v2-hover)}
+.vtype-pill{flex:1;min-width:112px;border-radius:6px!important;border:1px solid transparent!important}
+.vtype-pill:hover:not(:disabled){background:var(--v2-surface);border-color:var(--v2-line-2)!important;color:var(--v2-ink)}
+.vtb-w{border:1px solid var(--v2-line);border-radius:8px}
+.vtb{min-width:760px}
+@@media(max-width:760px){
+  .grid-3{grid-template-columns:1fr}
+  .vtype-pills{gap:4px}
+  .vtype-pill{padding:7px 12px;font-size:11.5px}
+  .vtype-pill{min-width:calc(50% - 2px);border:1px solid transparent!important}
+  .vsum-line{justify-content:space-between}
+  .vbtn{flex:1;justify-content:center}
+}
+@@media(max-width:640px){
+  .vtb{min-width:0}
+  .vtb thead{display:none}
+  .vtb,.vtb tbody,.vtb tr,.vtb td{display:block;width:100%}
+  .vtb tbody tr{padding:10px 12px 12px;border-bottom:1px solid var(--v2-line)}
+  .vtb td{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:5px 0;border:0;text-align:right}
+  .vtb td::before{content:attr(data-label);color:var(--v2-muted);font-size:11.5px;font-weight:500;flex-shrink:0}
+  .vtb td.rn{display:none}
+  .vtb .code-cell{display:none}
+  .vtb td .ri{width:auto;flex:1;min-width:0;min-height:36px;text-align:left}
+  .vtb td .amt-display{flex:1;text-align:right}
+  .vtb td:last-child{display:block;text-align:right}
+  .vtb td:last-child::before{display:none}
+  .vtb .row-acts{justify-content:flex-end}
+}
+@@media(max-width:420px){
+  .vtype-pill{min-width:100%;padding:8px 10px}
+  .vtype-pill small{display:inline;margin-left:4px;font-size:9px}
+  .vab{padding:12px;gap:7px}
+  .vbtn{width:100%;flex:none}
+  .kbd-hint{display:none}
+}
+@@media print{
+  .sidebar,.topbar,.vtype-pills,.grid-acts,.vab,.row-acts,.ac-dd,.kbd-hint,.app-flash-wrap{display:none!important}
+  .vwrap{max-width:none}
+  .vcard{border:1px solid var(--v2-line-2);margin-bottom:8px}
+  .vtb th{background:var(--v2-ink)!important;color:var(--v2-ground)!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .vtb th,.vtb td{border:1px solid var(--v2-line-2);padding:4px 6px}
+  .vinp{border:none;background:transparent}
+}
+/* ── Voucher layout v3: header + actions, type picker, fields, entries,
+   summary rail with a live entry preview. ── */
+.vwrap{max-width:1320px}
+.vhead{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:4px 0 16px}
+.vhead-id{min-width:0}
+.vback{display:inline-block;font-size:12.5px;color:var(--v2-muted);text-decoration:none;margin-bottom:6px}
+.vback:hover{color:var(--v2-ink);text-decoration:underline}
+.vtitle{margin:0;font-size:26px;line-height:1.2;font-weight:700;letter-spacing:-.02em;color:var(--v2-ink);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.vchip{font-size:11px;font-weight:600;padding:3px 10px;border-radius:999px;letter-spacing:.02em}
+.vchip-draft{background:var(--v2-warn-bg);color:var(--v2-warn)}
+.vchip-ok{background:var(--v2-pos-bg);color:var(--v2-pos)}
+.vsub{margin:6px 0 0;font-size:13px;color:var(--v2-muted)}
+.vactions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.vactions .vbtn{min-height:38px}
+.vlock{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;margin-bottom:12px;font-size:13px;
+  background:var(--v2-pos-bg);color:var(--v2-pos);border:1px solid var(--v2-pos)}
+.vlock b{font-weight:600}
+.verr{padding:10px 14px;border-radius:10px;margin-bottom:12px;font-size:13px;background:var(--v2-neg-bg);color:var(--v2-neg);border:1px solid var(--v2-neg)}
+.verr[hidden]{display:none}
+.vmore{position:relative}
+.vmenu{position:absolute;right:0;top:calc(100% + 6px);min-width:220px;background:var(--v2-surface);border:1px solid var(--v2-line-2);
+  border-radius:10px;box-shadow:var(--v2-pop);padding:6px;z-index:50;display:none}
+.vmore.open .vmenu{display:block}
+.vmenu a,.vmenu button{display:flex;justify-content:space-between;gap:14px;align-items:center;width:100%;padding:9px 10px;border:0;background:transparent;
+  border-radius:7px;font:inherit;font-size:13px;color:var(--v2-ink);text-decoration:none;cursor:pointer;text-align:left}
+.vmenu a:hover,.vmenu button:hover,.vmenu a:focus-visible,.vmenu button:focus-visible{background:var(--v2-hover);outline:none}
+.vmenu .danger{color:var(--v2-neg)}
+.vmenu .hint{font-size:11px;color:var(--v2-faint)}
+.vmenu hr{border:0;border-top:1px solid var(--v2-line);margin:5px 4px}
+.vmenu .only-sm{display:none}
+
+/* type picker: a segmented control, one line each */
+.vtype-pills{display:flex;gap:6px;flex-wrap:wrap;padding:4px;border:1px solid var(--v2-line);border-radius:12px;background:var(--v2-sunk);margin-bottom:14px}
+.vtype-pill{flex:1 1 120px;min-width:0;padding:9px 12px;border:1px solid transparent!important;border-radius:9px!important;background:transparent;
+  font-size:13px;font-weight:600;text-align:left;color:var(--v2-ink)}
+.vtype-pill small{display:block;font-size:11.5px;font-weight:400;color:var(--v2-muted);opacity:1;margin-top:1px}
+.vtype-pill.active{background:var(--v2-surface);border-color:var(--v2-line-2)!important;box-shadow:var(--v2-shadow)}
+.vtype-pill:hover:not(.active){background:var(--v2-hover)}
+
+/* two columns: work on the left, totals and the entry preview on the right */
+.vbody{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-items:start}
+@@media (min-width:1340px){
+  .vbody{grid-template-columns:minmax(0,1fr) 340px}
+  .vrail{position:sticky;top:16px}
+}
+.vmain{min-width:0;display:flex;flex-direction:column;gap:0}
+.vfields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.vfields-cb{grid-template-columns:minmax(0,.9fr) minmax(0,1.3fr) minmax(0,1fr)}
+.vlbl{font-size:12px}
+.vlbl-sub{font-weight:400;color:var(--v2-faint);margin-left:4px}
+.vbal{margin-top:6px;font-size:12px;color:var(--v2-muted);display:flex;gap:6px;flex-wrap:wrap;font-variant-numeric:tabular-nums}
+.vbal b{color:var(--v2-ink);font-weight:600}
+.vbal .warn{color:var(--v2-neg);font-weight:600}
+.vcard-h{padding:12px 16px}
+.vcard-title{font-size:14px;font-weight:650}
+.vtb .code-cell{width:128px}
+.vtb .code-cell .ri{font-size:11.5px;min-width:118px}
+
+.vsum-h{margin:0 0 6px;font-size:15px;font-weight:650;color:var(--v2-ink)}
+.vrail .vsummary{padding:0;border:0;background:transparent}
+.vrail .vsum-line{justify-content:space-between;padding:6px 0}
+.vrail .vsum-line .a{min-width:0}
+.vrail .contra-line{justify-content:space-between}
+.vsum-diff{border-top:1px solid var(--v2-line);margin-top:4px;padding-top:8px!important}
+.vpre-sub{margin:0 0 10px;font-size:12px;color:var(--v2-muted)}
+.vpre{display:flex;flex-direction:column;font-size:12.5px}
+.vpre-row{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:6px;padding:6px 0;border-top:1px solid var(--v2-line);align-items:baseline}
+.vpre-row:first-child{border-top:0}
+.vpre-side{font-size:11px;font-weight:600;color:var(--v2-muted)}
+.vpre-row.cr .vpre-acc{padding-left:14px}
+.vpre-acc{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--v2-ink)}
+.vpre-acc small{color:var(--v2-faint);font-family:ui-monospace,monospace;margin-right:6px}
+.vpre-amt{font-variant-numeric:tabular-nums;font-weight:600}
+.vpre-tot{display:flex;justify-content:space-between;padding-top:8px;margin-top:2px;border-top:1.5px solid var(--v2-ink);font-weight:650;font-variant-numeric:tabular-nums}
+.vpre-ok{margin-top:6px;font-size:12px;color:var(--v2-pos)}
+.vpre-bad{margin-top:6px;font-size:12px;color:var(--v2-neg)}
+.vpre-empty{font-size:12.5px;color:var(--v2-muted);padding:8px 0}
+
+/* in-page confirm */
+.vmodal{position:fixed;inset:0;z-index:3500;background:rgba(9,11,13,.45);display:flex;align-items:center;justify-content:center;padding:16px}
+.vmodal[hidden]{display:none}
+.vmodal-b{background:var(--v2-surface);border:1px solid var(--v2-line);border-radius:14px;padding:22px;width:min(440px,100%);box-shadow:var(--v2-pop)}
+.vmodal-b h3{margin:0 0 6px;font-size:16px;font-weight:650;color:var(--v2-ink)}
+.vmodal-b p{margin:0 0 18px;font-size:13.5px;line-height:1.55;color:var(--v2-body)}
+.vmodal-acts{display:flex;justify-content:flex-end;gap:8px}
+
+/* read-only voucher reads as a document */
+.is-locked .vinp:disabled{background:transparent;border-color:transparent;color:var(--v2-ink);padding-left:0}
+.is-locked .vinp:disabled::placeholder{color:var(--v2-faint)}
+
+@@media (max-width:900px){.vfields,.vfields-cb{grid-template-columns:1fr}}
+@@media (max-width:768px){
+  .vtitle{font-size:21px}
+  .vactions{position:fixed;left:0;right:0;bottom:0;z-index:1500;flex-wrap:nowrap;padding:10px 12px calc(10px + env(safe-area-inset-bottom));
+    background:var(--v2-surface);border-top:1px solid var(--v2-line);box-shadow:0 -6px 18px -12px rgba(0,0,0,.35)}
+  .vactions > .vbtn,.vactions > .vmore{flex:1 1 0}
+  .vactions .vbtn{width:100%;justify-content:center;padding:0 10px}
+  .vactions .hide-sm{display:none}
+  .vmenu{top:auto;bottom:calc(100% + 8px)}
+  .vmenu .only-sm{display:flex}
+  .vwrap{padding-bottom:80px}
+  body:has(.vactions) .gle-fab{bottom:84px}
+}
+@@media print{.vhead .vactions,.vtype-pills,.vrail,.vlock,.vback{display:none!important}}
+</style>
+}
+<partial name="_GlEntryButton" model="new GlEntryButton(v?.VoucherType ?? vtype, v?.Id)" />
+<div class="vwrap@(Model.IsApproved ? " is-locked" : "")">
+<partial name="_PrintHeader" model="labels[vtype]" />
+<form method="POST" id="voucherForm">
+  <input type="hidden" name="action" id="formAction" value="save">
+  <input type="hidden" name="voucher_type" id="voucherTypeInput" value="@vtype">
+
+  @if (Model.IsApproved)
+  {
+  <div class="vlock" role="status">
+    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+    <span><b>Approved and posted</b> — @if (approver is not null) { <text>by @approver.FullName </text> }@if (v!.ApprovedAt is DateTime at) { <text>on @at.ToString("dd MMM yyyy, HH:mm", CultureInfo.InvariantCulture)</text> }. Unapprove from <b>More</b> to change it.</span>
+  </div>
+  }
+  <div class="verr" id="vErr" role="alert" hidden></div>
+
+  <header class="vhead">
+    <div class="vhead-id">
+      <a class="vback" href="/accounting/vouchers/list">&larr; Vouchers</a>
+      <h1 class="vtitle">@(v?.VoucherNumber ?? "New " + labels[vtype].ToLowerInvariant())
+        <span class="vchip @(Model.IsApproved ? "vchip-ok" : "vchip-draft")">@(Model.IsApproved ? "Approved" : "Draft")</span>
+      </h1>
+      <p class="vsub">@labels[vtype]@if (Model.IsCb) { <text> · @(Model.IsReceipt ? "money in" : "money out")</text> } else { <text> · debits must equal credits</text> }</p>
+    </div>
+    <div class="vactions">
+      @if (Model.IsNew && Model.Editable)
+      {
+        <a href="/accounting/vouchers/list" class="vbtn vbtn-o hide-sm">Cancel</a>
+        <button type="submit" form="voucherForm" class="vbtn vbtn-p" id="saveBtn">Save draft</button>
+        <button type="submit" form="voucherForm" class="vbtn vbtn-s" id="approveBtn">Save &amp; Approve</button>
+      }
+      else if (v is not null && Model.Editable)
+      {
+        <div class="vmore">
+          <button type="button" class="vbtn vbtn-o vmore-btn" aria-haspopup="menu" aria-expanded="false">More &#9662;</button>
+          <div class="vmenu" role="menu">
+            <a role="menuitem" href="/accounting/vouchers/@v.Id/preview" target="_blank">Print</a>
+            <a role="menuitem" href="/accounting/vouchers?type=@vtype">New @labels[vtype].ToLowerInvariant()</a>
+            <a role="menuitem" class="only-sm" href="/accounting/vouchers/list">Back to vouchers</a>
+            <hr>
+            <button role="menuitem" type="submit" form="vDeleteForm" class="danger" data-confirm="Delete this draft voucher? This cannot be undone." data-confirm-title="Delete draft" data-confirm-ok="Delete">Delete draft</button>
+          </div>
+        </div>
+        <a href="/accounting/vouchers/@v.Id/preview" target="_blank" class="vbtn vbtn-o hide-sm">Print</a>
+        <button type="submit" form="voucherForm" class="vbtn vbtn-p" id="saveBtn">Save</button>
+        <button type="submit" form="voucherForm" class="vbtn vbtn-s" id="approveBtn">Approve</button>
+      }
+      else if (Model.IsApproved && v is not null)
+      {
+        <div class="vmore">
+          <button type="button" class="vbtn vbtn-o vmore-btn" aria-haspopup="menu" aria-expanded="false">More &#9662;</button>
+          <div class="vmenu" role="menu">
+            <a role="menuitem" href="/accounting/vouchers?type=@vtype">New @labels[vtype].ToLowerInvariant()</a>
+            <a role="menuitem" class="only-sm" href="/accounting/vouchers/list">Back to vouchers</a>
+            <hr>
+            <button role="menuitem" type="submit" form="vUnapproveForm" class="danger" data-confirm="Unapprove this voucher? Its journal is reversed and it becomes an editable draft again." data-confirm-title="Unapprove voucher" data-confirm-ok="Unapprove">Unapprove <span class="hint">reverses the posting</span></button>
+          </div>
+        </div>
+        <a href="/accounting/vouchers/list" class="vbtn vbtn-o hide-sm">Back to vouchers</a>
+        <a href="/accounting/vouchers/@v.Id/preview" target="_blank" class="vbtn vbtn-s">Print</a>
+      }
+    </div>
+  </header>
+
+  @if (Model.IsNew && Model.Editable)
+  {
+  <div class="vtype-pills" role="group" aria-label="Voucher type">
+    @foreach (var (vt, vn, vd) in new[] { ("CPV", "Cash Payment", "Pay out of cash"), ("CRV", "Cash Receipt", "Receive into cash"), ("BPV", "Bank Payment", "Pay from a bank account"), ("BRV", "Bank Receipt", "Receive into a bank account"), ("JV", "Journal", "Any debit / credit") })
+    {
+    <button type="button" class="vtype-pill @(vt == vtype ? "active" : "")" data-type="@vt" aria-pressed="@(vt == vtype ? "true" : "false")" title="@vd">@vt<small>@vn</small></button>
+    }
+  </div>
+  }
+
+  <div class="vbody">
+  <div class="vmain">
+    <section class="vcard">
+      <div class="vcard-b">
+        <div class="vfields @(Model.IsCb ? "vfields-cb" : "")">
+          <div>
+            <label class="vlbl" for="voucherDate">Date &amp; time</label>
+            <input type="datetime-local" name="voucher_date" class="vinp" id="voucherDate"
+                   value="@((v?.VoucherDate ?? Model.Now).ToString("yyyy-MM-dd'T'HH:mm", CultureInfo.InvariantCulture))"
+                   @Dis()>
+          </div>
+          <div id="cbAccountWrap" @Html.Raw(Model.IsCb ? "" : "style=display:none")>
+            <label class="vlbl" for="cbSearch">@Model.CbLabel <span style="color:var(--v2-neg)">*</span></label>
+            <div class="ac-wrap">
+              <input type="text" class="vinp" id="cbSearch" placeholder="Search @(vtype is "BPV" or "BRV" ? "bank" : "cash") accounts…"
+                     value="@(v?.CashBankAccount?.Name ?? "")" autocomplete="off"
+                     @Dis()>
+              <input type="hidden" name="cash_bank_account_id" id="cbAccountId"
+                     value="@(v?.CashBankAccountId?.ToString() ?? "")">
+              <div class="ac-dd" id="cbDropdown"></div>
+            </div>
+            <div class="vbal" id="cbBalance" hidden></div>
+          </div>
+          @if (Model.IsCb)
+          {
+          <div id="headLabelWrap">
+            <label class="vlbl" for="headLabelSearch">Project label <span class="vlbl-sub">cash / bank line</span></label>
+            <div class="ac-wrap">
+              <input type="hidden" name="label_id" id="headLabelId"
+                     value="@(v?.LabelId?.ToString() ?? "")">
+              <input type="text" class="vinp" id="headLabelSearch" placeholder="None"
+                     value="@(v?.Label?.Name ?? "")" autocomplete="off"
+                     @Dis()>
+              <div class="ac-dd" id="headLabelDropdown"></div>
+            </div>
+          </div>
+          }
+        </div>
+        <div style="margin-top:12px">
+          <label class="vlbl" for="notes">Narration <span class="vlbl-sub">prints on the voucher</span></label>
+          <textarea name="notes" class="vinp" id="notes" rows="2" placeholder="What is this voucher for?" @Dis()>@(v?.Notes ?? "")</textarea>
+        </div>
+      </div>
+    </section>
+
+    <section class="vcard">
+      <div class="vcard-h">
+        <span class="vcard-title">@(Model.IsCb && !Model.IsReceipt ? "Paid to" : Model.IsReceipt ? "Received from" : "Entries")</span>
+        <span id="jvBalanceChip"></span>
+      </div>
+      <div class="vtb-w">
+        <table class="vtb" id="entriesTable">
+          <thead>
+            <tr>
+              <th style="width:30px">#</th>
+              <th style="width:128px">Code</th>
+              <th style="min-width:180px">Account</th>
+              <th style="min-width:220px">Description</th>
+              @if (Model.PerLineLabeling) { <th style="min-width:150px">Label</th> }
+              @if (Model.IsCb)
+              {
+              <th class="num amt-col">Amount <span class="side-tag @(Model.IsReceipt ? "side-cr" : "side-dr")" style="font-size:9px;">@(Model.IsReceipt ? "CR" : "DR")</span></th>
+              }
+              else
+              {
+              <th class="num amt-col">Debit</th>
+              <th class="num amt-col">Credit</th>
+              }
+              <th style="width:60px"></th>
+            </tr>
+          </thead>
+          <tbody id="entriesBody"></tbody>
+        </table>
+      </div>
+      @if (Model.FormActive)
+      {
+      <div class="grid-acts">
+        <button type="button" class="bsm" id="addRowBtn">+ Add line</button>
+        <button type="button" class="bsm bsm-d" id="clearRowsBtn">&#10005; Clear all</button>
+        <span class="kbd-hint"><kbd>Space</kbd> search accounts &bull; <kbd>Enter</kbd> next / new line</span>
+      </div>
+      }
+    </section>
+  </div>
+
+  <aside class="vrail" aria-label="Summary">
+    <section class="vcard vsumcard">
+      <div class="vcard-b">
+        <h2 class="vsum-h">Summary</h2>
+        <div class="vsummary">
+          @if (Model.IsCb)
+          {
+          <div class="vsum-line"><span class="l">Total @(Model.IsReceipt ? "received" : "paid")</span><span class="a" id="sumTotal">0.00</span></div>
+          <div class="contra-line">
+            <span>&#8618; <span id="contraCb">@(v?.CashBankAccount?.Name ?? "Cash/Bank")</span> will be <b>@(Model.IsReceipt ? "debited" : "credited")</b></span>
+            <span class="a" id="contraAmt">0.00</span>
+          </div>
+          }
+          else
+          {
+          <div class="vsum-line"><span class="l">Total debit</span><span class="a" id="sumDr">0.00</span></div>
+          <div class="vsum-line"><span class="l">Total credit</span><span class="a" id="sumCr">0.00</span></div>
+          <div class="vsum-line vsum-diff"><span class="l">Difference</span><span class="a" id="sumDiff">0.00</span></div>
+          }
+        </div>
+      </div>
+    </section>
+    <section class="vcard vpreview">
+      <div class="vcard-b">
+        <h2 class="vsum-h">@(Model.IsApproved ? "Posted entry" : "Entry preview")</h2>
+        <p class="vpre-sub">@(Model.IsApproved ? "What this voucher posted to the general ledger." : "What will post to the general ledger on approval.")</p>
+        <div id="jePreview" class="vpre"><div class="vpre-empty">Add an account and an amount to see the entry.</div></div>
+      </div>
+    </section>
+  </aside>
+  </div>
+</form>
+
+@if (v is not null && Model.Editable)
+{
+<form method="POST" id="vDeleteForm" action="/accounting/vouchers/@v.Id/delete" hidden></form>
+}
+@if (v is not null && Model.IsApproved)
+{
+<form method="POST" id="vUnapproveForm" action="/accounting/vouchers/@v.Id/unapprove" hidden></form>
+}
+
+<div class="vmodal" id="vConfirm" role="dialog" aria-modal="true" aria-labelledby="vConfirmTitle" hidden>
+  <div class="vmodal-b">
+    <h3 id="vConfirmTitle">Confirm</h3>
+    <p id="vConfirmMsg"></p>
+    <div class="vmodal-acts">
+      <button type="button" class="vbtn vbtn-o" id="vConfirmCancel">Cancel</button>
+      <button type="button" class="vbtn vbtn-s" id="vConfirmOk">Continue</button>
+    </div>
+  </div>
+</div>
+</div>
+@section Scripts {
+<script>
+// ================= state =================
+var IS_CB = @(Model.IsCb ? "true" : "false");
+var IS_RECEIPT = @(Model.IsReceipt ? "true" : "false");
+var EDITABLE = @(Model.FormActive ? "true" : "false");
+// amount column posts on the semantically correct side; the server also
+// enforces sides for cash/bank vouchers as defence in depth.
+var AMT_NAME = IS_CB ? (IS_RECEIPT ? 'credit[]' : 'debit[]') : null;
+var rowSeq = 0;
+
+var EXISTING = [
+@if (v is not null) { foreach (var line in v.AccountingVoucherLines.Where(l => l.LineNo > 0).OrderBy(l => l.LineNo)) {
+@:  {id: @line.AccountId, code: @Json(line.Account?.Code ?? ""), name: @Json(line.Account?.Name ?? ""),
+@:   desc: @Json(line.Description ?? ""),
+@:   label: @(line.LabelId?.ToString() ?? "null"),
+@:   debit: @Num(line.Debit), credit: @Num(line.Credit)},
+} }
+];
+
+var LABELS = [
+@foreach (var l in Model.ProjectLabels) {
+@:  {id: @l.Id, name: @Json(l.Name)},
+}
+];
+var LABEL_HELP = @(Model.AnyActiveLabel ? "true" : "false");
+var DEFAULT_LABEL_ID = @(Model.DefaultLabel?.Id.ToString() ?? "null");
+
+function qs(s,c){return (c||document).querySelector(s)}
+// Header label state: the value of the hidden header field, which new rows
+// and the change-sync use. JV forms render no header field, so it is NULL.
+var PER_LINE = @(Model.PerLineLabeling ? "true" : "false");
+var HEAD_INP = qs('#headLabelSearch'), HEAD_HID = qs('#headLabelId');
+var HDR_LABEL = HEAD_HID ? HEAD_HID.value : '';
+function qsa(s,c){return Array.prototype.slice.call((c||document).querySelectorAll(s))}
+function fmt(n){return window.formatAmount(n,2)}
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+// ================= account autocomplete =================
+function makeAuto(inp, fetchUrl, onPick){
+  var wrap=inp.parentNode, dd=wrap.querySelector('.ac-dd'), list=[], hl=-1, timer;
+  if(!dd){dd=document.createElement('div');dd.className='ac-dd';}
+  if(dd.parentNode!==document.body){document.body.appendChild(dd);}
+  function pos(){
+    var r=inp.getBoundingClientRect();
+    dd.style.left=r.left+'px';dd.style.top=(r.bottom+2)+'px';dd.style.minWidth=Math.max(r.width,280)+'px';
+  }
+  function render(){
+    hl=-1;
+    if(!list.length){dd.classList.remove('show');return}
+    dd.innerHTML=list.map(function(a,i){
+      return '<div class="ac-it" data-i="'+i+'"><span class="ac-n">'+a.name+'</span><span class="ac-c">'+a.code+' &bull; '+(a.type||'')+'</span></div>';
+    }).join('');
+    pos();dd.classList.add('show');
+  }
+  function paint(){qsa('.ac-it',dd).forEach(function(e,i){e.classList.toggle('hl',i===hl)})}
+  function pick(i){var a=list[i];if(!a)return;dd.classList.remove('show');onPick(a);}
+  function load(q){
+    fetch(fetchUrl+encodeURIComponent(q)).then(function(r){return r.json()}).then(function(d){list=d;render();});
+  }
+  function hide(){dd.classList.remove('show')}
+  inp.addEventListener('keydown',function(e){
+    if(e.key===' ' && !inp.value.trim()){e.preventDefault();load('');return}
+    if(!dd.classList.contains('show'))return;
+    if(e.key==='ArrowDown'){e.preventDefault();hl=Math.min(hl+1,list.length-1);paint();}
+    else if(e.key==='ArrowUp'){e.preventDefault();hl=Math.max(hl-1,0);paint();}
+    else if(e.key==='Enter'){e.preventDefault();pick(hl>=0?hl:0);}
+    else if(e.key==='Escape'){hide();}
+  });
+  inp.addEventListener('input',function(){
+    clearTimeout(timer);var q=inp.value.trim();
+    if(!q){hide();return}
+    timer=setTimeout(function(){load(q)},200);
+  });
+  inp.addEventListener('blur',function(){setTimeout(hide,200)});
+  dd.addEventListener('mousedown',function(e){var t=e.target.closest('.ac-it');if(t){pick(parseInt(t.dataset.i,10));e.preventDefault()}});
+  window.addEventListener('scroll',function(){if(dd.classList.contains('show'))pos()},{passive:true});
+  window.addEventListener('resize',function(){if(dd.classList.contains('show'))pos()},{passive:true});
+}
+
+// ================= label picker (static, same UX as the account box) ========
+function LABEL_NAME(id){
+  if(id===null||id===undefined||id==='')return '';
+  for(var i=0;i<LABELS.length;i++){if(String(LABELS[i].id)===String(id))return LABELS[i].name}
+  return '';
+}
+function makeLabelDD(inp,hidden,onChange){
+  var dd=document.createElement('div');dd.className='ac-dd ld-dd';
+  document.body.appendChild(dd);
+  var hl=-1;
+  function listEls(){return qsa('.ld-it',dd)}
+  function pos(){
+    var r=inp.getBoundingClientRect();
+    dd.style.left=r.left+'px';dd.style.top=(r.bottom+2)+'px';dd.style.minWidth=Math.max(r.width,220)+'px';
+  }
+  function paint(){listEls().forEach(function(e,i){e.classList.toggle('hl',i===hl)})}
+  function render(q){
+    var ql=(q||'').trim().toLowerCase();var html='';var shown=0;
+    if(!hidden.value && !DEFAULT_LABEL_ID)html+='<div class="ac-it ld-it" data-v="" data-empty="1" data-sel="1"><span class="ac-n">&mdash; None &mdash;</span></div>';
+    LABELS.forEach(function(l){
+      if(ql&&l.name.toLowerCase().indexOf(ql)===-1)return;
+      shown++;
+      html+='<div class="ac-it ld-it" data-v="'+l.id+'"'+((!ql&&String(hidden.value)===String(l.id))?' data-sel="1"':'')+'><span class="ac-n">'+esc(l.name)+'</span></div>';
+    });
+    if(!shown)html='<div class="ac-dd-empty">No label matches</div>';
+    dd.innerHTML=html;pos();dd.classList.add('show');hl=-1;paint();
+  }
+  function pick(el){
+    hidden.value=el.dataset.v||'';
+    inp.value=el.dataset.v?LABEL_NAME(el.dataset.v):'';
+    dd.classList.remove('show');
+    if(onChange)onChange(hidden.value);
+  }
+  // Space (or a click) always opens the FULL list; typing filters it.
+  inp.addEventListener('focus',function(){if(LABELS.length)render('')});
+  inp.addEventListener('click',function(){if(!dd.classList.contains('show')&&LABELS.length)render('')});
+  inp.addEventListener('keydown',function(e){
+    if(e.key===' '){e.preventDefault();render('');return}
+    if(!dd.classList.contains('show'))return;
+    var els=listEls();
+    if(!els.length)return;
+    if(e.key==='ArrowDown'){e.preventDefault();hl=Math.min(hl+1,els.length-1);paint();}
+    else if(e.key==='ArrowUp'){e.preventDefault();hl=Math.max(hl-1,0);paint();}
+    else if(e.key==='Enter'){e.preventDefault();pick(els[hl>=0?hl:0]);}
+    else if(e.key==='Escape'){e.preventDefault();dd.classList.remove('show');}
+  });
+  inp.addEventListener('input',function(){render(inp.value)});
+  inp.addEventListener('blur',function(){setTimeout(function(){dd.classList.remove('show')},200)});
+  dd.addEventListener('mousedown',function(e){
+    var t=e.target.closest('.ld-it');if(!t)return;
+    pick(t);e.preventDefault();
+  });
+  window.addEventListener('scroll',function(){if(dd.classList.contains('show'))pos()},{passive:true});
+  window.addEventListener('resize',function(){if(dd.classList.contains('show'))pos()},{passive:true});
+}
+
+// ================= header label: the bank/cash line carries it, and every
+// item line inherits it while still on the old value (manual picks survive).
+function syncRowsFromHeader(oldId,newId){
+  qsa('#entriesBody tr').forEach(function(tr){
+    var h=qs('[name="label_id[]"]',tr); if(!h)return;
+    if(!h.value||String(h.value)===String(oldId)){
+      h.value=newId||'';
+      var i=qs('.ld-inp',tr); if(i)i.value=LABEL_NAME(h.value);
+    }
+  });
+}
+if(HEAD_INP&&HEAD_HID){
+  if(EDITABLE){
+    makeLabelDD(HEAD_INP,HEAD_HID,function(newId){
+      var oldId=HDR_LABEL;
+      HDR_LABEL=newId||'';
+      syncRowsFromHeader(oldId,HDR_LABEL);
+    });
+  }else{
+    HEAD_INP.value=LABEL_NAME(HEAD_HID.value)||HEAD_INP.value;
+  }
+}
+
+// ================= rows =================
+function rowHtml(d){
+  d=d||{};
+  var dis=EDITABLE?'':'disabled';
+  var lbl=d.label?d.label:(HDR_LABEL||DEFAULT_LABEL_ID||'');
+  var amtCells;
+  if(IS_CB){
+    var amt=(d.debit||0)+(d.credit||0);
+    if(EDITABLE){
+      amtCells='<td class="num amt-col" data-label="Amount"><input type="number" step="0.01" min="0" name="'+AMT_NAME+'" class="ri num amt-input" aria-label="Amount" value="'+(amt||'')+'" placeholder="0.00" '+dis+'></td>';
+    }else{
+      amtCells='<td class="num amt-col" data-label="Amount"><span class="amt-display">'+fmt(amt)+'</span><input type="hidden" class="amt-input" name="'+AMT_NAME+'" value="'+amt+'"></td>';
+    }
+  }else{
+    if(EDITABLE){
+      amtCells='<td class="num amt-col" data-label="Debit"><input type="number" step="0.01" min="0" name="debit[]" class="ri num amt-input dr-input" aria-label="Debit" value="'+(d.debit||'')+'" placeholder="0.00" '+dis+'></td>'
+              +'<td class="num amt-col" data-label="Credit"><input type="number" step="0.01" min="0" name="credit[]" class="ri num amt-input cr-input" aria-label="Credit" value="'+(d.credit||'')+'" placeholder="0.00" '+dis+'></td>';
+    }else{
+      amtCells='<td class="num amt-col" data-label="Debit"><span class="amt-display">'+fmt(d.debit||0)+'</span><input type="hidden" class="dr-input" name="debit[]" value="'+(d.debit||0)+'"></td>'
+              +'<td class="num amt-col" data-label="Credit"><span class="amt-display">'+fmt(d.credit||0)+'</span><input type="hidden" class="cr-input" name="credit[]" value="'+(d.credit||0)+'"></td>';
+    }
+  }
+  return '<td class="rn" data-label="#" aria-hidden="true"></td>'
+    +'<td class="code-cell" data-label="Code"><input type="text" class="ri code-display" value="'+(d.code||'')+'" readonly tabindex="-1" aria-label="Account code"></td>'
+    +'<td data-label="Account"><div class="ac-wrap">'
+    +'<input type="hidden" name="account_id[]" value="'+(d.id||'')+'">'
+    +'<input type="text" class="ri acct-input" placeholder="Type or press Space to search..." autocomplete="off" aria-label="Account search" value="'+(d.name||'').replace(/"/g,'&quot;')+'" '+dis+'>'
+    +'</div></td>'
+    +'<td data-label="Description"><textarea name="description[]" class="ri desc-input" rows="1" style="resize:none;overflow:hidden" aria-label="Description" '+dis+'>'+esc(d.desc||'')+'</textarea></td>'
+    +(PER_LINE ? '<td data-label="Label"><div class="ld-wrap"><input type="hidden" name="label_id[]" value="'+lbl+'">'
+    +'<input type="text" class="ri ld-inp" placeholder="Label..." autocomplete="off" aria-label="Project label" value="'+esc(LABEL_NAME(lbl))+'" '+dis+'>'
+    +'</div></td>' : '')    +amtCells
+    +'<td><div class="row-acts">'+(EDITABLE?'<button type="button" class="add-after" title="Insert line">+</button><button type="button" class="del" title="Remove line">&minus;</button>':'')+'</div></td>';
+}
+
+function wireRow(tr){
+  var acct=qs('.acct-input',tr);
+  if(acct && EDITABLE){
+    makeAuto(acct,'/accounting/api/accounts?q=',function(a){
+      acct.value=a.name;
+      qs('[name="account_id[]"]',tr).value=a.id;
+      qs('.code-display',tr).value=a.code;
+      recalc();
+      var nxt=qs('.desc-input',tr); if(nxt)nxt.focus();
+    });
+  }
+  var ldn=qs('.ld-inp',tr), ldh=qs('[name="label_id[]"]',tr);
+  if(ldn && ldh && EDITABLE && PER_LINE){ makeLabelDD(ldn, ldh); }
+  qsa('input,textarea',tr).forEach(function(inp){
+    inp.addEventListener('input',recalc);
+    inp.addEventListener('keydown',function(e){
+      if(e.key!=='Enter')return;
+      // Description textarea: Shift+Enter inserts newline, Enter moves to next field
+      if(inp.tagName==='TEXTAREA' && inp.classList.contains('desc-input')){
+        if(e.shiftKey) return; // let default insert newline
+        e.preventDefault(); // stop Enter from inserting newline
+      }
+      var dd=tr.querySelector('.ac-dd.show'); if(dd)return;
+      if(document.querySelector('.ld-dd.show'))return;
+      e.preventDefault();
+      var cells=qsa('.ri:not([readonly]):not(:disabled)',tr);
+      var i=cells.indexOf(e.target);
+      if(i>-1 && i<cells.length-1){cells[i+1].focus();return}
+      var body=qs('#entriesBody');
+      if(tr===body.lastElementChild){addRow({},true);}
+      else{var nr=tr.nextElementSibling;var f=nr&&qs('.ri:not([readonly]):not(:disabled)',nr);if(f)f.focus();}
+    });
+  });
+  var di=qs('.desc-input',tr);
+  if(di && di.tagName==='TEXTAREA'){
+    di.addEventListener('input',function(){this.style.height='auto';this.style.height=this.scrollHeight+'px'});
+  }
+  var plus=qs('.add-after',tr);
+  if(plus)plus.addEventListener('click',function(){
+    var ntr=document.createElement('tr');ntr.innerHTML=rowHtml({});
+    tr.parentNode.insertBefore(ntr,tr.nextSibling);wireRow(ntr);renumber();recalc();
+    var f=qs('.acct-input',ntr);if(f)f.focus();
+  });
+  var del=qs('.del',tr);
+  if(del)del.addEventListener('click',function(){
+    var body=qs('#entriesBody');
+    if(body.children.length<=1){ qsa('input',tr).forEach(function(i){if(!i.readOnly)i.value=''}); recalc(); return; }
+    tr.remove();renumber();recalc();
+  });
+}
+
+function addRow(d,focus){
+  var tr=document.createElement('tr');
+  tr.innerHTML=rowHtml(d);
+  qs('#entriesBody').appendChild(tr);
+  wireRow(tr);renumber();recalc();
+  if(focus){var f=qs('.acct-input',tr);if(f)f.focus();}
+  return tr;
+}
+function renumber(){qsa('#entriesBody .rn').forEach(function(e,i){e.textContent=i+1})}
+
+// ================= totals =================
+function recalc(){
+  var dr=0,cr=0,amt=0;
+  qsa('#entriesBody tr').forEach(function(tr){
+    if(IS_CB){ amt+=parseFloat(qs('.amt-input',tr)?.value)||0; }
+    else{
+      dr+=parseFloat(qs('.dr-input',tr)?.value)||0;
+      cr+=parseFloat(qs('.cr-input',tr)?.value)||0;
+    }
+  });
+  if(IS_CB){
+    qs('#sumTotal').textContent=fmt(amt);
+    qs('#contraAmt').textContent=fmt(amt);
+    var cb=qs('#cbSearch');
+    if(cb&&cb.value){var el=qs('#contraCb');if(el)el.textContent=cb.value;var fl=qs('#flowCb');if(fl)fl.textContent=cb.value;}
+  }else{
+    qs('#sumDr').textContent=fmt(dr);
+    qs('#sumCr').textContent=fmt(cr);
+    var diff=Math.round((dr-cr)*100)/100;
+    var diffEl=qs('#sumDiff');diffEl.textContent=fmt(Math.abs(diff));
+    diffEl.style.color=diff===0?'var(--v2-pos)':'var(--v2-neg)';
+    var chip=qs('#jvBalanceChip');
+    chip.innerHTML=diff===0&&(dr>0)
+      ?'<span class="bal-chip bal-ok">&#10003; Balanced</span>'
+      :(dr||cr?'<span class="bal-chip bal-bad">&#9888; Out by '+fmt(Math.abs(diff))+'</span>':'');
+    var ap=qs('#approveBtn');if(ap)ap.disabled=!(diff===0&&dr>0);
+  }
+}
+
+// ================= type switch / cb account =================
+qsa('.vtype-pill').forEach(function(p){
+  p.addEventListener('click',function(){
+    if(this.disabled)return;
+    window.location.href='/accounting/vouchers?type='+this.dataset.type;
+  });
+});
+var cbInput=qs('#cbSearch');
+if(cbInput&&EDITABLE){
+  makeAuto(cbInput,'/accounting/api/cash-bank-accounts?q=',function(a){
+    cbInput.value=a.name;qs('#cbAccountId').value=a.id;recalc();
+  });
+}
+
+// ================= validation =================
+qs('#saveBtn')&&qs('#saveBtn').addEventListener('click',function(){qs('#formAction').value='save'});
+qs('#approveBtn')&&qs('#approveBtn').addEventListener('click',function(){qs('#formAction').value='approve'});
+qs('#voucherForm').addEventListener('submit',function(e){
+  var hasLine=false;
+  qsa('#entriesBody tr').forEach(function(tr){
+    var id=qs('[name="account_id[]"]',tr).value;
+    var a=IS_CB?(parseFloat(qs('.amt-input',tr)?.value)||0)
+               :((parseFloat(qs('.dr-input',tr)?.value)||0)+(parseFloat(qs('.cr-input',tr)?.value)||0));
+    if(id&&a>0)hasLine=true;
+  });
+  if(!hasLine){alert('Add at least one line with an account and amount.');e.preventDefault();return}
+  if(IS_CB&&!qs('#cbAccountId').value){alert('Select the @(Model.IsCb ? Model.CbLabel : "Cash/Bank") that the money moves through.');e.preventDefault();return}
+  if(!IS_CB){
+    var dr=0,cr=0;
+    qsa('#entriesBody tr').forEach(function(tr){
+      dr+=parseFloat(qs('.dr-input',tr)?.value)||0;
+      cr+=parseFloat(qs('.cr-input',tr)?.value)||0;
+    });
+    if(Math.abs(dr-cr)>0.005){alert('Journal must balance: Debit '+fmt(dr)+' vs Credit '+fmt(cr));e.preventDefault();return}
+  }
+});
+
+// ================= init =================
+(function(){
+  // Fresh cash/bank voucher: the header picker opens on the company default,
+  // so lines created after it inherit the same label from the very first row.
+  if(HEAD_INP&&HEAD_HID&&EDITABLE&&!HDR_LABEL&&DEFAULT_LABEL_ID){
+    HDR_LABEL=DEFAULT_LABEL_ID;
+    HEAD_HID.value=DEFAULT_LABEL_ID;
+    HEAD_INP.value=LABEL_NAME(DEFAULT_LABEL_ID);
+  }
+  if(EXISTING.length){EXISTING.forEach(function(d){addRow(d)})}
+  else{addRow({});}
+  var d=qs('#voucherDate');
+  if(d&&!d.value){
+    var n=new Date();
+    d.value=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0')
+      +'T'+String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');
+  }
+  qs('#addRowBtn')&&qs('#addRowBtn').addEventListener('click',function(){addRow({},true)});
+  qs('#clearRowsBtn')&&qs('#clearRowsBtn').addEventListener('click',function(){
+    qs('#entriesBody').innerHTML='';addRow({},true);
+  });
+  recalc();
+})();
+</script>
+<script>
+// ================= voucher UI v3 =================
+// Live entry preview, cash/bank balance before → after, the More menu, and
+// in-page confirm / error messages instead of the browser's alert/confirm.
+(function () {
+  var IS_APPROVED = @(Model.IsApproved ? "true" : "false");
+  var IS_PAYMENT = IS_CB && !IS_RECEIPT;
+  var errBox = qs('#vErr');
+  function showErr(m) {
+    if (!errBox) { return; }
+    errBox.textContent = m; errBox.hidden = false;
+    errBox.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+  // The form's own validation reports through alert(); show it in the page.
+  window.alert = function (m) { showErr(String(m)); };
+  document.addEventListener('input', function () { if (errBox && !errBox.hidden) errBox.hidden = true; }, true);
+
+  // ── More menu ──
+  qsa('.vmore-btn').forEach(function (b) {
+    b.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var box = b.parentElement, open = !box.classList.contains('open');
+      qsa('.vmore.open').forEach(function (m) { m.classList.remove('open'); });
+      box.classList.toggle('open', open); b.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  });
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('.vmore')) qsa('.vmore.open').forEach(function (m) { m.classList.remove('open'); });
+  });
+
+  // ── in-page confirm ──
+  var modal = qs('#vConfirm'), pending = null;
+  function ask(title, msg, okText, onOk) {
+    qs('#vConfirmTitle').textContent = title; qs('#vConfirmMsg').textContent = msg;
+    qs('#vConfirmOk').textContent = okText || 'Continue';
+    pending = onOk; modal.hidden = false; qs('#vConfirmOk').focus();
+  }
+  function closeAsk() { modal.hidden = true; pending = null; }
+  qs('#vConfirmCancel').addEventListener('click', closeAsk);
+  modal.addEventListener('click', function (e) { if (e.target === modal) closeAsk(); });
+  qs('#vConfirmOk').addEventListener('click', function () { var f = pending; closeAsk(); if (f) f(); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { if (!modal.hidden) closeAsk(); qsa('.vmore.open').forEach(function (m) { m.classList.remove('open'); }); }
+  });
+  qsa('[data-confirm]').forEach(function (btn) {
+    btn.addEventListener('click', function (e) {
+      if (btn.dataset.confirmed === '1') return;
+      e.preventDefault();
+      ask(btn.dataset.confirmTitle || 'Confirm', btn.dataset.confirm, btn.dataset.confirmOk, function () {
+        var f = btn.form || document.getElementById(btn.getAttribute('form'));
+        if (f) f.submit();
+      });
+    });
+  });
+  // Approving posts to the ledger: say what will post, then submit the form
+  // with action=approve (the form's own validation still runs first).
+  var ap = qs('#approveBtn');
+  if (ap) ap.addEventListener('click', function (e) {
+    qs('#formAction').value = 'approve';
+    if (ap.dataset.confirmed === '1') return;
+    e.preventDefault();
+    var total = IS_CB ? qs('#sumTotal').textContent : qs('#sumDr').textContent;
+    ask('Approve and post', 'Post this voucher to the general ledger for ' + total + '? It is locked once approved.', 'Approve & post', function () {
+      ap.dataset.confirmed = '1'; ap.click(); ap.dataset.confirmed = '';
+    });
+  }, true);
+
+  // ── entry preview ──
+  function rowsData() {
+    return qsa('#entriesBody tr').map(function (tr) {
+      var name = (qs('.acct-input', tr) || {}).value || '', code = (qs('.code-display', tr) || {}).value || '';
+      var dr = 0, cr = 0;
+      if (IS_CB) {
+        var a = parseFloat((qs('.amt-input', tr) || {}).value) || 0;
+        if (IS_RECEIPT) cr = a; else dr = a;
+      } else {
+        dr = parseFloat((qs('.dr-input', tr) || {}).value) || 0;
+        cr = parseFloat((qs('.cr-input', tr) || {}).value) || 0;
+      }
+      return { name: name, code: code, dr: dr, cr: cr };
+    }).filter(function (r) { return r.name && (r.dr || r.cr); });
+  }
+  function previewRow(side, code, name, amt) {
+    return '<div class="vpre-row ' + side + '"><span class="vpre-side">' + (side === 'dr' ? 'Dr' : 'Cr') + '</span>' +
+      '<span class="vpre-acc">' + (code ? '<small>' + esc(code) + '</small>' : '') + esc(name) + '</span>' +
+      '<span class="vpre-amt">' + fmt(amt) + '</span></div>';
+  }
+  function renderPreview() {
+    var box = qs('#jePreview'); if (!box) return;
+    var rows = rowsData(), lines = [], total = 0;
+    rows.forEach(function (r) { total += r.dr + r.cr; });
+    if (!rows.length) { box.innerHTML = '<div class="vpre-empty">Add an account and an amount to see the entry.</div>'; return; }
+    var cbName = (qs('#cbSearch') || {}).value || (IS_CB ? 'Cash / bank account' : '');
+    if (IS_CB && IS_RECEIPT) lines.push(previewRow('dr', '', cbName, total));
+    rows.forEach(function (r) { if (r.dr) lines.push(previewRow('dr', r.code, r.name, r.dr)); });
+    rows.forEach(function (r) { if (r.cr) lines.push(previewRow('cr', r.code, r.name, r.cr)); });
+    if (IS_CB && !IS_RECEIPT) lines.push(previewRow('cr', '', cbName, total));
+    var dr = 0, cr = 0;
+    if (IS_CB) { dr = cr = total; } else rows.forEach(function (r) { dr += r.dr; cr += r.cr; });
+    var ok = Math.abs(dr - cr) < 0.005;
+    box.innerHTML = lines.join('') +
+      '<div class="vpre-tot"><span>Total</span><span>Dr ' + fmt(dr) + ' · Cr ' + fmt(cr) + '</span></div>' +
+      (ok ? '<div class="vpre-ok">✓ Balanced</div>' : '<div class="vpre-bad">Out of balance by ' + fmt(Math.abs(dr - cr)) + '</div>') +
+      (IS_CB && !qs('#cbAccountId').value ? '<div class="vpre-bad">Choose the ' + (IS_RECEIPT ? 'account the money goes into' : 'account it is paid from') + '.</div>' : '');
+  }
+
+  // ── cash / bank balance: now → after this voucher ──
+  var balFor = null, bal = null;
+  function renderBalance() {
+    var el = qs('#cbBalance'); if (!el) return;
+    var id = (qs('#cbAccountId') || {}).value;
+    if (!id) { el.hidden = true; return; }
+    if (id !== balFor) {
+      balFor = id; bal = null; el.hidden = false; el.textContent = 'Checking balance…';
+      fetch('/accounting/api/account-balance?id=' + encodeURIComponent(id), { credentials: 'same-origin' })
+        .then(function (r) { return r.json(); })
+        .then(function (d) { if (d && d.ok && balFor === id) { bal = d.balance; renderBalance(); } })
+        .catch(function () { el.hidden = true; });
+      return;
+    }
+    if (bal === null) return;
+    var total = parseFloat((qs('#sumTotal') || {}).textContent.replace(/[^0-9.\-]/g, '')) || 0;
+    if (IS_APPROVED) { el.innerHTML = 'Balance now <b>' + fmt(bal) + '</b>'; el.hidden = false; return; }
+    var after = IS_RECEIPT ? bal + total : bal - total;
+    el.innerHTML = 'Balance <b>' + fmt(bal) + '</b> → after this voucher <b>' + fmt(after) + '</b>' +
+      (IS_PAYMENT && after < 0 ? ' <span class="warn">' + (/BPV/.test(qs('#voucherTypeInput').value) ? 'would be overdrawn' : 'cash would go below zero') + '</span>' : '');
+    el.hidden = false;
+  }
+
+  if (typeof window.recalc === 'function') {
+    var _rc = window.recalc;
+    window.recalc = function () { var r = _rc.apply(this, arguments); renderPreview(); renderBalance(); return r; };
+  }
+  // Rows wire their inputs to the recalc they saw when they were built, so
+  // the preview also follows typing directly.
+  ['input', 'change'].forEach(function (ev) {
+    document.addEventListener(ev, function (e) {
+      if (e.target.closest && (e.target.closest('#entriesBody') || e.target.id === 'cbSearch')) {
+        setTimeout(function () { renderPreview(); renderBalance(); }, 0);
+      }
+    });
+  });
+  renderPreview(); renderBalance();
+})();
+</script>
+}

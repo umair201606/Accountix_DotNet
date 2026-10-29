@@ -1,0 +1,22 @@
+{
+  "result": {
+    "lines": 3,
+    "receipts": 3,
+    "payments": 0,
+    "invoices": 3,
+    "amount": "5000.10"
+  },
+  "allocations": [
+    "R0→SII0 1000.00 Matched oldest first",
+    "R0→SII1 800.00 Matched oldest first",
+    "R1→NA 100.00 bank charge",
+    "R1→SII1 1400.30 Matched oldest first",
+    "R1→SII2 1499.80 Matched oldest first",
+    "R2→SII2 500.00 by hand"
+  ],
+  "invoices": [
+    "I0 paid 1000.00 paid",
+    "I1 paid 2200.30 paid",
+    "I2 paid 1999.80 partial"
+  ]
+}

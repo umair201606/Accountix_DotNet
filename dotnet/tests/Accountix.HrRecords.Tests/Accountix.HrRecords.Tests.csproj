@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <!-- The export tests need Finance's IReportExport. Finance is still being edited by its owner:
+         build with -p:WithFinance=false to leave those tests (and the reference) out if it does not compile. -->
+    <WithFinance Condition="'$(WithFinance)' == ''">true</WithFinance>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <!-- The browser tests (as tests/Accountix.E2E: the same version, so the same Chromium build). -->
+    <PackageReference Include="Microsoft.Playwright" Version="1.64.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <!-- Python's answers captured once (Golden/capture/*.py, kept for the record), compared by the golden tests. -->
+  <ItemGroup>
+    <None Update="Golden\**\*.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Modules\Accountix.HrRecords\Accountix.HrRecords.csproj" />
+    <ProjectReference Include="..\Accountix.TestSupport\Accountix.TestSupport.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(WithFinance)' == 'true'">
+    <ProjectReference Include="..\..\src\Modules\Accountix.Finance\Accountix.Finance.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(WithFinance)' != 'true'">
+    <Compile Remove="Exports\**" />
+  </ItemGroup>
+
+</Project>

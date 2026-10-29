@@ -1,0 +1,212 @@
+@using Accountix.Web.Infrastructure
+@inject NavigationService Nav
+@inject Microsoft.AspNetCore.Mvc.ViewComponents.IViewComponentSelector Components
+@*
+  The app shell every module page renders in (templates/layouts/app_shell.html).
+  A page sets ViewData["Title"] (tab title) and optionally ViewData["Heading"]
+  (topbar), ViewData["BackUrl"]; sections: Actions (page toolbar), Head
+  (extra CSS), Scripts. The module comes from [Module]/[Shell] on the controller.
+*@
+@{
+    var access = Context.Access();
+    string? moduleKey = Context.Items[ModuleAttribute.ItemKey] as string ?? ViewData["Module"] as string;
+    var meta = ModuleMeta.For(moduleKey);
+    var blocks = Nav.For(moduleKey, Context);
+    var company = access?.Company;
+    string title = ViewData["Title"] as string ?? meta.Label;
+    string heading = ViewData["Heading"] as string ?? title;
+    string numberFormat = access?.NumberFormat ?? "en";
+    string currencySymbol = access?.Profile?.CurrencySymbol ?? "Rs.";
+    string path = Context.Request.Path + Context.Request.QueryString;
+    string roleLabel = access?.RoleName is { Length: > 0 } r ? char.ToUpper(r[0]) + r[1..] : "";
+}
+<!DOCTYPE html>
+<html lang="en" data-ui="v2">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@title</title>
+    <partial name="_Antiforgery" />
+    <script>(function(){try{var t=localStorage.getItem("ax-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
+    <link rel="stylesheet" href="/static/css/app.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..700&display=swap">
+    <link rel="stylesheet" href="/static/css/ui.css">
+    <style>
+        .sidebar-footer { margin-top: auto; padding: 10px 12px 14px; border-top: 1px solid rgba(255,255,255,.08); }
+        .sidebar { display: flex; flex-direction: column; }
+        .sidebar-nav { flex: 1; overflow-y: auto; overflow-x: hidden; }
+        .page-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+        .page-actions:empty { display: none; }
+        .company-switch { position: relative; }
+        .company-switch-btn { display: flex; align-items: center; gap: 6px; background: var(--surface); border: 1px solid var(--line); color: var(--ink); border-radius: 6px; padding: 5px 10px; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; max-width: 190px; }
+        .company-switch-btn:hover { background: var(--wash); }
+        .company-switch-dot { width: 16px; height: 16px; border-radius: 4px; background: var(--primary); color: var(--on-fill); font-size: 9px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+        .company-switch-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .company-switch-menu { display: none; position: absolute; top: 100%; right: 0; z-index: 90; min-width: 210px; max-width: 270px; margin-top: 6px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,.16); overflow: hidden; }
+        .company-switch-menu.show { display: block; }
+        .company-switch-menu a { display: flex; align-items: center; gap: 8px; padding: 8px 12px; font-size: 12.5px; color: var(--ink); text-decoration: none; }
+        .company-switch-menu a:hover { background: var(--wash); }
+        .company-switch-menu a.active { background: var(--ledger-dim); color: var(--link); font-weight: 600; }
+        .company-switch-menu .check { margin-left: auto; color: var(--link); font-weight: 700; }
+        @@media (max-width: 768px) { .company-switch-name { display: none; } .company-switch-btn { max-width: none; } }
+        /* On a phone the button sits near the left edge, so a menu right-aligned to it started off-screen (E2E F5):
+           there it spans the screen, 12px from each side, just under the button (top set by the script). */
+        @@media (max-width: 768px) { .company-switch-menu { position: fixed; left: 12px; right: 12px; min-width: 0; max-width: none; } }
+        .content-area { max-width: 100%; }
+        @@media (max-width: 768px) { body { overflow-x: hidden; } }
+    </style>
+    @await RenderSectionAsync("Head", required: false)
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%232B7263'/><text x='16' y='22' font-size='18' font-family='Arial' font-weight='bold' text-anchor='middle' fill='white'>A</text></svg>">
+</head>
+<body>
+@if (access is not null)
+{
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    <div class="app-layout">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="brand-icon" style="background:@meta.Brand;">@meta.Letter</div>
+                <div class="brand-text">
+                    <h2 title="@(company?.Name ?? "No company")">@(company?.Name ?? "No company")</h2>
+                    <span class="brand-sub">@meta.Badge</span>
+                </div>
+            </div>
+            <div class="sidebar-user">
+                <div class="sidebar-user-avatar" style="background:@meta.Brand;">@(access.User.FullName.Length > 0 ? access.User.FullName[..1] : "?")</div>
+                <div class="sidebar-user-info">
+                    <div class="sidebar-user-name">@access.User.FullName</div>
+                    <div class="sidebar-user-role">@(access.Membership?.Designation is { Length: > 0 } d ? d : roleLabel)</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                @foreach (var block in blocks)
+                {
+                    if (!block.IsGroup)
+                    {
+                        foreach (var item in block.Items)
+                        {
+                            <a href="@item.Url" class="nav-item @(item.Active ? "active" : "")"><span class="nav-icon">@Icons.Svg(item.Svg)</span><span>@item.Label</span></a>
+                        }
+                    }
+                    else
+                    {
+                        <div class="nav-group @(block.Expanded ? "expanded" : "")" data-group="@block.Slug">
+                            <div class="nav-group-header">
+                                <span class="nav-icon">@Icons.ForGroup(block.Slug)</span><span>@block.Name</span>
+                                <span class="group-chevron">&#9662;</span>
+                            </div>
+                            <div class="nav-group-items">
+                                @foreach (var item in block.Items)
+                                {
+                                    <a href="@item.Url" class="nav-item @(item.Active ? "active" : "")"><span class="nav-icon">@Icons.Svg(item.Svg)</span><span>@item.Label</span></a>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+            </nav>
+            <div class="sidebar-footer">
+                <a href="/hub" class="nav-item" style="color:rgba(255,255,255,.62);"><span class="nav-icon">@Icons.Svg("hub")</span><span>ERP Hub</span></a>
+                <a href="/auth/logout" class="nav-item" style="color:rgba(255,255,255,.62);"><span class="nav-icon">@Icons.Svg("logout")</span><span>Logout</span></a>
+            </div>
+        </aside>
+        <main class="main-content">
+            <header class="topbar">
+                <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle navigation">&#9776;</button>
+                <h2 class="page-title" style="font-size:16px;font-weight:600;flex:1;margin:0 16px;">@heading</h2>
+                <div class="topbar-right">
+                    <button type="button" class="theme-toggle" id="theme-toggle" data-theme-toggle aria-label="Switch between light and dark theme" title="Light / dark">
+                        <span class="t-light">@Icons.Svg("moon")</span><span class="t-dark">@Icons.Svg("sun")</span>
+                    </button>
+                    <div class="company-switch" id="company-switch">
+                        <button type="button" class="company-switch-btn" id="company-switch-btn" aria-haspopup="true" aria-expanded="false" title="Switch company">
+                            <span class="company-switch-dot">&#9632;</span>
+                            <span class="company-switch-name">@(company?.Name ?? "No company")</span>
+                            <span class="chev">&#9662;</span>
+                        </button>
+                        <div class="company-switch-menu" id="company-switch-menu" role="menu">
+                            @foreach (var (cid, cname) in access.OpenCompanies)
+                            {
+                                bool current = company?.Id == cid;
+                                <a href="/company/switch/@cid?next=@Uri.EscapeDataString(path)" role="menuitem" class="@(current ? "active" : "")">
+                                    <span class="company-switch-dot">&#9632;</span><span>@cname</span>
+                                    @if (current) { <span class="check">&#10003;</span> }
+                                </a>
+                            }
+                            <a href="/portal/" role="menuitem"><span class="company-switch-dot">&#9776;</span><span>My Companies</span></a>
+                        </div>
+                    </div>
+                    <span class="mod-badge" style="font-size:11px;background:@meta.BadgeBg;color:@meta.BadgeFg;padding:2px 8px;border-radius:4px;font-weight:600;">@meta.Badge</span>
+                    @* The notification bell (HrRecords' component, Python's markup); absent when that module isn't loaded. *@
+                    @if (Components.SelectComponent("NotificationBell") is not null)
+                    {
+                        @await Component.InvokeAsync("NotificationBell")
+                    }
+                    <div class="user-menu">
+                        <div class="avatar" style="background:@meta.Brand;">@(access.User.FullName.Length > 0 ? access.User.FullName[..1] : "?")</div>
+                        <span class="user-name">@access.User.FullName</span>
+                        <span class="user-role">@roleLabel</span>
+                        <a href="/auth/logout" class="btn-link">Logout</a>
+                    </div>
+                </div>
+            </header>
+            <div class="content-area">
+                <partial name="_Flash" />
+                @if (ViewData["BackUrl"] is string back)
+                {
+                    <a href="@back" class="btn btn-link" style="margin-bottom:8px;">&larr; Back</a>
+                }
+                <div class="page-actions no-print">@await RenderSectionAsync("Actions", required: false)</div>
+                @RenderBody()
+            </div>
+        </main>
+    </div>
+}
+else
+{
+    <div class="login-layout">
+        <partial name="_Flash" />
+        @RenderBody()
+    </div>
+}
+    <script src="/static/js/app.js"></script>
+    <script>
+        window.__numberFormat = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(numberFormat));
+        window.__currencySymbol = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(currencySymbol));
+        window.formatAmount = function(v, dp) {
+            if (dp === undefined) dp = 2;
+            var n = parseFloat(v) || 0, neg = n < 0; n = Math.abs(n);
+            var rounded = Math.round(n * Math.pow(10, dp)) / Math.pow(10, dp);
+            var parts = rounded.toFixed(dp).split('.'), intPart = parts[0], decPart = parts.length > 1 ? '.' + parts[1] : '';
+            if (window.__numberFormat === 'hi') {
+                var lastThree = intPart.slice(-3), rest = intPart.slice(0, -3), groups = [];
+                while (rest.length > 0) { groups.unshift(rest.slice(-2)); rest = rest.slice(0, -2); }
+                intPart = groups.length ? groups.join(',') + ',' + lastThree : lastThree;
+            } else { intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+            return (neg ? '-' : '') + intPart + decPart;
+        };
+        document.addEventListener('keydown', function(e) {
+            if (e.target.type === 'number' && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) e.preventDefault();
+        });
+        (function () {
+            var btn = document.getElementById('company-switch-btn'), menu = document.getElementById('company-switch-menu');
+            if (!btn || !menu) return;
+            var phone = window.matchMedia('(max-width: 768px)');
+            function close() { menu.classList.remove('show'); btn.setAttribute('aria-expanded', 'false'); }
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                var open = menu.classList.toggle('show');
+                menu.style.top = open && phone.matches ? Math.round(btn.getBoundingClientRect().bottom) + 'px' : '';
+                btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+            });
+            document.addEventListener('click', close);
+            window.addEventListener('resize', close);
+            window.addEventListener('scroll', function () { if (phone.matches) close(); }, { passive: true });
+        })();
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+    <script src="/static/js/theme.js"></script>
+</body>
+</html>

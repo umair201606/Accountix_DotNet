@@ -1,0 +1,223 @@
+{
+  "captured": "2026-10-29, Python app (Flask), before it was removed",
+  "capture": "Golden/capture/order_answers_and_refusals.py",
+  "inputs": {
+    "created": {
+      "id": null,
+      "action": "approve",
+      "so_number": "(auto)",
+      "customer_id": "C1",
+      "party_account_id": null,
+      "order_date": "2026-05-12",
+      "expected_date": "2026-05-30",
+      "discount_mode": "general",
+      "charges_mode": "general",
+      "tax_mode": "general",
+      "global_discount_pct": 0,
+      "global_discount_value": 0,
+      "global_delivery": 0,
+      "global_installation": 0,
+      "global_sales_tax_pct": "17",
+      "further_tax_pct": 0,
+      "apply_further_tax": false,
+      "withholding_tax_pct": 0,
+      "apply_withholding_tax": false,
+      "notes": "answers",
+      "subtotal": 83333.33,
+      "total_discount": 0,
+      "total_charges": 0,
+      "total_tax": 0.30000000000000004,
+      "total_further_tax": 0,
+      "total_withholding_tax": 0,
+      "total_amount": 83333.63,
+      "items": [
+        {
+          "product_id": "P1",
+          "description": "First line",
+          "quantity": 2.5,
+          "unit": "pcs",
+          "unit_price": 33333.333333333,
+          "discount_pct": 0,
+          "discount_amount": 0,
+          "sales_tax_pct": 0,
+          "total_before_discount": 83333.33,
+          "total_after_discount": 0,
+          "total_price": 83333.33
+        },
+        {
+          "product_id": "P2",
+          "description": "Second line",
+          "quantity": 1,
+          "unit": "pcs",
+          "unit_price": 145000,
+          "discount_pct": 0,
+          "discount_amount": 0,
+          "sales_tax_pct": 0,
+          "total_before_discount": 145000,
+          "total_after_discount": 0,
+          "total_price": 145000
+        }
+      ],
+      "charges": [],
+      "edit_version": null
+    },
+    "calls": [
+      [
+        "/inventory/sales/save",
+        {
+          "id": "SO1",
+          "action": "save",
+          "so_number": "",
+          "customer_id": "C1",
+          "party_account_id": null,
+          "order_date": "2026-05-12",
+          "expected_date": "2026-05-30",
+          "discount_mode": "general",
+          "charges_mode": "general",
+          "tax_mode": "general",
+          "global_discount_pct": 0,
+          "global_discount_value": 0,
+          "global_delivery": 0,
+          "global_installation": 0,
+          "global_sales_tax_pct": "17",
+          "further_tax_pct": 0,
+          "apply_further_tax": false,
+          "withholding_tax_pct": 0,
+          "apply_withholding_tax": false,
+          "notes": "edit approved",
+          "subtotal": 83333.33,
+          "total_discount": 0,
+          "total_charges": 0,
+          "total_tax": 0.30000000000000004,
+          "total_further_tax": 0,
+          "total_withholding_tax": 0,
+          "total_amount": 83333.63,
+          "items": [
+            {
+              "product_id": "P1",
+              "description": "First line",
+              "quantity": 2.5,
+              "unit": "pcs",
+              "unit_price": 33333.333333333,
+              "discount_pct": 0,
+              "discount_amount": 0,
+              "sales_tax_pct": 0,
+              "total_before_discount": 83333.33,
+              "total_after_discount": 0,
+              "total_price": 83333.33
+            },
+            {
+              "product_id": "P2",
+              "description": "Second line",
+              "quantity": 1,
+              "unit": "pcs",
+              "unit_price": 145000,
+              "discount_pct": 0,
+              "discount_amount": 0,
+              "sales_tax_pct": 0,
+              "total_before_discount": 145000,
+              "total_after_discount": 0,
+              "total_price": 145000
+            }
+          ],
+          "charges": [],
+          "edit_version": null
+        }
+      ],
+      [
+        "/inventory/sales/delete/SO1",
+        null
+      ],
+      [
+        "/inventory/sales/unapprove/SO1",
+        null
+      ],
+      [
+        "/inventory/sales/unapprove/SO1",
+        null
+      ],
+      [
+        "/inventory/sales/save",
+        {
+          "id": "SO1",
+          "action": "save",
+          "so_number": "",
+          "customer_id": "C1",
+          "party_account_id": null,
+          "order_date": "2026-05-12",
+          "expected_date": "2026-05-30",
+          "discount_mode": "general",
+          "charges_mode": "general",
+          "tax_mode": "general",
+          "global_discount_pct": 0,
+          "global_discount_value": 0,
+          "global_delivery": 0,
+          "global_installation": 0,
+          "global_sales_tax_pct": "17",
+          "further_tax_pct": 0,
+          "apply_further_tax": false,
+          "withholding_tax_pct": 0,
+          "apply_withholding_tax": false,
+          "notes": "stale",
+          "subtotal": 83333.33,
+          "total_discount": 0,
+          "total_charges": 0,
+          "total_tax": 0.30000000000000004,
+          "total_further_tax": 0,
+          "total_withholding_tax": 0,
+          "total_amount": 83333.63,
+          "items": [
+            {
+              "product_id": "P1",
+              "description": "First line",
+              "quantity": 2.5,
+              "unit": "pcs",
+              "unit_price": 33333.333333333,
+              "discount_pct": 0,
+              "discount_amount": 0,
+              "sales_tax_pct": 0,
+              "total_before_discount": 83333.33,
+              "total_after_discount": 0,
+              "total_price": 83333.33
+            },
+            {
+              "product_id": "P2",
+              "description": "Second line",
+              "quantity": 1,
+              "unit": "pcs",
+              "unit_price": 145000,
+              "discount_pct": 0,
+              "discount_amount": 0,
+              "sales_tax_pct": 0,
+              "total_before_discount": 145000,
+              "total_after_discount": 0,
+              "total_price": 145000
+            }
+          ],
+          "charges": [],
+          "edit_version": 0
+        }
+      ],
+      [
+        "/inventory/sales/delete/SO1",
+        null
+      ],
+      [
+        "/inventory/sales/delete/99999999",
+        null
+      ]
+    ]
+  },
+  "expected": {
+    "answers": [
+      "200 {\"edit_version\":0,\"id\":\"SO1\",\"message\":\"Order approved and locked\",\"number\":\"<SO1>\",\"ok\":true,\"status\":\"approved\"}",
+      "400 {\"error\":\"Cannot modify approved order\",\"ok\":false}",
+      "400 {\"error\":\"Cannot delete approved order. Unapprove first.\",\"ok\":false}",
+      "200 {\"edit_version\":1,\"message\":\"Order unapproved\",\"ok\":true,\"status\":\"unapproved\"}",
+      "400 {\"error\":\"Only approved orders can be unapproved\",\"ok\":false}",
+      "409 {\"error\":\"Order <SO1> was changed after you opened it, so your changes were not saved. Reload it to see the latest version, then make your changes again.\",\"ok\":false,\"stale\":true}",
+      "200 {\"message\":\"Order deleted\",\"ok\":true}",
+      "404 null"
+    ]
+  }
+}

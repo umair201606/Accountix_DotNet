@@ -1,0 +1,84 @@
+@using Accountix.Inventory.Services
+@model Accountix.Inventory.Controllers.ProductLedgerController.LedgerModel
+@{
+    ViewData["Title"] = "Product Ledger";
+    ViewData["Heading"] = "Product Ledger";
+    var inv = System.Globalization.CultureInfo.InvariantCulture;
+    // The voucher types whose number links to its print preview (vtype_map in the template).
+    var linked = new HashSet<string> { "PI", "PR", "CONS", "SCRAP", "ADJ" };
+}
+@section Actions {
+@if (Model.Product is not null) { <partial name="_ExportButtons" model='new ExportButtons("excel", "pdf", "csv")' /> }
+}
+<div class="card">
+  <div class="card-body">
+    <form method="GET" class="form-row" style="gap:12px;align-items:flex-end;">
+      <div class="form-group">
+        <label for="product_id">Select Product</label>
+        <select name="product_id" id="product_id" class="form-control" onchange="this.form.submit()">
+          <option value="">-- Choose Product --</option>
+          @foreach (var p in Model.Products)
+          {
+          <option value="@p.Id" selected="@(Model.SelectedId == p.Id)">@p.Name (@p.Sku)</option>
+          }
+        </select>
+      </div>
+      @if (Model.SelectedId is not null) { <a href="/inventory/vouchers/product-ledger" class="btn btn-outline">Clear</a> }
+    </form>
+  </div>
+</div>
+
+@if (Model.Product is { } product)
+{
+<div class="card">
+  <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
+    <strong>@product.Name</strong>
+    <span style="font-size:13px;color:var(--muted);">SKU: @product.Sku | Unit: @PyText.Str(product.Unit)</span>
+  </div>
+  <div class="card-body" style="padding:0;">
+    @if (Model.Entries.Count > 0)
+    {
+    <table class="table">
+      <thead><tr>
+        <th>#</th><th>Date</th><th>Voucher Type</th><th>Voucher No.</th>
+        <th>Txn Type</th><th>Qty</th><th>Unit Cost</th>
+        <th>Running Qty</th><th>Running Value</th><th>Avg Cost</th><th>Notes</th>
+      </tr></thead>
+      <tbody>
+        @foreach (var e in Model.Entries)
+        {
+        <tr>
+          <td>@e.Id</td>
+          <td>@(e.TxnDate?.ToString("dd-MMM-yyyy", inv) ?? e.CreatedAt?.ToString("dd-MMM-yyyy", inv) ?? "")</td>
+          <td>@e.VoucherType</td>
+          <td>
+            @if (linked.Contains(e.VoucherType))
+            {
+            <a href="/inventory/vouchers/preview/@Uri.EscapeDataString(e.VoucherType)/@e.VoucherId" target="_blank">
+              @e.VoucherNumber
+            </a>
+            }
+            else
+            {
+            @e.VoucherNumber
+            }
+          </td>
+          <td><span class="badge @(e.TransactionType == "IN" ? "badge-success" : "badge-danger")">@e.TransactionType</span></td>
+          <td>@PyText.Dec(e.Quantity)</td>
+          <td>@Html.Amount(e.UnitCost, 0)</td>
+          <td>@Html.Amount(e.RunningQty, 0)</td>
+          <td>@Html.Amount(e.RunningCost, 0)</td>
+          <td>@Html.Amount(e.RunningAvg, 0)</td>
+          <td>@(e.Notes ?? "")</td>
+        </tr>
+        }
+      </tbody>
+    </table>
+    }
+    else
+    {
+    <p class="text-muted" style="padding:16px;">No ledger entries for this product.</p>
+    }
+  </div>
+</div>
+}

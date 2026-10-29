@@ -1,0 +1,75 @@
+@model TransferFormModel
+@{
+    var calc = Model.Calc!;
+    var asset = calc.Asset;
+    var transfer = Model.Transfer;
+    ViewData["Title"] = "Transfer to Inventory";
+    ViewData["Heading"] = $"Transfer {asset.AssetCode} — {asset.Name}";
+    string dateValue = transfer is null ? ""
+        : transfer.TransferDate is DateOnly td ? Py.Date(td) : transfer.CreatedAt?.ToString("yyyy-MM-dd") ?? "";
+}
+<div class="card" style="margin-bottom:16px;">
+  <div class="card-body">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;font-variant-numeric:tabular-nums;">
+      <div><strong>Purchase Cost:</strong><br>@Py.Comma(asset.PurchaseCost)</div>
+      <div><strong>Accum. Depreciation:</strong><br>@Py.Comma(calc.PostedDepreciation)</div>
+      <div><strong>Book Value (now):</strong><br><span style="font-size:1.2em;font-weight:700;">@Py.Comma(calc.NetBookValue)</span></div>
+      <div><strong>Useful Life:</strong><br>@asset.UsefulLife yrs</div>
+    </div>
+  </div>
+</div>
+<div class="card" style="max-width:720px;">
+  <div class="card-body">
+    <p class="text-muted">Transfer this asset to trading stock at book value. Any unposted depreciation will be auto-posted before the transfer.</p>
+    <form method="POST">
+      <select name="status" class="form-control" style="display:none;">
+        <option value="unapproved">Unapproved</option>
+        <option value="approved">Approved</option>
+      </select>
+      <div class="form-group">
+        <label class="form-label">Transfer to existing product</label>
+        <select name="product_id" class="form-control">
+          <option value="">— Select product or create new below —</option>
+          @foreach (var p in Model.Products)
+          {
+          <option value="@p.Id" selected="@(transfer is not null && transfer.ProductId == p.Id)">@p.Sku — @p.Name</option>
+          }
+        </select>
+      </div>
+      <p style="text-align:center;margin:8px 0;"><strong>— OR —</strong></p>
+      <div class="form-group">
+        <label class="form-label">Create new stock product</label>
+        <input type="text" name="new_product_name" class="form-control" value="@(transfer?.NewProductName ?? "")" placeholder="New product name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea name="description" class="form-control" rows="2">@(transfer?.Description ?? "")</textarea>
+      </div>
+      <div class="form-group">
+        <label for="transferDate">Transfer date</label>
+        <input type="date" id="transferDate" name="transfer_date" class="form-control"
+               value="@dateValue">
+        <small style="display:block;margin-top:4px;color:var(--muted);">The journal, the stock receipt and catch-up depreciation post on this date (blank = today).</small>
+      </div>
+      <div class="card" style="background:var(--bg-top);padding:12px;border:1px solid var(--border);border-radius:8px;margin-bottom:16px;">
+        <strong>Journal Entry (on approve):</strong>
+        <table class="table" style="margin:8px 0 0;font-size:13px;font-variant-numeric:tabular-nums;">
+          <thead><tr><th>Account</th><th>Debit</th><th>Credit</th></tr></thead>
+          <tbody>
+            <tr><td>Accumulated Depreciation</td><td>@Py.Comma(calc.PostedDepreciation)</td><td>—</td></tr>
+            <tr><td>Trading Stock</td><td>@Py.Comma(calc.NetBookValue)</td><td>—</td></tr>
+            <tr><td>Fixed Asset</td><td>—</td><td>@Py.Comma(asset.PurchaseCost)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      @if (transfer is null || transfer.Status != "approved")
+      {
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" onclick="this.form.status.value='unapproved'">@(transfer is not null ? "Update" : "Save as Unapproved")</button>
+        <button type="submit" class="btn btn-success" onclick="this.form.status.value='approved'">@(transfer is null ? "Save & Approve" : "Approve")</button>
+        <a href="/fixed-assets/transfers/" class="btn btn-outline">Cancel</a>
+      </div>
+      }
+    </form>
+  </div>
+</div>

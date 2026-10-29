@@ -1,0 +1,39 @@
+@model List<Accountix.Hr.Controllers.TimesheetController.ApprovalRow>
+@{
+    ViewData["Title"] = "Timesheet Approvals - Accountix ERP";
+}
+<div class="page-header">
+    <h1>Timesheet Approvals</h1>
+</div>
+<div class="card">
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Employee</th><th>Week</th><th>Hours</th><th>Action</th></tr></thead>
+            <tbody>
+                @foreach (var a in Model)
+                {
+                <tr>
+                    <td>@a.Employee</td>
+                    <td>@Py.Date(a.Week.WeekStart) to @Py.Date(a.Week.WeekEnd)</td>
+                    <td>@Py.Float(a.Week.TotalHours)</td>
+                    <td>
+                        <form method="POST" action="/timesheets/review/@a.Approval.Id" style="display:inline;">
+                            <input type="hidden" name="action" value="approve">
+                            <button class="btn btn-sm btn-accent">Approve</button>
+                        </form>
+                        <form method="POST" action="/timesheets/review/@a.Approval.Id" style="display:inline;">
+                            <input type="hidden" name="action" value="reject">
+                            <input type="text" name="comment" placeholder="Reason" style="width:80px;font-size:11px;padding:4px;">
+                            <button class="btn btn-sm btn-danger">Reject</button>
+                        </form>
+                    </td>
+                </tr>
+                }
+                @if (Model.Count == 0)
+                {
+                <tr><td colspan="4" class="text-center" style="color:var(--muted);">No pending approvals</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

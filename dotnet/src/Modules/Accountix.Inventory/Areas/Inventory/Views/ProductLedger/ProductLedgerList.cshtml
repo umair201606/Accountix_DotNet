@@ -1,0 +1,37 @@
+@using Accountix.Inventory.Services
+@model List<Accountix.Inventory.Services.InventoryReports.SubLedgerRow>
+@{
+    ViewData["Title"] = "Inventory Ledger";
+    ViewData["Heading"] = "Inventory Ledger";
+}
+@section Actions {
+@if (Model.Count > 0) { <partial name="_ExportButtons" model='new ExportButtons("excel", "pdf", "csv")' /> }
+}
+<div class="card">
+  <div class="card-header"><strong>Account: 1200 - Inventory (Product Sub-Ledgers)</strong></div>
+  <div class="card-body" style="padding:0;">
+    @if (Model.Count > 0)
+    {
+    <table class="table">
+      <thead><tr><th>SKU</th><th>Product Name</th><th>Qty</th><th>Avg Cost</th><th>Value</th><th></th></tr></thead>
+      <tbody>
+        @foreach (var r in Model)
+        {
+        <tr>
+          <td>@r.Sku</td>
+          <td>@r.Name</td>
+          <td>@PyText.Float(r.Qty) @PyText.Str(r.Unit)</td>
+          <td>@Html.Amount(r.Cost, 0)</td>
+          <td>@Html.Amount(r.Value, 0)</td>
+          <td><a href="/inventory/vouchers/product-ledger?product_id=@r.Id" class="btn btn-sm btn-outline">View Ledger</a></td>
+        </tr>
+        }
+      </tbody>
+    </table>
+    }
+    else
+    {
+    <p class="text-muted" style="padding:16px;">No products found.</p>
+    }
+  </div>
+</div>

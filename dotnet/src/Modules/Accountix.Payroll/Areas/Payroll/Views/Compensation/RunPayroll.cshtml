@@ -1,0 +1,269 @@
+@model RunPayrollModel
+@{
+    ViewData["Title"] = "Run Payroll - Accountix ERP";
+    string fmt = Context.Access()?.NumberFormat ?? "en";
+    string M(double v) => Py.Amount(v, 0, fmt);
+    string Inst(LoanAdvanceRequest l) => Py.F(l.MonthlyInstallment) != 0
+        ? Html.Amount(l.MonthlyInstallment, 0)
+        : M(Py.F(l.Amount) / (l.InstallmentMonths is int n && n != 0 ? n : 1));
+}
+<div class="page-header">
+    <h1>Run Monthly Payroll</h1>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <a href="/compensation/download-template" class="btn btn-outline">&#128196; Download Template</a>
+        <button type="button" class="btn btn-outline" onclick="document.getElementById('bulk-upload-input').click()">&#128228; Upload Data</button>
+        <input type="file" id="bulk-upload-input" accept=".xlsx,.csv" style="display:none">
+    </div>
+</div>
+@if (Model.NoSlabs)
+{
+<div class="alert alert-warning">No income tax slabs are set up, so no tax will be withheld. <a href="/compensation/tax-settings">Set up tax slabs</a>.</div>
+}
+<p class="text-muted" style="font-size:.85rem;">Pay is prorated by calendar days for joiners and approved unpaid leave. Income tax is withheld on taxable pay by the cumulative method over the tax year (July–June); a bonus is taxed in the month it is paid. Loan instalments are capped at what is left after other deductions.</p>
+<form method="POST" id="payroll-form">
+    <div class="card mb-20">
+        <div class="card-header flex-between">
+            <span>Period & Replace Options</span>
+        </div>
+        <div class="form-row" style="padding:12px;">
+            <div class="form-group"><label>Month</label>
+                <select name="month" class="form-control" id="sel-month">
+                    @for (int m = 1; m < 13; m++) { <option value="@m" selected="@(m == Model.Now.Month)">@m</option> }
+                </select>
+            </div>
+            <div class="form-group"><label>Year</label>
+                <select name="year" class="form-control" id="sel-year">
+                    @for (int y = 2024; y < 2028; y++) { <option value="@y" selected="@(y == Model.Now.Year)">@y</option> }
+                </select>
+            </div>
+        </div>
+        <div style="padding:0 12px 12px;">
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;">
+                <input type="checkbox" id="replace-all" name="replace_all" value="1">
+                <strong>Replace existing payroll for this period (all employees)</strong>
+            </label>
+        </div>
+    </div>
+    <div class="card mb-20">
+        <div class="card-header flex-between">
+            <span>Payroll Preview & Adjustments</span>
+            <div style="display:flex;gap:4px;align-items:center;">
+                <span style="font-size:11px;color:var(--muted);">Select:</span>
+                <button type="button" class="btn btn-sm btn-outline" id="select-all">All</button>
+                <button type="button" class="btn btn-sm btn-outline" id="deselect-all">None</button>
+            </div>
+        </div>
+        <p style="font-size:12px;color:var(--muted);padding:0 12px;">Edit any field on the spot. Only employees with <strong>Replace</strong> checked will be processed.</p>
+        <div class="table-wrap">
+            <table id="payroll-table" style="font-variant-numeric:tabular-nums;">
+                <thead>
+                    <tr>
+                        <th style="width:28px;"><input type="checkbox" id="master-check"></th>
+                        <th>Employee</th>
+                        <th>Basic (Rs.)</th>
+                        <th>Allowances (Rs.)</th>
+                        <th>Bonus (Rs.)</th>
+                        <th>PF Emp. (Rs.)</th>
+                        <th>Tax (Rs.)</th>
+                        <th>Loan Ded. (Rs.)</th>
+                        <th>Extra Ded. (Rs.)</th>
+                        <th>Gross (Rs.)</th>
+                        <th>Net Pay (Rs.)</th>
+                    </tr>
+                </thead>
+                <tbody id="preview-body">
+                    @foreach (var ed in Model.Employees)
+                    {
+                    <tr data-uid="@ed.UserId">
+                        <td><input type="checkbox" class="emp-check" checked></td>
+                        <td>
+                            <strong>@ed.Name</strong><br>
+                            <span style="font-size:11px;color:var(--muted);">@ed.Designation</span>
+                            @if (ed.OpenLoans.Count > 0)
+                            {
+                            <div style="font-size:10px;color:var(--red);margin-top:2px;">
+                                @foreach (var loan in ed.OpenLoans)
+                                {
+                                <div>Loan #@loan.Id: Bal Rs.@Html.Amount(loan.RemainingAmount, 0), Inst Rs.@Inst(loan)</div>
+                                }
+                            </div>
+                            }
+                        </td>
+                        <td>Rs. @M(ed.Basic)</td>
+                        <td>
+                            <div style="font-size:10px;color:var(--muted);">
+                                @foreach (var (name, val) in ed.Allowances)
+                                {
+                                <div>@name: Rs.@M(val)</div>
+                                }
+                            </div>
+                            <input name="allowances_@(ed.UserId)" class="form-control" style="width:100px;margin-top:2px;" placeholder="Override total" step="0.01">
+                        </td>
+                        <td><input name="bonus_@(ed.UserId)" class="form-control" style="width:80px;" placeholder="0" step="0.01"></td>
+                        <td><span style="font-size:12px;font-weight:600;color:var(--red);">Rs. @M(ed.PfEmployee)</span></td>
+                        <td>
+                            <input name="tax_@(ed.UserId)" class="form-control" style="width:80px;" placeholder="@M(ed.MonthlyTax)" step="0.01">
+                            <div style="font-size:10px;color:var(--muted);">Auto: Rs.@M(ed.MonthlyTax)</div>
+                        </td>
+                        <td>
+                            @if (ed.OpenLoans.Count > 0)
+                            {
+                                foreach (var loan in ed.OpenLoans)
+                                {
+                                <input name="loan_@(loan.Id)" class="form-control" style="width:70px;margin-bottom:2px;" placeholder="@Inst(loan)" step="0.01">
+                                }
+                            }
+                            else
+                            {
+                            <span style="color:var(--muted);">None</span>
+                            }
+                        </td>
+                        <td><input name="custom_@(ed.UserId)" class="form-control" style="width:80px;" placeholder="0" step="0.01"></td>
+                        <td><strong>Rs. @M(ed.Gross)</strong></td>
+                        <td><strong style="color:var(--green);">Rs. @M(ed.Net)</strong></td>
+                    </tr>
+                    }
+                    @if (Model.Employees.Count == 0)
+                    {
+                    <tr><td colspan="11" class="text-center" style="color:var(--muted);">No payroll profiles found</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div style="padding:8px 12px;font-size:12px;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap;">
+            <span>Total Employees: <strong id="total-emp">@Model.Employees.Count</strong></span>
+            <span>Selected: <strong id="selected-count">@Model.Employees.Count</strong></span>
+            <span>Total Gross: Rs. <strong id="total-gross">@M(Py.Sum(Model.Employees.Select(e => e.Gross)))</strong></span>
+            <span>Total Net: Rs. <strong id="total-net">@M(Py.Sum(Model.Employees.Select(e => e.Net)))</strong></span>
+        </div>
+    </div>
+    <input type="hidden" name="adjustments" id="adjustments-json" value="{}">
+    <input type="hidden" name="replace_ids" id="replace-ids-json" value="[]">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button type="submit" class="btn btn-accent">&#9889; Run Payroll</button>
+        <a href="/compensation/" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+@section Scripts {
+<script>
+(function() {
+    const form = document.getElementById('payroll-form');
+    const masterCheck = document.getElementById('master-check');
+    const selectAll = document.getElementById('select-all');
+    const deselectAll = document.getElementById('deselect-all');
+
+    function updateTotals() {
+        const checks = document.querySelectorAll('.emp-check');
+        const sel = document.querySelectorAll('.emp-check:checked').length;
+        document.getElementById('selected-count').textContent = sel;
+    }
+
+    masterCheck?.addEventListener('change', function() {
+        document.querySelectorAll('.emp-check').forEach(c => c.checked = this.checked);
+        updateTotals();
+    });
+    selectAll?.addEventListener('click', () => {
+        document.querySelectorAll('.emp-check').forEach(c => c.checked = true);
+        if (masterCheck) masterCheck.checked = true;
+        updateTotals();
+    });
+    deselectAll?.addEventListener('click', () => {
+        document.querySelectorAll('.emp-check').forEach(c => c.checked = false);
+        if (masterCheck) masterCheck.checked = false;
+        updateTotals();
+    });
+    document.getElementById('preview-body')?.addEventListener('change', function(e) {
+        if (e.target.classList.contains('emp-check')) updateTotals();
+    });
+
+    form?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const adjustments = {};
+        const replaceIds = [];
+
+        document.querySelectorAll('#preview-body tr').forEach(tr => {
+            const checkbox = tr.querySelector('.emp-check');
+            if (!checkbox) return;
+            const uid = tr.dataset.uid;
+            if (checkbox.checked) replaceIds.push(uid);
+
+            // Gather field values regardless of checkbox (empty values are skipped in processing)
+            const adjustments_uid = {};
+            const taxEl = tr.querySelector('[name^="tax_"]');
+            if (taxEl && taxEl.value) adjustments_uid['income_tax'] = taxEl.value;
+
+            const bonusEl = tr.querySelector('[name^="bonus_"]');
+            if (bonusEl && bonusEl.value) adjustments_uid['bonus'] = bonusEl.value;
+
+            const allowancesEl = tr.querySelector('[name^="allowances_"]');
+            if (allowancesEl && allowancesEl.value) adjustments_uid['allowances_override'] = allowancesEl.value;
+
+            tr.querySelectorAll('[name^="loan_"]').forEach(el => {
+                if (el.value) adjustments_uid[el.name] = el.value;
+            });
+
+            const customEl = tr.querySelector('[name^="custom_"]');
+            if (customEl && customEl.value) adjustments_uid['custom_deduction'] = customEl.value;
+
+            if (Object.keys(adjustments_uid).length > 0) adjustments[uid] = adjustments_uid;
+        });
+
+        document.getElementById('adjustments-json').value = JSON.stringify(adjustments);
+        document.getElementById('replace-ids-json').value = JSON.stringify(replaceIds);
+        this.submit();
+    });
+
+    // Bulk upload handler (supports XLSX, CSV, JSON)
+    const uploadInput = document.getElementById('bulk-upload-input');
+    uploadInput?.addEventListener('change', function() {
+        const file = this.files[0];
+        if (!file) return;
+        const ext = file.name.split('.').pop().toLowerCase();
+
+        if (ext === 'json') {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (data.adjustments) {
+                        Object.entries(data.adjustments).forEach(([uid, adj]) => {
+                            const tr = document.querySelector(`#preview-body tr[data-uid="${uid}"]`);
+                            if (!tr) return;
+                            if (adj.bonus) tr.querySelector('[name^="bonus_"]').value = adj.bonus;
+                            if (adj.income_tax) tr.querySelector('[name^="tax_"]').value = adj.income_tax;
+                            if (adj.custom_deduction) tr.querySelector('[name^="custom_"]').value = adj.custom_deduction;
+                        });
+                        alert('Bulk adjustments applied from JSON.');
+                    } else {
+                        alert('JSON must have an "adjustments" object keyed by user_id.');
+                    }
+                } catch (err) { alert('Invalid JSON file.'); }
+            };
+            reader.readAsText(file);
+        } else {
+            // XLSX/CSV: upload to server, get adjustments back as JSON
+            const fd = new FormData();
+            fd.append('file', file);
+            fetch('/compensation/upload-bulk-data', { method: 'POST', body: fd })
+            .then(r => r.json())
+            .then(data => {
+                if (data.adjustments) {
+                    Object.entries(data.adjustments).forEach(([uid, adj]) => {
+                        const tr = document.querySelector(`#preview-body tr[data-uid="${uid}"]`);
+                        if (!tr) return;
+                        if (adj.bonus) document.querySelector(`[name="bonus_${uid}"]`).value = adj.bonus;
+                        if (adj.income_tax) document.querySelector(`[name="tax_${uid}"]`).value = adj.income_tax;
+                        if (adj.custom_deduction) document.querySelector(`[name="custom_${uid}"]`).value = adj.custom_deduction;
+                    });
+                    alert(data.message || 'Bulk adjustments applied.');
+                } else {
+                    alert('Server returned no adjustments.' + JSON.stringify(data));
+                }
+            })
+            .catch(err => alert('Upload failed: ' + err.message));
+        }
+        this.value = '';
+    });
+})();
+</script>
+}

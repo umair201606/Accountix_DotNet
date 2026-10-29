@@ -1,0 +1,37 @@
+@*
+  Print-only company letterhead (templates/_print_header.html). Pass the
+  document title as the model (string) or leave it null.
+*@
+@model string?
+@{
+    var c = Context.Access()?.Company;
+}
+<div class="print-letterhead">
+  <div class="print-lh-top">
+    @if (!string.IsNullOrEmpty(c?.LogoUrl)) { <img src="@c.LogoUrl" class="print-lh-logo" alt=""> }
+    <div class="print-lh-info">
+      <div class="print-lh-name">@(Context.Access()?.Profile?.CompanyName is { Length: > 0 } pn ? pn : c?.Name ?? "My Company")</div>
+      <div class="print-lh-addr">
+        @if (c is not null)
+        {
+          @(c.Address ?? "")@if (!string.IsNullOrEmpty(c.City)) { <text>, @c.City</text> }@if (!string.IsNullOrEmpty(c.Country)) { <text>, @c.Country</text> }<br>
+          @if (!string.IsNullOrEmpty(c.Phone)) { <text>Tel: @c.Phone</text> }@if (!string.IsNullOrEmpty(c.Email)) { <text> &bull; @c.Email</text> }@if (!string.IsNullOrEmpty(c.Website)) { <text> &bull; @c.Website</text> }
+          @if (!string.IsNullOrEmpty(c.TaxId)) { <br><text>NTN/Tax#: @c.TaxId</text> }@if (!string.IsNullOrEmpty(c.RegistrationNumber)) { <text> &bull; Reg#: @c.RegistrationNumber</text> }
+        }
+      </div>
+    </div>
+  </div>
+  @if (!string.IsNullOrEmpty(Model)) { <div class="print-lh-doctitle">@Model</div> }
+</div>
+<style>
+.print-letterhead{display:none}
+@@media print{
+  .print-letterhead{display:block;border-bottom:2.5px solid #1e293b;padding-bottom:8px;margin-bottom:14px}
+  .print-lh-top{display:flex;align-items:center;gap:14px}
+  .print-lh-logo{max-height:56px;max-width:180px}
+  .print-lh-name{font-size:20px;font-weight:800;color:#1e293b;line-height:1.1}
+  .print-lh-addr{font-size:9.5px;color:#334155;line-height:1.5;margin-top:3px}
+  .print-lh-doctitle{text-align:center;font-size:15px;font-weight:700;letter-spacing:1.5px;
+    text-transform:uppercase;color:#1e293b;margin-top:10px}
+}
+</style>

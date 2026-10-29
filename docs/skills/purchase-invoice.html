@@ -1,0 +1,538 @@
+<style>
+  :root{
+    --ink:#1b2a2e;
+    --paper:#fbfaf6;
+    --line:#d8d3c4;
+    --ledger:#0f5257;
+    --ledger-dim:#e7f0ef;
+    --amber:#b5790a;
+    --amber-dim:#faf1de;
+    --red:#a13a2f;
+    --red-dim:#f8ece9;
+    --muted:#7c8a86;
+    font-family:'Iowan Old Style','Georgia',serif;
+  }
+  *{box-sizing:border-box;}
+  .pinv{
+    background:var(--paper);
+    color:var(--ink);
+    padding:28px;
+    max-width:1180px;
+    margin:0 auto;
+    font-size:13px;
+  }
+  .pinv, .pinv input, .pinv select, .pinv textarea, .pinv button{
+    font-family:'Iowan Old Style','Georgia',serif;
+  }
+  .mono{font-family:'Courier New',monospace; font-variant-numeric:tabular-nums;}
+  .pinv h1{
+    font-size:20px; letter-spacing:0.04em; margin:0; font-weight:600;
+  }
+  .pinv .sub{color:var(--muted); font-size:11px; letter-spacing:0.08em; text-transform:uppercase; margin-top:2px;}
+
+  .topbar{
+    display:flex; justify-content:space-between; align-items:flex-start;
+    border-bottom:2px solid var(--ink); padding-bottom:14px; margin-bottom:18px;
+  }
+  .voucher-box{text-align:right;}
+  .voucher-box .vno{font-size:15px; font-weight:600;}
+  .status{
+    display:inline-block; margin-top:6px; padding:3px 10px; font-size:10px;
+    letter-spacing:0.08em; text-transform:uppercase; border-radius:2px;
+    background:var(--amber-dim); color:var(--amber); border:1px solid var(--amber);
+  }
+
+  .card{
+    background:#fff; border:1px solid var(--line); border-radius:3px;
+    padding:16px 18px; margin-bottom:16px;
+  }
+  .grid{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:14px;
+  }
+  .field label{
+    display:block; font-size:10px; letter-spacing:0.08em; text-transform:uppercase;
+    color:var(--muted); margin-bottom:4px;
+  }
+  .field input, .field textarea{
+    width:100%; border:1px solid var(--line); border-radius:2px; padding:6px 8px;
+    font-size:13px; background:var(--paper); color:var(--ink);
+  }
+  .field input:focus, .field textarea:focus{outline:1px solid var(--ledger); background:#fff;}
+
+  .items-head{
+    display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;
+  }
+  .items-head h2{font-size:13px; letter-spacing:0.1em; text-transform:uppercase; margin:0;}
+  .toggles{display:flex; gap:18px; flex-wrap:wrap;}
+  .toggle-group{display:flex; flex-direction:column; align-items:flex-start; gap:4px;}
+  .toggle-group .tglabel{font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted);}
+  .seg{display:flex; border:1px solid var(--ledger); border-radius:3px; overflow:hidden;}
+  .seg button{
+    border:none; background:#fff; color:var(--ledger); padding:5px 10px; font-size:11px;
+    cursor:pointer; letter-spacing:0.03em;
+  }
+  .seg button.active{background:var(--ledger); color:#fff;}
+  .seg button:not(:last-child){border-right:1px solid var(--ledger);}
+  .subseg{display:flex; gap:6px; margin-top:2px;}
+  .subseg button{
+    border:1px solid var(--muted); background:#fff; color:var(--muted); border-radius:10px;
+    font-size:9px; padding:2px 8px; cursor:pointer; letter-spacing:0.03em;
+  }
+  .subseg button.active{border-color:var(--amber); color:var(--amber); background:var(--amber-dim);}
+
+  table{width:100%; border-collapse:collapse; margin-top:6px;}
+  thead th{
+    font-size:9.5px; letter-spacing:0.06em; text-transform:uppercase; color:var(--muted);
+    text-align:right; border-bottom:1px solid var(--ink); padding:6px 6px;
+  }
+  thead th.left{text-align:left;}
+  tbody td{padding:6px 6px; border-bottom:1px solid var(--line); text-align:right; vertical-align:middle;}
+  tbody td.left{text-align:left;}
+  tbody input{
+    width:100%; border:1px solid transparent; background:transparent; text-align:right;
+    padding:3px 4px; border-radius:2px; font-size:12.5px;
+  }
+  tbody td.left input{text-align:left;}
+  tbody input:focus{border-color:var(--ledger); background:#fff; outline:none;}
+  tbody input.readonly{color:var(--muted); background:var(--ledger-dim); pointer-events:none;}
+  td.computed{color:var(--ledger); font-weight:600;}
+  .rm{
+    background:none; border:none; color:var(--red); cursor:pointer; font-size:14px; line-height:1;
+  }
+  .col-perline{background:var(--amber-dim);}
+  .items-foot{display:flex; justify-content:space-between; align-items:center; margin-top:10px;}
+  .link-btn{
+    background:none; border:none; color:var(--ledger); font-size:12px; cursor:pointer;
+    padding:0; text-decoration:underline; text-underline-offset:3px;
+  }
+  .note{font-size:10.5px; color:var(--muted); margin-top:8px; font-style:italic;}
+
+  .bottom{display:grid; grid-template-columns:1.1fr 1fr; gap:16px;}
+  .summary-row{
+    display:flex; justify-content:space-between; align-items:center; padding:6px 0;
+    border-bottom:1px dashed var(--line); gap:10px;
+  }
+  .summary-row .lbl{font-size:12px; color:var(--ink);}
+  .summary-row .inputs{display:flex; gap:6px; align-items:center;}
+  .summary-row input{
+    width:64px; border:1px solid var(--line); border-radius:2px; padding:4px 6px;
+    text-align:right; font-size:12px; background:var(--paper);
+  }
+  .summary-row input.wide{width:82px;}
+  .summary-row input:disabled{background:var(--ledger-dim); color:var(--muted); border-color:var(--ledger-dim);}
+  .summary-row .val{width:100px; text-align:right; font-family:'Courier New',monospace;}
+  .summary-row .val.neg{color:var(--red);}
+  .summary-row.total{border-bottom:none; border-top:2px solid var(--ink); margin-top:6px; padding-top:12px;}
+  .summary-row.total .lbl{font-size:14px; font-weight:600;}
+  .summary-row.total .val{font-size:18px; font-weight:700; color:var(--ledger);}
+  .pct-badge{font-size:10px; color:var(--muted); width:14px;}
+
+  .actions{display:flex; gap:10px; justify-content:flex-end; margin-top:16px;}
+  .actions button{
+    border:1px solid var(--ink); background:#fff; padding:8px 18px; border-radius:2px;
+    font-size:12px; letter-spacing:0.04em; cursor:pointer;
+  }
+  .actions button.primary{background:var(--ledger); color:#fff; border-color:var(--ledger);}
+  .actions button.danger{border-color:var(--red); color:var(--red);}
+  @media (max-width:820px){
+    .grid{grid-template-columns:repeat(2,1fr);}
+    .bottom{grid-template-columns:1fr;}
+  }
+</style>
+
+<div class="pinv">
+
+  <div class="topbar">
+    <div>
+      <h1>Purchase Invoice</h1>
+      <div class="sub">Discount · Expenses · Tax — Combined / Per Item Engine</div>
+    </div>
+    <div class="voucher-box">
+      <div class="vno mono" id="vno">VCH-202607-0001</div>
+      <div class="status" id="statusPill">Unapproved</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="grid">
+      <div class="field"><label>Supplier *</label><input id="supplier" value="TechWorld Solutions"></div>
+      <div class="field"><label>Driver Name</label><input id="driver" value="Imran Khan"></div>
+      <div class="field"><label>Phone</label><input id="phone" value="0300-1234567"></div>
+      <div class="field"><label>Vehicle Number</label><input id="vehicle" value="LES-4562"></div>
+      <div class="field"><label>Billing Address</label><input id="billing" placeholder="None"></div>
+      <div class="field"><label>Date</label><input id="date" type="date" value="2026-07-14"></div>
+      <div class="field"><label>Time</label><input id="time" type="time" value="08:02"></div>
+      <div class="field"><label>Voucher #</label><input id="voucherInput" value="VCH-202607-0001"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="items-head">
+      <h2>Items</h2>
+      <div class="toggles">
+        <div class="toggle-group">
+          <div class="tglabel">Discount</div>
+          <div class="seg" id="segDiscount"></div>
+          <div class="subseg" id="subDiscount"></div>
+        </div>
+        <div class="toggle-group">
+          <div class="tglabel">Expenses</div>
+          <div class="seg" id="segExpense"></div>
+          <div class="subseg" id="subExpense"></div>
+        </div>
+        <div class="toggle-group">
+          <div class="tglabel">Tax</div>
+          <div class="seg" id="segTax"></div>
+        </div>
+      </div>
+    </div>
+
+    <table>
+      <thead><tr id="theadRow"></tr></thead>
+      <tbody id="itemsBody"></tbody>
+    </table>
+
+    <div class="items-foot">
+      <div>
+        <button class="link-btn" id="addLine">+ Add line</button>
+        &nbsp;&nbsp;
+        <button class="link-btn" id="clearLines" style="color:var(--red)">✕ Clear all lines</button>
+      </div>
+      <div class="note" id="netAmountNote"></div>
+    </div>
+  </div>
+
+  <div class="bottom">
+    <div class="card">
+      <div class="field"><label>Notes / Comments</label><textarea id="notes" rows="6" placeholder="None"></textarea></div>
+    </div>
+
+    <div class="card" id="summaryCard"></div>
+  </div>
+
+  <div class="actions">
+    <button>Print</button>
+    <button class="danger">Delete</button>
+    <button class="primary">New Invoice</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  const state = {
+    discountMode: 'combined',      // combined | perItem
+    discountSub: 'prorata',        // prorata | manual  (only used when discountMode = perItem)
+    expenseMode: 'combined',
+    expenseSub: 'prorata',
+    taxMode: 'combined',           // combined | perItem (perItem is always manual)
+
+    discountIsVal: false,
+    discountPct: 10,
+    discountVal: 0,
+
+    commission: 0, freight: 0, loading: 0,
+
+    salesTaxPct: 18,
+    whTaxPct: 3.5,
+
+    items: [
+      {code:'LED-001', desc:'LED Monitor 24', qty:5, rate:12200,
+        itemDiscIsVal:false, itemDiscPct:0, itemDiscVal:0,
+        itemComm:0, itemFreight:0, itemLoad:0,
+        itemTaxPct:18},
+      {code:'LED-002', desc:'LED Monitor 27', qty:10, rate:3500,
+        itemDiscIsVal:false, itemDiscPct:0, itemDiscVal:0,
+        itemComm:0, itemFreight:0, itemLoad:0,
+        itemTaxPct:18}
+    ]
+  };
+
+  const $ = id => document.getElementById(id);
+  const r2 = n => Math.round((n + Number.EPSILON) * 100) / 100;
+  const money = n => (n<0?'-':'') + Math.abs(r2(n)).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+  // distribute `pool` across `weights` (array of amount-shares), rounding each,
+  // then push the residual onto the last non-zero-weight line so the visible
+  // sum always reconciles exactly to the entered pool (Skill §3 Rounding Rule 2).
+  function prorate(pool, weights){
+    const totalW = weights.reduce((a,b)=>a+b,0);
+    if (totalW === 0) return weights.map(()=>0);
+    const raw = weights.map(w => pool * (w/totalW));
+    const rounded = raw.map(r2);
+    let usedSum = rounded.reduce((a,b)=>a+b,0);
+    let residual = r2(pool - usedSum);
+    for (let i = rounded.length - 1; i >= 0; i--){
+      if (weights[i] !== 0){ rounded[i] = r2(rounded[i] + residual); break; }
+    }
+    return rounded;
+  }
+
+  function compute(){
+    const items = state.items.map(it => ({...it, amount: r2(it.qty * it.rate)}));
+    const subtotal = r2(items.reduce((s,it)=>s+it.amount,0));
+
+    // ---- Step 2: Discount ----
+    let itemDiscounts = items.map(()=>0);
+    let totalDiscount = 0;
+
+    if (state.discountMode === 'combined'){
+      totalDiscount = state.discountIsVal ? state.discountVal : r2(state.discountPct/100 * subtotal);
+      totalDiscount = r2(totalDiscount);
+    } else if (state.discountSub === 'prorata'){
+      const pool = state.discountIsVal ? state.discountVal : r2(state.discountPct/100 * subtotal);
+      itemDiscounts = prorate(r2(pool), items.map(it=>it.amount));
+      totalDiscount = r2(itemDiscounts.reduce((a,b)=>a+b,0));
+    } else { // manual
+      itemDiscounts = items.map(it => r2(it.itemDiscIsVal ? it.itemDiscVal : (it.itemDiscPct/100)*it.amount));
+      totalDiscount = r2(itemDiscounts.reduce((a,b)=>a+b,0));
+    }
+
+    const netAmounts = items.map((it,i)=> r2(it.amount - itemDiscounts[i]));
+
+    // ---- Step 3: Expenses ----
+    let itemExpenses = items.map(()=>0);
+    let totalExpenses = 0;
+    const combinedExpensePool = r2(state.commission + state.freight + state.loading);
+
+    if (state.expenseMode === 'combined'){
+      totalExpenses = combinedExpensePool;
+    } else if (state.expenseSub === 'prorata'){
+      const basis = state.discountMode === 'combined'
+        ? items.map(it => it.amount)          // no true per-line net yet
+        : netAmounts;
+      itemExpenses = prorate(combinedExpensePool, basis);
+      totalExpenses = r2(itemExpenses.reduce((a,b)=>a+b,0));
+    } else { // manual
+      itemExpenses = items.map(it => r2(it.itemComm + it.itemFreight + it.itemLoad));
+      totalExpenses = r2(itemExpenses.reduce((a,b)=>a+b,0));
+    }
+
+    const netPlusExpense = items.map((it,i)=> r2(netAmounts[i] + itemExpenses[i]));
+
+    // ---- Step 4: Tax base ----
+    const taxBase = r2(subtotal - totalDiscount + totalExpenses);
+
+    // notional per-line tax base — used only when Tax = Per Item, even if
+    // Discount/Expenses are still Combined (Skill §Step 4 note)
+    let lineTaxBases = netPlusExpense;
+    if (state.discountMode === 'combined' || state.expenseMode === 'combined'){
+      lineTaxBases = items.map((it,i) => {
+        const weight = subtotal === 0 ? 0 : it.amount/subtotal;
+        const notionalDisc = state.discountMode === 'combined' ? totalDiscount*weight : itemDiscounts[i];
+        const notionalExp  = state.expenseMode  === 'combined' ? totalExpenses*weight  : itemExpenses[i];
+        return r2(it.amount - notionalDisc + notionalExp);
+      });
+    }
+
+    // ---- Step 5: Sales Tax + WH Tax ----
+    let itemSalesTax = items.map(()=>0);
+    let salesTax = 0;
+    if (state.taxMode === 'combined'){
+      salesTax = r2(state.salesTaxPct/100 * taxBase);
+    } else {
+      itemSalesTax = items.map((it,i) => r2(it.itemTaxPct/100 * lineTaxBases[i]));
+      salesTax = r2(itemSalesTax.reduce((a,b)=>a+b,0));
+    }
+    const whTax = r2(state.whTaxPct/100 * taxBase);
+
+    // ---- Step 6: Net Payable ----
+    const netPayable = r2(taxBase + salesTax - whTax);
+
+    return { items, subtotal, itemDiscounts, totalDiscount, netAmounts,
+             itemExpenses, totalExpenses, netPlusExpense, taxBase,
+             lineTaxBases, itemSalesTax, salesTax, whTax, netPayable };
+  }
+
+  // ---------- rendering ----------
+  function seg(container, options, current, onPick){
+    container.innerHTML = '';
+    options.forEach(opt=>{
+      const b = document.createElement('button');
+      b.textContent = opt.label;
+      if (opt.value === current) b.classList.add('active');
+      b.onclick = () => onPick(opt.value);
+      container.appendChild(b);
+    });
+  }
+
+  function render(){
+    seg($('segDiscount'), [{label:'Combined',value:'combined'},{label:'Per Item',value:'perItem'}], state.discountMode, v=>{state.discountMode=v; render();});
+    seg($('segExpense'),  [{label:'Combined',value:'combined'},{label:'Per Item',value:'perItem'}], state.expenseMode, v=>{state.expenseMode=v; render();});
+    seg($('segTax'),      [{label:'Combined',value:'combined'},{label:'Per Item',value:'perItem'}], state.taxMode, v=>{state.taxMode=v; render();});
+
+    $('subDiscount').style.display = state.discountMode==='perItem' ? 'flex' : 'none';
+    if (state.discountMode==='perItem'){
+      seg($('subDiscount'), [{label:'Auto-split',value:'prorata'},{label:'Manual',value:'manual'}], state.discountSub, v=>{state.discountSub=v; render();});
+    }
+    $('subExpense').style.display = state.expenseMode==='perItem' ? 'flex' : 'none';
+    if (state.expenseMode==='perItem'){
+      seg($('subExpense'), [{label:'Auto-split',value:'prorata'},{label:'Manual',value:'manual'}], state.expenseSub, v=>{state.expenseSub=v; render();});
+    }
+
+    const c = compute();
+    const showDiscCol = state.discountMode==='perItem' && state.discountSub==='manual';
+    const showExpCols = state.expenseMode==='perItem' && state.expenseSub==='manual';
+    const showDiscReadout = state.discountMode==='perItem' && state.discountSub==='prorata';
+    const showExpReadout  = state.expenseMode==='perItem'  && state.expenseSub==='prorata';
+    const showTaxCol = state.taxMode==='perItem';
+    const showNetAmount = state.discountMode==='perItem' || state.expenseMode==='perItem';
+
+    // header
+    let head = `<th class="left">#</th><th class="left">Code</th><th class="left">Description</th>
+      <th>Qty</th><th>Rate</th><th>Amount</th>`;
+    if (showDiscCol) head += `<th>Disc %</th><th>Disc Val</th>`;
+    if (showDiscReadout) head += `<th>Discount</th>`;
+    if (showExpCols) head += `<th>Comm.</th><th>Freight</th><th>Load/Unld</th>`;
+    if (showExpReadout) head += `<th>Expenses</th>`;
+    if (showTaxCol) head += `<th>Tax %</th>`;
+    if (showNetAmount) head += `<th>Net Amount</th>`;
+    head += `<th></th>`;
+    $('theadRow').innerHTML = head;
+
+    // body
+    const body = $('itemsBody');
+    body.innerHTML = '';
+    c.items.forEach((it,i)=>{
+      const tr = document.createElement('tr');
+      let row = `
+        <td class="left">${i+1}</td>
+        <td class="left"><input data-i="${i}" data-f="code" value="${it.code}"></td>
+        <td class="left"><input data-i="${i}" data-f="desc" value="${it.desc}"></td>
+        <td><input class="mono" data-i="${i}" data-f="qty" type="number" value="${it.qty}"></td>
+        <td><input class="mono" data-i="${i}" data-f="rate" type="number" value="${it.rate}"></td>
+        <td class="mono">${money(it.amount)}</td>`;
+      if (showDiscCol){
+        row += `<td><input class="mono" data-i="${i}" data-f="itemDiscPct" type="number" value="${it.itemDiscPct}"></td>
+                 <td><input class="mono" data-i="${i}" data-f="itemDiscVal" type="number" value="${it.itemDiscVal}"></td>`;
+      }
+      if (showDiscReadout){
+        row += `<td class="mono computed">${money(c.itemDiscounts[i])}</td>`;
+      }
+      if (showExpCols){
+        row += `<td><input class="mono" data-i="${i}" data-f="itemComm" type="number" value="${it.itemComm}"></td>
+                 <td><input class="mono" data-i="${i}" data-f="itemFreight" type="number" value="${it.itemFreight}"></td>
+                 <td><input class="mono" data-i="${i}" data-f="itemLoad" type="number" value="${it.itemLoad}"></td>`;
+      }
+      if (showExpReadout){
+        row += `<td class="mono computed">${money(c.itemExpenses[i])}</td>`;
+      }
+      if (showTaxCol){
+        row += `<td><input class="mono" data-i="${i}" data-f="itemTaxPct" type="number" value="${it.itemTaxPct}"></td>`;
+      }
+      if (showNetAmount){
+        row += `<td class="mono computed">${money(c.netPlusExpense[i])}</td>`;
+      }
+      row += `<td><button class="rm" data-rm="${i}">✕</button></td>`;
+      tr.innerHTML = row;
+      body.appendChild(tr);
+    });
+
+    body.querySelectorAll('input').forEach(inp=>{
+      inp.addEventListener('change', e=>{
+        const i = +e.target.dataset.i, f = e.target.dataset.f;
+        const isNum = ['qty','rate','itemDiscPct','itemDiscVal','itemComm','itemFreight','itemLoad','itemTaxPct'].includes(f);
+        state.items[i][f] = isNum ? (parseFloat(e.target.value)||0) : e.target.value;
+        render();
+      });
+    });
+    body.querySelectorAll('[data-rm]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{ state.items.splice(+btn.dataset.rm,1); render(); });
+    });
+
+    $('netAmountNote').textContent = showNetAmount
+      ? 'Net Amount = line Amount, less its share of Discount, plus its share of Expenses — the value each line\'s tax is based on.'
+      : 'Net Amount column is hidden: with Discount and Expenses both Combined, no line carries an individual net value — everything is settled at the invoice level below.';
+
+    renderSummary(c);
+  }
+
+  function renderSummary(c){
+    const discEditable = !(state.discountMode==='perItem' && state.discountSub==='manual');
+    const expEditable  = !(state.expenseMode==='perItem' && state.expenseSub==='manual');
+    const taxEditable  = state.taxMode==='combined';
+
+    const html = `
+      <div class="summary-row">
+        <div class="lbl">Subtotal</div>
+        <div class="val mono">${money(c.subtotal)}</div>
+      </div>
+
+      <div class="summary-row">
+        <div class="lbl">Discount</div>
+        <div class="inputs">
+          <span class="pct-badge">${state.discountIsVal ? 'Rs' : '%'}</span>
+          <input id="s_discPct" class="mono" type="number" ${discEditable?'':'disabled'}
+                 value="${state.discountIsVal ? state.discountVal : state.discountPct}">
+        </div>
+        <div class="val mono neg">-${money(c.totalDiscount)}</div>
+      </div>
+
+      <div class="summary-row">
+        <div class="lbl">Commission</div>
+        <div class="inputs"><input id="s_comm" class="mono" type="number" ${expEditable?'':'disabled'} value="${state.commission}"></div>
+        <div class="val mono">${money(expEditable ? state.commission : 0)}</div>
+      </div>
+      <div class="summary-row">
+        <div class="lbl">Freight</div>
+        <div class="inputs"><input id="s_freight" class="mono" type="number" ${expEditable?'':'disabled'} value="${state.freight}"></div>
+        <div class="val mono">${money(expEditable ? state.freight : 0)}</div>
+      </div>
+      <div class="summary-row">
+        <div class="lbl">Loading/Unld</div>
+        <div class="inputs"><input id="s_load" class="mono" type="number" ${expEditable?'':'disabled'} value="${state.loading}"></div>
+        <div class="val mono">${money(expEditable ? state.loading : 0)}</div>
+      </div>
+      <div class="summary-row">
+        <div class="lbl" style="font-weight:600;">Total Expenses</div>
+        <div></div>
+        <div class="val mono" style="font-weight:600;">${money(c.totalExpenses)}</div>
+      </div>
+
+      <div class="summary-row">
+        <div class="lbl">Sales Tax</div>
+        <div class="inputs">
+          <span class="pct-badge">%</span>
+          <input id="s_stax" class="mono" type="number" ${taxEditable?'':'disabled'} value="${state.salesTaxPct}">
+        </div>
+        <div class="val mono">${money(c.salesTax)}</div>
+      </div>
+      <div class="summary-row">
+        <div class="lbl">W/H Tax</div>
+        <div class="inputs">
+          <span class="pct-badge">%</span>
+          <input id="s_wtax" class="mono" type="number" value="${state.whTaxPct}">
+        </div>
+        <div class="val mono neg">-${money(c.whTax)}</div>
+      </div>
+
+      <div class="summary-row total">
+        <div class="lbl">Net Payable</div>
+        <div></div>
+        <div class="val mono">Rs. ${money(c.netPayable)}</div>
+      </div>
+    `;
+    $('summaryCard').innerHTML = html;
+
+    const bind = (id, apply) => {
+      const el = $(id);
+      if (el && !el.disabled) el.addEventListener('change', e=>{ apply(parseFloat(e.target.value)||0); render(); });
+    };
+    bind('s_discPct', v => { if (state.discountIsVal) state.discountVal = v; else state.discountPct = v; });
+    bind('s_comm', v => state.commission = v);
+    bind('s_freight', v => state.freight = v);
+    bind('s_load', v => state.loading = v);
+    bind('s_stax', v => state.salesTaxPct = v);
+    bind('s_wtax', v => state.whTaxPct = v);
+  }
+
+  $('addLine').addEventListener('click', ()=>{
+    state.items.push({code:'', desc:'', qty:1, rate:0,
+      itemDiscIsVal:false, itemDiscPct:0, itemDiscVal:0,
+      itemComm:0, itemFreight:0, itemLoad:0, itemTaxPct:0});
+    render();
+  });
+  $('clearLines').addEventListener('click', ()=>{ state.items = []; render(); });
+
+  render();
+})();
+</script>

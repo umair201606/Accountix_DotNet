@@ -1,0 +1,41 @@
+@using Accountix.Inventory.Services
+@model Accountix.Inventory.Controllers.StockController.MovementsModel
+@{
+    ViewData["Title"] = "Stock Movements";
+    ViewData["Heading"] = "Stock Movements";
+}
+<div class="card">
+  <div class="card-body" style="padding-bottom:8px;">
+    <form method="GET" class="search-form">
+      <select name="product_id" class="form-control focus-ring" style="width:300px;max-width:100%;display:inline-block;" onchange="this.form.submit()">
+        <option value="">All Products</option>
+        @foreach (var p in Model.Products)
+        {
+        <option value="@p.Id" selected="@((Model.Selected ?? "None") == p.Id.ToString())">@p.Name (@p.Sku)</option>
+        }
+      </select>
+    </form>
+  </div>
+  <div class="table-responsive">
+    <table class="table">
+      <thead><tr><th>Date</th><th>Product</th><th>Type</th><th>Quantity</th><th>Reference</th><th>Notes</th></tr></thead>
+      <tbody>
+        @foreach (var m in Model.Movements)
+        {
+        <tr>
+          <td>@m.CreatedAt?.ToString("yyyy-MM-dd HH:mm", System.Globalization.CultureInfo.InvariantCulture)</td>
+          <td>@m.Product</td>
+          <td><span class="badge @(m.Type.Contains("in") ? "badge-success" : "badge-danger")">@m.Type</span></td>
+          <td>@PyText.Qty(m.Quantity)</td>
+          <td>@(string.IsNullOrEmpty(m.ReferenceType) ? "-" : m.ReferenceType) #@(m.ReferenceId is int r && r != 0 ? r.ToString() : "-")</td>
+          <td>@(string.IsNullOrEmpty(m.Notes) ? "-" : m.Notes)</td>
+        </tr>
+        }
+        @if (Model.Movements.Count == 0)
+        {
+        <tr><td colspan="6" class="empty">No movements</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

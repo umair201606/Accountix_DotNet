@@ -1,0 +1,534 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<style>
+  :root{
+    --ink:#1b2a2e;
+    --paper:#fbfaf6;
+    --line:#d8d3c4;
+    --ledger:#0f5257;
+    --ledger-dim:#e7f0ef;
+    --amber:#b5790a;
+    --amber-dim:#faf1de;
+    --red:#a13a2f;
+    --muted:#7c8a86;
+    --link:#1a56c4;
+  }
+  *{box-sizing:border-box;}
+  .lreport{
+    font-family:'Iowan Old Style','Georgia',serif;
+    background:var(--paper); color:var(--ink);
+    max-width:1180px; margin:0 auto; padding:20px 24px 40px;
+    font-size:13px;
+  }
+  .lreport, .lreport input, .lreport select, .lreport button{font-family:'Iowan Old Style','Georgia',serif;}
+  .mono{font-family:'Courier New',monospace; font-variant-numeric:tabular-nums;}
+
+  /* ---- toolbar ---- */
+  .toolbar{
+    display:flex; justify-content:space-between; align-items:center;
+    background:#fff; border:1px solid var(--line); border-radius:4px;
+    padding:10px 14px; margin-bottom:16px; flex-wrap:wrap; gap:10px;
+  }
+  .filters{display:flex; gap:14px; flex-wrap:wrap; align-items:flex-end;}
+  .mode-toggle{display:flex; flex-direction:column; gap:4px;}
+  .mode-toggle .tglabel{font-size:9.5px; letter-spacing:0.07em; text-transform:uppercase; color:var(--muted);}
+  .seg{display:flex; border:1px solid var(--ledger); border-radius:3px; overflow:hidden;}
+  .seg button{border:none; background:#fff; color:var(--ledger); padding:6px 11px; font-size:11.5px; cursor:pointer;}
+  .seg button.active{background:var(--ledger); color:#fff;}
+  .seg button:not(:last-child){border-right:1px solid var(--ledger);}
+  .f-field label{display:block; font-size:9.5px; letter-spacing:0.07em; text-transform:uppercase; color:var(--muted); margin-bottom:3px;}
+  .f-field select, .f-field input{
+    border:1px solid var(--line); border-radius:2px; padding:5px 7px; font-size:12px; background:var(--paper);
+  }
+  .actions{display:flex; gap:8px;}
+  .actions button{
+    display:flex; align-items:center; gap:6px;
+    border:1px solid var(--ledger); background:#fff; color:var(--ledger);
+    padding:7px 13px; border-radius:3px; font-size:12px; cursor:pointer; letter-spacing:0.02em;
+  }
+  .actions button:hover{background:var(--ledger-dim);}
+  .actions button.primary{background:var(--ledger); color:#fff;}
+  .actions button.primary:hover{background:#0c4448;}
+  .actions button svg{width:13px; height:13px;}
+
+  /* ---- report header ---- */
+  .rhead{text-align:center; border-bottom:3px double var(--ink); padding-bottom:14px; margin-bottom:16px;}
+  .rhead .logo-row{display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:6px;}
+  .rhead .logo{width:34px; height:34px; border-radius:6px; background:linear-gradient(135deg,var(--amber),var(--ledger)); flex:none;}
+  .rhead h1{font-size:22px; margin:0; letter-spacing:0.01em;}
+  .rhead .meta{display:flex; justify-content:center; gap:34px; margin-top:10px; font-size:12px; color:var(--ink); flex-wrap:wrap;}
+  .rhead .meta div{max-width:260px;}
+  .rhead .meta .k{font-size:9.5px; letter-spacing:0.07em; text-transform:uppercase; color:var(--muted); margin-bottom:2px;}
+  .rhead .title{font-size:15px; font-weight:700; text-decoration:underline; text-underline-offset:4px; margin-top:14px;}
+
+  /* ---- table ---- */
+  table{width:100%; border-collapse:collapse; margin-top:8px;}
+  thead th{
+    background:var(--ledger-dim); color:var(--ink); border:1px solid var(--line);
+    font-size:11px; letter-spacing:0.03em; padding:8px 10px; text-align:left;
+  }
+  thead th.num{text-align:right;}
+  .grp-row td{
+    background:var(--amber-dim); font-weight:700; border:1px solid var(--line);
+    padding:7px 10px; font-size:12.5px;
+  }
+  tbody td{border:1px solid var(--line); padding:7px 10px; vertical-align:top;}
+  tbody td.num{text-align:right;}
+  tbody tr.entry:hover{background:#fbf6ea;}
+  .voulink{
+    color:var(--link); text-decoration:underline; text-underline-offset:2px; cursor:pointer;
+    background:none; border:none; font-size:13px; padding:0; font-family:'Courier New',monospace;
+  }
+  .voulink:hover{color:var(--ledger);}
+  .type-pill{
+    display:inline-block; font-size:9.5px; letter-spacing:0.04em; padding:2px 6px; border-radius:9px;
+    background:var(--ledger-dim); color:var(--ledger); font-weight:600;
+  }
+  tr.totals td{background:var(--ink); color:#fff; font-weight:700; padding:8px 10px;}
+  tr.balance td{background:var(--amber-dim); font-weight:700; padding:8px 10px; border-top:2px solid var(--ink);}
+  .neg{color:var(--red);}
+
+  /* ---- modal ---- */
+  .modal-backdrop{
+    position:fixed; inset:0; background:rgba(20,30,30,0.55); display:none;
+    align-items:center; justify-content:center; z-index:100; padding:20px;
+  }
+  .modal-backdrop.open{display:flex;}
+  .modal{
+    background:var(--paper); border:1px solid var(--line); border-radius:6px;
+    max-width:560px; width:100%; max-height:86vh; overflow:auto; padding:22px 24px;
+    box-shadow:0 20px 50px rgba(0,0,0,0.25);
+  }
+  .modal-head{display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid var(--ink); padding-bottom:10px; margin-bottom:14px;}
+  .modal-head h2{font-size:16px; margin:0;}
+  .modal-head .vsub{font-size:11px; color:var(--muted); margin-top:3px;}
+  .modal-close{background:none; border:none; font-size:18px; cursor:pointer; color:var(--muted); line-height:1;}
+  .vmeta{display:grid; grid-template-columns:1fr 1fr; gap:10px 20px; margin-bottom:14px; font-size:12px;}
+  .vmeta .k{font-size:9.5px; letter-spacing:0.07em; text-transform:uppercase; color:var(--muted);}
+  .vmeta .v{margin-top:2px;}
+  .vlines table{margin-top:4px;}
+  .vlines th{background:var(--ledger-dim); font-size:10px; padding:6px 8px;}
+  .vlines td{padding:6px 8px; font-size:12px;}
+  .modal-foot{display:flex; justify-content:flex-end; gap:8px; margin-top:16px;}
+  .modal-foot button{
+    border:1px solid var(--ledger); background:#fff; color:var(--ledger); padding:6px 14px;
+    border-radius:3px; font-size:12px; cursor:pointer;
+  }
+
+  @media print{
+    .toolbar, .modal-backdrop{display:none !important;}
+    .lreport{padding:0; max-width:100%;}
+  }
+</style>
+
+<div class="lreport" id="lreportRoot">
+
+  <div class="toolbar">
+    <div class="filters">
+      <div class="f-field">
+        <label>Account</label>
+        <select id="acctFilter">
+          <option value="all">All Accounts</option>
+        </select>
+      </div>
+      <div class="mode-toggle">
+        <div class="tglabel">Filter By</div>
+        <div class="seg" id="modeSeg"></div>
+      </div>
+      <div class="f-field" id="rangeFromField">
+        <label>From</label>
+        <input type="date" id="fromDate" value="2026-01-01">
+      </div>
+      <div class="f-field" id="rangeToField">
+        <label>To</label>
+        <input type="date" id="toDate" value="2026-12-31">
+      </div>
+      <div class="f-field" id="periodField" style="display:none;">
+        <label>Fiscal Period</label>
+        <select id="periodSelect"></select>
+      </div>
+      <div class="f-field">
+        <button id="applyFilters" style="border:1px solid var(--line);background:var(--paper);border-radius:3px;padding:6px 12px;font-size:12px;cursor:pointer;">Apply</button>
+      </div>
+    </div>
+    <div class="actions">
+      <button id="btnPrint" title="Print">🖨️ Print</button>
+      <button id="btnPdf" title="Export PDF">⬇ PDF</button>
+      <button id="btnXlsx" class="primary" title="Export Excel">⬇ Excel</button>
+    </div>
+  </div>
+
+  <div class="rhead">
+    <div class="logo-row"><div class="logo"></div><h1 id="companyName">Solarkon (Private) Limited</h1></div>
+    <div class="meta">
+      <div><div class="k">Period</div><div id="periodText">From: 01/01/2026 &nbsp; To: 31/12/2026</div></div>
+      <div><div class="k">Report Time</div><div id="reportTime">—</div></div>
+      <div><div class="k">Location</div><div>Cumulative (All locations)</div></div>
+    </div>
+    <div class="title">Ledger Report</div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:90px;">Date</th>
+        <th style="width:60px;">Type</th>
+        <th style="width:90px;">Vou No</th>
+        <th>Description</th>
+        <th class="num" style="width:120px;">Dr</th>
+        <th class="num" style="width:120px;">Cr</th>
+        <th class="num" style="width:130px;">Run-Bal</th>
+      </tr>
+    </thead>
+    <tbody id="reportBody"></tbody>
+  </table>
+
+  <div style="margin-top:10px;font-size:10.5px;color:var(--muted);font-style:italic;">
+    Click a voucher number to view the underlying voucher.
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <h2 id="mTitle">Voucher</h2>
+        <div class="vsub" id="mSub"></div>
+      </div>
+      <button class="modal-close" id="mClose">✕</button>
+    </div>
+    <div class="vmeta" id="mMeta"></div>
+    <div class="vlines">
+      <table>
+        <thead><tr><th style="text-align:left;">Account</th><th class="num" style="text-align:right;">Debit</th><th class="num" style="text-align:right;">Credit</th></tr></thead>
+        <tbody id="mLines"></tbody>
+      </table>
+    </div>
+    <div id="mNarration" style="margin-top:12px; font-size:12px; color:var(--muted);"></div>
+    <div class="modal-foot">
+      <button id="mPrint">Print Voucher</button>
+      <button id="mCloseBtn">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  // ---------- sample data (wire this up to your API) ----------
+  const accounts = [
+    {
+      code:'2-2-01-00003',
+      name:'Jamal Powers (Vendor/Supplier)',
+      opening:0,
+      entries:[
+        {date:'2025-12-31', type:'OB', vouNo:null, desc:'Opening Balance', dr:17358000, cr:0},
+        {date:'2026-04-14', type:'BR', vouNo:'BR-00038', desc:'Cash Received through Bank - Online - Bank Name (Askari Bank Main Account (2490420002152))', dr:0, cr:10000000},
+        {date:'2026-05-13', type:'JV', vouNo:'JV-00096', desc:'20 KW Hopewind inverter for JT Plaza', dr:260000, cr:0},
+      ]
+    },
+    {
+      code:'1-1-02-00007',
+      name:'Askari Bank Main Account (2490420002152)',
+      opening:0,
+      entries:[
+        {date:'2025-12-31', type:'OB', vouNo:null, desc:'Opening Balance', dr:1250000, cr:0},
+        {date:'2026-04-14', type:'BR', vouNo:'BR-00038', desc:'Cash Received - Jamal Powers (Vendor/Supplier)', dr:10000000, cr:0},
+        {date:'2026-06-02', type:'BP', vouNo:'BP-00021', desc:'Bank Payment - Office Rent June 2026', dr:0, cr:150000},
+      ]
+    }
+  ];
+
+  const voucherDetails = {
+    'BR-00038': {
+      title:'Bank Receipt Voucher', type:'BR', date:'14/04/2026',
+      meta:{ 'Bank Account':'Askari Bank Main Account (2490420002152)', 'Received From':'Jamal Powers (Vendor/Supplier)', 'Amount':'Rs. 10,000,000.00', 'Mode':'Online Transfer' },
+      lines:[
+        {account:'Askari Bank Main Account', dr:10000000, cr:0},
+        {account:'Jamal Powers (Vendor/Supplier)', dr:0, cr:10000000},
+      ],
+      narration:'Cash received through bank — online transfer.'
+    },
+    'JV-00096': {
+      title:'Journal Voucher', type:'JV', date:'13/05/2026',
+      meta:{ 'Prepared By':'User66', 'Project':'JT Plaza', 'Category':'Fixed Asset Purchase' },
+      lines:[
+        {account:'Jamal Powers (Vendor/Supplier)', dr:260000, cr:0},
+        {account:'Inventory — Inverters (20KW Hopewind)', dr:0, cr:260000},
+      ],
+      narration:'20 KW Hopewind inverter procured for JT Plaza installation.'
+    },
+    'BP-00021': {
+      title:'Bank Payment Voucher', type:'BP', date:'02/06/2026',
+      meta:{ 'Bank Account':'Askari Bank Main Account (2490420002152)', 'Paid To':'Landlord — Main Office', 'Amount':'Rs. 150,000.00' },
+      lines:[
+        {account:'Office Rent Expense', dr:150000, cr:0},
+        {account:'Askari Bank Main Account', dr:0, cr:150000},
+      ],
+      narration:'Office rent payment for June 2026.'
+    }
+  };
+
+  const periods = [
+    {label:'2025-2026', from:'2025-07-01', to:'2026-06-30'},
+    {label:'2024-2025', from:'2024-07-01', to:'2025-06-30'},
+  ];
+  let mode = 'range'; // 'range' | 'period'
+
+  const money = n => (n<0?'-':'') + Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const dmy = iso => { const [y,m,d]=iso.split('-'); return `${d}/${m}/${y}`; };
+
+  function seg(container, options, current, onPick){
+    container.innerHTML = '';
+    options.forEach(opt=>{
+      const b = document.createElement('button');
+      b.textContent = opt.label;
+      if (opt.value === current) b.classList.add('active');
+      b.onclick = () => onPick(opt.value);
+      container.appendChild(b);
+    });
+  }
+
+  function populatePeriods(){
+    const sel = document.getElementById('periodSelect');
+    periods.forEach(p=>{
+      const opt = document.createElement('option');
+      opt.value = p.label; opt.textContent = p.label;
+      sel.appendChild(opt);
+    });
+  }
+
+  function getRange(){
+    if (mode === 'period'){
+      const p = periods.find(p=>p.label === document.getElementById('periodSelect').value) || periods[0];
+      return {from:p.from, to:p.to};
+    }
+    return {from:document.getElementById('fromDate').value, to:document.getElementById('toDate').value};
+  }
+
+  function renderModeToggle(){
+    seg(document.getElementById('modeSeg'), [
+      {label:'Date Range', value:'range'},
+      {label:'Fiscal Period', value:'period'},
+    ], mode, v=>{
+      mode = v;
+      document.getElementById('rangeFromField').style.display = mode==='range' ? 'block' : 'none';
+      document.getElementById('rangeToField').style.display = mode==='range' ? 'block' : 'none';
+      document.getElementById('periodField').style.display = mode==='period' ? 'block' : 'none';
+      renderModeToggle();
+      renderReport();
+    });
+  }
+
+  function withRunningBalance(entries){
+    let bal = 0;
+    return entries.map(e=>{
+      bal = bal + e.dr - e.cr;
+      return {...e, runBal: bal};
+    });
+  }
+
+  function totalsFor(entries){
+    const dr = entries.reduce((s,e)=>s+e.dr,0);
+    const cr = entries.reduce((s,e)=>s+e.cr,0);
+    return {dr, cr, bal: dr - cr};
+  }
+
+  function populateAccountFilter(){
+    const sel = document.getElementById('acctFilter');
+    accounts.forEach(a=>{
+      const opt = document.createElement('option');
+      opt.value = a.code; opt.textContent = `${a.code} — ${a.name}`;
+      sel.appendChild(opt);
+    });
+  }
+
+  function renderReport(){
+    const filterVal = document.getElementById('acctFilter').value;
+    const range = getRange();
+    const from = range.from, to = range.to;
+    document.getElementById('periodText').textContent = mode === 'period'
+      ? ('Fiscal Year ' + document.getElementById('periodSelect').value + '  (' + dmy(from) + ' to ' + dmy(to) + ')')
+      : ('From: ' + dmy(from) + '   To: ' + dmy(to));
+    document.getElementById('reportTime').textContent = new Date().toLocaleString('en-US', {weekday:'long', month:'long', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit', second:'2-digit', hour12:true});
+
+    const body = document.getElementById('reportBody');
+    body.innerHTML = '';
+
+    const shown = accounts.filter(a => filterVal==='all' || a.code===filterVal);
+
+    shown.forEach(acct=>{
+      const filteredEntries = acct.entries.filter(e => e.date >= from && e.date <= to);
+      const rows = withRunningBalance(filteredEntries);
+      const t = totalsFor(filteredEntries);
+
+      const grp = document.createElement('tr');
+      grp.className = 'grp-row';
+      grp.innerHTML = `<td colspan="7">${acct.code} &nbsp; ${acct.name}</td>`;
+      body.appendChild(grp);
+
+      rows.forEach(e=>{
+        const tr = document.createElement('tr');
+        tr.className = 'entry';
+        const vou = e.vouNo
+          ? `<button class="voulink" data-vou="${e.vouNo}">${e.vouNo}</button>`
+          : `<span class="mono" style="color:var(--muted)">—</span>`;
+        tr.innerHTML = `
+          <td class="mono">${dmy(e.date)}</td>
+          <td><span class="type-pill">${e.type}</span></td>
+          <td>${vou}</td>
+          <td>${e.desc}</td>
+          <td class="num mono">${e.dr ? money(e.dr) : ''}</td>
+          <td class="num mono">${e.cr ? money(e.cr) : ''}</td>
+          <td class="num mono">${money(Math.abs(e.runBal))} ${e.runBal>=0?'Dr':'Cr'}</td>
+        `;
+        body.appendChild(tr);
+      });
+
+      const totalsRow = document.createElement('tr');
+      totalsRow.className = 'totals';
+      totalsRow.innerHTML = `<td colspan="4" style="text-align:right;">Totals</td>
+        <td class="num mono">${money(t.dr)}</td><td class="num mono">${money(t.cr)}</td><td></td>`;
+      body.appendChild(totalsRow);
+
+      const balRow = document.createElement('tr');
+      balRow.className = 'balance';
+      balRow.innerHTML = `<td colspan="4" style="text-align:right;">Balance</td>
+        <td class="num mono">${t.bal>=0 ? money(t.bal) : ''}</td>
+        <td class="num mono">${t.bal<0 ? money(-t.bal) : ''}</td><td></td>`;
+      body.appendChild(balRow);
+    });
+
+    body.querySelectorAll('[data-vou]').forEach(btn=>{
+      btn.addEventListener('click', ()=> openVoucher(btn.dataset.vou));
+    });
+  }
+
+  // ---------- voucher modal ----------
+  function openVoucher(vouNo){
+    const v = voucherDetails[vouNo];
+    if (!v) return;
+    document.getElementById('mTitle').textContent = v.title;
+    document.getElementById('mSub').textContent = `${vouNo}  •  ${v.date}`;
+
+    const metaEl = document.getElementById('mMeta');
+    metaEl.innerHTML = Object.entries(v.meta).map(([k,val])=>
+      `<div><div class="k">${k}</div><div class="v">${val}</div></div>`).join('');
+
+    const linesEl = document.getElementById('mLines');
+    linesEl.innerHTML = v.lines.map(l=>
+      `<tr><td>${l.account}</td><td class="num mono">${l.dr?money(l.dr):''}</td><td class="num mono">${l.cr?money(l.cr):''}</td></tr>`
+    ).join('');
+
+    document.getElementById('mNarration').textContent = v.narration || '';
+    document.getElementById('modalBackdrop').classList.add('open');
+  }
+  document.getElementById('mClose').onclick = () => document.getElementById('modalBackdrop').classList.remove('open');
+  document.getElementById('mCloseBtn').onclick = () => document.getElementById('modalBackdrop').classList.remove('open');
+  document.getElementById('modalBackdrop').addEventListener('click', e=>{
+    if (e.target.id === 'modalBackdrop') e.currentTarget.classList.remove('open');
+  });
+  document.getElementById('mPrint').onclick = () => window.print();
+
+  // ---------- filters ----------
+  populateAccountFilter();
+  populatePeriods();
+  renderModeToggle();
+  document.getElementById('applyFilters').addEventListener('click', renderReport);
+  document.getElementById('acctFilter').addEventListener('change', renderReport);
+  document.getElementById('periodSelect').addEventListener('change', renderReport);
+
+  // ---------- print ----------
+  document.getElementById('btnPrint').addEventListener('click', ()=> window.print());
+
+  // ---------- export helpers: gather current on-screen data ----------
+  function gatherExportData(){
+    const filterVal = document.getElementById('acctFilter').value;
+    const range = getRange();
+    const from = range.from, to = range.to;
+    const shown = accounts.filter(a => filterVal==='all' || a.code===filterVal);
+    return shown.map(acct=>{
+      const filteredEntries = acct.entries.filter(e => e.date >= from && e.date <= to);
+      const rows = withRunningBalance(filteredEntries);
+      const t = totalsFor(filteredEntries);
+      return {acct, rows, t};
+    });
+  }
+
+  // ---------- Export PDF ----------
+  document.getElementById('btnPdf').addEventListener('click', ()=>{
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit:'pt', format:'a4' });
+    const groups = gatherExportData();
+    const pageWidth = doc.internal.pageSize.getWidth();
+
+    doc.setFontSize(16); doc.setFont(undefined,'bold');
+    doc.text('Solarkon (Private) Limited', pageWidth/2, 40, {align:'center'});
+    doc.setFontSize(10); doc.setFont(undefined,'normal');
+    doc.text(document.getElementById('periodText').textContent, pageWidth/2, 58, {align:'center'});
+    doc.setFontSize(12); doc.setFont(undefined,'bold');
+    doc.text('Ledger Report', pageWidth/2, 78, {align:'center'});
+
+    let y = 96;
+    groups.forEach(({acct, rows, t})=>{
+      doc.setFontSize(10); doc.setFont(undefined,'bold');
+      doc.text(`${acct.code}   ${acct.name}`, 40, y);
+      const body = rows.map(e => [
+        dmy(e.date), e.type, e.vouNo || '—', e.desc,
+        e.dr ? money(e.dr) : '', e.cr ? money(e.cr) : '',
+        `${money(Math.abs(e.runBal))} ${e.runBal>=0?'Dr':'Cr'}`
+      ]);
+      body.push(['','','', 'Totals', money(t.dr), money(t.cr), '']);
+      body.push(['','','', 'Balance', t.bal>=0?money(t.bal):'', t.bal<0?money(-t.bal):'', '']);
+
+      doc.autoTable({
+        startY: y+8,
+        head: [['Date','Type','Vou No','Description','Dr','Cr','Run-Bal']],
+        body,
+        styles:{ fontSize:8, cellPadding:4 },
+        headStyles:{ fillColor:[15,82,87] },
+        columnStyles:{4:{halign:'right'},5:{halign:'right'},6:{halign:'right'}},
+        margin:{left:40, right:40},
+        didParseCell: function(data){
+          const rowIdx = data.row.index;
+          if (data.row.raw[3] === 'Totals' || data.row.raw[3] === 'Balance'){
+            data.cell.styles.fontStyle = 'bold';
+          }
+        }
+      });
+      y = doc.lastAutoTable.finalY + 24;
+      if (y > doc.internal.pageSize.getHeight() - 80){ doc.addPage(); y = 40; }
+    });
+
+    doc.save('ledger-report.pdf');
+  });
+
+  // ---------- Export Excel ----------
+  document.getElementById('btnXlsx').addEventListener('click', ()=>{
+    const groups = gatherExportData();
+    const aoa = [];
+    aoa.push(['Solarkon (Private) Limited']);
+    aoa.push([document.getElementById('periodText').textContent]);
+    aoa.push(['Ledger Report']);
+    aoa.push([]);
+    groups.forEach(({acct, rows, t})=>{
+      aoa.push([`${acct.code}  ${acct.name}`]);
+      aoa.push(['Date','Type','Vou No','Description','Dr','Cr','Run-Bal']);
+      rows.forEach(e=>{
+        aoa.push([dmy(e.date), e.type, e.vouNo || '', e.desc, e.dr || 0, e.cr || 0, `${money(Math.abs(e.runBal))} ${e.runBal>=0?'Dr':'Cr'}`]);
+      });
+      aoa.push(['','','','Totals', t.dr, t.cr, '']);
+      aoa.push(['','','','Balance', t.bal>=0?t.bal:'', t.bal<0?-t.bal:'', '']);
+      aoa.push([]);
+    });
+    const ws = XLSX.utils.aoa_to_sheet(aoa);
+    ws['!cols'] = [{wch:12},{wch:8},{wch:12},{wch:55},{wch:16},{wch:16},{wch:16}];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Ledger Report');
+    XLSX.writeFile(wb, 'ledger-report.xlsx');
+  });
+
+  renderReport();
+})();
+</script>

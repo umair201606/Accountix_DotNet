@@ -1,0 +1,52 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Accountix.Core/Accountix.Core.csproj" />
+    <Project Path="src/Accountix.Web.Shared/Accountix.Web.Shared.csproj" />
+    <Project Path="src/Accountix.Web/Accountix.Web.csproj" />
+    <Project Path="src/Accountix.Migrations/Accountix.Migrations.csproj" />
+    <Project Path="src/Accountix.Admin/Accountix.Admin.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/">
+    <Project Path="src/Modules/Accountix.Accounting/Accountix.Accounting.csproj" />
+    <Project Path="src/Modules/Accountix.Finance/Accountix.Finance.csproj" />
+    <Project Path="src/Modules/Accountix.FixedAssets/Accountix.FixedAssets.csproj" />
+    <Project Path="src/Modules/Accountix.Hr/Accountix.Hr.csproj" />
+    <Project Path="src/Modules/Accountix.Inventory/Accountix.Inventory.csproj" />
+    <Project Path="src/Modules/Accountix.Invoicing/Accountix.Invoicing.csproj" />
+    <Project Path="src/Modules/Accountix.Parties/Accountix.Parties.csproj" />
+    <Project Path="src/Modules/Accountix.Payroll/Accountix.Payroll.csproj" />
+    <Project Path="src/Modules/Accountix.Platform/Accountix.Platform.csproj" />
+    <Project Path="src/Modules/Accountix.Executive/Accountix.Executive.csproj" />
+    <Project Path="src/Modules/Accountix.Returns/Accountix.Returns.csproj" />
+    <Project Path="src/Modules/Accountix.Orders/Accountix.Orders.csproj" />
+    <Project Path="src/Modules/Accountix.HrRecords/Accountix.HrRecords.csproj" />
+    <Project Path="src/Modules/Accountix.SuperAdmin/Accountix.SuperAdmin.csproj" />
+    <Project Path="src/Modules/Accountix.Fbr/Accountix.Fbr.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Accountix.Accounting.Tests/Accountix.Accounting.Tests.csproj" />
+    <Project Path="tests/Accountix.Finance.Tests/Accountix.Finance.Tests.csproj" />
+    <Project Path="tests/Accountix.FixedAssets.Tests/Accountix.FixedAssets.Tests.csproj" />
+    <Project Path="tests/Accountix.Hr.Tests/Accountix.Hr.Tests.csproj" />
+    <Project Path="tests/Accountix.Inventory.Tests/Accountix.Inventory.Tests.csproj" />
+    <Project Path="tests/Accountix.Invoicing.Tests/Accountix.Invoicing.Tests.csproj" />
+    <Project Path="tests/Accountix.Parties.Tests/Accountix.Parties.Tests.csproj" />
+    <Project Path="tests/Accountix.Payroll.Tests/Accountix.Payroll.Tests.csproj" />
+    <Project Path="tests/Accountix.Platform.Tests/Accountix.Platform.Tests.csproj" />
+    <Project Path="tests/Accountix.Executive.Tests/Accountix.Executive.Tests.csproj" />
+    <Project Path="tests/Accountix.Returns.Tests/Accountix.Returns.Tests.csproj" />
+    <Project Path="tests/Accountix.Orders.Tests/Accountix.Orders.Tests.csproj" />
+    <Project Path="tests/Accountix.HrRecords.Tests/Accountix.HrRecords.Tests.csproj" />
+    <Project Path="tests/Accountix.SuperAdmin.Tests/Accountix.SuperAdmin.Tests.csproj" />
+    <Project Path="tests/Accountix.Fbr.Tests/Accountix.Fbr.Tests.csproj" />
+    <Project Path="tests/Accountix.E2E/Accountix.E2E.csproj" />
+    <Project Path="tests/Accountix.Tests/Accountix.Tests.csproj" />
+    <Project Path="tests/Accountix.Migrations.Tests/Accountix.Migrations.Tests.csproj" />
+    <Project Path="tests/Accountix.Admin.Tests/Accountix.Admin.Tests.csproj" />
+    <Project Path="tests/Accountix.TestSupport/Accountix.TestSupport.csproj" />
+    <Project Path="tests/Accountix.Load/Accountix.Load.csproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/Accountix.RefDb/Accountix.RefDb.csproj" />
+  </Folder>
+</Solution>

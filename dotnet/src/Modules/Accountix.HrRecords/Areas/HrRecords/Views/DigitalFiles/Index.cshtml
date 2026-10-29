@@ -1,0 +1,78 @@
+@model DigitalFilesController.IndexModel
+@{
+    ViewData["Title"] = "My Files - Accountix ERP";
+}
+<div class="page-header">
+    <div>
+        <h1>Digital Personal File</h1>
+        <p class="subtitle">Upload and manage your documents securely</p>
+    </div>
+    <button class="btn btn-primary" id="show-upload-form">+ Upload File</button>
+</div>
+
+@if (Model.Expiring > 0)
+{
+<div class="flash-warning">@Model.Expiring file(s) expiring within 30 days.</div>
+}
+
+<div id="upload-form" class="card hidden mb-20" style="max-width:500px;">
+    <form method="POST" action="/digital-files/upload" enctype="multipart/form-data">
+        <div class="form-group"><label>Title</label><input type="text" name="title" class="form-control" placeholder="File title"></div>
+        <div class="form-group"><label>Category</label>
+            <select name="category_id" class="form-control">
+                <option value="">Select...</option>
+                @foreach (var c in Model.Categories)
+                {
+                <option value="@c.Id">@c.Name</option>
+                }
+            </select>
+        </div>
+        <div class="form-group"><label>File *</label><input type="file" name="file" class="form-control" required></div>
+        <div class="form-group"><label>Expiry Date (optional)</label><input type="date" name="expiry_date" class="form-control"></div>
+        <div class="form-group"><label>Notes</label><textarea name="notes" class="form-control form-textarea"></textarea></div>
+        <button type="submit" class="btn btn-primary">Upload</button>
+    </form>
+</div>
+
+<div class="card">
+    <div class="card-header">My Documents</div>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Title</th><th>Category</th><th>File</th><th>Size</th><th>Expiry</th><th>Verified</th><th>Uploaded</th><th>Actions</th></tr></thead>
+            <tbody>
+                @foreach (var f in Model.Files)
+                {
+                <tr>
+                    <td>@f.Title</td>
+                    <td>@(f.Category ?? "-")</td>
+                    <td>@f.OriginalName</td>
+                    <td>@if (f.FileSize is int size && size != 0) {@(Py.Float(Py.Round(size / 1024.0, 1)) + " KB")} else {@("-")}</td>
+                    <td>@(f.ExpiryDate is null ? "-" : Py.Date(f.ExpiryDate))
+                        @if (f.ExpiryDate is DateOnly e && e < Model.Now) {<span class="badge badge-danger">Expired</span>}
+                    </td>
+                    <td>@if (f.IsVerified) {@Html.Raw("&#10004;")} else {<span class="badge badge-warning">Pending</span>}</td>
+                    <td>@Py.DMonY(f.UploadedAt)</td>
+                    <td>
+                        <a href="/digital-files/download/@f.Id" class="btn btn-sm btn-outline">Download</a>
+                        <form method="POST" action="/digital-files/delete/@f.Id" style="display:inline;">
+                            <button class="btn btn-sm btn-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                }
+                @if (Model.Files.Count == 0)
+                {
+                <tr><td colspan="8" class="text-center" style="color:var(--muted);">No documents uploaded</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+document.getElementById('show-upload-form')?.addEventListener('click', () => {
+    document.getElementById('upload-form').classList.toggle('hidden');
+});
+</script>
+}

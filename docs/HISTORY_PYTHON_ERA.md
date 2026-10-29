@@ -1,0 +1,440 @@
+# History of the Python era (Oct 2026 and before)
+
+The app was a Python/Flask application until 29 Oct 2026, when it was moved to .NET 10 (`dotnet/`)
+and the Python code was removed. These are the session notes of that time. They record the business
+rules, the bugs found and fixed, and why things are the way they are. The file and route names they
+mention are the Python app's; the .NET module that ports each one says so in `dotnet/docs/modules/*.md`.
+The Python code itself is archived outside the repository (`accountix_python_backup_2026-10-29.zip`
+and `accountix_python_removed_2026-10-29/`, both in the owner's Downloads folder).
+
+## Session Summary (29 Oct 2026) — .NET Move Begun (Foundation), Access Review
+
+### Decisions (user)
+- Move to **.NET 10**, **phased on the same database**: each module moves when ready, the Python app serves the rest. Order: foundation → access fixes → Accounting → Inventory → Invoicing → HR → Fixed Assets → rest. Hosting target: Azure App Service in the same region as Neon
+- Alembic (Python) stays the schema owner until cut-over; .NET maps tables, never creates them
+
+### Done
+- `dotnet/` (README there): `Accountix.Core` (entities for users/roles/companies/memberships/invitations/limits/rights/audit, EF Core context with fail-closed company filter + insert stamping + no cross-company writes, `AccessService` loading role/modules/rights once per request, Werkzeug-compatible scrypt/pbkdf2 hashing, Flask session-cookie reader), `Accountix.Web` (bridge sign-in from the Python session cookie, company context, `[Module]`/`[Right]`/`[AnyMember]`, antiforgery, `/net/access`, `/net/health`), 43 tests
+- `dotnet/tools/make_reference_db.py`: the Python app builds and seeds a throwaway Postgres; .NET tests check the schema mapping, access parity for every person/company, passwords both ways, and real Flask cookies (valid, tampered, stale after password change)
+- **Access review** `dotnet/docs/ACCESS_REVIEW.md`, 11 findings, the top six reproduced through real routes: module access follows a person into every company (account-wide fallback) + rights unrestricted until saved (an invited *employee* held 190/190 rights); console-made companies owned by the super admin; sign-out doesn't end a copied session; PF buttons use the account role; mixed-case emails can't be invited; `last_login` never stored. **No Python code changed** — fixes need both apps + a migration, awaiting go-ahead
+
+## Session Summary (20 Oct 2026) — Parallel Agent Work Merged, Branches Reconciled, Pushed
+
+### Branches
+- Six local branches audited against `main`. Five were already ancestors (`costing-carried-layer-value`, `feat/portal-landing-accountix`, `fix/invoice-a4-layout`, `unify-settings-and-app-shell`, `v3-invoicing-standard`) — nothing to merge
+- `fix/fixed-assets-gl-and-report-date-boundary` carried three July commits (closing-day report filters, fixed-assets GL wiring, responsive hub). All three are already in `main` through later report/costing/fixed-asset/hub rewrites — content verified (`_eod` boundaries, disposal gain/loss account, FA-ACQ/FA-CAP/FA-DEP, `live_depreciation_query`, 4→2→1 hub grid). Merged with `-s ours` so the older file versions could not overwrite the newer work; no tree change
+- A detached Claude worktree in Temp held four untracked E2E files, byte-identical to the copies committed here
+
+### Uncommitted work on `main` (committed as `be42ed1`)
+- **Account security** (`shared/account_security.py`): password policy (8+, common list), sign-in throttle derived from the audit log (serverless-safe), session fingerprint, invitation moves; a company may change a login (email/password/active) only when it reaches no other company; company admins cannot reach the super-admin account
+- **CSRF / headers** (`shared/csrf_guard.py`): `SameSite=Lax` plus an Origin/Referer guard on every write and hardening headers; `TRUSTED_ORIGINS` for extra domains
+- **Section rights** (`shared/rights_guard.py`): Settings → Rights is enforced at the door of every covered module route (view/create/edit/approve/delete); `test_rights_enforced.py` fails if a route is neither guarded nor explicitly open. Unconfigured people keep full access; admins pass
+- **Per company**: module access on the membership (Alembic **0014**), manager/designation/department on the membership (Alembic **0015**, copied from the user rows; manager only when an active member of that company). `User.manager_id/designation/department` read/write the active company, fall back to the account copy; the account copy follows only a single-company login
+- **Master data** (`shared/master_data.py`): one set of validations for customers, suppliers, products and units across forms, Excel imports and batch editors; import rows no longer travel in the session cookie (4 KB truncation)
+- Also: FBR failed-submission retry under a row lock, COA delete guard, upload type sniffing, HR authorization fixes, dead duplicate `shared/routes/auth.py` removed
+
+### Fixes made during the merge
+- `move_invitations` compared the stored address case-sensitively (mixed-case user emails left their invitations behind) and used `db` without importing it — now `lower(email)` and the import
+- `test_hr_editor_still_saves_employment_details_of_a_shared_login` asserted the account copy for someone in three companies; now checks the active company's membership and that the account copy stays untouched
+- The 0015 migration test used `db.engine` outside an app context; wrapped in `flask_app.app_context()`
+
+### Verification
+- Unit **472 passed**
+- Full E2E in six foreground chunks: **1,138 passed, 2 skipped** (Postgres-only), plus the concurrency wrapper (21 inside)
+- Working tree clean; `main` = `origin/main` at `cfcdc69`
+
+## Session Summary (19 Oct 2026) — Invoice Tracking Re-read: Returns, Bulk Matching, Paging
+
+Invoicing → Invoice Tracking (payment & receipt feed, assign workspace, sales / purchase tracking, invoice history) and the Invoice Register, read end to end and run against a migrated copy of `instance/erp_dev.db` (Samba: 1,907 receipts/payments, 2,760 SI, 794 PI, 102 returns).
+
+### Bugs
+- **Returns were ignored** (`shared/payment_tracking.credited_by_doc`): an invoice's outstanding was total − assigned money, so a credit/debit note (which credits the party by exactly `net_return_amount` — checked for all 102) left it "owed" in full: 53 of 128 parties disagreed with their ledger by exactly their returns, a receipt for the net amount left the invoice partial forever, and assignment allowed more than was owed. Now outstanding = total − assigned − returned everywhere (`_doc_dict`, registers, workspace headroom, `allocate`, `recompute_doc` status — `paid_amount` stays money received), credit notes appear in the invoice's history with the running balance, and approving/unapproving a return refreshes its invoice's status. On the copy: every party's ledger = invoices outstanding − unassigned money (0 of 128 off, before and after matching)
+- **Partly force-closed receipt vanished**: any forced amount made the line "forced" (hidden by the default view) even with money still loose. Now "partial" until fully accounted for
+- **Assign drawer / workspace**: capacity was the whole receipt (force-closed money offered again, server refused with a confusing error); every unticked invoice pre-filled its whole balance (ticking two overshot the receipt). Now capacity = amount − forced and a tick offers min(invoice balance, what is left)
+- **`auto_split`** (server proposal) under-proposed when the line was already split; now a complete replacement split. **Unassign** did not lock the line
+- **Filter chips**: unticking every chip sent no value and the defaults came back — "all" was unreachable (hidden empty value now)
+- **Invoice Register** balance = total − paid, ignoring returns → new **Returned** column; balance = total − paid − returned (ties to the tracker to the paisa on the copy)
+- Purchase-invoice side, ledger payers (Trade Debtors — General): "Assign" was offered on rows that carry no invoices; now only "No invoice" (close with a reason) with an explanation in the workspace
+- Closed drawers were tabbable off-screen (now `visibility:hidden` once slid out); detach used `confirm()`/`alert()` (now a two-step button, inline errors); sidebar lost its place on invoice history (nav `active` gained per-endpoint `args`: SI → Sales Invoice Tracking, PI → Purchase)
+
+### Flows
+- **Match oldest first** (`payment_tracking.auto_match`, `POST /invoicing/tracking/api/auto-match`, button on the feed scoped to the chosen party/side and on each register): every open receipt/payment settles its party's oldest invoices; existing splits, forced money, lines under review and ledger payers untouched; locks lines then invoices; one pass, no per-invoice queries; idempotent. On the copy: 1,905 receipts/payments → 3,260 invoices in ~10 s; receivable 4.18bn "all overdue" → 539m in 342 open invoices
+- **Apply here** on an invoice's history (`POST /api/apply/<line>/<SI|PI>/<id>`): one click puts min(unassigned, outstanding) of a waiting receipt on the invoice
+- Registers open on **unpaid + partial** (paid one chip away), **sort** (newest / oldest / most overdue / largest outstanding); one match bar per page instead of an "unassigned" badge repeated on every row of the party; Settled-bar and History columns removed; dates no longer wrap; returned shown under Received
+- Workspace: close-without-invoice and Reopen in the side panel; saving a fully assigned receipt returns to the feed; phones get a pinned "left after this split + Save" bar; filters fold behind one button on phones; feed keeps its scroll position across saves; nav label "Payment & Receipt Feed"
+
+### Speed
+- Feed built once per page (`feed_snapshot` + in-memory `filter_feed`, tiles from the same rows), party index built once, assignments classified once, invoice approval checked by id-only query: feed 5.3 s → 1.1 s, sales register 5.9 s → ~2 s (`filter_invoices`, summary from the same rows); 100 rows a page (`tracking/_pager.html`)
+
+### Tests
+- `test_payment_tracking.py` 52 → 62 (returns settle and cap assignment, fully returned invoice, partly forced stays queued, complete auto-split, auto-match oldest first + leaves splits/forced alone + idempotent + posts nothing, in-memory filters = SQL, apply-here + match over HTTP, registers default to open, pages render with returns/paging/match bar); `test_responsive_pages.py` + three tracking pages (clip check now ignores children of fixed overlays)
+- Browser run on the copy: 22/22 behaviours (desktop + 375 px), no script errors, no dialogs
+- **Full run (this round + the 15 Oct round): unit 472 passed; `tests/concurrency` 21 passed; E2E 983 passed, 2 skipped** (Postgres-only), run as 10 foreground chunks (`pytest <files>` per chunk) because one long background run was killed for low memory
+
+### Claude Code on this machine (not the app)
+- The Warp plugin's hooks (`~/.claude/plugins/{cache,marketplaces}/claude-code-warp/…/warp/hooks/hooks.json`) ran `${CLAUDE_PLUGIN_ROOT}/scripts/…` unquoted; the path contains "Muhammad Umair", so every hook failed ("bash: C:/Users/Muhammad: No such file or directory"). Quoted in both copies (backups `hooks.json.bak-2026-10-19`); a plugin update may bring the unquoted version back (upstream bug)
+- Boxed "?" glyphs: the session ran in the classic `cmd.exe` console, whose fonts (Consolas / Lucida Console) lack U+23BF, U+23F5, U+273B and which has no font fallback. Run Claude Code in Warp (installed) or Windows Terminal
+
+## Session Summary (15 Oct 2026) — Many Users at Once; Live Data Checked and Cleaned
+
+### Live database (Neon), read-only from here
+- Neon was at **0007** (origin/main). Copied whole into a local Postgres (144,506 rows, 120 tables, counts equal) and backed up as `instance/backups/neon_2026-10-15_rev0007.dump` (pg_dump -Fc, test-restored: identical counts, sequences right). `instance/backups/` and `*.dump` are git-ignored — live data, never commit
+- **Upgrade 0007 → head proven on that copy** with today's code: every revision ran, both quantity columns NUMERIC(16,4), no on-hand figure moved (all 26 ledgered products already matched), boot wrote no rows, every model column present. Books Integrity: Samba and Sheraz 11/11
+- **Faulty data on Neon** (Default Company only, July demo): BRV-00001 journal (unposted, both lines debits, voucher gone), DN-202607-0001 ("approved", no stock, no journal), PINV-202607-0001 (Inventory debited 105,600 vs layers 92,250 — old discount-sign bug; nothing drew on it). `tools/remove_faulty_demo_records.py` (dry run; `--apply`) checks each is exactly that, deletes them, rebuilds company 1's report totals and on-hand; on a copy every company then passes 11/11; a second run aborts. **Not run on Neon** — writes to live data were refused from this session; run it yourself
+- Neon's sequences are all ahead of their tables (checked); a local copy made by reflection must reset them (`setval(max+1)`) or every insert collides — the first backup had that flaw and was redone
+- **Local dev DB** (`instance/erp_dev.db`): was at **0004** (the interpreter that runs `run_local.py` has no alembic, so boot skipped every revision since). Backed up to `instance/backups/erp_dev_2026-10-15_before_repair.db`, booted to 0013, `tools/repair_opening_stock.py --apply` posted the 22 missing opening journals (16,497,500). Both companies 11/11. `pip install -r requirements.txt` for that interpreter, or run with `venv`
+
+### Many users at once (Postgres; proven in `tests/concurrency/`)
+Tested by racing N=6 users (threads, own sessions) at one record on a real Postgres. The first five below were reproduced failing before the fix; the rest were found by reading each module and are covered by the same suite:
+- **Report totals** (`shared/gl_summary.py`): each posting recomputed its (account, label, day) rows from what its transaction could see and rewrote them — two users posting to Cash on one day deadlocked or hit the unique key (error page, posting lost). Now each flush adds its *difference* with one `INSERT … ON CONFLICT DO UPDATE SET debit = debit + …` (commutes; keys in sorted order; zero rows removed); savepoints roll back with it. `rebuild()` upserts too
+- **Voucher numbers** (`VoucherNumber.next`): read in Python and written back — 12 requests drew 6 numbers. Now one atomic `UPDATE … RETURNING` (first use `ON CONFLICT DO NOTHING`), and it **no longer commits** — it used to commit the caller's half-built document; the series is gapless and numbered in commit order
+- **Document numbers** (SI, PI, SO, PO, CN, DN): "last id + 1" → two saves collided ("Server error"). Now `shared/doc_numbers.py`: a placeholder until the insert, then PREFIX-YYYYMM-<own id> (month by the company clock). **Orders saved from the browser were numbered "(auto)"** (the form sends that text; the second order clashed) — fixed
+- **Double posting**: six users approving one invoice posted it six times. Every state change now loads its record with `scoped_get(..., for_update=True)` (SELECT … FOR NO KEY UPDATE + reload): SI/PI/SR/PR/SO/PO save, approve, unapprove, delete, cancel; accounting vouchers; consumption/scrap/adjustment/stock take; asset transfers and capitalisations; asset edit, manual charge, disposal, undo; depreciation runs (assets locked in id order, outside the per-asset savepoint) and reversal; payroll runs/pay/unpay/delete; staff loans; PF; leave, timesheets, MSS, change requests; bank reconciliations; products; FBR submission (two Sends reported one invoice twice — irreversible)
+- **NO KEY UPDATE, not FOR UPDATE**: a return inserting its row (FK key-share lock on the invoice) and then locking the invoice deadlocked against a second return doing the same. Every lock in the app is `with_for_update(key_share=True)`
+- **Stock** (`costing.lock_products`): two sales of one product both saw "10 on hand" and both took them. Every receipt/issue/reversal/re-costing locks the product rows first; documents lock all their products up front, ascending, after the document and its order lines — one lock order everywhere: document → order lines → products → report totals. No deadlocks in the mixed test
+- **Order lines** (`order_linkage.lock_order_lines`): billing read the invoiced quantity and wrote it back (lost quantities, over-billing). Locked before the over-invoicing check and in the write-back. **A billed order can no longer be unapproved, edited or deleted** (saving replaced its lines: billed quantities thrown away, invoice links orphaned; on Postgres the FK refused)
+- **Returns** lock the invoice they return against (two returns both passed the over-return check)
+- **Check-then-create** queued with `shared/concurrency.serialize(scope, key)` (transaction advisory lock, works through Neon's pooler): one draft reconciliation per account, payroll per company, PF fund movements per company (two withdrawals overdrew), leave per employee (double Apply filed two requests; decisions rewrote the balance), attendance per person, asset codes per company
+- **Payment tracking**: assigning locks the receipt line, then the invoices (two receipts overpaid one invoice)
+- **Period close**: postings take FOR SHARE on their period in `require_open_period`; close/reopen take it exclusively — a close waits for postings in flight, a posting during a close is refused (one used to commit into a closed period)
+- **Lock timeout**: every Postgres transaction `SET LOCAL lock_timeout` (`DB_LOCK_TIMEOUT_MS`, 15 s) — a request behind a stuck one answers instead of hanging until Vercel kills it
+- **Conflict answers** (`shared/concurrency.conflict_message`, app error handler, invoice catch-all): deadlock / lock timeout / serialization → "Another user changed the same records at the same moment…", unique → "clashes with a record that already exists", FK → "was removed by another user"; rolled back whole, JSON 409 or flash. Other errors are not disguised
+- **Stale edits**: two people editing one draft — the later save silently replaced the earlier. SI/PI/SO/PO/SR/PR carry `edit_version` (Alembic **0013_edit_version**, adds a column, no data change); save and unapprove bump it; a save carrying an older version is refused with who/when from the audit log ("…was changed by Ali at 15:02 on 15 Oct after you opened it"). `static/js/edit_version.js` adds the page's version to its JSON saves and updates it from every answer; a request without a version is not checked
+- **Reports read one instant** (`concurrency.consistent_snapshot` on TB, P&L, label P&L, BS, SOCIE, cash flow, ledger, executive dashboard/registers/party, Books Integrity, stock valuation): REPEATABLE READ on Postgres — a posting committing between a report's queries could make Books Integrity flag a mismatch the ledger did not have (reasoned, not observed)
+- **Settings made on first use** (company info, report/fiscal/inventory/invoice settings, FBR config, global limits, payroll settings): queued per company and read `order_by(id)` — two first requests could make two rows and `.first()` return either. `PayrollSettings.get()` flushed the whole session (now only its row)
+- **Lock order** everywhere: document → number series → order lines → products → report totals; a stock take now takes its ADJ number before locking products (as every stock document does). Migrations are exempt from the lock timeout (`SET LOCAL lock_timeout = 0` in `migrations/env.py`: instances queued behind the migrating one, or an ALTER waiting for requests in flight, must not give up)
+- SQLite (local/test) writers wait 30 s for each other instead of 5 (`connect_args timeout`) — "database is locked" at busy moments
+- **Double submit** (`static/js/app.js`): a second native POST of the same form while the first is in flight is cancelled (window-level, runs after page handlers, so fetch-driven forms are untouched; lifts on back-navigation and after 8 s)
+
+### Also fixed
+- Purchase-invoice **Pay** posted Dr AP / Cr Cash outside the voucher system and was offered on unapproved invoices — retired like the sales one; the Pay boxes are gone from both lists (no data was ever created through it)
+- Stock adjustment / stock take took **system quantity from the browser** — the difference posted was physical minus what the screen showed when it opened. Now the ledger's on-hand at the document date, read after the products are locked; the column is read-only
+- Product edit overwrote the engine-kept cost with the form's copy once stock had moved — now only before any movement (read-only after)
+- Five files had flipped line endings in the last round (company.py read as a 559-line rewrite) — restored
+
+### Tests
+- `tests/concurrency/test_concurrent_users.py` (21, Postgres: `TEST_DATABASE_URL` or `pip install pgserver`, dev only; run with `ERP_CONCURRENCY=1 pytest tests/concurrency`) — run inside the E2E suite by `tests/e2e/test_concurrency.py` in its own process (the app binds its DB at import)
+- `tests/e2e/test_edit_conflicts_ui.py` (2, browser: stale tab, submit guard — the guard test fails without the guard), `tests/unit/test_concurrency_messages.py` (5); Alembic head assertions → 0013
+- **Verified (19 Oct, with the tracking round)**: unit 472 passed; `tests/concurrency` 21 passed (first-use settings and report snapshot included); full E2E 983 passed, 2 skipped. The earlier failed / errored runs were memory pressure, not code
+
+### Push
+Local commits only (pushing was refused from this session). Pushing runs **0008–0013** on Neon at the first request; on Neon's data only 0010 (one PF config set to "gross") and 0011 (two column types; no figure changes) touch existing rows. Backup above.
+
+## Session Summary (13 Oct 2026) — Fixed Assets & Payroll to Corporate Standard
+
+### Fixed assets
+- **Depreciation engine** (`FixedAsset.monthly_charges`, used by `due_depreciation`, the run, disposal/transfer catch-up and the schedule): straight line spreads what is left over the life left (changes of life / salvage / cost are **prospective**, IAS 8); reducing balance is double-declining **switching to straight line**; the life's last month takes the remainder. Before: SL stopped a few rupees short, DDB never reached salvage (stuck forever), an edited life kept the old rate, and an asset past its life with value left was never charged again
+- **Planned depreciation** table on the asset page (`depreciation_schedule`); run page has an "as of" date, method, charged-to and total; bulk post uses a savepoint per asset (a refused one used to leave its half-built row to be committed with the others)
+- **Asset rules**: cost > 0, 1–100 years, 0 ≤ salvage < cost, method checked; edit refuses cost below posted depreciation, purchase date after the first charge, moving accumulated depreciation to another account, and cost/date edits on capitalised assets; out-of-service assets edit descriptive fields only (restating a disposed asset's cost re-posted FA-ACQ while FA-DISP credited the old figure). "Disposed" removed from the edit form (it skipped the disposal journal); blank account selects keep the current account. Fixed-asset account / label changes now restate the acquisition too
+- **Disposal / transfer** refused when depreciation is posted after their date; manual charges only for assets in service and not before the last charge; inactive assets take no charge
+- **Capitalisation drafts**: an unapproved capitalisation created an *active* asset (from Inventory even at a typed cost with no journal) that the run depreciated with nothing in the GL. Drafts are now `status="draft"`, quantity stored (`asset_transfers.quantity`), approvable later (`POST /fixed-assets/transfers/<id>/approve-capitalisation`), deleting a draft deletes its asset, unapprove returns it to draft. Both modules use `new_capitalisation` / `approve_capitalisation` / `discard_draft_asset`. Asset → stock now requires a stock item (it debited Inventory with no layer). Unapprove/delete are POST-only. Inventory's list filtered on a direction it never wrote (always empty); neither list ever showed the asset name (no relationship). Asset codes: `FixedAsset.next_code()` (count()+1 collided after deletes). Alembic **0008_capitalisation_drafts**
+- **Movement schedule** (`fixed_assets_app/movement.py`, `GET /fixed-assets/reports/movement`, Excel/PDF/CSV): cost and accumulated depreciation b/f + additions/charge − disposals = c/f by category (the IAS 16 note); nav "Asset Register" + "Movement Schedule"
+
+### Payroll (`hr_app/payroll_engine.py`, used by preview, AJAX recalculation and the run)
+- Components fixed or **% of basic** (the stored method was ignored); edit validates name/type/basis/amount
+- **Proration by calendar days** for joiners and approved **unpaid leave** (`LeaveType.is_paid=False`) — was a 30-day month, unpaid leave ignored
+- **Taxable pay** = basic + components marked taxable + overtime + bonus (the taxable flag was never read); stored on the slip (`taxable_pay`, Alembic **0009_payslip_taxable_pay**)
+- **Withholding = cumulative method** over the tax year (July–June): tax on YTD + this month + full months left, less tax already withheld, over the months left; a bonus/overtime is taxed once in its month. Was gross × 12, so a bonus month was taxed as if the bonus came every month. No slabs → no tax (was an invented flat 5%), with a warning on the run page. "Load tax year 2026 slabs" (Finance Act 2025: 0 / 1% / 11% / 23% / 30% / 35%, fixed 6,000 / 116,000 / 346,000 / 616,000) replaces the active set; the old seed was TY2025 and merged brackets. Slab entry validated
+- **Loans** recovered only from what is left after other deductions (net could go negative); the run reuses the preview's loans instead of recomputing; a run where deductions still exceed pay is refused
+- Company clock for the run page defaults
+
+### Tests
+- New: `tests/e2e/test_fixed_asset_rules.py` 9, `tests/e2e/test_payroll_engine.py` 8; `tests/unit/test_fixed_assets.py` +9 (DDB to salvage, SL to the paisa, prospective life, overdue residual, schedule, codes, movement roll-forward) — the file only ran inside the full suite (missing `project_label` import), fixed
+- `test_responsive_pages.py` + movement, transfers, depreciation, inventory transfers, run payroll, tax settings; Alembic heads → 0009
+- Full run: unit **461 passed**, E2E **931 passed, 2 skipped** (Postgres-only); not re-run on Postgres this session
+- `tests/e2e/conftest.py` warms the server (first request seeds the fresh DB: 15–35 s, longer than Playwright's 30 s, so whichever browser test ran first failed at random — HEAD too)
+
+### Whole-app pass (round 4, unattended) — invoicing, orders, POST-only
+- Crawl of every parameter-free page (+ links, ≤3 per endpoint) on a copy of `instance/erp_dev.db`, both companies, today's code and migrations: 466 pages, 0 errors (`scratchpad/crawl.py`)
+- **Books Integrity on the same copy** (all 11 checks + assets = liabilities + equity + profit from the ledger by account type): Samba (6,809 journals) passes everything; the Default company failed "Inventory account = stock valuation" — 22 OPENING stock rows worth 16,497,500 with no journal, written by the boot routine `costing.ensure_opening_balances` for pre-costing-engine stock (it assumed the GL already held that stock; the old product form only changed the display figure). Now: that routine posts the journal for any new row (Dr stock / Cr Opening Balance Equity), the integrity check names the cause, and `tools/repair_opening_stock.py` (dry run; `--apply`) posts the missing journals — applied to a copy, Default then passes. **Not applied to `instance/erp_dev.db` or Neon** — run it yourself if Books Integrity shows that message
+- **Invoice approval range checks** (`shared/doc_checks.py`, sales + purchase): negative unit price, discount over 100% or above the line value, negative tax rates / delivery / installation / charges, and text in number fields are refused (they posted negative revenue, discounts bigger than the sale, tax the wrong way)
+- **Sales order Deliver / purchase order Receive retired as stock movements**: they changed the product's on-hand figure with no stock-ledger row, cost layer or journal (Deliver also created an empty invoice shell), and billing the order moved the stock again. They now send the user to bill the order (Import from order); list buttons read "Bill"; Cancel is POST and refused on closed orders
+- **State changes are POST-only**: category / product / invoice-template delete, consumption / scrap / adjustment delete + unapprove, stock-take delete (a followed link could delete a record or un-post a voucher's journals)
+- **Fractional stock kept**: `InvProduct.current_stock` and `InvStockMovement.quantity` were INTEGER while document lines and the stock ledger are NUMERIC — 2.5 kg on hand showed as 2 and Postgres rounded movement rows. New `Quantity` type (NUMERIC(16,4), whole numbers come back as int so lists still read "10"); costing / dashboard sync and the Books Integrity quantity check compare exactly. Alembic **0011_stock_quantity_decimal** widens both columns on Postgres and recomputes on-hand from the stock ledger
+- **Invoice reported to FBR cannot be unapproved** (the correction is a sales return / credit note); it could be unapproved, edited and re-approved, leaving the books and FBR's record disagreeing
+- **Accounting vouchers refuse negative amounts and two-sided JV lines** (a negative debit printed as such in every ledger; on cash/bank vouchers it shrank the money line)
+- **Period close checklist** (`shared/periods.py::close_checklist`, Settings → Financial Periods): closing lists drafts dated in the period (sales/purchase invoices and returns, accounting and stock vouchers), depreciation still due to its end and payroll months never run, and asks again ("Close anyway"); it used to close over them silently, leaving drafts that could never be posted there
+- **Empty-form fuzz** of every POST endpoint (664 posts, form + JSON, ids 1 and 999999, on a copy of the dev DB; `scratchpad/fuzz_post.py`): no endpoint crashes on bad input; the only 500s came after `/settings/members/<id>/restore` — **"Discard" deleted any membership it was posted, an active admin's own included**, past every guard on Remove (owner, last admin). It now discards REMOVED memberships only
+- Finance report defaults ("as of today", default period), the executive aging/integrity exports and every export's "Generated" stamp use the company clock (`local_today` / `local_now`), not the server's UTC — between midnight and 05:00 in Pakistan they defaulted to yesterday
+- HR communications: a notification sent "by role" filtered on the user row's global role (roles live on the company membership) — now the role held in this company; a manual email (no mail server configured) was logged as "sent" — now "not sent"
+- **Bank reconciliation** (new, Accounting → Bank Reconciliation; `shared/models/bank_rec.py`, `finance_app/routes/bank_rec.py` attached to the accounting blueprint, Alembic **0012_bank_reconciliation**): pick a bank/cash account, statement date and closing balance; tick the posted lines that appear on the statement (live cleared balance / difference); Complete only when the difference is zero; the next statement carries only what is still open and must be later; one draft per account; only the latest completed one reopens. Reconciliation statement on screen and as Excel/PDF: books + unpresented payments − deposits in transit = bank. Lines are referenced, not copied, so an un-posted journal drops out
+- Tests: `tests/e2e/test_order_actions.py` (18 with fractional stock, FBR guard, invoice range checks, opening-stock repair), `tests/unit/test_doc_checks.py` (6), `test_accounting_voucher_form.py` +2 (negative lines, period close), `test_bank_reconciliation.py` (2)
+
+### Sanity pass (round 3) — payroll and fixed assets into the general ledger
+- **Cash side of payroll now posts** (`hr_app/payroll_posting.py`): record salary payment on the run page (`PRL-PAY`: Dr Salary Payable / Cr bank or cash, undo, run status `paid`); staff loans are **paid out** from Compensation → Staff Loans (`LOAN-DSB`: Dr the loan's own account / Cr bank) and payroll recovers only paid-out loans (approval alone used to start deductions; recoveries credited a receivable nothing had debited — existing approved loans migrated as paid out); PF withdrawal / PF loan / settlement need a pay-from account (`PF-WD`, `PF-LOAN`, `PF-SETTLE`: Dr PF Payable / Cr bank), profit credited posts `PF-PROFIT` (Dr PF Profit Credited to Members / Cr PF Payable), manual PF entries need the counter account (`PF-ADJ`). PF loans are recovered through payroll into the fund (they were never recovered). PF page gained the missing profit-distribution and final-settlement forms
+- **Delete a payroll run** (`POST /compensation/run/<id>/delete`) and Replace All share `_undo_run`: journals, staff-loan and PF-loan recoveries, PF rows (`pf_ledger.payroll_run_id`), slips; refused while paid; replace no longer commits before the new run succeeds
+- **Dated salary revisions**: `payroll_engine.basic_for_month` pays each day at the basic in force (a raise from the 16th splits the month; re-running an old month uses the old rate). Salary-package edits and MSS evaluation record a `SalaryRevision` (MSS evaluation used to 500 for anyone with a package — list backref); starter allowances are % of basic
+- Slip, slip PDF, bank sheet and bulk template use the company's employee code (the user row's code is a global placeholder); bank sheet numeric with a total = Salary Payable; bulk template pre-filled with staff and only the columns the upload reads (Allowances override now read)
+- **Books Integrity** gained `payroll_vs_gl`, `staff_loans_vs_gl`, `pf_fund_vs_gl` (expect existing PF data with withdrawals/settlements made before this round to show a difference — those movements never reached the GL)
+- **Fixed assets**: mapping fields offer (and the server accepts) only accounts of the right kind — asset under 1-02-01 / 1-02-03, accumulated depreciation under 1-02-02, expense, payable/bank/cash credit, cash/receivable for disposal proceeds (any account in the chart was accepted); category defaults (life, method, salvage %) fill the create form; impairment as its own manual-charge type (Impairment Loss on Fixed Assets); notes kept on manual charges; dashboard "Disposed" was always 0 and totals used cached columns; register totals derived; ledger panel on the asset page includes capitalisation / transfer journals
+- Tests: `tests/e2e/test_payroll_fa_ledger_sanity.py` (12 steps, exact accounts + integrity after each); `test_pf_flow.py` now needs a pay-from account and a provisioned chart; loans in older tests marked paid out
+
+### Payroll policy (round 2) — Alembic **0010_payroll_policy**
+- `PayrollSettings` (one row per company, Tax & Payroll Settings page): overtime rate (default 1.5×) and hours-a-month basis (160); **EOBI** on/off, wage base (37,000), employee 1% / employer 5% — employee share deducted on the slip, employer share posted `PRL-…-EOBI` (Dr EOBI Employer Expense, Cr EOBI Payable); **surcharge** 9% of the tax above 10m taxable (Finance Act 2025, salaried)
+- PF `contribution_base` basic | gross on PF config: existing companies migrated as gross (unchanged), new configs default to basic
+- `CompanyMembership.date_of_leaving` + date of joining editable on HR → Users → Edit: payroll prorates the final month to the last working day and stops after it; a leaver deactivated before the final run is still paid that month (`payroll_engine.in_payroll`)
+- **Final settlement** in the leaving month (settings, off by default): gratuity = days' wages (30) per year of service on last basic or gross, a part year over six months counting as a year (`payroll_engine.service_years`); leave encashment = unused days of paid carry-forward leave types at basic / 30. One-off pay for tax; posted Dr Gratuity Expense (5124) / Leave Encashment Expense (5125), Salary Expense carries the rest
+- Tests: `test_payroll_engine.py` now 15 (settings validation, overtime policy, EOBI journal + integrity, surcharge, PF base, leaving date, final settlement journal)
+
+### Known, not changed
+- Gratuity is taxed in full with the final month (approved-scheme exemptions not modelled); EOBI wage base must be updated by hand when the minimum wage changes
+
+## Session Summary (12 Oct 2026) — App-wide Walkthrough: HR Logic, Payroll GL, Company Clock
+
+### How the walkthrough was done
+- Crawler (session scratchpad, not the repo): super admin on a copy of `instance/erp_dev.db`, every parameter-free GET plus every link found, ≤3 URLs per endpoint, both companies (Default + Samba) — 283 pages each, **no 5xx / template errors**. Same crawl with a per-page query counter found the N+1 below. The bugs were logic bugs, found by reading the routes module by module
+
+### Fixed
+- **Payroll could not run with a deduction component** (EOBI etc.): the slip counted it, the journal never credited it → "Unbalanced journal … 55000 != 54000", 500. Component + custom deductions now credit **Other Payroll Deductions Payable** (`2-01-02-02-0004`, added to the fixed chart); custom deductions used to be credited to Salary Payable (overstated what staff are owed — the bank sheet pays net). Salary Payable = net exactly
+- **Loan instalments** credit each loan's own account (Employee Loans & Advances, the per-loan entity account) instead of the "Loan Deductions Clearing" liability, so the receivable comes down; clearing keeps only an unexpected difference
+- **New payroll profiles paid basic twice**: create-profile added a "Basic Salary" *allowance* at 100% of basic (gross = basic + allowances). No longer created; Alembic **0007_drop_duplicate_basic** deletes exact duplicates (allowance, that name, value = profile basic); issued slips untouched
+- **Payroll preview JSON** (run screen recalculation) 500'd for anyone with an active loan (returned model objects) → serialised
+- **Payroll run detail page** `GET /compensation/run/<id>` (`hr_app/templates/compensation/run_detail.html`): KPIs, earnings / deductions by component (overtime & bonus row so tables add up), slips with per-company employee codes, bank sheet, **Accounting entry** button (PRL; only shown with Accounting access — the API is behind the module guard). Payroll history links to it. Salary slip printed "Solarkon (Private) Limited" for every tenant → company name
+- **Leave** (`hr_app/leave_flow.py`, used by `leave.review` and `mss.approve_leave`): balances are derived from requests (used = approved, pending = pending, remaining = total − both). Before: approving twice counted twice, rejecting after approval subtracted, `remaining` was never updated, quota columns were INTEGER (half days rounded on Postgres), staff who joined after the seed had no quota so the balance check was skipped, an employee whose manager is not in this company (or none) got no approver — pending forever; now manager-in-company → company admin → auto-approve only for the sole admin. Overlap check, half day = one date, missing dates no longer 500. Alembic **0005_leave_quota_days** (INTEGER → NUMERIC on Postgres, recompute balances)
+- **MSS / attendance / PF plain forms landed on raw JSON**: routes answer JSON only when asked (`Accept: application/json` / JSON body), else flash + redirect
+- **Timesheets**: `TimesheetApproval.week` relationship was missing → every approve/reject 500'd; `merge_report` used an unimported `User` (NameError); entries editable after submit/approval, day outside the week, hours unbounded; double submit queued two approvals; same approver routing as leave
+- **Loans (MSS)**: re-deciding a paid/rejected loan reopened it; ESS loan request with 0 instalments divided by zero, negative amounts accepted, `step=1000` input
+- **PF**: approving a PF loan *credited* the member's fund (borrowing raised the balance) → debit, Alembic **0006_pf_loan_debit** flips existing rows; withdrawals/loans re-approvable and over the balance; settlement ignored withdrawals and profit (ledger never closed) and could run twice; profit shares over a base including negative balances; employee page showed the whole fund's profit; reject buttons added; `add-ledger-entry` / `settle` refuse non-members
+- **Company clock** (`shared/clock.py`: `local_now()` / `local_today()` from `Company.timezone`, default Asia/Karachi, via python-dateutil — no tzdata needed): Vercel runs UTC, so a 09:30 Lahore clock-in was stored as 04:30 and never late, and "today" flipped at 05:00. Used by attendance, timesheets, PF, posting-date fallbacks (`posting_helpers.parse_doc_date` / `as_date`) and the template `now` (both injectors — inventory's overrode app.py's with UTC)
+- **Attendance**: `/correct` assigned form text to DateTime columns (500) and never re-derived late / half-day / overtime; clock-out used fixed 8 h / 4 h instead of the time policy (`_book_hours`, `_late_and_half`)
+- **Party deletes**: supplier delete only checked purchase orders → a supplier with direct purchase invoices / returns / voucher postings could be deleted; customer delete now also checks returns and ledger postings (`ledger_utils.entity_has_postings`)
+- **Chart of accounts page**: `can_delete()` ran a COUNT per row (132 queries → 13)
+- E2E fixes: `test_invoice_form_ux` unapprove predicate null-safe across the reload; Alembic head assertions → 0007
+
+### Verification
+- New E2E: `test_payroll_run.py` 12, `test_leave_flow.py` 16 (leave + timesheets), `test_attendance_flow.py` 6, `test_pf_flow.py` 9; `test_books_integrity.py::test_22` party deletes; `test_responsive_pages.py` + `/compensation/` and the payroll run page at 360px
+- Postgres (pgserver in the session scratchpad): the four new files + books integrity 22 + storage/money 13 all pass; 0005 converts a reverted INTEGER table and rebuilds balances
+- Unit **452 passed**; full E2E **912 passed, 2 skipped** (Postgres-only); baseline before the changes: 863 passed, 2 failed (the two test fixes above)
+
+### Known, not changed
+- `/accounting/gl-entry` is login + module guard only; any member with Accounting access can read any journal of the company by id
+- PF withdrawals / settlements and loan disbursements still post nothing to the GL (accountant books the payment voucher)
+
+## Session Summary (5 Oct 2026) — Serverless Hardening, Report Exports, Invoice Form UX, App-wide UI
+
+### Constraint
+Hosting is fixed: **Vercel (serverless) + Neon Postgres**. Design for it: no local disk, no workers, small pools, migrations at boot.
+
+### Completed
+- **Serverless hardening**
+  - Document amounts: 187 `db.Float` columns → `shared/models/money.py::Money` (NUMERIC(20,6) in Postgres, float in Python). Hours/scores/GPS stay Float. GL/stock layers were already Numeric(16,4)
+  - **Alembic** (`migrations/`, `shared/db_migrate.py`, `tools/db_migrate.py`): runs at boot after `_migrate_schema` (now frozen — new schema changes go in revisions, written idempotently), one transaction under `pg_advisory_xact_lock` (works through Neon's pooler). `0002_money_numeric` converts live double-precision columns
+  - Uploads in the DB (`shared/models/stored_file.py`, `shared/file_store.py`, tenant-scoped) for employee documents and avatars; legacy disk files still read. Payroll bulk sheet parsed in memory
+  - Pool 2+2 on Vercel; optional Sentry (`SENTRY_DSN`, no PII/bodies); boot warning when `SECRET_KEY` unset on Vercel; stdout/stderr.txt untracked
+- **Report exports** — one pipeline, `shared/report_export.py` (finance's builders moved here; `finance_app/routes/reports.py` keeps thin `_build_excel_wb`/`_build_pdf`/`_finish_sheet` wrappers). Every file: company/title/period/filters/generated-by heading, frozen + print-repeated header, fit-to-width print setup, "Page X of Y", section/total/grand styling in Excel AND PDF, quantity formats, `Company_Report_Period.ext` names, `export_table(fmt, …)` one-call Excel/PDF/CSV
+  - New exports: P&L by Label, Stock Valuation (+GL reconciliation rows), Stock Ledger, Product Ledger (+re-costing sheet), Product Sub-Ledgers, Low Stock, **Aged Receivables/Payables** (per-party FIFO buckets via `executive_reports.party_aging`), Party Ledger (all postings, oldest first, running balance), Books Integrity, Fixed Asset Register (+by-category sheet), Attendance/Leave Excel+PDF, Audit Log Excel+PDF, HR report builder through the shared workbook
+  - General Ledger workbook leads with a linked Summary sheet; cash-flow Excel got its missing column headings; SOCIE/Cash Flow export without dates used to 500/return HTML (now default period)
+  - `templates/partials/export.html::export_buttons()` keeps every on-screen filter in the link; inline-SVG icons (Font Awesome loads only on finance pages)
+  - HR reports page: removed hard-coded July / 2026 / 2024–2027 defaults
+- **Invoice create/edit UX** (sales + purchase) — `static/js/doc_form.js` (configured per form by inline `window.DOC`) + `static/css/doc_form.css`
+  - Header: document number as title, one status chip, payment chip only when approved, back link; topbar no longer says "Unapproved …"
+  - Action bar by state — new: Cancel · Save draft · **Save & approve**; draft: More(New, Delete) · Back · Print · Save (lit only when dirty) · **Approve**; approved: More(New, Validate FBR, Unapprove) · Back · Send to FBR · **Print**. Pinned to the bottom on phones
+  - Bugs fixed: a saved draft froze every field until reload; reopened drafts had no Print/Delete; after Unapprove `const editable` stayed false (Ctrl+S refused); descriptions clipped; row ×/+ hover classes swapped; row buttons shown on locked docs
+  - Fields: Payment terms (Due on receipt / Net 7–90) fill the due date; "Party label" → "Project label"; locked fields read "—"; developer badges ("computed", "input · Combined · by %") removed; "Total due" / "Total payable"
+  - Purchase form gained Ctrl+S / Ctrl+Shift+S / Ctrl+P / Alt+N / Alt+C, the unsaved-changes guard and Esc layering
+  - Phone: line items render as labelled cards
+- **Invoice editor layout (round 2)**: totals in a sticky Summary rail beside the items (≥1340px; below, under them) with "+ Add charge" / "+ Further tax or withholding"; notes under the items; toolbar "Import from order · Charges · Invoice options"; mode chips replaced by one note shown only for per-line settings; options panel speaks plainly ("Whole invoice / Each line", section help) and is a drawer at every width (it used to pin open at 1500px+); charge editor asks "Who pays" with three plain-language cards (sales: Bill the customer / Add to item prices / Company expense; purchase: Supplier bills it / Add to stock cost / We bear it) driving the existing hidden select. All in `static/js/doc_form.js` + `static/css/doc_form.css` (text/structure layer only; calculations untouched)
+- **Accounting entry button** (`templates/partials/gl_entry.html` macro `gl_entry_button(vtype, vid, id_from, also)`, `static/js/gl_entry.js`, `static/css/gl_entry.css`, `shared/gl_entry.py::entries_for`, `GET /accounting/gl-entry?type=&id=&also=`): floating pill on SI, PI (+PMT), SR, PR, accounting vouchers, CONS/SCRAP/ADJ vouchers and the asset page (FA-ACQ + FA-DISP + every FA-DEP); slide-in panel lists posted journals (debits then credits, codes, notes, labels, totals, balance check, ledger links), CADJ re-costings with a net-effect table, and reversed versions as history. Payroll runs have no detail page yet, so no button there
+- **Reporting table + report speed**: `gl_daily_balances` (`shared/models/gl_balance.py`) = posted activity per company/account/label/day, maintained in the same transaction by `shared/gl_summary.py` (before/after-flush key recompute + rebuild after bulk update/delete on journal tables; hooks register from `shared/models/ledger.py`). Finance helpers (`_get_account_balance`, `_all_account_balances`, `_period_movements`, new `_sum_balances`), executive balances + FIFO aging, TWCF cash, inventory GL check and the voucher balance API read it. Alembic `0003_gl_reporting` adds journal indexes and backfills; Books Integrity gains "Reporting table matches the ledger"; `tools/rebuild_gl_summary.py`. Ledger sections set-based (3 queries); `CompanyInfo.get()` cached per request (every `amount_format` was a query: 13,811 on one ledger page). Benchmark, Postgres, 100k lines: TB 4.3 s → 125 ms, BS 1.4 s → 139 ms, ledger (all accounts, 1 month) 158 s → 0.66 s, executive dashboard 2.0 s → 0.55 s
+  - Reports calculate only when asked (View / Run / export): TB, P&L, BS, SOCIE, cash flow, ledger already did; P&L by Label, Stock Valuation and Books Integrity now show an empty state until then
+- **Sidebar**: accordion in every module (`static/js/app.js`): one group open, only the active page's group opens on load, old per-group localStorage state cleared (it re-opened every group ever opened)
+- **Accounting voucher form v3** (`finance_app/templates/accounting/voucher_form.html`): header with number/status/actions (pinned on phones), drafts open editable (no Edit step), type picker on new vouchers only, summary rail with live **entry preview** (Dr lines, Cr cash/bank) and cash/bank **balance now → after** with negative-cash warning (`GET /accounting/api/account-balance`), More menu (print, delete / unapprove), in-page confirm and errors instead of alert/confirm
+- **Settings clean-up**: one readable column, light section headers, sentence-case labels, filled primary Save everywhere; Invoice Defaults rendered "Form field visibility" twice (a switch turned off in one copy stayed on via the other — removed); Company Profile tab passed `company` and blanked the shell's company name (now `company_info`); "§x.y" spec references removed; Report Structure moves rows with ↑/↓ instead of typed order numbers
+- **Settings, round 2**: Financial Periods printed "1 January → 0 December (… 00 December 2021)" (start day − 1) — now the real year end and the current year (`fy_example` in `shared/routes/settings.py`); the company Audit Log listed every super-admin console sign-in (path `/superadmin…`) — those stay on the console's own audit page (`shared/audit.py::search`); Labels / Cash Flow boxed cards now use the same in-card title as every other tab; Rights action buttons on one row; label toggles spaced
+- **Demo data — Samba Private Limited** (`tools/seed_samba.py`): Lahore solar trader, FY 1 Jul 2025 – 30 Jun 2026 (July fiscal-year rule), ~7,500 documents posted through the real routes in date order via the Flask test client — SO/PO billed later (some in parts, linked with `source_order_item_id`), PI/SI with combined and per-line discount and tax, further tax on unregistered buyers, WHT by project clients and on some suppliers, charges in all three treatments (bill / absorb / expense) plus per-line purchase freight, sales/purchase returns, scrap/consumption, daily counter receipts, cheque/IBFT receipts by credit cycle, supplier payments, rent/utilities/marketing/bank charges, month-end salary/commission accruals, sales-tax set-off and FBR/WHT deposits, cash deposits. Stops if slug `samba` exists; `--scale 0.1` for a quick run; ends by running Books Integrity
+- **Production bug found by seeding against a Neon clone**: on databases older than the DateTime model, `inv_invoices.invoice_date`/`due_date` are still DATE (create_all never alters a column), so every sales return 500'd on `invoice_date.date()`. Alembic `0004_invoice_dates_timestamp` converts them (Postgres, only if DATE); return routes compare through `posting_helpers.as_date`. A model-vs-live type scan of the Neon clone found no other drift
+- **Costing rounding drift found by the full-year seed**: a purchase receipt stored qty × the 4dp landed unit cost (288 × 15,349.6528 = 4,420,700.01) while the journal debited the exact landed total (4,420,700.00) — a paisa per uneven purchase; after 7,488 documents Books Integrity showed inventory GL 0.07 above stock valuation. `costing.record_in(total_cost=…)` now carries the line's 2dp landed value and the purchase invoice gives the last line the rounding remainder, so the receipts sum to the Inventory debit. `test_books_integrity.py::test_21` (red before, green after; also on Postgres)
+- **Companies without periods**: the super admin console's Manage Companies form created the company and admin but never called `provision_company` (only boot's `ensure_fixed_coa` filled the chart later), so such companies had no financial periods and every report's period picker was empty. The form now provisions; boot provisions any company still without periods (`app.py::_seed_all_data`). Tests in `test_superadmin_console.py` (46 pass)
+- **Boot without Alembic**: `from shared import db_migrate` sat outside the try, so a server started with an interpreter lacking alembic (the user's system Python 3.12 running `run_local.py`) aborted the whole DB init. Import moved inside the try; boot also rebuilds `gl_daily_balances` whenever it is empty while posted journals exist, independent of Alembic — reports can no longer go blank because a revision did not run
+- **Samba on Neon**: seeded on a local clone of Neon (Neon is 18.6, pg_dump 16 cannot dump it, so the clone is SQLAlchemy reflect + copy; ~460 ms round trip makes seeding over the wire take days) into the existing empty company 2, then pushed company 2's 131,869 rows in one transaction (refuses if Neon gained rows since the clone; dry run first). Scripts kept in the session scratchpad, not the repo
+- **App-wide UI**
+  - Theme switch on every page: `static/js/theme.js` + `partials/_theme_toggle.html` on hub, portal, super admin console, landing, sign-in/sign-up (floating). Fixed: on an OS-dark page the first click did nothing and showed the wrong glyph (`data-theme-effective`)
+  - Tables never clipped on phones: `.table-responsive` had no CSS; `.table-wrap` was `overflow:hidden`; bare `.table` scrolls inside its box ≤768px; header import forms wrap; inventory dashboard grids responsive
+  - Stock list "Value" printed `qty * cost|amount_format` (Jinja filter precedence → string repeated qty times); fixed
+  - Dark mode: statement grand-total, employee-card and settings-card headers no longer glare white; flash banners use theme pairs (warning was ~2:1); avatar initial readable
+
+### Verification
+- Full E2E **831 passed, 1 skipped** (Postgres-only check) after updating the two register tests that used `fmt=csv` as their "unsupported" example; unit **452 passed**; Postgres (local pgserver + `TEST_DATABASE_URL`): books integrity 20, audit 7, storage/money 11, exports 59
+- Later: full E2E **836 passed, 1 skipped** after the editor layout round; `test_gl_entry.py` 12 (API also on Postgres); `test_invoice_form_ux.py` now 14
+- Round 3 tests: `test_gl_reporting.py` 3 (SQLite + Postgres), `test_voucher_v3_and_sidebar.py` 3, `test_settings_cleanup.py` 3; books integrity / storage / GL entry also green on Postgres
+- Round 4: full E2E **859 passed, 1 skipped** before the seed/settings round; `test_settings_cleanup.py` now 5; audit + settings access 24 passed; seed `--scale 0.05` = 845 documents, Books Integrity all pass
+- New E2E: `test_storage_and_money.py` (11), `test_report_exports_all.py` (59), `test_invoice_form_ux.py` (9), `test_theme_toggle.py` (8), `test_responsive_pages.py` (17); unit `test_report_export_module.py` (5)
+
+## Session Summary (Oct 2026) — Document-Date Posting, Date-Ordered Costing, Books Integrity
+
+### Objective
+Make every module post accurately in real-world sequences: back-dated documents, edits (unapprove → change → re-approve), deletions/reversals and returns — with inventory costing, the general ledger, sub-ledgers and reports all staying tied. Add label-wise tracking to the remaining cost-bearing documents and distinctive reports.
+
+### Completed
+- **Documents post on their own date** (journal AND stock): sales/purchase invoices (the forms showed a date but never sent it; the server never saved it), sales/purchase returns, consumption/scrap/adjustment/stock-take vouchers (new date field), FA capitalisation / asset→inventory transfers (`asset_transfers.transfer_date`), FA disposal (`disposal_date`, depreciates to that date first), payroll (last day of the payroll month). The period lock now refuses back-dated documents in closed periods. `shared/posting_helpers.parse_doc_date`
+- **Date-ordered costing** (`shared/costing.py`): `stock_ledger.txn_date`; layers consumed in (txn_date, id) order. A back-dated receipt/issue, or the reversal of an earlier document, replays the product's history (`_replay`): earlier rows frozen, later issues re-costed. Back-dated issues are refused if stock wasn't on hand AT THEIR DATE or if they'd strip a later issue. Sales returns follow their re-costed sale; purchase returns draw from their own invoice's layers (`prefer=`).
+- **Re-costing hits the GL** (`shared/cost_adjustment.py`): every moved cost gets a `StockCostAdjustment` + journal `CADJ-<type>`/`<voucher id>` charging the difference to the account the issue originally hit (COGS on the line's label, consumption/scrap charge account, adjustment account, asset), dated in the issue's period or today if closed. Reversing a voucher un-posts its own CADJ journals. The old VAR/variance write-off path is gone (it produced wrong P&L on edit flows).
+- **Bugs fixed**: approved inventory vouchers could be re-submitted and posted twice; stock-take journal sat under the take so unapproving its adjustment left the GL posted; purchase return credited inventory with a tax-inclusive value and never reversed input tax / WHT (now cost + tax + WHT + price-difference); returns trusted the browser's max-returnable qty (server cap now); invoices with approved returns could be unapproved; inventory→FA transfer credited inventory at a typed price without moving stock (now through costing); product opening stock / bulk import / quick adjust changed only the display column (now cost layer + journal: `shared/stock_entry.py`); products with stock history could be deleted; payroll "Replace All" left the old journal posted (double expense) and didn't restore loan balances; payroll preview hard-coded to Jul 2026; JSON saves refused by the period lock got a redirect instead of a JSON error; debug banner on the consumption form; ST reference via count()+1 collided after deletes; dashboard stock value used qty × rounded avg.
+- **Labels**: per-line label splits for SI revenue/discount/charges and exact COGS per line label; PI inventory split by landed cost per label; label on consumption/scrap/adjustment vouchers and fixed assets (acquisition + depreciation lines).
+- **New reports**: Executive → **Books Integrity** (`shared/integrity.py`: TB, every journal, inventory GL = stock valuation, layers, quantities, asset register = GL, approved docs = posted journals, recent re-costings); Finance → **P&L by Label** (labels as columns + Unlabelled = company total); Inventory → **Stock Valuation** as of any date with opening/in/out/closing and GL reconciliation; product ledger/stock ledger in document-date order with re-costing history.
+- **Audit log** (`shared/audit.py`, `shared/models/audit_log.py`): a session hook records every create / edit (field-level old→new) / delete / approve / unapprove of tracked business records and every journal post / un-post, with user, time (UTC), IP and path — across all modules, no per-route code. `record_now()` adds sign-in, failed sign-in, sign-out and refused postings (e.g. into a closed period) on its own connection so they survive the rollback. Secrets (password hashes, tokens) are redacted. `audit_logs` is in `tenancy.GLOBAL_TABLES` (platform events have no company) and every reader filters explicitly. Viewers: Settings → Administration → **Audit Log** (company admins: filters, field diffs, CSV export at `/settings/audit-log.csv`) and Super Admin → **Audit** (all companies + platform events). No route edits or deletes audit rows. Tests: `tests/e2e/test_audit_log.py` (7). After the audit hook: full E2E **726 passed**, plus 2 Playwright timeouts that occurred while the unit suite ran in parallel and passed on re-run (8/8 in their classes); unit **447 passed**
+- **UI**: voucher forms reworked (date + label, read-only once approved, POST unapprove/delete, responsive tables); verified no horizontal scroll at 360px on the new/changed pages.
+
+### Verification
+- Unit: 439 + 8 new (`tests/unit/test_costing_backdated.py` 17, `test_posting_helpers.py` 8; variance tests in `test_costing.py` rewritten for re-cost semantics)
+- New E2E `tests/e2e/test_books_integrity.py` (20 steps, one fresh company, real routes, integrity checks after each): back-dated purchase/sale, refused back-dated sale, purchase price correction, sales/purchase return, over-return refusal, middle-sale reversal + delete, approved-voucher re-submit, closed period, capitalisation, opening stock, quick adjustment, product delete guard, payroll replace, multi-label invoice, reports render
+- Full E2E run: **715 passed, 0 failed**; the late-touched files (books integrity, inventory, routes smoke, input hardening, HR, fixed assets) re-run after the final edits: **346 passed**. Unit: **447 passed**
+
+### Key Files
+`shared/costing.py`, `shared/cost_adjustment.py`, `shared/integrity.py`, `shared/posting_helpers.py`, `shared/stock_entry.py`, `invoicing_app/routes/{invoices,purchase_invoice,sales_return,purchase_return}.py`, `inventory_app/routes/{vouchers,transfers,products,reports}.py`, `fixed_assets_app/routes/{transfers,assets,depreciation}.py`, `hr_app/routes/compensation.py`, `executive_app/templates/executive/integrity.html`, `finance_app/templates/finance/label_pl.html`, `inventory_app/templates/reports/valuation.html`, `app.py` (migrations: `stock_ledger.txn_date` + backfill, label/date columns)
+
+## Session Summary (Aug 2026) — Silent-Approve Bug Fix + E2E Flake Family Root-Caused
+
+### Objective
+Fix the silent-approve loophole found during browser verification of the executive dashboard (a `save_approve` action string posted a JV without actually approving it — so Unapprove → Approve was needed to post), and root-cause the recurring Playwright "timing flake" family that kept failing a handful of E2E tests only on full-suite runs.
+
+### Completed
+- **Silent-approve fix** (`finance_app/routes/accounting.py::voucher_form`):
+  - The form posted `action=save_approve` but the handler branched on `action == "approve"` — an unknown action silently became a bare save, marking the voucher Approved without posting lines. Now `save_approve` **approves and posts** (same path as `approve`), `save` stays a bare save, and any other action string falls back to a bare save
+  - `approved_at`/`approving_user_id` set in the same branch as the posting so approval and posting can never diverge again
+- **Regression tests** (`tests/e2e/test_accounting_voucher_form.py` *(new)*, 3 tests): bare `save` keeps the voucher unapproved, `approve` is the only path to the ledger (lines posted exactly once, status Approved), and the action string round-trips through the form without leaking. Verified red → green: the tests fail against the pre-fix handler
+- **E2E flake family — root cause** (`tests/e2e/conftest.py::flask_server`):
+  - The readiness check just connected to port 5000. **Any leftover dev/test server already listening** made it "ready" instantly while the spawned `run_local.py` died with "Address already in use" — so the whole Playwright suite silently ran against the wrong database (a stale `erp_dev.db`) → state-dependent tests (`test_voucher_ui` mobile layout, `test_invoice_designs` freight) failed on full runs but passed in isolation. Root-cause confirmed live: two reloader parents (`app.py` + `run_local.py`) were fighting over port 5000 for hours, respawning their children
+  - Fix 1 — **port ownership pre-check**: `_assert_port_free()` binds port 5000 before spawning; if it is taken, the fixture fails fast with a message naming the holder instead of silently testing the wrong DB
+  - Fix 2 — **subprocess-alive check**: after the readiness loop, `proc.poll() is None` must hold; a server that died during startup raises with the log tail
+  - Fix 3 — **fresh DB per run**: the fixed `sqlite:///e2e_test.db` accumulated rows across sessions, making "empty state" assertions flaky; each session now gets a `NamedTemporaryFile` db, deleted in `finally`
+- **Environment cleanup**: killed 5 stale `python.exe` server processes (three `run_local.py` reloader leftovers from previous sessions + the `app.py` pair started during this session's verification); port 5000 verified free afterwards
+
+### Verification (this session)
+- New voucher-form tests: 3 passed in isolation; 56 passed for the targeted group (voucher UI + invoice designs + executive reports + voucher form)
+- **Full E2E suite: 580 passed, 0 failed** (previous: 568 passed + 2 flake failures) — the flake family is gone; ran with leftover servers killed and the hardened fixture
+- Unit suite: **281 passed**
+- Port 5000 free after the suite (fixture terminates its server in `finally`)
+
+### Key Files
+- `finance_app/routes/accounting.py` — `save_approve` now approves and posts; approval fields set with the posting
+- `tests/e2e/test_accounting_voucher_form.py` *(new)* — 3 regression tests
+- `tests/e2e/conftest.py` — `_assert_port_free()`, subprocess-alive check, per-run temp DB
+
+## Session Summary (Aug 2026) — Executive Dashboard: Net Assets, Ratios, Aging & Exposures
+
+### Objective
+Turn the Executive Reports dashboard into a real-time business snapshot: net assets derived straight off the chart, current/quick ratios, and FIFO-aged receivables and payables — weighted-average collection/payment days, oldest debt, aging-profile buckets, and the largest exposures — all computed from posted journal lines with nothing stored.
+
+### Completed
+- **FIFO aging engine** (`shared/executive_reports.py::aging`, `_age_party`, `_aging_side`):
+  - Ages every open in-scope balance from its posting layers: on receivables, debits build the stack and credits consume the **oldest layer first**; payables mirror it. A payment pulls the oldest debt down first, so a party that received 1,000 forty-five days ago and 400 five days ago is aged as 600 @ 45 days
+  - Returns per side: total, party count, **weighted-average days** (weighted by surviving balance), **oldest days + party**, the four buckets (Current / 31–60 / 61–90 / 90+), and the **top 5 parties with % share**; `as_of` filters postings and re-ages to that day (future-dated layers clamp to 0 days)
+- **Liquidity snapshot** (`shared/executive_reports.py::liquidity`):
+  - Company-wide (whole chart, available even with no selection): net assets (assets − liabilities), total/current assets, current liabilities, inventory, **current ratio** and **quick ratio**. Current Assets / Current Liabilities are located by their standard names at level 2, inventory by the Inventories subtree; contra accounts (accumulated depreciation) net themselves out as plain balances
+  - Ratios render only when current liabilities > 0 — a negative "liability" balance (overpaid, drifted payroll) is really an asset, so the cards show "—" instead of a meaningless negative number
+- **Dashboard** (`executive_app/templates/executive/dashboard.html`, `_style.html`, route in `executive_app/routes/reports.py`):
+  - New **KPI row** (always visible): Net assets, Current ratio, Quick ratio (green ≥1.5 / ≥1, red <1), Avg collection days, Avg payment days, Oldest receivable/payable (days + party name)
+  - **Aging profile** chart: CSS-only horizontal bars (no chart library) with receivable (green) vs payable (amber) per bucket, amounts and a legend
+  - **Largest exposures** card: top 5 per side with share bars, each row linking to the party ledger
+  - Responsive: KPI grid auto-fits (2 cols @360px, 140px min), charts stack to one column, no horizontal scroll at 320px+
+
+### Verification (this session)
+- 8 new E2E tests in `tests/e2e/test_executive_reports.py` (**32 passed** in the file): FIFO aging math (45d layer + 5d receipt → 600@45, oldest-first consumption), bucket shares, top-party order, empty-selection and as-of behaviors, liquidity deltas on a real cash posting (current assets / net assets / total assets +500, inventory untouched), ratio formulas, and dashboard rendering with all KPI labels + party names
+- Full suite: **281 unit + 568 E2E passed**; 2 unrelated flake failures (`test_voucher_ui` mobile layout, `test_invoice_designs` freight) pass in isolation — known Playwright timing-flake family
+- Manually verified in the browser against the live dev server: dashboard with real posted vouchers (5,000 receivable @ 45 days, 2,000 payable @ 5 days → correct buckets/avg/oldest), mobile 360px/342px emulation with zero horizontal overflow; settings picker and JV voucher flow exercised end-to-end (a `save_approve` action string silently sets `status=approved` without posting — used Unapprove→Approve to post correctly)
+
+### Key Files
+- `shared/executive_reports.py` — `aging()`, `_age_party()`, `_aging_side()`, `liquidity()`, `BUCKET_DEFS`
+- `executive_app/routes/reports.py` — dashboard route passes `recv_age`, `pay_age`, `liq`
+- `executive_app/templates/executive/dashboard.html` — KPI cards + aging/exposure charts
+- `executive_app/templates/executive/_style.html` — `.exr-kpis`, `.exr-charts`, `.exr-bar-*`, `.exr-top-*` (+ ≤480px tweaks)
+- `tests/e2e/test_executive_reports.py` — 8 new aging/liquidity/dashboard tests
+
+## Session Summary (Aug 2026) — Super Admin Console: Users, Quotas, Module Entitlement, Blocking
+
+### Objective
+Finish the super admin console so it actually governs the platform: it is the only door an account comes through, it sets per-user company quotas, it decides which modules a company has bought, and it can block one person from one company. Also close the hole in HR, which used to mint logins that belonged to no company.
+
+### Completed
+- **Manage Users** (`superadmin_app/routes.py::users`, `user_detail`, templates `users.html`, `user_detail.html` *(new)*):
+  - `POST /superadmin/users/` creates an account — the only creation path outside the console's own company form. Placeholder `employee_code` (`SA####`) because `users.employee_code` is globally unique and NOT NULL; the real per-company code comes from HR
+  - `/superadmin/users/<id>/` — password reset (min 4 chars), activate/deactivate with a self-deactivation guard, name, quota overrides, membership list
+- **Per-user quotas** (`shared/models/base.py`, `shared/models/company.py::GlobalLimits`):
+  - `User.max_companies_owned` / `max_companies_joined`, both nullable. `company_limit_for(user)` falls back to `GlobalLimits.max_companies_per_user`; `join_limit_for(user)` has no global default, so unset = unlimited
+  - Enforced in `shared/routes/portal.py::create` (owned) and `shared/routes/settings.py::accept_invitation` (joined). Blank input writes NULL, never 0
+- **Module entitlement** (`Company.MODULE_COLUMNS`, `module_enabled()`, `enabled_modules()`):
+  - Seven `mod_*_enabled` columns, DEFAULT 1 so existing companies keep everything. NULL reads as enabled — a column added by migration must not switch a module off
+  - `User.module_access` is now **entitlement AND user flag**. A company admin bypasses the user flag (that is what admin means) but never the entitlement. With no active company (portal/console) the user flag alone decides
+  - Company edit form is the whole truth: an absent checkbox is a disabled module
+- **Member blocking** (`CompanyMembership.BLOCKED`, `superadmin.member_block`): status flips ACTIVE↔BLOCKED, keeping role, employee code and history. Every gate already filters on ACTIVE, so a blocked member simply cannot enter. The route checks the membership belongs to the company in the URL (404 otherwise)
+- **My Companies** (`superadmin.my_companies`, `my_companies.html` *(new)*): the super admin's own books — same slug rule as the portal, same `provision_company()`, Open Books goes through the shared `company_switch`
+- **HR no longer creates logins** (`hr_app/routes/auth.py`): `/users/add` is **gone**, replaced by `/members/assign`. It lists active members of this company with no membership `employee_code` yet and gives them one plus designation/department/manager. Codes are unique **per company**, so EMP100 can exist in two companies. Nav and back-link map updated
+- **`templates/access_denied.html`** *(new)*: the ~20 fixed-assets route guards render `"access_denied.html"`, which had no file at the root of the template loader — every refusal raised TemplateNotFound and became a 500. Latent before (only non-admins hit it); reachable for everyone once a company can lose a module
+- **Console nav**: Manage Users / Manage Companies / My Companies / Platform (the global-limits page, otherwise only reachable via the brand link)
+- **Schema migration** (`app.py::_migrate_schema`): seven `companies.mod_*_enabled BOOLEAN DEFAULT 1`, two `users.max_companies_*` INTEGER
+
+### Verification (this session)
+- New E2E `tests/e2e/test_superadmin_console.py` (**25 tests**): user creation + duplicate refusal + super-admin-only access, quota overrides both ways (set, then cleared back to the global default), join cap blocking and then admitting the same invitation, password/deactivation/self-guard, My Companies provisioning (chart > 50 accounts, ≥14 voucher series) + slug/duplicate refusal, module defaults + toggling + admin-is-not-exempt + hub tile and route guard, block/unblock round-trip preserving role and code + pending-membership refusal + cross-company 404, HR assign (per-company codes, same code in two companies, clash refused, non-member refused, `/auth/users/add` now 404)
+- **Full suite: 716 passed, 0 failed** (281 unit + 435 E2E). No flakes this run
+
+### Key Files
+- `superadmin_app/routes.py` — users/user_detail/my_companies/member_block, module entitlement save
+- `superadmin_app/templates/superadmin/{users,user_detail,my_companies,companies,company_edit,base}.html`
+- `shared/models/base.py` — quota columns, `module_access` entitlement gate
+- `shared/models/company.py` — `MODULE_COLUMNS`, `module_enabled`, `BLOCKED`, `company_limit_for`/`join_limit_for`
+- `hr_app/routes/auth.py`, `hr_app/templates/auth/member_assign.html` *(new)* — Assign Member
+- `templates/access_denied.html` *(new)* — module refusal page
+- `tests/e2e/test_superadmin_console.py` *(new)*
+
+## Session Summary (Aug 2026) — Company Portal + Tenancy Count-Scoping Fix
+
+### Objective
+Implement the multi-company workflow the user described: a global user logs in and lands on a portal showing (a) companies he created and (b) companies where other global users assigned him a role; clicking a company opens its books; a separate super admin portal controls all users and companies. Also fix a latent tenancy bug discovered while testing: aggregate/count queries were never tenant-filtered.
+
+### Completed
+- **User portal** (`shared/routes/portal.py`, `templates/portal/index.html`):
+  - `GET /portal/` — lists owned companies, companies where the user has a role, pending invitations; create form with quota text; Super Admin Console link for super admins only; responsive, blue theme `#1d4ed8`
+  - `POST /portal/create` — slug regex `^[a-z0-9][a-z0-9-]{1,60}$`, quota `owns_company_count() >= GlobalLimits.get().max_companies_per_user`, creator auto-membership `Role.ADMIN`, then `provision_company()`, `session["company_id"]` set, redirect to hub
+  - `should_redirect_to_portal()` — login goes to portal when `active_companies() != 1` OR pending invites > 0; single-company users still go straight to hub
+  - `hr_app/routes/auth.py` login now routes via `should_redirect_to_portal()`; `app.py` registers `portal_bp`
+- **Company provisioning** (`shared/company_setup.py`): `provision_company(company_id)` seeds COA (`ensure_fixed_coa`), 14 voucher-number prefixes (`VOUCHER_PREFIXES` constant, shared with app seed), asset categories, CompanyInfo/FiscalYearRule/AccountingPeriod/ReportSettings, InventorySettings, InvoiceTemplate defaults; restores previous company in `finally`
+- **Invitation next-param**: `shared/routes/settings.py` accept/decline honor `request.form.get("next")` so portal flows return to `/portal/`
+- **App shell**: "My Companies" link added to the company-switcher dropdown
+- **New E2E** `tests/e2e/test_portal.py` (13 tests): login landing (multi/zero/single-company, pending invite), portal content, creation + provisioning (COA > 50, 14 voucher numbers, ≥1 period, settings, ≥4 invoice templates, session switch), quota/slug/duplicate enforcement, invite accept/decline return-to-portal, super-admin console link (asserted on `href="/superadmin/"`), landing page + superadmin login door tests
+- **Tenancy bug fix** (`shared/tenancy.py`): `_collect_table_names` never recursed into `Subquery`/`Alias`/CTE nodes (they wrap a selectable via `.element`; `Subquery` is NOT a subclass of `Alias` in SQLAlchemy 2.0.51 — both derive from `AliasedReturnsRows`). Result: `Query.count()` and other aggregate/subquery queries silently bypassed tenant scoping (returned all tenants' rows). Fixed by recursing into `AliasedReturnsRows.element`.
+
+### Verification (this session)
+- Unit suite: **281 passed**
+- New portal E2E in isolation: **9 passed** (at that point the file had 9 tests)
+- Full E2E suite (after user's parallel edits — landing page, superadmin login door, FBR tweaks, etc.): **400 passed, 3 failed**:
+  1. `test_discount_modes::TestPurchaseInvoiceParity::test_combined_by_percentage[chromium]` — Playwright navigation TimeoutError (timing flake family; passes in isolation)
+  2. `test_portal.py::test_super_admin_portal_link_only_for_super_admins` — asserted `b"Super Admin Portal"` text that the template no longer contains (label is now "Super Admin Console"; test has since been updated to assert `href="/superadmin/"` instead)
+  3. `test_settings_access.py::test_employee_cannot_change_fiscal_year_rule` — **real regression from the tenancy fix**: `AccountingPeriod.query.count()` in a bare `app_context()` (no active company) now correctly raises `NoActiveCompanyError`; the test needs `set_current_company(default_id)` around its count assertions (the old behavior — unfiltered count — was the bug)
+
+### Next Move
+1. Fix `test_employee_cannot_change_fiscal_year_rule`: wrap its `app_context()` blocks with `set_current_company(default_company_id)`
+2. Re-run `tests/e2e/test_settings_access.py` + `tests/e2e/test_portal.py`, then full E2E
+3. Commit on local main (never push): `git add -A && git commit`
+
+### Key Files
+- `shared/routes/portal.py`, `templates/portal/index.html` — user portal (new)
+- `shared/company_setup.py` — `provision_company()`, `VOUCHER_PREFIXES` (new)
+- `tests/e2e/test_portal.py` — portal E2E (new, 13 tests)
+- `shared/tenancy.py` — `_collect_table_names` now recurses into `AliasedReturnsRows` (count-scoping fix)
+- `hr_app/routes/auth.py`, `app.py`, `shared/routes/settings.py`, `templates/layouts/app_shell.html` — portal wiring
+- `superadmin_app/` + `superadmin_app/templates/superadmin/login.html`, `templates/landing.html` — super admin console door + landing page (user's parallel edits, uncommitted)
+
+## Session Summary (Jul 2026)
+
+### Objective
+Add comparative (multi-period) reporting to all finance reports (Single Period / Custom Range / Comparative toggle + dropdown+checkboxes) with side-by-side period data.
+
+### Completed
+- Period filter rewrite (`_period_filter.html`): three-mode toggle, dropdown+checkboxes panel, OK button, blue theme (`#1d4ed8`)
+- Backend `_resolve_period()` returns 10-tuple: `(from_date, to_date, periods, selected_period_id, filter_mode, from_str, to_str, comp_mode, comp_periods, comp_period_ids_str)`
+- **Balance Sheet**: full comparative with `_bs_data()`, `_merge_multi_period()`, merged columns, per-period totals, grand total
+- **P&L**: comparative with `_pl_account_contribs()`, per-row `comp_amounts`, extra Excel/PDF columns
+- **SOCIE**: comparative with per-component `comp_movements` array, comparative columns in HTML/Excel/PDF, `comp_movement_totals` in tfoot (no longer `—`)
+- **Trial Balance**: comparative with `comp_dr_closing`/`comp_cr_closing` per row, comparative columns + period totals in tfoot, Excel/PDF updated
+- **Cash Flow**: comparative with `comp_cf_summaries` (key totals per period), rendered as comparative summary sub-table below main statement
+- **Ledger**: filter/links pass comparative params; data remains single-period (transaction-level detail)
+- Removed `tr:hover td` from all CSS files; scoped hover to `tbody` only in base.html
+- Fixed SOCIE `re_detail` closing column bug (each row now has proper closing value)
+- Theme changed to blue `#1d4ed8`
+
+### Key Files
+- `finance_app/routes/reports.py` — all route updates (TB, BS, P&L, SOCIE, Cash Flow + `_resolve_period`)
+- `finance_app/templates/accounting/_period_filter.html` — filter rewrite
+- `finance_app/templates/finance/{trial_balance,balance_sheet,profit_loss,socie,cash_flow}.html` — comparative columns
+- `finance_app/templates/finance/layouts/base.html` — `tbody tr:hover td` scope fix

@@ -1,0 +1,52 @@
+@model Accountix.Inventory.Controllers.VoucherListModel
+@*
+  vouchers/consumption_list.html, scrap_list.html, adjustment_list.html (one shape):
+  consumption shows the department, scrap and adjustment the reason (40 characters).
+*@
+@{
+    string slug = Model.Kind;
+    bool cons = slug == "consumption";
+    string newLabel = slug switch { "consumption" => "+ New Consumption", "scrap" => "+ New Scrap", _ => "+ New Adjustment" };
+    string empty = slug switch { "consumption" => "No consumption vouchers yet.", "scrap" => "No scrap vouchers yet.", _ => "No adjustments yet." };
+}
+<a href="/inventory/vouchers/@slug" class="btn btn-primary" style="margin-bottom:1rem;">@newLabel</a>
+@if (Model.Rows.Count > 0)
+{
+<div class="vf-table-wrap" style="overflow-x:auto"><table class="table">
+  <thead><tr><th>#</th><th>Voucher No.</th><th>Date</th><th>@(cons ? "Department" : "Reason")</th><th>Items</th><th>Status</th><th>Actions</th></tr></thead>
+  <tbody>
+    @foreach (var v in Model.Rows)
+    {
+    string text = v.Text ?? "";
+    <tr>
+      <td>@v.Id</td>
+      <td><a href="/inventory/vouchers/@slug/@v.Id">@v.Number</a></td>
+      <td>@(v.Date?.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture) ?? "")</td>
+      @if (cons)
+      {
+      <td>@text</td>
+      }
+      else
+      {
+      <td>@(text.Length > 40 ? text[..40] : text)@(text.Length > 40 ? "..." : "")</td>
+      }
+      <td>@v.Items</td>
+      <td><span class="badge @(v.Status == "approved" ? "badge-success" : "badge-warning")">@v.Status</span></td>
+      <td>
+        <a href="/inventory/vouchers/@slug/@v.Id" class="btn btn-sm btn-outline">Edit</a>
+        @if (v.Status == "approved")
+        {
+        <form method="POST" action="/inventory/vouchers/@slug/@v.Id/unapprove" style="display:inline" onsubmit="return confirm('Unapprove @v.Number?')"><button class="btn btn-sm btn-warning">Unapprove</button></form>
+        }
+        @if (v.Status != "approved")
+        {<form method="POST" action="/inventory/vouchers/@slug/@v.Id/delete" style="display:inline" onsubmit="return confirm('Delete @v.Number?')"><button class="btn btn-sm btn-danger">Delete</button></form>}
+      </td>
+    </tr>
+    }
+  </tbody>
+</table></div>
+}
+else
+{
+<p class="text-muted">@empty</p>
+}

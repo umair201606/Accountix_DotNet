@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Modules\Accountix.Inventory\Accountix.Inventory.csproj" />
+    <!-- The general ledger is real in Accounting (finished): costing posts its journals through it. -->
+    <ProjectReference Include="..\..\src\Modules\Accountix.Accounting\Accountix.Accounting.csproj" />
+    <ProjectReference Include="..\Accountix.TestSupport\Accountix.TestSupport.csproj" />
+    <!-- CompanySetup.ProvisionAsync: ReportGoldenTests reads the reports of a company provisioned through .NET. -->
+    <ProjectReference Include="..\..\src\Modules\Accountix.Platform\Accountix.Platform.csproj" />
+  </ItemGroup>
+
+  <!-- Fixed expectations captured from the Python app (Golden/capture/*.py, kept for the record). -->
+  <ItemGroup>
+    <None Update="Golden\**\*.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Golden\report_data.sql" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>
