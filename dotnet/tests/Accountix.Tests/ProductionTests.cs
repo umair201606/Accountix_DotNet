@@ -284,6 +284,44 @@ public class ProductionPipelineTests
         Assert.Equal(HttpStatusCode.Redirect, (await new PageClient(app.GetTestServer().CreateHandler()).GetAsync("/net/request")).StatusCode);
     }
 
+    /// <summary>
+    /// /net/neon reports the services neon.ts declares: Postgres, and the hello function whose
+    /// address `neon deploy` pulled into .env.local (NEON_FUNCTION_HELLO_BASE_URL).
+    /// </summary>
+    [ReferenceFact]
+    public async Task The_neon_page_reports_postgres_and_says_when_no_function_is_configured()
+    {
+        string cs = Reference.ConnectionString;
+        await using (var app = await ProductionHost.StartAsync(cs,
+                         ("NEON_FUNCTION_HELLO_BASE_URL", ""), ("NEON_BRANCH", "production")))
+        {
+            var r = await new PageClient(app.GetTestServer().CreateHandler()).GetAsync("/net/neon");
+            Assert.Equal(HttpStatusCode.OK, r.StatusCode);
+            using var doc = System.Text.Json.JsonDocument.Parse(await r.Content.ReadAsStringAsync());
+            var root = doc.RootElement;
+            Assert.True(root.GetProperty("ok").GetBoolean());
+            Assert.Equal("production", root.GetProperty("branch").GetString());
+            Assert.True(root.GetProperty("database").GetProperty("ok").GetBoolean());
+            Assert.False(root.GetProperty("functions").GetProperty("configured").GetBoolean());
+            Assert.Equal(System.Text.Json.JsonValueKind.Null, root.GetProperty("functions").GetProperty("ok").ValueKind);
+        }
+
+        // Configured but unreachable (port 1): the page still answers 200 (Postgres is up) and
+        // says the function is down instead of failing the request.
+        await using (var app = await ProductionHost.StartAsync(cs,
+                         ("NEON_FUNCTION_HELLO_BASE_URL", "http://127.0.0.1:1")))
+        {
+            var r = await new PageClient(app.GetTestServer().CreateHandler()).GetAsync("/net/neon");
+            Assert.Equal(HttpStatusCode.OK, r.StatusCode);
+            using var doc = System.Text.Json.JsonDocument.Parse(await r.Content.ReadAsStringAsync());
+            var functions = doc.RootElement.GetProperty("functions");
+            Assert.True(functions.GetProperty("configured").GetBoolean());
+            Assert.False(functions.GetProperty("ok").GetBoolean());
+            Assert.Equal("http://127.0.0.1:1", functions.GetProperty("url").GetString());
+            Assert.DoesNotContain(Reference.SecretKey, await r.Content.ReadAsStringAsync());
+        }
+    }
+
     [ReferenceFact]
     public async Task Static_files_revalidate_unless_versioned_and_images_keep_a_day()
     {

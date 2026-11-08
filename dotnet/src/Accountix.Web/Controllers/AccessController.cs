@@ -13,7 +13,7 @@ namespace Accountix.Web.Controllers;
 /// exactly as the Python app does before any module moves over.
 /// </summary>
 [Route("net")]
-public sealed class AccessController(AccountixDbContext db) : Controller
+public sealed class AccessController(AccountixDbContext db, NeonServices neon, NeonFunctionClient functions) : Controller
 {
     [HttpGet("access")]
     [Authorize]
@@ -32,6 +32,35 @@ public sealed class AccessController(AccountixDbContext db) : Controller
     {
         bool db_ok = await db.Database.CanConnectAsync(ct);
         return db_ok ? Ok(new { ok = true }) : StatusCode(503, new { ok = false });
+    }
+
+    /// <summary>
+    /// The Neon services this deployment was provisioned with (neon.ts → `neon deploy`):
+    /// Postgres answers, and the hello function answers over HTTP. Unauthenticated like
+    /// /net/health, because it reports only up/down: no names, ids or data. A function that
+    /// is down does not take the app down with it, so the answer is 503 only for Postgres.
+    /// </summary>
+    [HttpGet("neon")]
+    [AllowAnonymous]
+    public async Task<IActionResult> Neon(CancellationToken ct)
+    {
+        bool database = await db.Database.CanConnectAsync(ct);
+        NeonFunctionAnswer? function = await functions.PingHelloAsync(ct);
+        var answer = new
+        {
+            ok = database,
+            branch = neon.Branch,
+            database = new { ok = database },
+            functions = new
+            {
+                configured = function is not null,
+                ok = function?.Ok,
+                status = function?.Status,
+                url = neon.HelloFunctionUrl,
+                body = function?.Body,
+            },
+        };
+        return database ? Ok(answer) : StatusCode(503, answer);
     }
 
     /// <summary>

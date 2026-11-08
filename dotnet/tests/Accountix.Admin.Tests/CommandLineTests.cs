@@ -4,8 +4,11 @@ namespace Accountix.Admin.Tests;
 
 /// <summary>
 /// `dotnet Accountix.Web.dll admin ...` as the user runs it on a server: a separate process, the
-/// Production environment, the database from ConnectionStrings__Accountix, no SECRET_KEY, and
+/// Production environment, the database from `ConnectionStrings__Accountix`, no SECRET_KEY, and
 /// stdout holding only the command's report (logs go to stderr).
+/// The subprocess is the app's own process, so it also loads the repository's `.env` files
+/// (`EnvFile`, the `neon deploy` path). To keep the scratch database decisive on any checkout,
+/// DATABASE_URL is pinned to it — the file never overrides a variable that is already set.
 /// </summary>
 public class CommandLineTests
 {
@@ -19,7 +22,7 @@ public class CommandLineTests
         };
         psi.Environment["ASPNETCORE_ENVIRONMENT"] = "Production";
         psi.Environment["ConnectionStrings__Accountix"] = db.ConnectionString;
-        psi.Environment.Remove("DATABASE_URL");
+        psi.Environment["DATABASE_URL"] = db.DatabaseUrl;
         psi.Environment.Remove("SECRET_KEY");
         using var p = Process.Start(psi)!;
         var stdout = p.StandardOutput.ReadToEndAsync();

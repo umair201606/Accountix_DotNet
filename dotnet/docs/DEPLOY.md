@@ -97,6 +97,31 @@ App Service resolves them into environment variables at start.
   together, then restart the web app.
 - A missing or short `SECRET_KEY` stops the app at start-up with that message.
 
+## Neon services (`neon.ts`, `.env.local`, `/net/neon`)
+
+`neon.ts` declares the Neon services this project uses, and `neon deploy` applies them to the
+branch and pulls their variables into `.env.local` (git-ignored):
+
+| Service | Declared in `neon.ts` | Variables pulled | Read by |
+|---|---|---|---|
+| Postgres | the branch's database, always present | `DATABASE_URL` (pooled), `DATABASE_URL_UNPOOLED` (direct) | `AppSettings.From` (`DATABASE_URL`, else `ConnectionStrings:Accountix`); migrations use `MIGRATIONS_DATABASE_URL` when set, so point it at `DATABASE_URL_UNPOOLED` |
+| Functions | `functions: { hello }` → `hello.ts` | `NEON_FUNCTION_HELLO_BASE_URL` | `NeonServices`; called by `NeonFunctionClient` |
+| Branch | — | `NEON_BRANCH` | `NeonServices.Branch` |
+
+- **`.env.local` is a local convenience, never a deployment's source of truth.** `Program.cs` loads
+  it (`EnvFile.Load(typeof(Program).Assembly…, ".env.local", ".env")`) before the configuration is
+  built, and only in the app's own process — a test host that runs `Program.cs` in-process stays out,
+  so the file's variables never reach the tests' reference database. It never overrides a variable
+  that is already set — on Azure the App Settings above still decide. The loader searches the working
+  directory and its parents, so `dotnet run --project src/Accountix.Web` finds the file at the
+  repository root.
+- **`/net/neon`** (anonymous, like `/net/health`) reports both services:
+  `{ ok, branch, database: { ok }, functions: { configured, ok, status, url, body } }`.
+  It answers 503 only when Postgres is down: a function that is down does not take the app down.
+  `ok` is Postgres; `functions.ok` is the function's own answer (first 200 characters of its body).
+- Provisioning from scratch on a checkout: `neon link` (or `neon init`), `neon deploy`, then
+  `dotnet run --project src/Accountix.Web -- migrate` against the direct endpoint (see **Migrations**).
+
 ## Database: Npgsql settings for Neon (`Infrastructure/DatabaseTuning.cs`)
 
 Outside Development these values apply unless the connection string names them; an App Setting
@@ -233,6 +258,9 @@ How it works (`Infrastructure/DataProtectionStore.cs`):
 
 - **`/net/health`**: 200 when the database answers, 503 otherwise. It is the App Service health check
   (an unhealthy instance is taken out of rotation) and the swap warm-up path.
+- **`/net/neon`**: the Neon services view (see "Neon services"): Postgres and the hello function, with
+  their up/down state and the function's first 200 characters. 503 only when Postgres is down.
+  Use it after a `neon deploy`, a branch switch or a settings change.
 - **Logs**: JSON on stdout, collected by App Service as `AppServiceConsoleLogs` and sent to Log
   Analytics (Bicep). Each request writes one line:
   `HTTP {Method} {Path} {Status} {ElapsedMs} ms company={CompanyId} user={UserId}`.
