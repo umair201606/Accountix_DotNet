@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Accountix.SuperAdmin.Tests;
 
-/// <summary>My Books: the super admin's own companies, the same quota, slug rule and provisioning as the portal.</summary>
+/// <summary>My Books: the super admin's own companies, the same quota, address handling and provisioning as the portal.</summary>
 public class MyCompaniesTests
 {
     /// <summary>A fresh super admin (so quota counts start from zero).</summary>
@@ -26,6 +26,7 @@ public class MyCompaniesTests
         await using var db = S.Db();
         var co = await db.Companies.AsNoTracking().SingleAsync(x => x.Slug == slug);
         Assert.Equal("SA Console Books", co.Name);
+        Assert.Equal(slug, co.Address);          // a slug posted in the address field is kept as the address
         Assert.Equal(me, co.CreatedBy);
         Assert.Equal("free", co.PlanName);
         var m = await db.Memberships.AsNoTracking().SingleAsync(x => x.CompanyId == co.Id);
@@ -48,29 +49,63 @@ public class MyCompaniesTests
     }
 
     [ReferenceFact]
-    public async Task Quota_name_and_slug_are_refused_in_pythons_words()
+    public async Task Quota_and_name_are_refused_and_any_address_is_accepted()
     {
         await using var host = await S.HostAsync();
         int me = await NewSuperAsync();
         await using (var db = S.Db())
-            await db.Users.Where(u => u.Id == me).ExecuteUpdateAsync(s => s.SetProperty(u => u.MaxCompaniesOwned, 1));
+            await db.Users.Where(u => u.Id == me).ExecuteUpdateAsync(s => s.SetProperty(u => u.MaxCompaniesOwned, 2));
         var c = host.ClientFor(me);
-        async Task<string> Try(string name, string slug)
+        async Task<string> Try(string name, string address)
         {
-            var r = await S.PostAsync(c, "/superadmin/my-companies/", "/superadmin/my-companies/", ("name", name), ("slug", slug));
+            var r = await S.PostAsync(c, "/superadmin/my-companies/", "/superadmin/my-companies/", ("name", name), ("address", address));
             return S.Location(r) == "/superadmin/my-companies/" ? await S.FollowAsync(c, r) : S.Location(r);
         }
         Assert.Contains("Company name is required.", await Try(" ", "abc"));
-        Assert.Contains("Company address must be 2-62 characters: lowercase letters, digits and hyphens only.", await Try("X", "Bad slug"));
-        string taken = $"taken-{S.Tag()}";
-        await S.NewCompanyAsync("Taken", taken);
-        Assert.Contains("That company address is already taken.", await Try("X", taken));
-        Assert.Equal("/dashboard/", await Try("First", $"first-{S.Tag()}"));
-        Assert.Contains("You have reached your company creation limit (1).", await Try("Second", $"second-{S.Tag()}"));
+        Assert.Contains("must be at most 500 characters", await Try("X", new string('a', 501)));
+
+        // A real address — spaces, commas, capitals — is stored as typed, and the slug is made from it.
+        string tag = S.Tag();
+        string address = $"millat Road, Ghazi Road, Lahore {tag}";
+        Assert.Equal("/dashboard/", await Try("Millat Books", address));
+        await using (var db = S.Db())
+        {
+            var co = await db.Companies.AsNoTracking().SingleAsync(x => x.CreatedBy == me);
+            Assert.Equal(address, co.Address);
+            Assert.Equal($"millat-road-ghazi-road-lahore-{tag}", co.Slug);
+        }
+
+        // Omitting the address leaves it empty and names the company after the company name.
+        Assert.Equal("/dashboard/", await Try($"Second Books {tag}", ""));
+        await using (var db = S.Db())
+        {
+            var co = await db.Companies.AsNoTracking().SingleAsync(x => x.Name == $"Second Books {tag}");
+            Assert.Null(co.Address);
+            Assert.Equal($"second-books-{tag}", co.Slug);
+        }
+
+        Assert.Contains("You have reached your company creation limit (2).", await Try("Third", "x"));
         string page = S.Text(await c.GetStringAsync("/superadmin/my-companies/"));
-        Assert.Contains("Your creation limit is 1 — you've used 1.", page);
+        Assert.Contains("Your creation limit is 2 — you've used 2.", page);
         Assert.Contains("You've reached your creation limit.", page);
         Assert.Contains("disabled=\"disabled\"", page);
+    }
+
+    [ReferenceFact]
+    public async Task Two_companies_from_one_address_get_distinct_slugs()
+    {
+        await using var host = await S.HostAsync();
+        int me = await NewSuperAsync();
+        var c = host.ClientFor(me);
+        string address = $"Same Street {S.Tag()}, Lahore";
+        foreach (string name in new[] { "First Same", "Second Same" })
+            await S.PostAsync(c, "/superadmin/my-companies/", "/superadmin/my-companies/", ("name", name), ("address", address));
+
+        await using var db = S.Db();
+        var slugs = await db.Companies.AsNoTracking().Where(x => x.Address == address).Select(x => x.Slug).ToListAsync();
+        Assert.Equal(2, slugs.Count);
+        Assert.Equal(2, slugs.Distinct().Count());          // the second gets a -2
+        Assert.All(slugs, s => Assert.Matches("^[a-z0-9][a-z0-9-]{1,60}$", s));
     }
 
     [ReferenceFact]

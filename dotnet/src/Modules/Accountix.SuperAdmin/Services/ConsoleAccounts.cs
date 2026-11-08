@@ -77,13 +77,14 @@ public sealed class ConsoleAccounts(AccountixDbContext db, Memberships membershi
         return u;
     }
 
-    /// <summary>A new company (Company(...) with the model's defaults), added to the context, not saved.</summary>
-    public Company NewCompany(string name, string slug, string plan, int? createdBy)
+    /// <summary>A new company (the model's defaults), added to the context, not saved.</summary>
+    public Company NewCompany(string name, string slug, string plan, int? createdBy, string? address = null)
     {
         var now = UtcNow;
         var c = new Company
         {
             Name = name, Slug = slug, PlanName = plan, IsActive = true, CreatedBy = createdBy,
+            Address = string.IsNullOrWhiteSpace(address) ? null : address.Trim(),
             ModHrEnabled = true, ModInventoryEnabled = true, ModInvoicingEnabled = true, ModFinanceEnabled = true,
             ModAccountingEnabled = true, ModFbrEnabled = true, ModFixedAssetsEnabled = true, ModExecutiveEnabled = true,
             Country = "Pakistan", FiscalYearStartMonth = 1, Currency = "PKR", CurrencySymbol = "Rs.",
@@ -139,13 +140,14 @@ public sealed class ConsoleAccounts(AccountixDbContext db, Memberships membershi
         return new CreatedCompany(company, email, createdUser, password);
     }
 
-    /// <summary>my_companies() POST after its checks: the company, owned by the super admin, who is its admin.</summary>
-    public async Task<Company> CreateOwnCompanyAsync(string name, string slug, int userId, CancellationToken ct = default)
+    /// <summary>my-companies POST after its checks: the company, owned by the super admin, who is its admin.</summary>
+    public async Task<Company> CreateOwnCompanyAsync(string name, string slug, int userId, CancellationToken ct = default,
+        string? address = null)
     {
         Company company;
         await using (var tx = await db.Database.CurrentTransactionOrBeginAsync(ct))
         {
-            company = NewCompany(name, slug, "free", userId);
+            company = NewCompany(name, slug, "free", userId, address);
             await db.SaveChangesAsync(ct);
             if (await RoleIdAsync(Role.Admin, ct) is int adminRole)
                 await memberships.AddAsync(company.Id, userId, adminRole, CompanyMembership.StatusActive, null, ct);

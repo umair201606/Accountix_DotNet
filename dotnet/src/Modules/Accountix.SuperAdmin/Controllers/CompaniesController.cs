@@ -60,7 +60,7 @@ public sealed class CompaniesController(AccountixDbContext db, FirstUse firstUse
         if (name.Length == 0 || slug.Length == 0 || email.Length == 0)
             return ToList("Company name, slug and admin email are required.");
         if (!Py.SlugRe().IsMatch(slug))
-            return ToList("Company address must be 2-62 characters: lowercase letters, digits and hyphens only.");
+            return ToList("Slug must be 2-62 characters: lowercase letters, digits and hyphens only.");
         if (await db.Companies.AnyAsync(c => c.Slug == slug, ct))
             return ToList($"A company with slug '{slug}' already exists.");
         if (await accounts.RoleIdAsync(Role.Admin, ct) is not int adminRole)

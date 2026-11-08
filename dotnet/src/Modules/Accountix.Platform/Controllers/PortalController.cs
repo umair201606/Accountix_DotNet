@@ -15,8 +15,8 @@ namespace Accountix.Platform.Controllers;
 public sealed partial class PortalController(AccountixDbContext db, FirstUse firstUse, CompanySetup setup,
                                              Services.SignInService signIn, TimeProvider time) : Controller
 {
-    [GeneratedRegex("^[a-z0-9][a-z0-9-]{1,60}$")]
-    public static partial Regex SlugRe();
+    /// <summary>How long an address may be (companies.address is unbounded; this is a sanity limit).</summary>
+    public const int MaxAddress = 500;
 
     public sealed record PortalModel(
         string UserName, IReadOnlyList<Company> Owned,
@@ -52,13 +52,16 @@ public sealed partial class PortalController(AccountixDbContext db, FirstUse fir
     {
         var me = HttpContext.Access()!.User;
         string name = Request.Form["name"].ToString().Trim();
-        string slug = Request.Form["slug"].ToString().Trim().ToLowerInvariant();
+        // The address is free text (companies.address): a street, a city, commas, capitals, any
+        // language. The slug the app files the company under is derived from it, never typed.
+        // A form from before this change posted the slug in this field; it is accepted as an address.
+        string address = Request.Form["address"].ToString().Trim();
+        if (address.Length == 0)
+            address = Request.Form["slug"].ToString().Trim();
         if (name.Length == 0)
             return Back("Company name is required.");
-        if (slug.Length == 0 || !SlugRe().IsMatch(slug))
-            return Back("Company address must be 2-62 characters: lowercase letters, digits and hyphens only.");
-        if (await db.Companies.AnyAsync(c => c.Slug == slug, ct))
-            return Back("That company address is already taken.");
+        if (address.Length > MaxAddress)
+            return Back($"Company address must be at most {MaxAddress} characters.");
 
         Company company;
         await using (var tx = await db.Database.BeginTransactionAsync(ct))
@@ -68,10 +71,13 @@ public sealed partial class PortalController(AccountixDbContext db, FirstUse fir
             int cap = limits.CompanyLimitFor(me);
             if (await db.Companies.CountAsync(c => c.CreatedBy == me.Id, ct) >= cap)
                 return Back($"You have reached your company creation limit ({cap}).");
+            await db.SerializeAsync("company-slug", CompanySlugs.From(address.Length > 0 ? address : name));
+            string slug = await CompanySlugs.FreeAsync(db, address.Length > 0 ? address : name, ct);
             var now = FirstUse.Micro(time.GetUtcNow().UtcDateTime);
             company = new Company
             {
-                Name = name, Slug = slug, IsActive = true, PlanName = "free", CreatedBy = me.Id,
+                Name = name, Slug = slug, Address = address.Length > 0 ? address : null,
+                IsActive = true, PlanName = "free", CreatedBy = me.Id,
                 ModHrEnabled = true, ModInventoryEnabled = true, ModInvoicingEnabled = true, ModFinanceEnabled = true,
                 ModAccountingEnabled = true, ModFbrEnabled = true, ModFixedAssetsEnabled = true, ModExecutiveEnabled = true,
                 Country = "Pakistan", FiscalYearStartMonth = 1, Currency = "PKR", CurrencySymbol = "Rs.",

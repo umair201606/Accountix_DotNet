@@ -215,8 +215,14 @@
 .vbal .warn{color:var(--v2-neg);font-weight:600}
 .vcard-h{padding:12px 16px}
 .vcard-title{font-size:14px;font-weight:650}
-.vtb .code-cell{width:128px}
-.vtb .code-cell .ri{font-size:11.5px;min-width:118px}
+.vtb .code-cell{width:96px}
+.vtb .code-cell .ri{font-size:11.5px;min-width:0}
+@@media(min-width:641px){.vtb td{padding:5px 4px}}
+.vtb .ri:not([readonly]):not(:disabled){border-color:var(--v2-line-2);background:var(--v2-surface)}
+.vtb .ri:not([readonly]):not(:disabled):hover{border-color:var(--v2-faint)}
+.vtb .ri::placeholder{color:var(--v2-faint)}
+.vtb .acct-input{min-width:200px;text-overflow:ellipsis}
+.vtb .desc-input{display:block;line-height:20px}
 
 .vsum-h{margin:0 0 6px;font-size:15px;font-weight:650;color:var(--v2-ink)}
 .vrail .vsummary{padding:0;border:0;background:transparent}
@@ -395,8 +401,8 @@
           <thead>
             <tr>
               <th style="width:30px">#</th>
-              <th style="width:128px">Code</th>
-              <th style="min-width:180px">Account</th>
+              <th style="width:96px">Code</th>
+              <th style="min-width:220px">Account</th>
               <th style="min-width:220px">Description</th>
               @if (Model.PerLineLabeling) { <th style="min-width:150px">Label</th> }
               @if (Model.IsCb)
@@ -663,7 +669,7 @@ function rowHtml(d){
     +'<td class="code-cell" data-label="Code"><input type="text" class="ri code-display" value="'+(d.code||'')+'" readonly tabindex="-1" aria-label="Account code"></td>'
     +'<td data-label="Account"><div class="ac-wrap">'
     +'<input type="hidden" name="account_id[]" value="'+(d.id||'')+'">'
-    +'<input type="text" class="ri acct-input" placeholder="Type or press Space to search..." autocomplete="off" aria-label="Account search" value="'+(d.name||'').replace(/"/g,'&quot;')+'" '+dis+'>'
+    +'<input type="text" class="ri acct-input" placeholder="Search account…" autocomplete="off" aria-label="Account search" value="'+(d.name||'').replace(/"/g,'&quot;')+'" '+dis+'>'
     +'</div></td>'
     +'<td data-label="Description"><textarea name="description[]" class="ri desc-input" rows="1" style="resize:none;overflow:hidden" aria-label="Description" '+dis+'>'+esc(d.desc||'')+'</textarea></td>'
     +(PER_LINE ? '<td data-label="Label"><div class="ld-wrap"><input type="hidden" name="label_id[]" value="'+lbl+'">'

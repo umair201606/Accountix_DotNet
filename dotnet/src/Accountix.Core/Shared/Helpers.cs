@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text;
+using System.Text.RegularExpressions;
 using Accountix.Core.Data;
 using Accountix.Core.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -232,5 +233,54 @@ public static class ConflictMessages
                 ? "Another user changed the same records at the same moment. Nothing was saved — please try again."
                 : null,
         };
+    }
+}
+
+/// <summary>
+/// A company's address is free text (<c>companies.address</c>, unbounded): street names, commas,
+/// capitals, any language. The key the app files a company under (<c>companies.slug</c>, unique,
+/// <c>[a-z0-9-]</c>) is derived from that address, so nobody has to retype an address as a slug.
+/// </summary>
+public static class CompanySlugs
+{
+    /// <summary>What a stored slug may be: 2–62 characters, lowercase letters, digits and hyphens.</summary>
+    public static readonly Regex Valid = new("^[a-z0-9][a-z0-9-]{1,60}$", RegexOptions.Compiled);
+
+    /// <summary>Longest slug made here, leaving room for a "-12" suffix.</summary>
+    public const int Longest = 58;
+
+    /// <summary>The free text as a slug: its lowercase letters and digits, every other run a hyphen.</summary>
+    public static string From(string text)
+    {
+        var sb = new StringBuilder(text.Length);
+        foreach (char ch in text.ToLowerInvariant())
+        {
+            if (ch is >= 'a' and <= 'z' or >= '0' and <= '9')
+                sb.Append(ch);
+            else if (sb.Length > 0 && sb[^1] != '-')
+                sb.Append('-');
+        }
+        string slug = sb.ToString().Trim('-');
+        if (slug.Length > Longest)
+            slug = slug[..Longest].TrimEnd('-');
+        return slug.Length >= 2 ? slug : "company";
+    }
+
+    /// <summary>
+    /// The text's slug, or the first free of slug, slug-2, slug-3… Call inside the transaction that
+    /// creates the company, holding <c>SerializeAsync("company-slug", slug)</c>: two companies made
+    /// from the same address then queue instead of colliding on the unique index.
+    /// </summary>
+    public static async Task<string> FreeAsync(AccountixDbContext db, string text, CancellationToken ct = default)
+    {
+        string first = From(text);
+        string slug = first;
+        for (int n = 2; ; n++)
+        {
+            if (!await db.Companies.AnyAsync(c => c.Slug == slug, ct))
+                return slug;
+            string suffix = "-" + n.ToString(CultureInfo.InvariantCulture);
+            slug = first[..Math.Min(first.Length, Longest + 4 - suffix.Length)].TrimEnd('-') + suffix;
+        }
     }
 }
