@@ -68,6 +68,7 @@ Vercel's Python functions should run in the same area (Vercel project → Settin
 |---|---|---|
 | `SECRET_KEY` | Key Vault reference; keep the value already in use | Signs the `ax_session` sign-in cookie and keys the password fingerprint; a new value signs everyone out |
 | `DATABASE_URL` | Key Vault reference; Neon **pooled** URL, `sslmode=require` | Same form Vercel and Neon hand out |
+| `NEON_BRANCH` / `NEON_FUNCTION_HELLO_BASE_URL` | optional; what `neon deploy` pulled | Reported by `/net/neon`; the function URL is also settable as `Accountix:Neon:HelloFunctionUrl` |
 | `ASPNETCORE_ENVIRONMENT` | `Production` | Turns on everything below |
 | `DATA_PROTECTION_STORE` | `postgres` (default in Production) | Shared key ring, see below |
 | `DATA_PROTECTION_CERT_PATH` / `_PASSWORD` / `DATA_PROTECTION_OLD_CERT_PATHS` | optional | Encrypt the keys at rest with a certificate |
@@ -104,23 +105,29 @@ branch and pulls their variables into `.env.local` (git-ignored):
 
 | Service | Declared in `neon.ts` | Variables pulled | Read by |
 |---|---|---|---|
-| Postgres | the branch's database, always present | `DATABASE_URL` (pooled), `DATABASE_URL_UNPOOLED` (direct) | `AppSettings.From` (`DATABASE_URL`, else `ConnectionStrings:Accountix`); migrations use `MIGRATIONS_DATABASE_URL` when set, so point it at `DATABASE_URL_UNPOOLED` |
+| Postgres | the branch's database, always present | `DATABASE_URL` (pooled), `DATABASE_URL_UNPOOLED` (direct) | `AppSettings.From` (`DATABASE_URL`, else `ConnectionStrings:Accountix`); migrations prefer `MIGRATIONS_DATABASE_URL`, else `DATABASE_URL_UNPOOLED`, else `DATABASE_URL` |
 | Functions | `functions: { hello }` → `hello.ts` | `NEON_FUNCTION_HELLO_BASE_URL` | `NeonServices`; called by `NeonFunctionClient` |
 | Branch | — | `NEON_BRANCH` | `NeonServices.Branch` |
 
 - **`.env.local` is a local convenience, never a deployment's source of truth.** `Program.cs` loads
   it (`EnvFile.Load(typeof(Program).Assembly…, ".env.local", ".env")`) before the configuration is
   built, and only in the app's own process — a test host that runs `Program.cs` in-process stays out,
-  so the file's variables never reach the tests' reference database. It never overrides a variable
-  that is already set — on Azure the App Settings above still decide. The loader searches the working
-  directory and its parents, so `dotnet run --project src/Accountix.Web` finds the file at the
-  repository root.
-- **`/net/neon`** (anonymous, like `/net/health`) reports both services:
-  `{ ok, branch, database: { ok }, functions: { configured, ok, status, url, body } }`.
-  It answers 503 only when Postgres is down: a function that is down does not take the app down.
-  `ok` is Postgres; `functions.ok` is the function's own answer (first 200 characters of its body).
+  so the file's variables never reach the tests' reference database. A variable already in the
+  environment always wins (on Azure the App Settings above still decide); the file does beat
+  appsettings/user-secrets, because the environment beats both — a pulled `DATABASE_URL` is what a
+  local run, `migrate` and `admin` use. **`ACCOUNTIX_ENV_FILES=0`** ignores the files entirely.
+  The loader searches the working directory and its parents, then the app's own folder, stopping at
+  the repository root (the folder holding `.git`) — `dotnet run --project src/Accountix.Web` finds
+  the file at the repository root, and a stray `~/.env` outside the checkout is never read.
+- **`/net/neon`** reports both services: `{ ok, branch, database: { ok }, functions: { configured,
+  ok, status, url, body } }`. Anonymous callers (like `/net/health`) get the up/down fields only —
+  `branch`, `url` and `body` are null unless you are signed in (like `/net/request`). It answers 503
+  only when Postgres is down: a function that is down does not take the app down. `ok` is Postgres;
+  `functions.ok` is the function's own answer (first 200 characters of its body). The probe's answer
+  is kept a minute (`NeonFunctionClient.CacheFor`), so the anonymous page cannot flood the function.
 - Provisioning from scratch on a checkout: `neon link` (or `neon init`), `neon deploy`, then
-  `dotnet run --project src/Accountix.Web -- migrate` against the direct endpoint (see **Migrations**).
+  `dotnet run --project src/Accountix.Web -- migrate` (it takes the direct endpoint from
+  `DATABASE_URL_UNPOOLED`; see **Migrations**).
 
 ## Database: Npgsql settings for Neon (`Infrastructure/DatabaseTuning.cs`)
 
@@ -259,8 +266,9 @@ How it works (`Infrastructure/DataProtectionStore.cs`):
 - **`/net/health`**: 200 when the database answers, 503 otherwise. It is the App Service health check
   (an unhealthy instance is taken out of rotation) and the swap warm-up path.
 - **`/net/neon`**: the Neon services view (see "Neon services"): Postgres and the hello function, with
-  their up/down state and the function's first 200 characters. 503 only when Postgres is down.
-  Use it after a `neon deploy`, a branch switch or a settings change.
+  their up/down state. 503 only when Postgres is down. Signed-in people also see the branch, the
+  function's address and its first 200 characters. Use it after a `neon deploy`, a branch switch or a
+  settings change.
 - **Logs**: JSON on stdout, collected by App Service as `AppServiceConsoleLogs` and sent to Log
   Analytics (Bicep). Each request writes one line:
   `HTTP {Method} {Path} {Status} {ElapsedMs} ms company={CompanyId} user={UserId}`.
@@ -363,7 +371,8 @@ there is no "deploy Python first" step any more.
   dotnet Accountix.Web.dll migrate --describe   # the schema as JSON (re-capture Schema/expected_schema.json)
   ```
 
-  It reads `MIGRATIONS_DATABASE_URL` (use Neon's **direct** endpoint here), else `DATABASE_URL`,
+  It reads `MIGRATIONS_DATABASE_URL` (use Neon's **direct** endpoint here), else
+  `DATABASE_URL_UNPOOLED` (the direct endpoint `neon deploy` pulls), else `DATABASE_URL`,
   else `ConnectionStrings:Accountix`.
 - With the staging slot on the production database, the slot's start migrates **before the swap**.
   That is why every migration must be additive (expand now, contract in a later release): the

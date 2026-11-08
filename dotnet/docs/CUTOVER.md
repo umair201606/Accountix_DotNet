@@ -35,6 +35,10 @@ Status, 29 Oct 2026: **plan only, nothing switched.** Deployment is in [DEPLOY.m
    - A message set by one app, followed by a redirect to the other, shows up on that app's next page,
      not at once.
    - The moves are grouped so that the common redirects stay within one app (see "Flash" below).
+6. **The repository root now has Node files** (`package.json`, `neon.ts`, `hello.ts` for `neon deploy`).
+   A root `package.json` makes Vercel run its `build` script (`tsc --noEmit`) if this repository is
+   ever pushed to the branch Vercel deploys from — harmless (the build passes), but different from
+   the Python era, where the root had no `package.json`.
 
 ## Routing: Vercel rewrites (during the move), Azure Front Door (an option), DNS to Azure (at the end)
 

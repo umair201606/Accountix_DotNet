@@ -42,6 +42,8 @@ var appSettings = [
   { name: 'ASPNETCORE_ENVIRONMENT', value: 'Production' }
   { name: 'SECRET_KEY', value: '${kvRef}SECRET-KEY)' }               // = the Python app's SECRET_KEY on Vercel
   { name: 'DATABASE_URL', value: '${kvRef}DATABASE-URL)' }           // Neon pooled endpoint (-pooler), sslmode=require
+  { name: 'NEON_BRANCH', value: '' }                                  // optional: the branch `neon deploy` pulls variables from (/net/neon)
+  { name: 'NEON_FUNCTION_HELLO_BASE_URL', value: '' }                 // optional: the deployed hello function (/net/neon); set after `neon deploy`
   { name: 'SENTRY_DSN', value: '${kvRef}SENTRY-DSN)' }               // empty secret = no error reports
   { name: 'SENTRY_ENVIRONMENT', value: 'production' }
   { name: 'DATA_PROTECTION_STORE', value: 'postgres' }                // shared key ring (Alembic 0017)

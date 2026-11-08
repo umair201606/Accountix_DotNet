@@ -1,4 +1,5 @@
 using System.Net;
+using System.Reflection;
 using System.Text.Json;
 using Accountix.Web.Infrastructure;
 using Microsoft.Extensions.Configuration;
@@ -31,6 +32,13 @@ public class EnvFileTests
                 ("NEON_FUNCTION_HELLO_BASE_URL", "https://example.com/"),
             },
             parsed);
+    }
+
+    [Fact]
+    public void Values_keep_inner_equals_and_carriage_returns()
+    {
+        var parsed = EnvFile.Parse("A=b=c\r\nB=\"x=y\"\r\nKEY=\r\n").ToList();
+        Assert.Equal(new[] { ("A", "b=c"), ("B", "x=y"), ("KEY", "") }, parsed);
     }
 
     [Fact]
@@ -76,12 +84,37 @@ public class EnvFileTests
     }
 
     [Fact]
+    public void The_last_occurrence_of_a_key_wins_and_a_blank_value_sets_nothing()
+    {
+        string first = $"ACCOUNTIX_TEST_ENVFILE_{Guid.NewGuid():N}";
+        string blank = $"ACCOUNTIX_TEST_ENVFILE_{Guid.NewGuid():N}";
+        string dir = Directory.CreateTempSubdirectory("accountix-envfile-").FullName;
+        try
+        {
+            File.WriteAllText(Path.Combine(dir, ".env.local"), $"{first}=one\n{first}=two\n{blank}=\n");
+
+            var set = EnvFile.LoadFrom(dir, ".env.local");
+
+            Assert.Equal(new[] { first }, set);                          // the blank sets nothing, and is not reported
+            Assert.Equal("two", Environment.GetEnvironmentVariable(first));
+            Assert.Null(Environment.GetEnvironmentVariable(blank));      // .NET deletes on blank: never claim it was set
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable(first, null);
+            Environment.SetEnvironmentVariable(blank, null);
+            Directory.Delete(dir, recursive: true);
+        }
+    }
+
+    [Fact]
     public void The_loader_walks_up_from_a_subdirectory_to_the_repository_root()
     {
         string root = Directory.CreateTempSubdirectory("accountix-envfile-").FullName;
         string nested = Directory.CreateDirectory(Path.Combine(root, "dotnet", "src")).FullName;
         try
         {
+            Directory.CreateDirectory(Path.Combine(root, ".git"));      // the repository root is the walk's ceiling
             File.WriteAllText(Path.Combine(root, ".env.local"), "IGNORED=1\n");
             Assert.Equal(Path.Combine(root, ".env.local"), EnvFile.Find(nested, ".env.local"));
             Assert.Null(EnvFile.Find(nested, "no-such-file.env"));
@@ -89,6 +122,27 @@ public class EnvFileTests
         finally
         {
             Directory.Delete(root, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void The_walk_never_reads_a_file_outside_the_repository()
+    {
+        // A stray ~/.env above the checkout must never be loaded: the walk stops at the
+        // folder that holds .git, without reading anything further up.
+        string outer = Directory.CreateTempSubdirectory("accountix-envfile-").FullName;
+        string root = Directory.CreateDirectory(Path.Combine(outer, "repo")).FullName;
+        string nested = Directory.CreateDirectory(Path.Combine(root, "dotnet", "src")).FullName;
+        try
+        {
+            Directory.CreateDirectory(Path.Combine(root, ".git"));
+            File.WriteAllText(Path.Combine(outer, ".env.local"), "OUTSIDE=1\n");
+
+            Assert.Null(EnvFile.Find(nested, ".env.local"));
+        }
+        finally
+        {
+            Directory.Delete(outer, recursive: true);
         }
     }
 
@@ -104,11 +158,37 @@ public class EnvFileTests
         {
             File.WriteAllText(Path.Combine(dir, ".env.local"), $"{key}=from-file\n");
 
-            Assert.Empty(EnvFile.Load("some-other-host", ".env.local"));
+            Assert.Empty(EnvFile.Load("some-other-host", [dir], ".env.local"));
+            Assert.Null(Environment.GetEnvironmentVariable(key));
+
+            // The host that names its own entry assembly gets the file.
+            string entry = Assembly.GetEntryAssembly()?.GetName().Name!;
+            Assert.Equal(new[] { key }, EnvFile.Load(entry, [dir], ".env.local"));
+            Assert.Equal("from-file", Environment.GetEnvironmentVariable(key));
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable(key, null);
+            Directory.Delete(dir, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void The_opt_out_variable_makes_every_load_a_no_op()
+    {
+        string key = $"ACCOUNTIX_TEST_ENVFILE_{Guid.NewGuid():N}";
+        string dir = Directory.CreateTempSubdirectory("accountix-envfile-").FullName;
+        try
+        {
+            File.WriteAllText(Path.Combine(dir, ".env.local"), $"{key}=from-file\n");
+            Environment.SetEnvironmentVariable(EnvFile.OptOutVariable, "0");
+
+            Assert.Empty(EnvFile.Load(Assembly.GetEntryAssembly()?.GetName().Name!, [dir], ".env.local"));
             Assert.Null(Environment.GetEnvironmentVariable(key));
         }
         finally
         {
+            Environment.SetEnvironmentVariable(EnvFile.OptOutVariable, null);
             Environment.SetEnvironmentVariable(key, null);
             Directory.Delete(dir, recursive: true);
         }
@@ -145,6 +225,32 @@ public class NeonServicesTests
     }
 
     [Fact]
+    public void A_blank_variable_falls_back_to_the_app_settings_url()
+    {
+        // A blank is "not set": an empty App Setting must not hide the configured URL.
+        var services = NeonServices.From(Config(
+            ("NEON_FUNCTION_HELLO_BASE_URL", ""),
+            ("Accountix:Neon:HelloFunctionUrl", "https://fn.example/")));
+        Assert.Equal("https://fn.example", services.HelloFunctionUrl);
+
+        // And when both are set, the variable wins.
+        services = NeonServices.From(Config(
+            ("NEON_FUNCTION_HELLO_BASE_URL", "https://var.example"),
+            ("Accountix:Neon:HelloFunctionUrl", "https://fn.example")));
+        Assert.Equal("https://var.example", services.HelloFunctionUrl);
+    }
+
+    [Fact]
+    public void A_malformed_or_non_http_address_is_not_configured()
+    {
+        foreach (string bad in new[] { "fn.example.com", "ftp://fn.example", "not a url", "https://" })
+        {
+            var services = NeonServices.From(Config(("NEON_FUNCTION_HELLO_BASE_URL", bad)));
+            Assert.Null(services.HelloFunctionUrl);   // reported as "not configured", never asked, never a 500
+        }
+    }
+
+    [Fact]
     public async Task The_client_says_up_for_a_200_and_down_for_a_500()
     {
         var up = await Ping(HttpStatusCode.OK, "Hello from Neon Functions");
@@ -155,6 +261,55 @@ public class NeonServicesTests
         var down = await Ping(HttpStatusCode.InternalServerError, "boom");
         Assert.False(down!.Value.Ok);
         Assert.Equal(500, down.Value.Status);
+    }
+
+    [Fact]
+    public async Task A_broken_address_is_an_answer_not_an_exception()
+    {
+        // Even when a value slips past the URL check, the page must report "down", not 500.
+        var handler = new StubHandler(HttpStatusCode.OK, "never called");
+        var client = new NeonFunctionClient(new Factory(handler), new NeonServices { HelloFunctionUrl = "fn.example" });
+        var answer = await client.PingHelloAsync();
+        Assert.False(answer!.Value.Ok);
+        Assert.Equal(0, handler.Calls);
+    }
+
+    [Fact]
+    public async Task The_answer_is_reused_for_a_minute()
+    {
+        // The anonymous page must not let anyone flood the function: one probe per CacheFor.
+        var handler = new StubHandler(HttpStatusCode.OK, "Hello from Neon Functions");
+        var client = new NeonFunctionClient(new Factory(handler), new NeonServices { HelloFunctionUrl = "https://fn.example" });
+
+        var first = await client.PingHelloAsync();
+        var second = await client.PingHelloAsync();
+
+        Assert.Equal(first, second);
+        Assert.Equal(1, handler.Calls);
+    }
+
+    [Fact]
+    public async Task A_slow_function_is_reported_as_down()
+    {
+        var handler = new SlowHandler();
+        var client = new NeonFunctionClient(
+            new Factory(handler, timeout: TimeSpan.FromMilliseconds(100)), new NeonServices { HelloFunctionUrl = "https://fn.example" });
+
+        var answer = await client.PingHelloAsync();
+
+        Assert.False(answer!.Value.Ok);
+        Assert.Null(answer.Value.Status);
+    }
+
+    [Fact]
+    public async Task A_caller_cancel_is_rethrown()
+    {
+        var handler = new StubHandler(HttpStatusCode.OK, "never reached");
+        var client = new NeonFunctionClient(new Factory(handler), new NeonServices { HelloFunctionUrl = "https://fn.example" });
+        using var cancelled = new CancellationTokenSource();
+        await cancelled.CancelAsync();
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => client.PingHelloAsync(cancelled.Token));
     }
 
     [Fact]
@@ -174,9 +329,10 @@ public class NeonServicesTests
         return await client.PingHelloAsync();
     }
 
-    private sealed class Factory(HttpMessageHandler handler) : IHttpClientFactory
+    private sealed class Factory(HttpMessageHandler handler, TimeSpan? timeout = null) : IHttpClientFactory
     {
-        public HttpClient CreateClient(string name) => new(handler, disposeHandler: false);
+        public HttpClient CreateClient(string name) =>
+            new(handler, disposeHandler: false) { Timeout = timeout ?? TimeSpan.FromSeconds(5) };
     }
 
     private sealed class StubHandler(HttpStatusCode status, string body) : HttpMessageHandler
@@ -187,6 +343,15 @@ public class NeonServicesTests
         {
             Calls++;
             return Task.FromResult(new HttpResponseMessage(status) { Content = new StringContent(body) });
+        }
+    }
+
+    private sealed class SlowHandler() : HttpMessageHandler
+    {
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
+        {
+            await Task.Delay(TimeSpan.FromSeconds(30), ct);
+            return new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("too late") };
         }
     }
 }

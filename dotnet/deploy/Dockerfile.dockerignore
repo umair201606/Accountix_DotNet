@@ -13,3 +13,5 @@ dotnet/tests/
 dotnet/tools/*.json
 venv/
 node_modules/
+.env
+.env.*

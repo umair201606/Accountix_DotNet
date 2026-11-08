@@ -24,8 +24,8 @@ public static class MigrateCommand
           --describe   print the database's schema description (JSON), for re-capturing
                        Schema/expected_schema.json after a migration changes the schema
 
-        Database: MIGRATIONS_DATABASE_URL (e.g. Neon's direct endpoint), else DATABASE_URL,
-        else ConnectionStrings:Accountix.
+        Database: MIGRATIONS_DATABASE_URL (e.g. Neon's direct endpoint), else DATABASE_URL_UNPOOLED
+        (the direct endpoint `neon deploy` pulls), else DATABASE_URL, else ConnectionStrings:Accountix.
         """;
 
     public static bool Matches(string[] args) => args.Length > 0 && args[0] == "migrate";
@@ -37,7 +37,10 @@ public static class MigrateCommand
     /// <summary>The database the migrations run on.</summary>
     public static string ConnectionString(IConfiguration config)
     {
-        string? url = config["MIGRATIONS_DATABASE_URL"] is { Length: > 0 } m ? m : config["DATABASE_URL"];
+        // The direct endpoint first: Neon's pooler is for requests, not for migrations.
+        string? url = config["MIGRATIONS_DATABASE_URL"] is { Length: > 0 } m ? m
+            : config["DATABASE_URL_UNPOOLED"] is { Length: > 0 } u ? u
+            : config["DATABASE_URL"];
         return !string.IsNullOrWhiteSpace(url)
             ? AppSettings.FromDatabaseUrl(url)
             : config.GetConnectionString("Accountix")

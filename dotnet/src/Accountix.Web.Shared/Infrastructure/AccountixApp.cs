@@ -25,7 +25,9 @@ public static class AccountixApp
         s.AddSingleton(TimeProvider.System);
         // Neon services beyond Postgres (neon.ts → `neon deploy` → .env.local): /net/neon reports them.
         s.AddSingleton(NeonServices.From(builder.Configuration));
-        s.AddHttpClient(nameof(NeonFunctionClient), c => c.Timeout = NeonFunctionClient.Timeout);
+        s.AddHttpClient(nameof(NeonFunctionClient), c => c.Timeout = NeonFunctionClient.Timeout)
+         // No redirects: the probe must not be bounced to another host than the one configured.
+         .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false });
         s.AddSingleton<NeonFunctionClient>();   // AddHttpClient(name, …) names the client, it does not register the class.
         // Pages keep non-ASCII text (—, Urdu names, Rs. signs) as UTF-8 like Jinja, instead of &#x…;
         // entities: smaller pages, and the same text bytes as the Python app. <, >, &, quotes stay encoded.

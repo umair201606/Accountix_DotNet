@@ -287,6 +287,8 @@ public class ProductionPipelineTests
     /// <summary>
     /// /net/neon reports the services neon.ts declares: Postgres, and the hello function whose
     /// address `neon deploy` pulled into .env.local (NEON_FUNCTION_HELLO_BASE_URL).
+    /// Anonymous callers get up/down only — the branch, the address and the body are for
+    /// signed-in people — and a down database is 503 with the same shape.
     /// </summary>
     [ReferenceFact]
     public async Task The_neon_page_reports_postgres_and_says_when_no_function_is_configured()
@@ -300,25 +302,53 @@ public class ProductionPipelineTests
             using var doc = System.Text.Json.JsonDocument.Parse(await r.Content.ReadAsStringAsync());
             var root = doc.RootElement;
             Assert.True(root.GetProperty("ok").GetBoolean());
-            Assert.Equal("production", root.GetProperty("branch").GetString());
+            Assert.Equal(System.Text.Json.JsonValueKind.Null, root.GetProperty("branch").ValueKind);  // anonymous: up/down only
             Assert.True(root.GetProperty("database").GetProperty("ok").GetBoolean());
             Assert.False(root.GetProperty("functions").GetProperty("configured").GetBoolean());
             Assert.Equal(System.Text.Json.JsonValueKind.Null, root.GetProperty("functions").GetProperty("ok").ValueKind);
         }
 
         // Configured but unreachable (port 1): the page still answers 200 (Postgres is up) and
-        // says the function is down instead of failing the request.
+        // says the function is down instead of failing the request. Anonymous callers see no
+        // address or body; a signed-in person sees both. No answer carries the secret key.
         await using (var app = await ProductionHost.StartAsync(cs,
-                         ("NEON_FUNCTION_HELLO_BASE_URL", "http://127.0.0.1:1")))
+                         ("NEON_FUNCTION_HELLO_BASE_URL", "http://127.0.0.1:1"), ("NEON_BRANCH", "production")))
+        {
+            var anonymous = await new PageClient(app.GetTestServer().CreateHandler()).GetAsync("/net/neon");
+            Assert.Equal(HttpStatusCode.OK, anonymous.StatusCode);
+            string hidden = await anonymous.Content.ReadAsStringAsync();
+            Assert.DoesNotContain(Reference.SecretKey, hidden);
+            using (var doc = System.Text.Json.JsonDocument.Parse(hidden))
+            {
+                var functions = doc.RootElement.GetProperty("functions");
+                Assert.True(functions.GetProperty("configured").GetBoolean());
+                Assert.False(functions.GetProperty("ok").GetBoolean());
+                Assert.Equal(System.Text.Json.JsonValueKind.Null, functions.GetProperty("url").ValueKind);
+                Assert.Equal(System.Text.Json.JsonValueKind.Null, functions.GetProperty("body").ValueKind);
+            }
+
+            var signedIn = await ProductionHost.Client(app, Reference.UserId(Reference.Email("owner_b")), Reference.Company("b"), cs)
+                                                 .GetAsync("/net/neon");
+            Assert.Equal(HttpStatusCode.OK, signedIn.StatusCode);
+            string detail = await signedIn.Content.ReadAsStringAsync();
+            Assert.DoesNotContain(Reference.SecretKey, detail);
+            using var full = System.Text.Json.JsonDocument.Parse(detail);
+            Assert.Equal("production", full.RootElement.GetProperty("branch").GetString());
+            var seen = full.RootElement.GetProperty("functions");
+            Assert.Equal("http://127.0.0.1:1", seen.GetProperty("url").GetString());
+            Assert.False(string.IsNullOrEmpty(seen.GetProperty("body").GetString()));
+        }
+
+        // Postgres down: 503, and the function's answer is still reported. (DATA_PROTECTION_STORE=none
+        // so the key-ring warm-up, which needs the database, lets a host with a dead one start.)
+        await using (var app = await ProductionHost.StartAsync("Host=/tmp/accountix-no-such-socket;Database=x;Username=postgres",
+                         ("DATA_PROTECTION_STORE", "none")))
         {
             var r = await new PageClient(app.GetTestServer().CreateHandler()).GetAsync("/net/neon");
-            Assert.Equal(HttpStatusCode.OK, r.StatusCode);
+            Assert.Equal(HttpStatusCode.ServiceUnavailable, r.StatusCode);
             using var doc = System.Text.Json.JsonDocument.Parse(await r.Content.ReadAsStringAsync());
-            var functions = doc.RootElement.GetProperty("functions");
-            Assert.True(functions.GetProperty("configured").GetBoolean());
-            Assert.False(functions.GetProperty("ok").GetBoolean());
-            Assert.Equal("http://127.0.0.1:1", functions.GetProperty("url").GetString());
-            Assert.DoesNotContain(Reference.SecretKey, await r.Content.ReadAsStringAsync());
+            Assert.False(doc.RootElement.GetProperty("ok").GetBoolean());
+            Assert.False(doc.RootElement.GetProperty("database").GetProperty("ok").GetBoolean());
         }
     }
 
