@@ -76,29 +76,36 @@ public sealed class ConsoleController(AccountixDbContext db, FirstUse firstUse, 
     {
         var form = Request.Form;
         string name = Py.Strip(Py.Form(form, "name"));
-        string slug = Py.Strip(Py.Form(form, "slug")).ToLowerInvariant();
+        // The address is free text (companies.address): a street, a city, commas, capitals, any
+        // language. The slug the app files the company under is derived from it, never typed.
+        // A form from before this change posted the slug in this field; it is accepted as an address.
+        string address = Py.Strip(Py.Form(form, "address"));
+        if (address.Length == 0)
+            address = Py.Strip(Py.Form(form, "slug"));
         if (name.Length == 0)
             return Refuse("Company name is required.");
-        if (slug.Length == 0 || !Py.SlugRe().IsMatch(slug))
-            return Refuse("Company address must be 2-62 characters: lowercase letters, digits and hyphens only.");
-        if (await db.Companies.AnyAsync(c => c.Slug == slug, ct))
-            return Refuse("That company address is already taken.");
+        if (address.Length > PortalMaxAddress)
+            return Refuse($"Company address must be at most {PortalMaxAddress} characters.");
 
         await using var tx = await db.Database.BeginTransactionAsync(ct);
-        // Queued per person (serialize("own-companies", user), as Python's
-        // my_companies and portal create): two creations at once cannot both
-        // pass the count.
+        // Queued per person (serialize("own-companies", user)): two creations at once cannot both
+        // pass the count; and per address, so two companies of one address never collide.
         await db.SerializeAsync("own-companies", Me.Id);
         var limits = await firstUse.GlobalLimitsAsync(ct);
         int cap = limits.CompanyLimitFor(Me);
         if (await db.Companies.CountAsync(c => c.CreatedBy == Me.Id, ct) >= cap)
             return Refuse($"You have reached your company creation limit ({cap}).");
+        await db.SerializeAsync("company-slug", Accountix.Core.Shared.CompanySlugs.From(address.Length > 0 ? address : name));
+        string slug = await Accountix.Core.Shared.CompanySlugs.FreeAsync(db, address.Length > 0 ? address : name, ct);
 
-        var company = await accounts.CreateOwnCompanyAsync(name, slug, Me.Id, ct);
+        var company = await accounts.CreateOwnCompanyAsync(name, slug, Me.Id, ct, address.Length > 0 ? address : null);
         signIn.SetCompany(HttpContext, company.Id);
         this.Flash($"Company '{company.Name}' created — its books are ready.", "success");
         return Redirect("/dashboard/");
     }
+
+    /// <summary>Same sanity limit as the portal's create form (companies.address itself is unbounded).</summary>
+    private const int PortalMaxAddress = 500;
 
     private RedirectResult Refuse(string message)
     {

@@ -101,8 +101,8 @@ public class CompaniesTests
         string fresh = $"new.{S.Tag()}@example.com";
         Assert.Contains("Company name, slug and admin email are required.", await Try(Form("", "abc", fresh)));
         Assert.Contains("Company name, slug and admin email are required.", await Try(Form("X", "abc", " ")));
-        Assert.Contains("Company address must be 2-62 characters: lowercase letters, digits and hyphens only.", await Try(Form("X", "-bad", fresh)));
-        Assert.Contains("Company address must be 2-62 characters: lowercase letters, digits and hyphens only.", await Try(Form("X", "a", fresh)));
+        Assert.Contains("Slug must be 2-62 characters: lowercase letters, digits and hyphens only.", await Try(Form("X", "-bad", fresh)));
+        Assert.Contains("Slug must be 2-62 characters: lowercase letters, digits and hyphens only.", await Try(Form("X", "a", fresh)));
         Assert.Contains($"A company with slug '{taken}' already exists.", await Try(Form("X", taken, fresh)));
         Assert.Contains("Password must be at least 8 characters.", await Try(Form("X", $"ok-{S.Tag()}", fresh, password: "short")));
         Assert.Contains("Enter a valid admin email.", await Try(Form("X", $"ok-{S.Tag()}", "no-at-sign")));

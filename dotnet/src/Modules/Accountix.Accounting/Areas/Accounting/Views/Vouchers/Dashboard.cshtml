@@ -68,64 +68,6 @@
   </div>
 </div>
 
-<style> blocks — so the recent-vouchers table rendered unstyled and the
-   status pills rendered as bare text. Everything here now uses the shared
-   names ui.css actually paints. #}
-<div class="stat-grid">
-  <div class="stat-card">
-    <div class="stat-label">Total vouchers</div>
-    <div class="stat-value">{{ stats.total }}</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-label">Unapproved</div>
-    <div class="stat-value">{{ stats.unapproved }}</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-label">Approved</div>
-    <div class="stat-value">{{ stats.approved }}</div>
-  </div>
-</div>
-
-<div class="acct-types">
-  {% for vt in ['CPV','CRV','BPV','BRV','JV'] if vt in viewable or vt in creatable %}
-  {% if vt in creatable %}<a href="{{ url_for('accounting.voucher_form') }}?type={{ vt }}" class="acct-type">{% else %}<div class="acct-type">{% endif %}
-    <span class="acct-type-code">{{ vt }}</span>
-    <span class="acct-type-name">
-      {% if vt == 'CPV' %}Cash payment{% elif vt == 'CRV' %}Cash receipt{% elif vt == 'BPV' %}Bank payment{% elif vt == 'BRV' %}Bank receipt{% else %}Journal voucher{% endif %}
-    </span>
-    {% if vt in viewable %}<span class="acct-type-count">{{ stats.by_type.get(vt,0) }} entries</span>{% endif %}
-  {% if vt in creatable %}</a>{% else %}</div>{% endif %}
-  {% endfor %}
-</div>
-
-<div class="card">
-  <div class="card-header">Recent vouchers</div>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>Voucher #</th><th>Type</th><th>Date</th><th>Status</th><th></th></tr></thead>
-      <tbody>
-        {% for v in recent %}
-        <tr>
-          <td><a href="{{ url_for('accounting.voucher_form', id=v.id) }}">{{ v.voucher_number }}</a></td>
-          <td><span class="badge badge-default">{{ v.voucher_type }}</span></td>
-          <td>{{ v.voucher_date.strftime('%Y-%m-%d') if v.voucher_date else '' }}</td>
-          <td>
-            {% if v.status == 'unapproved' %}
-              <span class="badge badge-warning">Unapproved</span>
-            {% else %}
-              <span class="badge badge-success">Approved</span>
-            {% endif %}
-          </td>
-          <td><a href="{{ url_for('accounting.voucher_form', id=v.id) }}" class="btn btn-outline btn-sm">View</a></td>
-        </tr>
-        {% else %}
-        <tr><td colspan="5" class="acct-empty">No vouchers yet.</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-</div>
-
 <style>
   .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
                gap: 12px; margin-bottom: 12px; }

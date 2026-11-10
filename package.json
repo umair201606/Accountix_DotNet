@@ -1,0 +1,14 @@
+{
+  "private": true,
+  "scripts": {
+    "build": "tsc --noEmit",
+    "deploy": "neon deploy"
+  },
+  "dependencies": {
+    "@neon/config": "^1.9.5",
+    "@neon/env": "^1.6.6"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}

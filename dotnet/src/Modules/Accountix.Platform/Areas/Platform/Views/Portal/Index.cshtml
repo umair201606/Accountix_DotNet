@@ -113,8 +113,8 @@
         <input id="cname" name="name" placeholder="Acme Corporation" required>
       </div>
       <div class="field">
-        <label for="cslug">Company address</label>
-        <input id="cslug" name="slug" placeholder="acme-corp" required>
+        <label for="caddr">Company address</label>
+        <input id="caddr" name="address" placeholder="Millat Road, Ghazi Road, Lahore" maxlength="500">
       </div>
       
       <button class="btn btn-fill" type="submit">Create company</button>
@@ -130,7 +130,7 @@
       <div class="pt-card">
         <h3>@c.Name</h3>
         <div class="meta">
-          <span>@c.Slug</span>
+          <span>@(string.IsNullOrWhiteSpace(c.Address) ? c.Slug : c.Address)</span>
           <span>@(c.PlanName ?? "free")</span>
           @if (!c.Active) {<span class="badge badge-off">suspended</span>}
         </div>

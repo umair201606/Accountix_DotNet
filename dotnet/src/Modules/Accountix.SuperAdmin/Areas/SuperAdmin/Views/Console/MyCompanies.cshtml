@@ -21,9 +21,9 @@
         <input type="text" name="name" class="inp" required placeholder="Acme Corp">
       </div>
       <div class="fgroup">
-        <label class="lbl">Company Address (slug)</label>
-        <input type="text" name="slug" class="inp" required placeholder="acme-corp" pattern="[a-z0-9][a-z0-9-]{1,60}">
-        <p class="field-hint">Lowercase letters, numbers, hyphens. 2–62 characters. This becomes the company's permanent address.</p>
+        <label class="lbl">Company Address</label>
+        <input type="text" name="address" class="inp" placeholder="Millat Road, Ghazi Road, Lahore" maxlength="500">
+        <p class="field-hint">Street, area and city — any text. The company's short web address is made from it.</p>
       </div>
     </div>
     <div class="sa-actions">
@@ -53,7 +53,7 @@
       <thead>
         <tr>
           <th>Company</th>
-          <th>Slug</th>
+          <th>Address</th>
           <th>Plan</th>
           <th>Members</th>
           <th>Status</th>
@@ -65,7 +65,7 @@
         {
         <tr>
           <td><strong>@c.Name</strong></td>
-          <td><code>@c.Slug</code></td>
+          <td>@(string.IsNullOrWhiteSpace(c.Address) ? c.Slug : c.Address)</td>
           <td>@(string.IsNullOrEmpty(c.PlanName) ? "free" : c.PlanName)</td>
           <td>@Members(c.Id)</td>
           <td>

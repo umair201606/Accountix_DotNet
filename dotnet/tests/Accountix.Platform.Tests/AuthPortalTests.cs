@@ -270,7 +270,7 @@ public class AuthPortalTests
     }
 
     [ReferenceFact]
-    public async Task Creating_a_company_provisions_its_books_and_enforces_quota_slug_and_uniqueness()
+    public async Task Creating_a_company_provisions_its_books_and_enforces_quota_address_and_uniqueness()
     {
         await using var host = await P.HostAsync();
         int uid = await P.NewUserAsync();
@@ -281,16 +281,18 @@ public class AuthPortalTests
             await db.SaveChangesAsync();
         }
         var c = host.ClientFor(uid);
-        string slug = "pc-" + P.Tag();
-        async Task<HttpResponseMessage> Create(string name, string s) =>
-            await c.PostFormWithTokenAsync("/portal/create", [new("name", name), new("slug", s)], await FormTokenAsync(c, "/portal/"));
-        Assert.Equal("/portal/", (await Create("Bad", "Bad Slug!")).Headers.Location?.OriginalString);
-        var ok = await Create("Portal Made", slug);
+        string address = $"Millat Road, Ghazi Road, Lahore {P.Tag()}";
+        async Task<HttpResponseMessage> Create(string name, string a) =>
+            await c.PostFormWithTokenAsync("/portal/create", [new("name", name), new("address", a)], await FormTokenAsync(c, "/portal/"));
+        // Any address is accepted: spaces, commas, capitals. The slug is made from it.
+        var ok = await Create("Portal Made", address);
         Assert.Equal("/dashboard/", ok.Headers.Location?.OriginalString);
         await using (var db = P.Db())
         {
-            var co = await db.Companies.SingleAsync(x => x.Slug == slug);
+            var co = await db.Companies.SingleAsync(x => x.Address == address);
             Assert.Equal(uid, co.CreatedBy);
+            Assert.StartsWith("millat-road-ghazi-road-lahore-", co.Slug);
+            Assert.Matches("^[a-z0-9][a-z0-9-]{1,60}$", co.Slug);
             var m = await db.Memberships.Include(x => x.Role).SingleAsync(x => x.CompanyId == co.Id);
             Assert.Equal(Role.Admin, m.Role.Name);
             db.Company.Set(co.Id);
@@ -300,11 +302,31 @@ public class AuthPortalTests
         }
         string hub = await (await c.GetAsync("/dashboard/")).Content.ReadAsStringAsync();
         Assert.Contains("Portal Made", hub);
-        // Taken address, then the quota.
-        await Create("Again", slug);
-        await Create("Second", "pc2-" + P.Tag());
+        // The quota: a second company is refused (the same address is not).
+        await Create("Second", address);
         await using (var db = P.Db())
             Assert.Equal(1, await db.Companies.CountAsync(x => x.CreatedBy == uid));
+    }
+
+    [ReferenceFact]
+    public async Task A_name_is_required_and_an_omitted_address_names_the_slug_after_the_company()
+    {
+        await using var host = await P.HostAsync();
+        int uid = await P.NewUserAsync();
+        var c = host.ClientFor(uid);
+        async Task<HttpResponseMessage> Create(string name, string? address)
+        {
+            var fields = new List<KeyValuePair<string, string>> { new("name", name) };
+            if (address is not null) fields.Add(new("address", address));
+            return await c.PostFormWithTokenAsync("/portal/create", fields, await FormTokenAsync(c, "/portal/"));
+        }
+        Assert.Equal("/portal/", (await Create(" ", "Lahore")).Headers.Location?.OriginalString);
+        string tag = P.Tag();
+        Assert.Equal("/dashboard/", (await Create("No Address Co " + tag, null)).Headers.Location?.OriginalString);
+        await using var db = P.Db();
+        var co = await db.Companies.SingleAsync(x => x.CreatedBy == uid);
+        Assert.Null(co.Address);
+        Assert.Equal($"no-address-co-{tag}", co.Slug);   // from the company name
     }
 
     [ReferenceFact]

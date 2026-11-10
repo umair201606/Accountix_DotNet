@@ -13,7 +13,7 @@ namespace Accountix.Web.Controllers;
 /// exactly as the Python app does before any module moves over.
 /// </summary>
 [Route("net")]
-public sealed class AccessController(AccountixDbContext db) : Controller
+public sealed class AccessController(AccountixDbContext db, NeonServices neon, NeonFunctionClient functions) : Controller
 {
     [HttpGet("access")]
     [Authorize]
@@ -32,6 +32,38 @@ public sealed class AccessController(AccountixDbContext db) : Controller
     {
         bool db_ok = await db.Database.CanConnectAsync(ct);
         return db_ok ? Ok(new { ok = true }) : StatusCode(503, new { ok = false });
+    }
+
+    /// <summary>
+    /// The Neon services this deployment was provisioned with (neon.ts → `neon deploy`).
+    /// Anonymous like /net/health, it answers only up/down — no names, ids or data. The
+    /// details (branch, the function's address, its first 200 characters) are shown to
+    /// signed-in people only, like /net/request. The probe's answer is kept a minute
+    /// (NeonFunctionClient), so the page cannot flood the function. A function that is
+    /// down does not take the app down with it: 503 only for Postgres.
+    /// </summary>
+    [HttpGet("neon")]
+    [AllowAnonymous]
+    public async Task<IActionResult> Neon(CancellationToken ct)
+    {
+        bool database = await db.Database.CanConnectAsync(ct);
+        NeonFunctionAnswer? function = await functions.PingHelloAsync(ct);
+        bool signedIn = HttpContext.Access() is not null;
+        var answer = new
+        {
+            ok = database,
+            branch = signedIn ? neon.Branch : null,
+            database = new { ok = database },
+            functions = new
+            {
+                configured = function is not null,
+                ok = function?.Ok,
+                status = function?.Status,
+                url = signedIn ? neon.HelloFunctionUrl : null,
+                body = signedIn ? function?.Body : null,
+            },
+        };
+        return database ? Ok(answer) : StatusCode(503, answer);
     }
 
     /// <summary>

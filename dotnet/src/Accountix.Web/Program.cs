@@ -1,4 +1,10 @@
 using Accountix.Web.Hosting;
+using Accountix.Web.Infrastructure;
+
+// `neon deploy` writes DATABASE_URL and the function URLs into .env.local: load it before the
+// configuration is built, and before the maintenance commands below run. Real environment
+// variables win, so App Settings on Azure are never overridden by the file.
+EnvFile.Load(typeof(Program).Assembly.GetName().Name!, ".env.local", ".env");
 
 // Maintenance commands instead of the server: dotnet Accountix.Web.dll admin <command> (AdminHost).
 if (AdminHost.Matches(args))
